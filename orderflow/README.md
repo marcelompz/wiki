@@ -1,10 +1,25 @@
-# OrderFlow - Documentación para Usuarios
+# OrderFlow - Documentación Oficial
 
-Sistema multi-tenant de gestión de pedidos, e-commerce y bookings.
+![OrderFlow Isotipo](../images/orderflow-isotipo.png){width="150"}
+
+**Sistema Multi-Tenant de Gestión de Pedidos, E-commerce y Bookings**
+
+- **Versión Actual:** 0.1.0-alpha.3
+- **Última Actualización:** 2026-06-22
+- **Estado:** ✅ MVP Avanzado
 
 ---
 
-## 📖 Guías Disponibles
+## 🏗️ Arquitectura
+
+### **Documentación Técnica:**
+- [**Arquitectura Modular**](./arquitectura-modular.md) - Módulos, App Store, configuración
+- [**Estrategia de Versionamiento**](./versionamiento.md) - Git Flow, releases, changelog
+- [**Guía para Desarrolladores**](./guia-dev.md) - Creación de módulos custom
+
+---
+
+## 📖 Guías por Rol
 
 ### Para Administradores
 - [**Guía Completa de Administración**](./guia-admin.md)
@@ -13,6 +28,7 @@ Sistema multi-tenant de gestión de pedidos, e-commerce y bookings.
   - Gestionar productos
   - Gestionar pedidos
   - Reportes y analytics
+  - **Gestionar Módulos (App Store)**
 
 ### Para Vendedores
 - [**Guía de Vendedores**](./guia-vendedores.md)
@@ -34,6 +50,7 @@ Sistema multi-tenant de gestión de pedidos, e-commerce y bookings.
   - Dominio personalizado
   - Features activas
   - Integraciones
+  - **Módulos instalados**
 
 ---
 
