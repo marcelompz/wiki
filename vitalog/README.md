@@ -1,5 +1,7 @@
 # VitaLog - Documentación para Usuarios
 
+![VitaLog Isotipo](../images/vitalog-isotipo.png){width="150"}
+
 Plataforma de monitoreo de salud mental y bienestar emocional.
 
 ---

@@ -1,5 +1,7 @@
 # AIEER - Documentación
 
+![AIEER Isotipo](../images/aieer-isotipo.png){width="150"}
+
 **[Descripción del proyecto]**
 
 ---

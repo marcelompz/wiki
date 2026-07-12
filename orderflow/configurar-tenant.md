@@ -105,13 +105,20 @@ Tu tenant tiene 2 colores principales:
 
 ### Ejemplos de Configuración
 
-#### Spa / Wellness
+#### Gaia Spa / Wellness
+
+![Gaia Spa Logo](../images/tenants/logo_gaia_wellness.svg){width="200"}
 
 ```
 Primario: #8B7355 (Marrón tierra)
 Secundario: #D4A574 (Dorado/bronce)
 Acento: #F5E6D3 (Crema)
 ```
+
+**Isotipo:**
+![Gaia Spa Isotipo](../images/tenants/isotipo_round_gaia.svg){width="100"}
+
+---
 
 #### Repuestos / Automotriz
 
@@ -120,6 +127,8 @@ Primario: #E74C3C (Rojo intenso)
 Secundario: #34495E (Gris oscuro)
 Acento: #ECF0F1 (Gris claro)
 ```
+
+---
 
 #### Retail / Tienda
 

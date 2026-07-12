@@ -1,0 +1,30 @@
+theme: jekyll-theme-minima
+title: Wiki - Marcelompz
+description: Documentación y manuales de usuario para OrderFlow, VitaLog y AIEER
+show_downloads: false
+google_analytics:
+
+# Navegación
+nav:
+  - title: OrderFlow
+    url: /orderflow/
+  - title: VitaLog
+    url: /vitalog/
+  - title: AIEER
+    url: /aieer/
+  - title: Soporte
+    url: /soporte/
+
+# Markdown processing
+markdown: kramdown
+kramdown:
+  input: GFM
+  hard_wrap: false
+  syntax_highlighter: rouge
+
+# Exclude from build
+exclude:
+  - README.md
+  - .gitignore
+  - .github/
+  - CNAME

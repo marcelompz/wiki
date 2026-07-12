@@ -6,7 +6,9 @@ Bienvenido a la wiki central de documentación para todos los proyectos.
 
 ## 📖 Proyectos
 
-### [OrderFlow](./orderflow/README.md) 🛒
+### [OrderFlow](./orderflow/README.md)
+![OrderFlow Isotipo](./images/orderflow-isotipo.png){width="100"}
+
 **Sistema Multi-Tenant de Gestión de Pedidos**
 
 - **Tipo:** SaaS E-commerce + POS + Bookings
@@ -21,7 +23,9 @@ Bienvenido a la wiki central de documentación para todos los proyectos.
 
 ---
 
-### [VitaLog](./vitalog/README.md) 🌿
+### [VitaLog](./vitalog/README.md)
+![VitaLog Isotipo](./images/vitalog-isotipo.png){width="100"}
+
 **Plataforma de Monitoreo de Salud Mental**
 
 - **Tipo:** HealthTech + Biometría + Screening
@@ -35,7 +39,9 @@ Bienvenido a la wiki central de documentación para todos los proyectos.
 
 ---
 
-### [AIEER](./aieer/README.md) 🎓
+### [AIEER](./aieer/README.md)
+![AIEER Isotipo](./images/aieer-isotipo.png){width="100"}
+
 **[Descripción del proyecto]**
 
 - **Tipo:** [EduTech / Otro]
@@ -76,6 +82,13 @@ Si sos desarrollador y querés contribuir, mirá la documentación técnica en c
 | **Acceder** | [admin.orderflow.app](https://admin.orderflow.app) | [vitalog.app](https://vitalog.app) | [aieer.app](https://aieer.app) |
 | **Docs Técnicas** | [/docs](https://github.com/marcelompz/orderflow/docs) | [/docs](https://github.com/marcelompz/vitalog/docs) | [/docs](https://github.com/marcelompz/aieer/docs) |
 | **Reportar Bug** | [Issues](https://github.com/marcelompz/orderflow/issues) | [Issues](https://github.com/marcelompz/vitalog/issues) | [Issues](https://github.com/marcelompz/aieer/issues) |
+
+---
+
+## 🌐 Idiomas / Languages
+
+- 🇪🇸 **Español:** Estás acá (README.md)
+- 🇺🇸 **English:** [View English version](./index.en.md)
 
 ---
 
