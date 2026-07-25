@@ -1,15 +1,13 @@
-# 🏗️ Arquitectura Modular - OrderFlow SaaS
+# 🏗️ Arquitectura Modular & Multi-Tier - OrderFlow SaaS
 
-**Última actualización:** 2026-06-22  
-**Versión:** 0.1.0-alpha.3
+**Última actualización:** 2026-07-25  
+**Versión:** **v1.0.0** (Commercial Release)
 
 ---
 
-## 📋 ¿Qué es la Arquitectura Modular?
+## 📋 ¿Qué es la Arquitectura Modular & Multi-Tier?
 
-OrderFlow está construido como un **ecosistema de módulos interconectados** que funcionan como aplicaciones instalables, similar a Odoo pero modernizado para la web.
-
-**Concepto clave:** En vez de un monolito rígido, OrderFlow es una **plataforma base** sobre la cual se pueden instalar/desinstalar módulos según las necesidades de cada tenant.
+OrderFlow está construido como un **ecosistema de módulos interconectados y microservicios standalone** que funcionan como aplicaciones instalables, ofreciendo además **aislamiento multi-tier** (Bases de Datos Compartidas `Shared` y Dedicadas `Dedicated PostgreSQL` por cliente Enterprise).
 
 ---
 
@@ -17,15 +15,16 @@ OrderFlow está construido como un **ecosistema de módulos interconectados** qu
 
 ### **Para tu Negocio:**
 - ✅ **Personalización:** Cada tenant instala solo los módulos que necesita
-- ✅ **Escalabilidad:** Nuevas features sin tocar el core
-- ✅ **Mantenimiento:** Actualizaciones por módulo, no del sistema completo
-- ✅ **Monetización:** Módulos premium como add-ons pagos
+- ✅ **Aislamiento Multi-Tier:** Soporte para bases de datos dedicadas para clientes Enterprise
+- ✅ **Suscripciones & Billing SaaS:** Motor de pagos automático integrando Stripe y Mercado Pago
+- ✅ **Marketplace SDK:** Registro de extensiones desarrolladas por terceros
+- ✅ **Microservicios Standalone:** Módulos vendidos de forma independiente (`giveaways`, `whatsapp-catalog`, `biolinks`)
 
 ### **Para Desarrolladores:**
-- ✅ **Aislamiento:** Cada módulo tiene su propia lógica y DB
-- ✅ **Testing:** Tests unitarios por módulo
-- ✅ **Reutilización:** Módulos pueden compartirse entre tenants
-- ✅ **Extensibilidad:** Crear módulos custom sin modificar el core
+- ✅ **Aislamiento:** Cada módulo y microservicio posee bajo acoplamiento
+- ✅ **Testing:** Cobertura de 349 tests unitarios aprobados y 14 tests E2E Playwright
+- ✅ **Autenticación Compartida:** Librería `@orderflow/auth-shared` compilada en TypeScript
+- ✅ **Proxy Perimetral:** Enrutamiento dinámico mediante Traefik v3.3 con SSL automático de Let's Encrypt
 
 ---
 
@@ -37,14 +36,16 @@ Estos módulos son la base del sistema y **no pueden desinstalarse**:
 
 | Módulo | Descripción | Endpoints Principales |
 |--------|-------------|----------------------|
-| **Auth** | Autenticación JWT + API Keys | `/api/v1/auth/login`, `/api/v1/auth/refresh` |
-| **Tenants** | Gestión multi-tenant | `/api/v1/tenants`, `/api/v1/tenants/config` |
+| **Auth** | Autenticación JWT + API Keys | `/api/v1/auth/login`, `/api/v1/auth/select-tenant` |
+| **Tenants** | Gestión multi-tenant y DB Tier | `/api/v1/tenants`, `/api/v1/tenants/:id/isolation-tier` |
+| **Billing** | Motor SaaS Stripe / Mercado Pago | `/api/v1/billing/subscription`, `/api/v1/billing/metrics/mrr` |
+| **Marketplace** | Plugin SDK & Registro | `/api/v1/marketplace/plugins`, `/api/v1/marketplace/install` |
 | **Products** | Catálogo de productos | `/api/v1/sync/products` |
-| **Orders** | Pedidos y webhooks | `/api/v1/orders`, `/api/v1/orders/:id/confirm` |
+| **Orders** | Pedidos, WebSockets POS/KDS y webhooks | `/api/v1/orders`, `/api/v1/orders/:id/status` |
 | **Customers** | Clientes y contactos | `/api/v1/sync/customers` |
 | **Bookings** | Turnos y agenda | `/api/v1/bookings/availability`, `/api/v1/bookings/slots` |
-| **Users** | Usuarios y permisos | `/api/v1/users`, `/api/v1/users/authenticate` |
-| **Integrations** | Conexiones ERP (Odoo, MIDA) | `/api/v1/integrations`, `/api/v1/integrations/:id/test` |
+| **Users** | Usuarios, permisos y RBAC granular | `/api/v1/users`, `@RequirePermissions(...)` |
+| **Integrations** | Conexiones ERP (Odoo, MIDA, SAP) | `/api/v1/integrations`, `/api/v1/integrations/:id/test` |
 | **Health** | Health checks del sistema | `/api/v1/health` |
 | **Webhooks** | Reintentos automáticos | (interno, cada 5 min) |
 

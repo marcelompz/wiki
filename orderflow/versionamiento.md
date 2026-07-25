@@ -1,7 +1,7 @@
 # 📦 Estrategia de Versionamiento - OrderFlow
 
-**Última actualización:** 2026-06-22  
-**Versión:** 0.1.0-alpha.3
+**Última actualización:** 2026-07-25  
+**Versión:** **v1.0.0** (Commercial Release)
 
 ---
 
@@ -12,8 +12,9 @@ OrderFlow usa una **estrategia híbrida** que combina simplicidad con flexibilid
 ### **Regla de Oro:**
 
 ```
-Módulos Core = Misma versión que el Core
+Módulos Core = Misma versión que el Core (v1.0.0)
 Módulos Nuevos/Opcionales = Versión semántica independiente
+Microservicios Standalone = Paquetes independientes con auth-shared
 ```
 
 ---
@@ -23,17 +24,15 @@ Módulos Nuevos/Opcionales = Versión semántica independiente
 ### **Formato:**
 
 ```
-MAJOR.MINOR.PATCH-PRERELEASE.N
+MAJOR.MINOR.PATCH
 
-Ejemplo: 0.1.0-alpha.3
+Ejemplo: 1.0.0 (Commercial Release)
 ```
 
 **Significado:**
-- `MAJOR` (0): Cambios incompatibles (breaking changes)
-- `MINOR` (1): Nuevas features backwards compatible
+- `MAJOR` (1): Release Comercial Histórico Operativo
+- `MINOR` (0): Nuevas features backwards compatible
 - `PATCH` (0): Bug fixes backwards compatible
-- `PRERELEASE` (alpha): Estado de desarrollo (`alpha`, `beta`, `rc`)
-- `N` (3): Número incremental del prerelease
 
 ---
 
@@ -42,12 +41,13 @@ Ejemplo: 0.1.0-alpha.3
 ### **OrderFlow Core:**
 
 ```
-Versión actual: 0.1.0-alpha.3
+Versión actual: 1.0.0
 ```
 
 **Archivos que declaran la versión:**
-- `/opt/orderflow/VERSION` (maestro)
-- `/opt/orderflow/packages.json` (manifiesto del sistema)
+- `/opt/orderflow/VERSION` (fuente authoritativa)
+- `/opt/orderflow/backend/package.json`
+- `/opt/orderflow/frontend/package.json`
 - `/opt/orderflow/CHANGELOG.md` (historial)
 
 ---

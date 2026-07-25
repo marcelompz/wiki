@@ -4,9 +4,9 @@
 
 **Sistema Multi-Tenant de Gestión de Pedidos, E-commerce y Bookings**
 
-- **Versión Actual:** 0.1.0-alpha.3
-- **Última Actualización:** 2026-06-22
-- **Estado:** ✅ MVP Avanzado
+- **Versión Actual:** **v1.0.0** (Commercial Release)
+- **Última Actualización:** 2026-07-25
+- **Estado:** ✅ Comercial Operativo (Staging & Production) | Multi-Tier Isolation & Billing SaaS Engine
 
 ---
 
