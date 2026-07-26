@@ -58,6 +58,27 @@
       "title": "Profundización Integral: Variantes/Modificadores, Geolocalización GPS, Tarifas por Zona y Plantillas WhatsApp",
       "status": "completed",
       "assigned_module": "frontend/src/pages/whatsapp-*.tsx & backend/src/whatsapp-catalog"
+    },
+    {
+      "id": "FEAT-009",
+      "category": "Multi-Tenant / Subdominios Dinámicos & Onboarding",
+      "title": "Resolución Dinámica por Subdominio Traefik & Registro Automático Cloudflare DNS en Wizard",
+      "status": "completed",
+      "assigned_module": "frontend/src/components/tenant/BrandingProvider.tsx, backend/src/tenants & CloudflareDnsService"
+    },
+    {
+      "id": "FEAT-010",
+      "category": "Profundización Vertical / Turnos & Agendas",
+      "title": "Notificaciones por WhatsApp y Sync con Google Calendar en Bookings",
+      "status": "pending",
+      "assigned_module": "services/bookings-standalone & backend/src/bookings"
+    },
+    {
+      "id": "FEAT-011",
+      "category": "Infraestructura & Alta Disponibilidad",
+      "title": "Ampliación a Servidor Secundario (Clúster Staging/Production Aislado con Replica Read-Only)",
+      "status": "pending",
+      "assigned_module": "scripts/deploy-staging.sh & Traefik v3.3"
     }
   ]
 }

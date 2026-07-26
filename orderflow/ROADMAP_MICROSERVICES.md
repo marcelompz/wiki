@@ -41,7 +41,9 @@ OrderFlow opera con un modelo híbrido:
 - [x] **Fase 2 (Completada):** Extraer `bookings-standalone` (Turnos & Agendas Spa).
 - [x] **Fase 3 (Completada):** Extraer `quotations-standalone` (Presupuestos & Cotizaciones).
 - [x] **Fase 4 (Completada):** Extraer `loyalty-standalone` (Programa de Fidelización).
-- [x] **Fase 5 (Profundización Vertical WhatsApp):** Modificadores/Talles, Compra Rápida 1-Clic, Ubicación GPS, Zonas de Envío y Plantillas de Mensaje.
-- [ ] **Fase 6 (Profundización Vertical Bookings & Loyalty):** Recordatorios automáticos por WhatsApp y sincronización con Google Calendar.
-- [ ] **Fase 7 (Cobros Autónomos):** Integración de pasarelas de pago independientes Stripe/MercadoPago en cada micro-SaaS standalone.
+- [x] **Fase 5 (Completada - WhatsApp Catalog v1.1.0):** Modificadores/Talles, Compra Rápida 1-Clic, Ubicación GPS, Zonas de Envío, Plantillas WhatsApp y Resolución Dinámica por Subdominio Traefik.
+- [x] **Fase 6 (Completada - Multi-Tenant Autogestionado):** Generación automática de subdominios normalizados en Wizard y registro automático CNAME en Cloudflare DNS.
+- [ ] **Fase 7 (Pendiente - Profundización Bookings & Loyalty):** Recordatorios automáticos por WhatsApp y sincronización bidireccional con Google Calendar.
+- [ ] **Fase 8 (Pendiente - Cobros Autónomos en Micro-SaaS):** Pasarelas de pago independientes Stripe/MercadoPago en cada microservicio standalone.
+- [ ] **Fase 9 (Pendiente - Escalabilidad Físico-Infraestructura):** Migración a Servidor VPS Secundario (desacoplamiento de Staging y réplica de lectura DB).
 
