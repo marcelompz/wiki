@@ -21,7 +21,7 @@ OrderFlow opera con un modelo híbrido:
 | **1. Giveaways Standalone** | `services/giveaways-standalone` | `:3020` | `sorteos.pesallaccia.com` | ✅ **LISTO (v1.0.0)** | Sorteos virales, captación de leads, Google OAuth. |
 | **2. WhatsApp Catalog Standalone** | `services/whatsapp-catalog-standalone` | `:3021` | `catalogo.pesallaccia.com` | ✅ **LISTO (v1.0.0)** | Catálogo rápido, carrito sin fricción y pedido a WhatsApp. |
 | **3. Bio-Links Standalone** | `services/biolinks-standalone` | `:3022` | `bio.pesallaccia.com` | ✅ **LISTO (v1.0.0)** | "Link in Bio" premium estilo Linktree con checkout rápido. |
-| **4. Bookings Standalone** | `services/bookings-standalone` | `:3023` | `turnos.pesallaccia.com` | 🚧 **EN FASE DE EXTRACCIÓN** | Agendamiento de turnos, comisiones, agendas Barbería/Spa. |
+| **4. Bookings Standalone** | `services/bookings-standalone` | `:3023` | `turnos.pesallaccia.com` | ✅ **LISTO (v1.0.0)** | Agendamiento de turnos, comisiones, agendas Barbería/Spa. |
 | **5. Quotations Standalone** | `services/quotations-standalone` | `:3024` | `presupuestos.pesallaccia.com` | 🚧 **EN FASE DE EXTRACCIÓN** | Presupuestos y cotizaciones B2B con validez DNIT/SET. |
 | **6. Loyalty Standalone** | `services/loyalty-standalone` | `:3025` | `fidelizacion.pesallaccia.com` | 🚧 **EN FASE DE EXTRACCIÓN** | Tarjetas de puntos, recompensas y niveles BRONZE→PLATINUM. |
 
@@ -38,7 +38,7 @@ OrderFlow opera con un modelo híbrido:
 ## 📋 4. Plan de Ejecución
 
 - [x] **Fase 1 (Completada):** Trío inicial de microservicios (`giveaways`, `whatsapp-catalog`, `biolinks`) con Dockerfiles y paquetes compartidos.
-- [ ] **Fase 2 (En proceso):** Extraer `bookings-standalone` (Turnos & Agendas Spa).
+- [x] **Fase 2 (Completada):** Extraer `bookings-standalone` (Turnos & Agendas Spa).
 - [ ] **Fase 3 (Pendiente):** Extraer `quotations-standalone` (Presupuestos & Cotizaciones).
 - [ ] **Fase 4 (Pendiente):** Extraer `loyalty-standalone` (Programa de Fidelización).
 - [ ] **Fase 5 (Profundización Vertical):** Agregar pasarelas de pago independientes Stripe/MercadoPago en cada micro-SaaS.
