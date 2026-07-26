@@ -1,0 +1,63 @@
+{
+  "project": "OrderFlow SaaS Omnicanal",
+  "version": "1.0.0",
+  "last_updated": "2026-07-26",
+  "features": [
+    {
+      "id": "FEAT-001",
+      "category": "Core / Multi-Tenant",
+      "title": "Aislamiento Multi-Tier (Shared vs Dedicated DB)",
+      "status": "completed",
+      "assigned_module": "backend/src/common/tenant-connection.manager.ts"
+    },
+    {
+      "id": "FEAT-002",
+      "category": "Core / Billing",
+      "title": "Webhooks de Suscripción Stripe / Mercado Pago",
+      "status": "completed",
+      "assigned_module": "backend/src/billing"
+    },
+    {
+      "id": "FEAT-003",
+      "category": "Standalone Suite",
+      "title": "Extracción de 6 Microservicios Standalone",
+      "status": "completed",
+      "assigned_module": "services/*-standalone"
+    },
+    {
+      "id": "FEAT-004",
+      "category": "Frontend / Landing",
+      "title": "Overhaul Landing Page UX/UI con Planes y Setup FREE",
+      "status": "completed",
+      "assigned_module": "frontend/src/pages/orderflow-landing.tsx"
+    },
+    {
+      "id": "FEAT-005",
+      "category": "Core / Auth",
+      "title": "Ampliación de expiración JWT a 24h & Redirección 401 limpia",
+      "status": "completed",
+      "assigned_module": "backend/src/auth & frontend/src/services/api.ts"
+    },
+    {
+      "id": "FEAT-006",
+      "category": "Harness Engineering",
+      "title": "Protocolo de Actuación AGENTS.md v2.0.0 y script init.sh",
+      "status": "completed",
+      "assigned_module": "AGENTS.md & scripts/init.sh"
+    },
+    {
+      "id": "FEAT-007",
+      "category": "Standalone Suite / Profundización Vertical",
+      "title": "Pasarelas de Pago Independientes en Micro-SaaS",
+      "status": "pending",
+      "assigned_module": "services/*-standalone"
+    },
+    {
+      "id": "FEAT-008",
+      "category": "Catálogo WhatsApp / Profundización Vertical",
+      "title": "Profundización Integral: Variantes/Modificadores, Geolocalización GPS, Tarifas por Zona y Plantillas WhatsApp",
+      "status": "completed",
+      "assigned_module": "frontend/src/pages/whatsapp-*.tsx & backend/src/whatsapp-catalog"
+    }
+  ]
+}
