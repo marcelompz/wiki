@@ -23,7 +23,7 @@ OrderFlow opera con un modelo híbrido:
 | **3. Bio-Links Standalone** | `services/biolinks-standalone` | `:3022` | `bio.pesallaccia.com` | ✅ **LISTO (v1.0.0)** | "Link in Bio" premium estilo Linktree con checkout rápido. |
 | **4. Bookings Standalone** | `services/bookings-standalone` | `:3023` | `turnos.pesallaccia.com` | ✅ **LISTO (v1.0.0)** | Agendamiento de turnos, comisiones, agendas Barbería/Spa. |
 | **5. Quotations Standalone** | `services/quotations-standalone` | `:3024` | `presupuestos.pesallaccia.com` | ✅ **LISTO (v1.0.0)** | Presupuestos y cotizaciones B2B con validez DNIT/SET. |
-| **6. Loyalty Standalone** | `services/loyalty-standalone` | `:3025` | `fidelizacion.pesallaccia.com` | 🚧 **EN FASE DE EXTRACCIÓN** | Tarjetas de puntos, recompensas y niveles BRONZE→PLATINUM. |
+| **6. Loyalty Standalone** | `services/loyalty-standalone` | `:3025` | `fidelizacion.pesallaccia.com` | ✅ **LISTO (v1.0.0)** | Tarjetas de puntos, recompensas y niveles BRONZE→PLATINUM. |
 
 ---
 
@@ -40,6 +40,6 @@ OrderFlow opera con un modelo híbrido:
 - [x] **Fase 1 (Completada):** Trío inicial de microservicios (`giveaways`, `whatsapp-catalog`, `biolinks`) con Dockerfiles y paquetes compartidos.
 - [x] **Fase 2 (Completada):** Extraer `bookings-standalone` (Turnos & Agendas Spa).
 - [x] **Fase 3 (Completada):** Extraer `quotations-standalone` (Presupuestos & Cotizaciones).
-- [ ] **Fase 4 (En proceso):** Extraer `loyalty-standalone` (Programa de Fidelización).
-- [ ] **Fase 4 (Pendiente):** Extraer `loyalty-standalone` (Programa de Fidelización).
+- [x] **Fase 4 (Completada):** Extraer `loyalty-standalone` (Programa de Fidelización).
+- [ ] **Fase 5 (Profundización Vertical):** Agregar pasarelas de pago independientes Stripe/MercadoPago en cada micro-SaaS.
 - [ ] **Fase 5 (Profundización Vertical):** Agregar pasarelas de pago independientes Stripe/MercadoPago en cada micro-SaaS.
