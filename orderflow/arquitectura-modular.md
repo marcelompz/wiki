@@ -1,13 +1,13 @@
 # 🏗️ Arquitectura Modular & Multi-Tier - OrderFlow SaaS
 
-**Última actualización:** 2026-07-25  
-**Versión:** **v1.0.0** (Commercial Release)
+**Última actualización:** 2026-07-26  
+**Versión:** **v1.1.0** (Stable Release)
 
 ---
 
 ## 📋 ¿Qué es la Arquitectura Modular & Multi-Tier?
 
-OrderFlow está construido como un **ecosistema de módulos interconectados y microservicios standalone** que funcionan como aplicaciones instalables, ofreciendo además **aislamiento multi-tier** (Bases de Datos Compartidas `Shared` y Dedicadas `Dedicated PostgreSQL` por cliente Enterprise).
+OrderFlow está construido como un **ecosistema de módulos interconectados y microservicios standalone** que funcionan como aplicaciones instalables, ofreciendo además **aislamiento multi-tier** (Bases de Datos Compartidas `Shared` y Dedicadas `Dedicated PostgreSQL` por cliente Enterprise con el decorador `@TenantPrisma()` 100% adoptado).
 
 ---
 
@@ -18,11 +18,11 @@ OrderFlow está construido como un **ecosistema de módulos interconectados y mi
 - ✅ **Aislamiento Multi-Tier:** Soporte para bases de datos dedicadas para clientes Enterprise
 - ✅ **Suscripciones & Billing SaaS:** Motor de pagos automático integrando Stripe y Mercado Pago
 - ✅ **Marketplace SDK:** Registro de extensiones desarrolladas por terceros
-- ✅ **Microservicios Standalone:** Módulos vendidos de forma independiente (`giveaways`, `whatsapp-catalog`, `biolinks`)
+- ✅ **Trío de Microservicios Standalone:** Módulos vendidos de forma independiente (`giveaways`, `whatsapp-catalog`, `biolinks`)
 
 ### **Para Desarrolladores:**
 - ✅ **Aislamiento:** Cada módulo y microservicio posee bajo acoplamiento
-- ✅ **Testing:** Cobertura de 349 tests unitarios aprobados y 14 tests E2E Playwright
+- ✅ **Testing:** Cobertura de 353 tests unitarios aprobados y 14 tests E2E Playwright
 - ✅ **Autenticación Compartida:** Librería `@orderflow/auth-shared` compilada en TypeScript
 - ✅ **Proxy Perimetral:** Enrutamiento dinámico mediante Traefik v3.3 con SSL automático de Let's Encrypt
 

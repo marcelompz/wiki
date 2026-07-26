@@ -4,6 +4,10 @@
 
 Multi-tenant order management, e-commerce, and bookings system.
 
+- **Current Version:** **v1.1.0** (Stable Release)
+- **Last Update:** 2026-07-26
+- **Status:** ✅ Commercial Operational (Staging & Production) | Multi-Tier Isolation (100%), Standalone Microservices & Billing SaaS Engine
+
 ---
 
 ## 📖 Available Guides

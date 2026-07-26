@@ -1,7 +1,7 @@
 # 📦 Estrategia de Versionamiento - OrderFlow
 
-**Última actualización:** 2026-07-25  
-**Versión:** **v1.0.0** (Commercial Release)
+**Última actualización:** 2026-07-26  
+**Versión:** **v1.1.0** (Stable Release)
 
 ---
 
@@ -12,7 +12,7 @@ OrderFlow usa una **estrategia híbrida** que combina simplicidad con flexibilid
 ### **Regla de Oro:**
 
 ```
-Módulos Core = Misma versión que el Core (v1.0.0)
+Módulos Core = Misma versión que el Core (v1.1.0)
 Módulos Nuevos/Opcionales = Versión semántica independiente
 Microservicios Standalone = Paquetes independientes con auth-shared
 ```
@@ -26,12 +26,12 @@ Microservicios Standalone = Paquetes independientes con auth-shared
 ```
 MAJOR.MINOR.PATCH
 
-Ejemplo: 1.0.0 (Commercial Release)
+Ejemplo: 1.1.0 (Stable Release)
 ```
 
 **Significado:**
 - `MAJOR` (1): Release Comercial Histórico Operativo
-- `MINOR` (0): Nuevas features backwards compatible
+- `MINOR` (1): Nuevas features backwards compatible (Trío Standalone, Multi-Tier @TenantPrisma, Soft-Delete, Billing)
 - `PATCH` (0): Bug fixes backwards compatible
 
 ---
@@ -41,7 +41,7 @@ Ejemplo: 1.0.0 (Commercial Release)
 ### **OrderFlow Core:**
 
 ```
-Versión actual: 1.0.0
+Versión actual: 1.1.0
 ```
 
 **Archivos que declaran la versión:**
