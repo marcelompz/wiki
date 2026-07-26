@@ -24,7 +24,7 @@ OrderFlow permite empaquetar y vender sus 6 módulos de alto impacto de **forma 
 ### 🎁 Microservicio 1: `giveaways-standalone` (Sorteos Virales)
 
 * **Target:** Marcas, eCommerce, Influencers, Agencias de Marketing.
-* **Pricing Sugerido:** `$15 / mes` (Hasta 3 sorteos activos) | `$35 / mes` (Ilimitado + Google OAuth).
+* **Pricing Sugerido:** `$3 / mes` (Básico) | `$5 / mes` (Con Google OAuth).
 * **Puerto Backend:** `:3020`
 * **Dominio por Defecto:** `sorteos.pesallaccia.com` (o `sorteos.tudominio.com`)
 
@@ -46,7 +46,7 @@ OrderFlow permite empaquetar y vender sus 6 módulos de alto impacto de **forma 
 ### 💬 Microservicio 2: `whatsapp-catalog-standalone` (Catálogo Rápido WhatsApp)
 
 * **Target:** Gastronómicos, Tiendas de Ropa, Comercio de Barrio.
-* **Pricing Sugerido:** `$19 / mes` (Hasta 200 productos) | `$39 / mes` (Productos ilimitados + Modificadores).
+* **Pricing Sugerido:** `$5 / mes` (Hasta 200 SKUs) | `$10 / mes` (Productos ilimitados + Modificadores).
 * **Puerto Backend:** `:3021`
 * **Dominio por Defecto:** `catalogo.pesallaccia.com`
 
@@ -79,7 +79,7 @@ OrderFlow permite empaquetar y vender sus 6 módulos de alto impacto de **forma 
 ### 📅 Microservicio 4: `bookings-standalone` (Turnos, Barberías & Spas)
 
 * **Target:** Spas, Peluquerías, Consultorios Médicos, Canchas Deportivas.
-* **Pricing Sugerido:** `$29 / mes` (1 Agenda) | `$69 / mes` (Agendas ilimitadas + Comisiones Staff).
+* **Pricing Sugerido:** `$20 / mes` (1 Agenda) | `$30 / mes` (Multistaff + Comisiones).
 * **Puerto Backend:** `:3023`
 * **Dominio por Defecto:** `turnos.pesallaccia.com`
 
@@ -95,7 +95,7 @@ OrderFlow permite empaquetar y vender sus 6 módulos de alto impacto de **forma 
 ### 📄 Microservicio 5: `quotations-standalone` (Presupuestos & Cotizaciones B2B)
 
 * **Target:** Mayoristas, Talleres, Proveedores de Servicios, Empresas B2B.
-* **Pricing Sugerido:** `$25 / mes` (Hasta 100 cotizaciones) | `$59 / mes` (Ilimitado + PDF + Validez SET).
+* **Pricing Sugerido:** `$10 / mes` (Hasta 100 cotizaciones) | `$25 / mes` (Ilimitado + PDF + Validez SET).
 * **Puerto Backend:** `:3024`
 * **Dominio por Defecto:** `presupuestos.pesallaccia.com`
 
@@ -111,7 +111,7 @@ OrderFlow permite empaquetar y vender sus 6 módulos de alto impacto de **forma 
 ### 🏆 Microservicio 6: `loyalty-standalone` (Programa de Fidelización)
 
 * **Target:** Cafeterías, Supermercados, Cadenas de Retail.
-* **Pricing Sugerido:** `$39 / mes` (Hasta 1.000 clientes) | `$89 / mes` (Ilimitado + Niveles Tiers).
+* **Pricing Sugerido:** `$10 / mes` (Hasta 1.000 clientes) | `$30 / mes` (Ilimitado + Niveles Tiers).
 * **Puerto Backend:** `:3025`
 * **Dominio por Defecto:** `fidelizacion.pesallaccia.com`
 
