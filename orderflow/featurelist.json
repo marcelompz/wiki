@@ -79,6 +79,13 @@
       "title": "Ampliación a Servidor Secundario (Clúster Staging/Production Aislado con Replica Read-Only)",
       "status": "pending",
       "assigned_module": "scripts/deploy-staging.sh & Traefik v3.3"
+    },
+    {
+      "id": "FEAT-012",
+      "category": "Mobile / React Native Expo",
+      "title": "App Móvil Client-First & Terminal POS Native para iOS/Android (@orderflow/mobile)",
+      "status": "in_progress",
+      "assigned_module": "mobile/src/screens/*.tsx"
     }
   ]
 }
