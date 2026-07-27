@@ -116,28 +116,33 @@ http:
       service: axon-staging
       middlewares: [secure-headers]
 
+    # ===================== GRAFANA =====================
+    grafana:
+      rule: "Host(`grafana.pesallaccia.com`)"
+      priority: 110
+      entryPoints: [web, websecure]
+      tls:
+        certResolver: letsencrypt
+      service: orderflow-grafana
+      middlewares: [secure-headers]
+
     # ===================== ORDERFLOW PROD =====================
     orderflow-prod:
-      rule: "Host(`orderflow.pesallaccia.com`, `provecchio.com`)"
+      rule: "Host(`orderflow.pesallaccia.com`) || Host(`pesallaccia.com`) || Host(`wellness.pesallaccia.com`) || Host(`spa-wellness.pesallaccia.com`)"
+      priority: 100
       entryPoints: [web, websecure]
       tls:
         certResolver: letsencrypt
       service: orderflow-prod-frontend
-      middlewares: [secure-headers]
+      middlewares: [secure-headers-cloudflare]
 
     orderflow-prod-api:
-      rule: "Host(`orderflow.pesallaccia.com`, `provecchio.com`) && PathPrefix(`/api`)"
+      rule: "(Host(`orderflow.pesallaccia.com`) || Host(`pesallaccia.com`)) && PathPrefix(`/api`)"
+      priority: 110
       entryPoints: [web, websecure]
       tls:
         certResolver: letsencrypt
       service: orderflow-prod-backend
-
-    orderflow-prod-webhook:
-      rule: "Host(`orderflow.pesallaccia.com`, `provecchio.com`) && PathPrefix(`/webhook`)"
-      entryPoints: [web, websecure]
-      tls:
-        certResolver: letsencrypt
-      service: orderflow-prod-odoo
 
     # ===================== ORDERFLOW STAGING =====================
     orderflow-staging:
