@@ -18,6 +18,33 @@
 - **`acme.json`**: certificados Let's Encrypt (permisos `600`).
 - **`.env`**: variables de entorno (`ACME_EMAIL`, `CF_DNS_API_TOKEN`, etc.).
 
+### 1.1 División de Responsabilidades: NestJS vs Traefik
+
+```
+[ Cliente / Navegador Web ]
+          │
+          ▼
+┌────────────────────────────────────────────────────────┐
+│ 1. CLOUDFLARE DNS (API gestionada por NestJS)           │
+│    NestJS (CloudflareDnsService) usa CF_DNS_API_TOKEN  │
+│    para crear registros CNAME/A dinámicos por Tenant.  │
+└──────────────────────────┬─────────────────────────────┘
+                           │
+                           ▼
+┌────────────────────────────────────────────────────────┐
+│ 2. TRAEFIK v3.3 PROXY (Contenedor /srv/traefik)        │
+│    Usa CF_DNS_API_TOKEN para validar el desafío        │
+│    DNS-01 de Let's Encrypt (*.pesallaccia.com) y       │
+│    enrutar el tráfico HTTPS según el Host de la URL.  │
+└──────────────────────────┬─────────────────────────────┘
+                           │
+                           ▼
+┌────────────────────────────────────────────────────────┐
+│ 3. NESTJS BACKEND (OrderFlow App)                      │
+│    Resuelve la lógica multi-tenant filtrando por Host.  │
+└────────────────────────────────────────────────────────┘
+```
+
 ## 2. Configuración estática (`traefik.yml`)
 
 ```yaml
