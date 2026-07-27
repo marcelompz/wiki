@@ -137,7 +137,7 @@ http:
       middlewares: [secure-headers-cloudflare]
 
     orderflow-prod-api:
-      rule: "(Host(`orderflow.pesallaccia.com`) || Host(`pesallaccia.com`)) && PathPrefix(`/api`)"
+      rule: "PathPrefix(`/api`)"
       priority: 110
       entryPoints: [web, websecure]
       tls:
