@@ -1,8 +1,8 @@
-# 🚀 OrderFlow — Documentación Oficial Wiki (v1.1.0 Stable Release)
+# 🚀 OrderFlow — Documentación Oficial Wiki (v1.1.3 Stable Release)
 
 ![OrderFlow Isotipo](../images/orderflow-isotipo.png){width="150"}
 
-[![Version](https://img.shields.io/badge/version-v1.1.0-blue.svg)](VERSION)
+[![Version](https://img.shields.io/badge/version-v1.1.3-blue.svg)](VERSION)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Deploy](https://img.shields.io/badge/deploy-staging%20%2B%20production-success)](https://github.com/marcelompz/orderflow/actions)
 [![Tests Unitarios](https://img.shields.io/badge/tests_unitarios-353_passing-brightgreen.svg)](docs/05-testing-report.md)

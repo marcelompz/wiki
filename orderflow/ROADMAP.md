@@ -1,7 +1,7 @@
 # 🗺️ ROADMAP DE ORDERFLOW - v1.0.0 → v2.0.0
 
 **Última Actualización:** 2026-07-26 ART  
-**Versión Actual:** **`v1.0.0`** ✅ **RELEASED (Commercial Launch)** | **`v1.1.0-dev`** 🚧 IN DEVELOPMENT  
+**Versión Actual:** **`v1.0.0`** ✅ **RELEASED (Stable)** | **`v1.1.3-dev`** 🚧 IN DEVELOPMENT  
 **Próximo Release:** **v2.0.0 (Kubernetes + Escala Horizontal)**  
 **Estado:** ✅ **STAGING & PRODUCTION OPERATIVE** | 🏆 **COMMERCIAL RELEASE v1.0.0 COMPLETE**  
 **Visión Estratégica:** Plataforma SaaS omnicanal de alta velocidad con aislamiento multi-tier, marketplace de plugins de terceros, facturación automática Stripe/Mercado Pago y escalado horizontal a Kubernetes.
@@ -435,7 +435,7 @@ Permite vender módulos individuales (Giveaways, WhatsApp Catalog, Bio-Links, et
 | **v0.6.0** | 2026-09-15 | ⏳ Pendiente | Testing 80%, RBAC completo, Observabilidad operativa |
 | **v0.7.0** | 2026-11-15 | ⏳ Pendiente | Multi-Tier Isolation + Microservicios Standalone (Giveaways + WA Catalog) |
 | **v1.0.0 Stable** | ✅ 2026-07-26 | ✅ **COMPLETADO** | Release oficial comercial SaaS (Multi-Tier + Redis WebSockets + Billing UI) |
-| **v1.1.0 Stable** | ✅ 2026-07-26 | ✅ **COMPLETADO** | Microservicios Standalone + Soft-Delete de Tenants + Cobertura de tests (353 tests passing) |
+| **v1.1.0 Stable** | ✅ 2026-07-26 | ✅ **COMPLETADO** | File Store Unificado por Tenant + Backups + Admin WhatsApp Catalog + Troubleshooting Docs + Cleanup Legacy Config |
 | **v1.2.0-dev** | 🚧 2026-08-15 | 🚧 **EN PROCESO** | Trío de Microservicios Standalone completado (`giveaways`, `whatsapp-catalog`, `biolinks`) + Migración 100% `@TenantPrisma()` |
 | **v2.0.0** | 2027+ | ⏳ Futuro | Kubernetes + autoscaling + multi-región |
 
