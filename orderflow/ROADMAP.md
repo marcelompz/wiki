@@ -1,7 +1,7 @@
 # 🗺️ ROADMAP DE ORDERFLOW - v1.0.0 → v2.0.0
 
 **Última Actualización:** 2026-07-26 ART  
-**Versión Actual:** **`v1.0.0`** ✅ **RELEASED (Stable)** | **`v1.1.3-dev`** 🚧 IN DEVELOPMENT  
+**Versión Actual:** **`v1.0.0`** ✅ **RELEASED (Stable)** | **`v1.1.4-dev`** 🚧 IN DEVELOPMENT  
 **Próximo Release:** **v2.0.0 (Kubernetes + Escala Horizontal)**  
 **Estado:** ✅ **STAGING & PRODUCTION OPERATIVE** | 🏆 **COMMERCIAL RELEASE v1.0.0 COMPLETE**  
 **Visión Estratégica:** Plataforma SaaS omnicanal de alta velocidad con aislamiento multi-tier, marketplace de plugins de terceros, facturación automática Stripe/Mercado Pago y escalado horizontal a Kubernetes.

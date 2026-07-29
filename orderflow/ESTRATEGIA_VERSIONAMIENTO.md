@@ -99,7 +99,7 @@ main
 ├── module-auth/v0.1.0
 ├── module-auth/v0.2.0
 ├── module-orders/v1.0.0
-├── module-orders/v1.1.3
+├── module-orders/v1.1.4
 └── module-tenants/v0.2.3
 ```
 

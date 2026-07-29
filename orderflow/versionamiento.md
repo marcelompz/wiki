@@ -12,7 +12,7 @@ OrderFlow usa una **estrategia híbrida** que combina simplicidad con flexibilid
 ### **Regla de Oro:**
 
 ```
-Módulos Core = Misma versión que el Core (v1.1.3)
+Módulos Core = Misma versión que el Core (v1.1.4)
 Módulos Nuevos/Opcionales = Versión semántica independiente
 Microservicios Standalone = Paquetes independientes con auth-shared
 ```
@@ -41,7 +41,7 @@ Ejemplo: 1.1.0 (Stable Release)
 ### **OrderFlow Core:**
 
 ```
-Versión actual: 1.1.3
+Versión actual: 1.1.4
 ```
 
 **Archivos que declaran la versión:**
