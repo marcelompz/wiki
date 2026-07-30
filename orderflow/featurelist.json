@@ -1,7 +1,7 @@
 {
   "project": "OrderFlow SaaS Omnicanal",
-  "version": "1.0.0",
-  "last_updated": "2026-07-26",
+  "version": "1.1.7",
+  "last_updated": "2026-07-30",
   "features": [
     {
       "id": "FEAT-001",
@@ -86,6 +86,48 @@
       "title": "App Móvil Client-First & Terminal POS Native para iOS/Android (@orderflow/mobile)",
       "status": "in_progress",
       "assigned_module": "mobile/src/screens/*.tsx"
+    },
+    {
+      "id": "FEAT-013",
+      "category": "Catálogo WhatsApp / UX & Ecommerce",
+      "title": "Plan de maduración UX/UI mobile-first del catálogo WhatsApp: detalle de producto, filtros avanzados, búsqueda predictiva, wishlist, reseñas, accesibilidad y performance",
+      "status": "in_progress",
+      "assigned_module": "frontend/src/pages/whatsapp-catalog.tsx, frontend/src/pages/whatsapp-checkout.tsx, docs/PLAN_WHATSAPP_CATALOG_UX_UI.md"
+    },
+    {
+      "id": "FEAT-014",
+      "category": "Catálogo WhatsApp / Admin & SuperAdmin",
+      "title": "Customización del catálogo WhatsApp por Tenant Admin y SuperAdmin: panel de configuración, plantillas globales, branding y zonas de entrega",
+      "status": "completed",
+      "assigned_module": "backend/src/whatsapp-catalog, frontend/src/pages/admin/whatsapp-catalog.tsx, docs/PLAN_WHATSAPP_CATALOG_ADMIN.md"
+    },
+    {
+      "id": "FEAT-015",
+      "category": "Catálogo / Ecommerce Unificado",
+      "title": "Implementación de endpoint unificado público /api/v1/public/catalog/products y /config para todos los canales (storefront, WhatsApp, etc.)",
+      "status": "completed",
+      "assigned_module": "backend/src/products/public-catalog.controller.ts, frontend/src/pages/whatsapp-catalog.tsx, frontend/src/pages/whatsapp-checkout.tsx"
+    },
+    {
+      "id": "FEAT-016",
+      "category": "Infraestructura & Migración Proxy",
+      "title": "Migración NGINX → Traefik v3.3 en Servidor Provecchio (eliminación de NGINX, DNS-01 Cloudflare, routing Odoo Web)",
+      "status": "completed",
+      "assigned_module": "docker-compose.prod.yml, traefik/traefik.yml, .env.provecchio, .env.production, docs/CHANGELOG.md"
+    },
+    {
+      "id": "FEAT-017",
+      "category": "Catálogo Wellness / Galería & Subdominios Dinámicos",
+      "title": "Actualización de imágenes principales doTERRA desde doterra_products y resolución dinámica multi-tenant por subdominio en DB",
+      "status": "completed",
+      "assigned_module": "backend/scripts/seed-gaiaspa-doterra.ts, backend/src/products/public-catalog.controller.ts, backend/src/tenants/tenants.controller.ts"
+    },
+    {
+      "id": "FEAT-018",
+      "category": "QA & Harness Engineering",
+      "title": "Integración de suite E2E rendering Playwright con Python en init.sh y resolución de fallbacks en BrandingProvider",
+      "status": "completed",
+      "assigned_module": "scripts/qa_e2e_check.py, scripts/init.sh, frontend/src/components/tenant/BrandingProvider.tsx"
     }
   ]
 }

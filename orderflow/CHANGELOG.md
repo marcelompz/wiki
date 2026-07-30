@@ -2,6 +2,24 @@
 
 Todos los cambios notables en este proyecto se documentarán en este archivo.
 
+## [1.1.5] - 2026-07-29
+
+### 🎁 Módulo Fidelización (Loyalty) & Corrección de Integración Frontend
+- **Corrección de Endpoint de Clientes en Loyalty**: En [`frontend/src/pages/admin/loyalty.tsx`](file:///opt/orderflow/frontend/src/pages/admin/loyalty.tsx#L82-L90), se actualizó la solicitud de clientes desde `GET /api/v1/sync/customers` hacia el endpoint estándar `GET /api/v1/customers`.
+- **Validación del Arnés de Calidad**: Aprobadas 50/50 test suites (389 tests pasados) y compilaciones limpias de NestJS y Vite TypeScript via `./scripts/init.sh`.
+
+## [1.1.4] - 2026-07-29
+
+### 🛡️ Diagnóstico, Homologación & Aislamiento de Infraestructura Provecchio
+- **Homologación de Traefik en Provecchio**: Se renombró `/srv/traefik-orderflow` a `/srv/traefik` en `dimoraserverlocal` y se unificó en [`docs/00-contexto-agentes.md`](file:///opt/orderflow/docs/00-contexto-agentes.md).
+- **Resolución de Error 502 API & Bucle 301**:
+  - Conexión de `orderflow-backend-prod` a la red `traefik-public`.
+  - Removida la redirección global rígida `:80 -> :443` en Traefik para prevenir bucles de redirección 301 (`NS_ERROR_REDIRECT_LOOP`) con Cloudflare Proxy.
+  - Reparado el bucle de espera de base de datos en `entrypoint.sh` del contenedor backend.
+- **Diagnóstico SSL, Redes & 502**: Creada y actualizada la guía técnica [`docs/troubleshooting/06-provecchio-traefik-ssl-and-502-diagnosis.md`](file:///opt/orderflow/docs/troubleshooting/06-provecchio-traefik-ssl-and-502-diagnosis.md).
+- **Auditoría Integral del Sistema**: Generado el informe oficial de salud de pruebas (389 passing), builds y matriz de entornos en [`docs/AUDITORIA_COMPLETA_2026-07-29.md`](file:///opt/orderflow/docs/AUDITORIA_COMPLETA_2026-07-29.md).
+- **Corrección de Dominios**: Actualización de [`docs/PUERTOS_ENTORNOS.md`](file:///opt/orderflow/docs/PUERTOS_ENTORNOS.md) alineando Hetzner (`pesallaccia.com`) y Provecchio In-House (`provecchio.com`).
+
 ## [0.4.0] - 2026-07-14
 
 ### 🏪 POS & KDS Integration (Real-Time WebSockets)
@@ -70,7 +88,7 @@ Todos los cambios notables en este proyecto se documentarán en este archivo.
 ### 🚀 Deployment
 - **Deploy Script** - Soporte para `--env production|provecchio`
 - **Docker Compose** - Variable `VITE_ENV_FILE`
-- **Nginx Automation** - Script probado en producción
+- **Traefik DNS Automation** - DNS-01 Challenge vía Cloudflare con certificados auto-renovables
 
 ### 🐛 Bug Fixes
 - **Password Hash** - Node.js bcrypt en vez de Python (PostgreSQL compatibility)
@@ -186,7 +204,7 @@ Todos los cambios notables en este proyecto se documentarán en este archivo.
   - **Redes Docker Unificadas:** Configuración de la red bridge de Docker con nombre exacto `orderflow-network` en desarrollo y producción para evitar conflictos de comunicación interna.
   - **Healthchecks Estabilizados:** Configuración de healthchecks HTTP utilizando `127.0.0.1` en vez de `localhost` en todos los contenedores para evitar problemas de resolución IPv6.
   - **Orquestación de Odoo Adapter:** Inclusión del contenedor `odoo_adapter` en `docker-compose.prod.yml` y configuración dinámica de su endpoint de conexión en backend con `process.env.ODOO_ADAPTER_URL`.
-  - **Enrutamiento Nginx Proxy:** Añadidas reglas en `nginx.conf` para redireccionar peticiones de `/webhook/` a `odoo_adapter:3005` en HTTP y HTTPS.
+  - **Enrutamiento Traefik v3.3:** Reemplazo de NGINX Proxy por Traefik v3.3 como proxy exclusivo, con DNS-01 Challenge vía Cloudflare para certificados SSL automáticos, y routing de Odoo Web en `odoo.provecchio.com`.
   - **Completitud de Templates .env:** Actualizadas las plantillas [.env.production](file:///opt/orderflow/.env.production) y [.env.staging](file:///opt/orderflow/.env.staging) con variables críticas (`POSTGRES_PASSWORD`, `REDIS_PASSWORD`, `JWT_REFRESH_SECRET` y `ODOO_ADAPTER_URL`).
 - **Correcciones y UX del Frontend:**
   - **Redirección en Render-Phase corregida:** Se envolvieron todas las navegaciones del checkout en hooks `useEffect` en `whatsapp-checkout.tsx` y `checkout.tsx` para evitar advertencias de React y permitir visualizar la pantalla de pedido exitoso.
@@ -200,9 +218,9 @@ Todos los cambios notables en este proyecto se documentarán en este archivo.
 ## [0.1.0-alpha.5] - 2026-06-28
 
 ### ✅ Completed
-- **Módulo Catálogo de WhatsApp (Estilo Pency):**
+- **Módulo Catálogo de WhatsApp:**
   - **Mapeo y Registro en Backend:** Creación del módulo dinámico backend con manifiesto `whatsapp-catalog.manifest.json`, controladores públicos configurados y scripts SQL de instalación.
-  - **Frontend Premium de Catálogo:** Creación de `whatsapp-catalog.tsx` con acordeones colapsables para categorías, listado por categorías con badges de conteo y chevrons al estilo visual de Pency (basado en Appel Verdulería).
+  - **Frontend Premium de Catálogo:** Creación de `whatsapp-catalog.tsx` con acordeones colapsables para categorías, listado por categorías con badges de conteo y chevrons.
   - **Banner de Portada por Industria:** Lógica para cargar banners por defecto de alta calidad basados en el rubro del tenant (ej. spa, retail) si no se ha configurado uno personalizado.
   - **Checkout de WhatsApp con Registro ERP:** Creación de `whatsapp-checkout.tsx` que registra el pedido en las bases de datos de OrderFlow y genera la redirección de chat pre-redactada a WhatsApp.
   - **Integración con Landing de Tienda:** Botón flotante para acceder al catálogo integrado en `TenantTemplate.tsx`.
@@ -239,7 +257,7 @@ Todos los cambios notables en este proyecto se documentarán en este archivo.
 - **Backups SFTP:** Módulo nativo con configuración dinámica por tenant
 - **Quotations Module:** Módulo de presupuestos con migraciones SQL
 - **Tests Unitarios:** Primera batería (ModulesRegistry + SystemModulesService)
-- **Nginx:** Reverse proxy con SSL/TLS termination
+- **Traefik:** Reverse proxy v3.3 con SSL/TLS termination y DNS-01 Challenge
 - **DNIT Integration:** Consulta de RUC a DNIT vía turuc.com.py con cache automático en GlobalDirectory
 - **Dynamic Icons:** Iconos personalizados por módulo en App Store (13 módulos con iconos únicos)
 - **Registry Optimization:** Singleton pattern + búsqueda dual (src/ + dist/)

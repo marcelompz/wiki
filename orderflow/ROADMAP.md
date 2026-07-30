@@ -1,10 +1,12 @@
-# 🗺️ ROADMAP DE ORDERFLOW - v1.0.0 → v2.0.0
+# 🗺️ ROADMAP DE ORDERFLOW - v1.1.4 → v2.0.0
 
-**Última Actualización:** 2026-07-26 ART  
-**Versión Actual:** **`v1.0.0`** ✅ **RELEASED (Stable)** | **`v1.1.4-dev`** 🚧 IN DEVELOPMENT  
+**Última Actualización:** 2026-07-29 ART  
+**Versión Actual:** **`v1.1.4`** ✅ **RELEASED (Stable)** | **`v1.2.0-dev`** 🚧 IN DEVELOPMENT  
 **Próximo Release:** **v2.0.0 (Kubernetes + Escala Horizontal)**  
-**Estado:** ✅ **STAGING & PRODUCTION OPERATIVE** | 🏆 **COMMERCIAL RELEASE v1.0.0 COMPLETE**  
+**Estado:** ✅ **STAGING & PRODUCTION OPERATIVE** | 🏆 **COMMERCIAL RELEASE v1.1.4 STABLE**  
 **Visión Estratégica:** Plataforma SaaS omnicanal de alta velocidad con aislamiento multi-tier, marketplace de plugins de terceros, facturación automática Stripe/Mercado Pago y escalado horizontal a Kubernetes.
+
+> 📦 **Estrategia de Microservicios Standalone:** Ver el roadmap dedicado de la suite de productos independientes en [docs/ROADMAP_MICROSERVICES.md](docs/ROADMAP_MICROSERVICES.md).
 
 ---
 
@@ -14,7 +16,7 @@
 |--------|--------|------------|---------|-------|
 | **Multi-Tenant Core & Multi-Tier** | ✅ Completo | ✅ Sí | ✅ Sí | Auth JWT + API Key, DB dedicada por tenant enterprise, `@TenantPrisma()` |
 | **Giveaway Module & Standalone** | ✅ Completo | ✅ Sí | ✅ Sí | CRUD, landing, sorteos, Google OAuth, standalone microservice |
-| **WhatsApp Catalog & Standalone** | ✅ Completo | ✅ Sí | ✅ Sí | Catálogo, carrito, checkout, standalone microservice |
+| **WhatsApp Catalog & Standalone** | ✅ Completo | ✅ Sí | ✅ Sí | Catálogo, carrito, checkout y standalone microservice. Modo Free: pre-venta manual por WhatsApp. Modo Premium: gestión completa con pasarela de pagos. |
 | **Bio-Links & Standalone** | ✅ Completo | ✅ Sí | ✅ Sí | API + Redis + Admin Drag&Drop + Public SPA + Fast Checkout, standalone microservice |
 | **Super Admin** | ✅ Completo | ✅ Sí | ✅ Sí | Usuarios, tenants, roles, disable/enable/delete tenant, DB tier toggle |
 | **Bookings (Spa)** | ✅ Completo | ✅ Sí | ✅ Sí | Turnos, comisiones, atomicidad y tests unitarios 100% |
@@ -36,7 +38,7 @@
 - [x] Branding personalizado por tenant
 - [x] Multi-environment (staging/production)
 - [x] Tenant Switcher UI
-- [x] Roles y permisos (OWNER, ADMIN, MANAGER, VIEWER)
+- [x] Roles y permisos (ADMIN, MANAGER, SELLER, VIEWER)
 
 ### ✅ Objetivo 2: Módulo de Sorteos
 - [x] CRUD completo de sorteos
@@ -54,6 +56,8 @@
 - [x] Carrito de compras
 - [x] Checkout simple
 - [x] Integración Odoo
+- [x] Modo **Free**: pre-venta manual por WhatsApp; el pedido queda como `DRAFT` y la atención la maneja un vendedor por el número configurado del tenant.
+- [x] Modo **Premium**: OrderFlow ejecuta toda la gestión del pedido, incluyendo cobro con pasarela de pagos y transición automática hacia estados operativos.
 
 ### ✅ Objetivo 4: Super Admin Dashboard
 - [x] Dashboard general
@@ -297,33 +301,37 @@ Permite vender módulos individuales (Giveaways, WhatsApp Catalog, Bio-Links, et
 - [x] App Store seguridad: RBAC granular (`modules:read`, `modules:install`, `modules:uninstall`, `modules:configure`), DTOs, auditoría
 - [x] App Store frontend: loading states, remover master key hardcodeada, mejora UX
 - [x] RBAC granular aplicado a controllers secundarios (`ContactsController`, `LoyaltyController`, `IntegrationsController`, `BioLinksController`)
+- [x] Catálogo WhatsApp público (`whatsapp-catalog.tsx`, `whatsapp-checkout.tsx`) con checkout express, modificadores, GPS y zonas de entrega
+- [x] Plan de maduración UX/UI mobile-first del catálogo WhatsApp (`docs/PLAN_WHATSAPP_CATALOG_UX_UI.md`)
+- [x] Plan de customización admin/superadmin del catálogo WhatsApp (`docs/PLAN_WHATSAPP_CATALOG_ADMIN.md`)
+- [x] Endpoint público unificado `/api/v1/public/catalog/products` y `/config` para todos los canales (storefront, WhatsApp, etc.)
 
 ### Tareas Pendientes
 - [x] Segundo microservicio standalone: `services/whatsapp-catalog-standalone/` (`docker-compose.yml` en puerto `3021`)
 - [x] Integration de k6 load testing continuo en GitHub Actions pipeline (`.github/workflows/ci-cd.yml`)
 - [x] Rotación automática programada de API Keys
-- [ ] Schema Prisma: `isolationTier`, `dedicatedDatabaseUrl` en Tenant
-- [ ] `TenantConnectionManager` + `@TenantPrisma()` decorator
-- [ ] `packages/auth-shared` — librería JWT/API Key compartida
-- [ ] `services/giveaways-standalone/` — primer microservicio standalone
-- [ ] `services/whatsapp-catalog-standalone/` — segundo microservicio standalone
+- [x] Schema Prisma: `isolationTier`, `dedicatedDatabaseUrl` en Tenant
+- [x] `TenantConnectionManager` + `@TenantPrisma()` decorator
+- [x] `packages/auth-shared` — librería JWT/API Key compartida
+- [x] `services/giveaways-standalone/` — primer microservicio standalone
+- [x] `services/whatsapp-catalog-standalone/` — segundo microservicio standalone
 
 ---
 
-## 📈 MÉTRICAS DEL PROYECTO
+| **Provecchio Backup & Restore (new DDL)** | ⚠️ En progreso | 🔴 Alta | Sprint 5 | Scripts creados: restore-provecchio.sh, update-provecchio-version.sh, migration 20260729170000 |
 
-| Métrica | Actual | Target v0.7.0 | Target v1.0 |
+| Métrica | Actual | Target v1.2.0 | Target v2.0 |
 |---------|--------|---------------|-------------|
-| **Cobertura de Tests** | 305 passing / 41 suites (~30-35% real) | 60% | 80% (unitario + integración + E2E) |
+| **Cobertura de Tests** | 389 passing / 50 suites (~45% real) | 60% | 80% (unitario + integración + E2E) |
 | **Endpoints Documentados** | 100% | 100% | 100% |
 | **Deploy Time** | 2-3 min | <2 min | <1 min |
 | **Build Time** | 8-30s | <10s | <5s |
 | **Uptime** | 95% | 99% | 99.9% |
 | **Response Time (p95)** | 200ms | <150ms | <100ms |
 | **Load Testing (k6)** | P95 294-460ms | P95 < 300ms | P95 < 200ms |
-| **Módulos Production Ready** | 13 módulos core | 15+ módulos | 18+ módulos |
-| **Microservicios Standalone** | 0 | 2 (Giveaways + WA Catalog) | 4+ |
-| **Tenants Enterprise (DB dedicada)** | 0 | Soporte implementado | N tenants |
+| **Módulos Production Ready** | 16+ módulos core | 18+ módulos | 20+ módulos |
+| **Microservicios Standalone** | 6 | 6+ | 8+ |
+| **Tenants Enterprise (DB dedicada)** | Soporte implementado | N tenants | N tenants |
 
 ---
 
@@ -371,28 +379,28 @@ Permite vender módulos individuales (Giveaways, WhatsApp Catalog, Bio-Links, et
 
 | Deuda | Impacto | Prioridad | Target | Estado |
 |-------|---------|-----------|--------|--------|
-| **Testing <80%** | Alto | 🔴 Alta | v0.6.0 | ⚠️ En progreso (305 tests / 41 suites, ~30-35% real) |
-| **E2E + Playwright** | Alto | 🔴 Alta | v0.6.0 | ⏳ Pendiente |
-| **Carga continua (k6)** | Medio | 🔴 Alta | v0.6.0 | ⏳ Pendiente |
-| **Seguridad enterprise** | Alto | 🔴 Alta | v0.6.0 | ⚠️ Parcial (RBAC creado pero aplicado solo en ProductsController) |
-| **Observabilidad avanzada** | Alto | 🔴 Alta | v0.6.0 | ⚠️ Stack documentado, requiere validación en prod |
-| **Multi-Tier Isolation (DB-per-tenant)** | Alto | 🔴 Alta | v0.7.0 | ⏳ Pendiente (schema + TenantConnectionManager + @TenantPrisma) |
-| **Microservicios standalone** | Alto | 🔴 Alta | v0.7.0 | ⏳ Pendiente (auth-shared + Giveaways + WA Catalog) |
-| **Billing SaaS** | Alto | 🔴 Alta | v1.0.0 | ⏳ Pendiente (0 código, bloqueante para SaaS self-service) |
-| **Marketplace / Plugin SDK** | Medio | 🔴 Alta | v1.0.0 | ⏳ Pendiente |
-| **Kubernetes / Autoscaling** | Medio | 🟡 Media | v2.0.0 | ⏳ Futuro |
+| **Testing <80%** | Alto | 🔴 Alta | v2.0.0 | ⚠️ En progreso (389 tests / 50 suites, ~45% real) |
+| **E2E + Playwright** | Alto | 🔴 Alta | v0.6.0 | ✅ Hecho (14 tests) |
+| **Carga continua (k6)** | Medio | 🔴 Alta | v0.6.0 | ✅ Integrado en CI/CD |
+| **Seguridad enterprise** | Alto | 🔴 Alta | v0.6.0 | ✅ RBAC granular en 19/22 controllers |
+| **Observabilidad avanzada** | Alto | 🔴 Alta | v0.6.0 | ✅ Grafana + Loki + Tempo + Alertmanager |
+| **Multi-Tier Isolation (DB-per-tenant)** | Alto | 🔴 Alta | v0.7.0 | ✅ Completado (TenantConnectionManager + @TenantPrisma) |
+| **Microservicios standalone** | Alto | 🔴 Alta | v0.7.0 | ✅ 6 microservicios production-ready |
+| **Billing SaaS** | Alto | 🔴 Alta | v1.0.0 | ✅ Completado (Stripe + MercadoPago + MRR/ARR) |
+| **Marketplace / Plugin SDK** | Medio | 🔴 Alta | v1.0.0 | ✅ Completado (MarketplaceModule) |
+| **Kubernetes / Autoscaling** | Medio | 🟡 Media | v2.0.0 | ⏳ Estructura Helm lista |
 | **Sin docs API** | Alto | 🔴 Alta | v0.3.0 | ✅ Resuelto v0.3.0 |
 | **README desactualizado** | Medio | 🔴 Alta | v0.3.0 | ✅ Resuelto v0.3.0 |
 | **Mobile offline** | Medio | 🟡 Media | v0.2.0 | ✅ Completo |
 | **Sin monitoring** | Alto | 🟡 Media | v0.4.2 | ✅ Completo |
-| **Load testing (k6)** | Medio | 🟡 Media | v0.5.1 | ✅ Ejecutado contra producción con catálogo real |
+| **Load testing (k6)** | Medio | 🟡 Media | v0.5.1 | ✅ Ejecutado + integrado en CI |
 | **App Store / Marketplace vacío** | Medio | 🔴 Alta | v0.5.1 | ✅ Resuelto (manifiestos + registry + iconos) |
 | **Google OAuth verification** | Medio | 🟡 Media | v0.6.0 | ⏳ En proceso (video) |
-| **White-label completo** | Medio | 🟢 Baja | v1.0.0 | ⏳ Branding parcial implementado |
-| **Analytics avanzado** | Medio | 🟢 Baja | v1.0.0 | ⏳ Métricas básicas |
-| **MIDA / SAP** | Medio | 🟡 Media | v1.0.0 | ⏳ Próximo paso |
-| **Addon Odoo: variantes/inventario/facturación** | Medio | 🟡 Media | v0.7.0 | ⚠️ Addon básico funcional, falta sync bidireccional completa |
-| **i18n (multi-language)** | Bajo | 🟢 Baja | v1.0.0 | ⚠️ Parcial |
+| **White-label completo** | Medio | 🟢 Baja | v1.0.0 | ✅ Completado (dominio custom, favicon, título, branding removal) |
+| **Analytics avanzado** | Medio | 🟢 Baja | v1.0.0 | ✅ Completado (AnalyticsModule) |
+| **MIDA / SAP** | Medio | 🟡 Media | v1.0.0 | ✅ Completado (conectores en IntegrationsService) |
+| **Addon Odoo: variantes/inventario/facturación** | Medio | 🟡 Media | v0.7.0 | ⚠️ Variantes e inventario completados; facturación pendiente |
+| **i18n (multi-language)** | Bajo | 🟢 Baja | v1.0.0 | ✅ Completado (ES/EN/PT) |
 | **Mobile: publicación App Store/Play** | Bajo | 🟢 Baja | v1.0.0 | ❌ Pendiente |
 
 ---
@@ -435,8 +443,8 @@ Permite vender módulos individuales (Giveaways, WhatsApp Catalog, Bio-Links, et
 | **v0.6.0** | 2026-09-15 | ⏳ Pendiente | Testing 80%, RBAC completo, Observabilidad operativa |
 | **v0.7.0** | 2026-11-15 | ⏳ Pendiente | Multi-Tier Isolation + Microservicios Standalone (Giveaways + WA Catalog) |
 | **v1.0.0 Stable** | ✅ 2026-07-26 | ✅ **COMPLETADO** | Release oficial comercial SaaS (Multi-Tier + Redis WebSockets + Billing UI) |
-| **v1.1.0 Stable** | ✅ 2026-07-26 | ✅ **COMPLETADO** | File Store Unificado por Tenant + Backups + Admin WhatsApp Catalog + Troubleshooting Docs + Cleanup Legacy Config |
-| **v1.2.0-dev** | 🚧 2026-08-15 | 🚧 **EN PROCESO** | Trío de Microservicios Standalone completado (`giveaways`, `whatsapp-catalog`, `biolinks`) + Migración 100% `@TenantPrisma()` |
+| **v1.1.3 Stable** | ✅ 2026-07-27 | ✅ **COMPLETADO** | File Store Unificado por Tenant + Backups + Admin WhatsApp Catalog + Troubleshooting Docs + Cleanup Legacy Config |
+| **v1.2.0-dev** | 🚧 2026-08-15 | 🚧 **EN PROCESO** | Customización del catálogo WhatsApp (Admin Tenant + SuperAdmin) + Plan UX/UI mobile-first + Endpoint público unificado `/api/v1/public/catalog` para todos los canales + Trío de Microservicios Standalone completado (`giveaways`, `whatsapp-catalog`, `biolinks`) + Migración 100% `@TenantPrisma()` |
 | **v2.0.0** | 2027+ | ⏳ Futuro | Kubernetes + autoscaling + multi-región |
 
 ---

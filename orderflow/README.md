@@ -9,8 +9,8 @@
 [![Architecture](https://img.shields.io/badge/architecture-Multi--Tenant_Multi--Tier_Microservices-purple.svg)](docs/02-architecture.md)
 
 > **Sistema Multi-Tenant de Gestión de Pedidos, E-commerce, POS & Bookings**
-> - **Versión Actual:** `v1.1.0` (Stable Release)
-> - **Última Actualización:** 2026-07-26
+> - **Versión Actual:** `v1.1.4` (Stable Release)
+> - **Última Actualización:** 2026-07-29
 > - **Estado:** ✅ Comercial Operativo (Staging & Production) | Multi-Tier Isolation (100%), Trío de Microservicios Standalone & Billing SaaS Engine
 
 Plataforma SaaS omnicanal de ventas de alta velocidad, agnóstica al ERP y multi-rubro (Spa/Wellness, Retail, Automotriz, Gastronomía). Ofrece e-commerce, catálogo interactivo por WhatsApp, Bio-Links, sistema de turnos/bookings, presupuestos con normativa DNIT/SET, sorteos (giveaways), programa de fidelización, punto de venta (POS) offline-first con pantalla de cocina (KDS) en tiempo real mediante WebSockets y arquitectura **Multi-Tier Tenant Isolation** con bases de datos PostgreSQL independientes por tenant Enterprise más microservicios **Standalone** desacoplados.

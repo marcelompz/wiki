@@ -43,20 +43,21 @@ OrderFlow permite empaquetar y vender sus 6 módulos de alto impacto de **forma 
 
 ---
 
-### 💬 Microservicio 2: `whatsapp-catalog-standalone` (Catálogo Rápido WhatsApp)
+### 💬 Microservicio 2: `whatsapp-catalog-standalone` (Catálogo Rápido & Pedidos WhatsApp v1.1.0)
 
-* **Target:** Gastronómicos, Tiendas de Ropa, Comercio de Barrio.
-* **Pricing Sugerido:** `$5 / mes` (Hasta 200 SKUs) | `$10 / mes` (Productos ilimitados + Modificadores).
+* **Target:** Gastronómicos, Tiendas de Ropa, Comercio de Barrio, Venta Express.
+* **Pricing Sugerido:** `$5 / mes` (Básico) | `$10 / mes` (Productos ilimitados + Modificadores + GPS + Zonas).
 * **Puerto Backend:** `:3021`
 * **Dominio por Defecto:** `catalogo.pesallaccia.com`
 
 #### ⚙️ Guía de Configuración del Cliente:
-1. **Configuración del Número WhatsApp:** En la administración del cliente, registrar el número telefónico receptor de pedidos (ej. `+595981123456`).
-2. **Carga de Productos:** Importar masivamente vía CSV o mediante la API REST.
+1. **Configuración del Número WhatsApp & Zonas:** En el menú de administración, registrar el WhatsApp receptor, costo de envío por defecto, zonas dinámicas con tarifario (ej. Centro: ₲15.000) y plantilla de mensaje personalizada.
+2. **Carga de Productos & Modificadores:** Cargar productos con grupos de opciones (ej. Talles, Sabores, Extras).
 3. **Flujo de Uso del Cliente:**
    - El cliente final ingresa a `https://catalogo.tudominio.com/:tenantSlug`
-   - Llena el carrito en 2 clics y presiona **"Enviar Pedido a WhatsApp"**.
-   - Se abre la app de WhatsApp con el mensaje estructurado con productos, totales y ubicación.
+   - Opcionalmente presiona **"⚡ 1-Clic"** o personaliza modificadores en el modal.
+   - En el checkout, puede presionar **"📍 Enviar mi Ubicación GPS Actual"** para adjuntar la ubicación exacta a Google Maps.
+   - Presiona **"Completar Pedido en WhatsApp"** enviando el mensaje formateado directamente a la tienda.
 
 ---
 
