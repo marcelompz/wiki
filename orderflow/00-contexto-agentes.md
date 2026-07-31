@@ -181,12 +181,12 @@ OrderFlow tiene **tres entornos** diferenciados y **no son equivalentes**:
 |---------|------|--------|-------|
 | **staging** | VPS Hetzner | Actualizable | Refleja `main`; se usa para validación pre-producción. |
 | **production** | VPS Hetzner | Actualizable | Entorno productivo principal. Deploy con `docker-compose.prod.yml`. |
-| **provecchio** | Servidor físico | **Congelado / legacy** | Versión muy antigua de OrderFlow en producción. **No aplicar actualizaciones automáticas del repo actual.** Mantener aislado y tratar como producción legacy. |
+| **provecchio** | Servidor físico | **Actualizable** | Versión in-house en producción (`provecchio.com`). Recibe deploys selectivos con validación previa. |
 
 **Regla operativa:**
-- Solo `staging` y `production` reciben deploy normal desde CI/CD.
-- `provecchio` debe tratarse como **producción legacy congelada**. Cualquier cambio ahí debe ser **hotfix mínimo, quirúrgico y explícitamente solicitado**; nunca mergear la rama actual completa sin validación previa.
-- El deploy legacy usa `scripts/deploy-provecchio.sh`, que tiene su propia configuración y no comparte el stack actual de Traefik/Stack moderna.
+- `staging`, `production` y `provecchio` reciben deploy desde CI/CD o manual.
+- `provecchio` posee su propia instancia de Traefik en `/srv/traefik/` que habita de forma **100% aislada** de `/srv/orderflow/`. Tiene su propio `docker-compose.yml`, `.env`, `traefik.yml` y certificados `acme.json`.
+- Los cambios en este repositorio (`/opt/orderflow/`) se aplican a `provecchio` mediante `scripts/update-provecchio-version.sh` (hotfix quirúrgico) o deploy manual. Provecchio utiliza su propio `.env.prod` local (donde se encuentra `CF_DNS_API_TOKEN`).
 
 ---
 

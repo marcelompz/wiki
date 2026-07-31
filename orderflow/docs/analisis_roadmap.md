@@ -131,7 +131,7 @@ Todavía no está en el 80% del roadmap, pero la **infraestructura** ya está li
 - Traefik exclusivo (correcto, Nginx eliminado).
 - Docker multi-stage limpio.
 - Cloudflare DNS automático por tenant.
-- Tres entornos claramente diferenciados (staging / production / provecchio legacy congelado).
+- Tres entornos claramente diferenciados (staging / production / provecchio).
 - Observabilidad avanzada documentada.
 
 **Recomendación inmediata:** añadir Redis al compose principal (cache + rate-limit + Socket.io adapter).

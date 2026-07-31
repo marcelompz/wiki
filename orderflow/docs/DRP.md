@@ -53,5 +53,5 @@ curl -sf http://127.0.0.1:3010/api/v1/health
 ```
 
 ## Notas
-- Provecchio es producción legacy congelada. No aplicar actualizaciones automáticas del repo actual.
-- Cualquier cambio en Provecchio debe ser hotfix mínimo y quirúrgico.
+- Provecchio es un entorno de producción in-house que recibe deploys selectivos con validación previa.
+- Cualquier cambio en Provecchio debe ser evaluado y aplicado mediante `scripts/update-provecchio-version.sh` (hotfix quirúrgico) o deploy manual.

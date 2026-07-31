@@ -103,7 +103,7 @@ OrderFlow cuenta con una arquitectura híbrida que permite ejecutar módulos den
 |---|---|---|---|
 | **Staging** | `https://staging.provecchio.com` | `main` | Entorno de validación previa |
 | **Production** | `https://provecchio.com` | `main` | Entorno productivo principal SaaS |
-| **Provecchio** | Servidor físico | `provecchio` | Producción legacy congelada |
+| **Provecchio** | Servidor físico | `provecchio` | Producción in-house — Deploy selectivo con validación previa |
 
 ---
 

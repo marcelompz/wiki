@@ -99,7 +99,7 @@ OrderFlow features a hybrid architecture allowing modules to run inside the mono
 |---|---|---|---|
 | **Staging** | `https://staging.provecchio.com` | `main` | Pre-production validation environment |
 | **Production** | `https://provecchio.com` | `main` | Primary SaaS production environment |
-| **Provecchio** | Physical Server | `provecchio` | Frozen legacy production |
+| **Provecchio** | Physical Server | `provecchio` | In-house production — Selective deploy with prior validation |
 
 ---
 
