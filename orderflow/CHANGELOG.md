@@ -1,6 +1,31 @@
 # Changelog
 
-Todos los cambivos notables en este proyecto se documentarán en este archivo.
+Todos los cambios notables en este proyecto se documentarán en este archivo.
+
+## [1.1.9] - 2026-07-31
+
+### Unificación de Navegación & QA E2E Integral
+- **Backend (`customers.controller.ts`):**
+  - Corregida la ruta base `@Controller('api/v1/customers')` permitiendo la consulta limpia de clientes `/api/v1/customers`.
+- **Frontend (`AdminApp.tsx`, `bookings.tsx`, `homepage-builder.tsx`):**
+  - Unificado el menú de administración removiendo duplicidades e integrando la agenda de Spa en **Turnos & Agendas Spa**.
+  - Destacado el módulo **Diseñador Web & Portada** con accesos directos de previsualización.
+  - Agregada guardia de arbolado defensivo `Array.isArray()` en `BookingsPage`.
+- **QA & Testing (`scripts/qa_e2e_check.py`):**
+  - Ampliada la suite E2E de Playwright en Python para verificar la navegación de todas las subrutas administrativas (`/admin/products`, `/admin/customers`, `/admin/bookings`, `/admin/loyalty`, `/admin/homepage-builder`, `/admin/whatsapp-catalog`) y descartar errores JS y HTTP 502/404.
+
+## [1.1.8] - 2026-07-31
+
+### Gestor Visual de Portada & Enrutamiento Separado (Landing vs. Tienda)
+- **Frontend (`TenantHomepage.tsx`, `App.tsx`, `PublicStorefrontPage.tsx`):**
+  - Implementada portada institucional dinámica (`TenantHomepage.tsx`) con bloques modulares (Hero, Productos Destacados, Beneficios, Testimonios, Contacto & Redes).
+  - Separación de rutas: la raíz (`/`) carga la Portada Institucional del Tenant, mientras que `/tienda` alberga la Tienda/Catálogo interactivo con carrito.
+  - Incorporado botón de **Acceso Administración (`🔐`)** en el encabezado de las portadas públicas.
+- **Admin App (`homepage-builder.tsx`, `AdminApp.tsx`):**
+  - Creado diseñador visual de portada en `/admin/homepage-builder` con selector de plantillas por rubro (Retail, Gastronomía, Spa/Servicios, B2B), paleta de colores y fuentes de Google Fonts.
+  - Vista previa en tiempo real Desktop y Mobile.
+- **Protocolo & Documentación:**
+  - Actualizados `featurelist.json` (FEAT-019), `docs/00-contexto-agentes.md` y guías de arquitectura.
 
 ## [1.1.7] - 2026-07-30
 

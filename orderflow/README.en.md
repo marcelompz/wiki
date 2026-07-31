@@ -1,17 +1,17 @@
-# 🚀 OrderFlow — Official Wiki Documentation (v1.1.7 Stable Release)
+# 🚀 OrderFlow — Official Wiki Documentation (v1.1.9 Stable Release)
 
 ![OrderFlow Isotipo](../images/orderflow-isotipo.png){width="150"}
 
-[![Version](https://img.shields.io/badge/version-v1.1.7-blue.svg)](VERSION)
+[![Version](https://img.shields.io/badge/version-v1.1.9-blue.svg)](VERSION)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Deploy](https://img.shields.io/badge/deploy-staging%20%2B%20production-success)](https://github.com/marcelompz/orderflow/actions)
 [![Unit Tests](https://img.shields.io/badge/unit_tests-389_passing-brightgreen.svg)](docs/05-testing-report.md)
 [![Architecture](https://img.shields.io/badge/architecture-Multi--Tenant_Multi--Tier_Microservices-purple.svg)](docs/02-architecture.md)
 
 > **Multi-tenant Order Management, E-commerce, POS & Bookings System**
-> - **Current Version:** `v1.1.7` (Stable Release)
+> - **Current Version:** `v1.1.9` (Stable Release)
 > - **Last Update:** 2026-07-30
-> - **Status:** ✅ Commercial Operational (Staging & Production) | Multi-Tier Isolation (100%), Standalone Microservices Trio, Billing SaaS Engine & QA E2E Suite
+> - **Status:** ✅ Commercial Operational (Staging & Production) | Multi-Tier Isolation (100%), Suite of 6 Standalone Microservices, Billing SaaS Engine & QA E2E Suite
 
 Omnichannel high-speed sales SaaS platform, ERP-agnostic and multi-industry (Spa/Wellness, Retail, Automotive, Gastronomy). Features e-commerce, interactive WhatsApp catalog, Bio-Links, bookings/appointments system, quotations with DNIT/SET regulations, giveaways, loyalty program, offline-first Point of Sale (POS) with real-time Kitchen Display System (KDS) via WebSockets, **Multi-Tier Tenant Isolation** architecture with independent PostgreSQL databases for Enterprise tenants, and decoupled **Standalone** microservices.
 
@@ -35,7 +35,7 @@ Omnichannel high-speed sales SaaS platform, ERP-agnostic and multi-industry (Spa
 - [**🏗️ Technical Architecture (02-architecture.md)**](./02-architecture.md) - Data models, PostgreSQL 15, Redis 7, and Traefik v3.3.
 - [**🏢 Multi-Tenant Demo (03-multi-tenant-demo.md)**](./03-multi-tenant-demo.md) - API Key isolation and dynamic branding.
 - [**🔐 JWT Authentication (04-jwt-auth.md)**](./04-jwt-auth.md) - Token flow, refresh tokens, and RBAC roles.
-- [**📊 Testing Report (05-testing-report.md)**](./05-testing-report.md) - 353 unit tests passing and 14 E2E Playwright tests.
+- [**📊 Testing Report (05-testing-report.md)**](./05-testing-report.md) - 389 unit tests passing (50 suites) and 14 E2E Playwright tests.
 - [**🏪 POS & KDS (06-pos-kds.md)**](./06-pos-kds.md) - Offline-first Point of Sale & WebSockets Kitchen Display.
 - [**📊 UML Diagrams (07-uml-diagrams.md)**](./07-uml-diagrams.md) - ERD, flowcharts, and use cases.
 - [**🎖️ Loyalty Module (08-loyalty.md)**](./08-loyalty.md) - Loyalty engine, point rules, and cards.
@@ -84,6 +84,9 @@ OrderFlow features a hybrid architecture allowing modules to run inside the mono
 | **`giveaways-standalone`** | `3020` | Giveaways & Viral Campaigns Engine | `@orderflow/auth-shared` |
 | **`whatsapp-catalog-standalone`** | `3021` | Transactional WhatsApp E-commerce Catalog | `@orderflow/auth-shared` |
 | **`biolinks-standalone`** | `3022` | Bio-Links (0% Fee + In-Bio Fast Checkout) | `@orderflow/auth-shared` |
+| **`bookings-standalone`** | `3023` | Appointment scheduling, commissions, Google Calendar | `@orderflow/auth-shared` |
+| **`quotations-standalone`** | `3024` | B2B quotations with DNIT/SET validity | `@orderflow/auth-shared` |
+| **`loyalty-standalone`** | `3025` | Loyalty program: points, rewards, tiers BRONZE→PLATINUM | `@orderflow/auth-shared` |
 
 ---
 

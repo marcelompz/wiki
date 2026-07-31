@@ -2,7 +2,7 @@
 
 > Documento de referencia para la evolución arquitectónica de OrderFlow: modos de operación, aislamiento multi-tier, y extracción de módulos como microservicios.
 
-**Última Actualización:** 2026-07-26  
+**Última Actualización:** 2026-07-31  
 **Versión de referencia:** v1.1.0+ / v1.2.0-dev  
 **Estado:** ✅ **IMPLEMENTADO AL 100%** (Migración `@TenantPrisma()` completada en todos los módulos core y microservicios standalone extraídos)
 

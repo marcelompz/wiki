@@ -1,6 +1,6 @@
 # 🏗️ Arquitectura Modular & Multi-Tier - OrderFlow SaaS
 
-**Última actualización:** 2026-07-26  
+**Última actualización:** 2026-07-31  
 **Versión:** **v1.1.0** (Stable Release)
 
 ---
@@ -22,7 +22,7 @@ OrderFlow está construido como un **ecosistema de módulos interconectados y mi
 
 ### **Para Desarrolladores:**
 - ✅ **Aislamiento:** Cada módulo y microservicio posee bajo acoplamiento
-- ✅ **Testing:** Cobertura de 353 tests unitarios aprobados y 14 tests E2E Playwright
+- ✅ **Testing:** Cobertura de 389 tests unitarios aprobados y 14 tests E2E Playwright
 - ✅ **Autenticación Compartida:** Librería `@orderflow/auth-shared` compilada en TypeScript
 - ✅ **Proxy Perimetral:** Enrutamiento dinámico mediante Traefik v3.3 con SSL automático de Let's Encrypt
 

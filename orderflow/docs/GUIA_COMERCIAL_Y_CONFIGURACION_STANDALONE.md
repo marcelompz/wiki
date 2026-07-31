@@ -1,7 +1,7 @@
 # 📘 Guía Comercial y de Configuración: Suite de Microservicios Standalone (OrderFlow Micro-SaaS)
 
 > **Documento Vivo Comercial y Técnico de Operaciones**  
-> **Fecha de Emisión:** 2026-07-26  
+> **Fecha de Emisión:** 2026-07-31  
 > **Versión de la Suite:** v1.0.0 (6 Microservicios Standalone Operativos)
 
 ---

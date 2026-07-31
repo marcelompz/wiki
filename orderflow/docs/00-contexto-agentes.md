@@ -17,7 +17,7 @@ Ambos modos comparten el mismo schema Prisma y el mismo código de services. La 
 - Repo Core: `https://github.com/marcelompz/orderflow`
 - Repo Traefik Gateway Subsystem: `https://github.com/marcelompz/traefik-orderflow.git` (servidor: `/srv/traefik`, local: `/opt/traefik-orderflow/`)
 - Servidor Hetzner VPS (Producción): `hetzner-orderflow:/srv/orderflow` (alias SSH configurado)
-- Versión actual: **v1.1.7** (staging + production operativos).
+- Versión actual: **v1.1.9** (staging + production operativos).
 - Lenguaje: TypeScript en todo el stack.
 
 ---
@@ -132,7 +132,9 @@ Controller: `backend/src/tenants/tenants.controller.ts`.
 | `PATCH /api/v1/tenants/:id` | ApiKeyGuard + ADMIN/SuperAdmin | Update genérico |
 | `PATCH /api/v1/tenants/:id/disable` | ApiKeyGuard + ADMIN/SuperAdmin | **Deshabilitar** (`active=false`, reversible) |
 | `PATCH /api/v1/tenants/:id/enable` | ApiKeyGuard + ADMIN/SuperAdmin | **Habilitar** (`active=true`) |
-| `DELETE /api/v1/tenants/:id` | ApiKeyGuard + ADMIN/SuperAdmin | **Eliminar** (hard delete, irreversible, cascade) |
+| `DELETE /api/v1/tenants/:id` | ApiKeyGuard + ADMIN/SuperAdmin | **Soft-delete** (`softDeleted=true`, `active=false`, retención 30 días) |
+| `POST /api/v1/tenants/:id/restore` | ApiKeyGuard + ADMIN/SuperAdmin | **Restaurar** tenant soft-deletado (`softDeleted=false`, `active=true`) |
+| `DELETE /api/v1/tenants/:id/hard-delete` | SuperAdmin | **Eliminar físico** (irreversible, cascade, limpieza de DNS Cloudflare) |
 
 **Autorización de gestión (`assertCanManageTenant`):**
 - **SuperAdmin** (`isSuperAdmin` por JWT o master API key): gestiona cualquier tenant.
@@ -141,7 +143,7 @@ Controller: `backend/src/tenants/tenants.controller.ts`.
 - `findAll` devuelve **todos** los tenants al SuperAdmin, o los tenants where el usuario es `ADMIN` (incluye inactivos, para poder rehabilitar).
 - La creación de tenant (`POST`) sigue siendo **pública** por diseño (ver `GUIA_DESPLIEGUE_Y_TENANTS.md`).
 
-**UI (super-admin-dashboard.tsx):** columna "Acciones" con Deshabilitar/Habilitar (toggle), Eliminar (Popconfirm con advertencia irreversible) y botón "Crear Nuevo Tenant" (modal que muestra la API Key generada).
+**UI (super-admin-dashboard.tsx):** columna "Acciones" con Deshabilitar/Habilitar (toggle), Eliminar (soft-delete), Restaurar (solo tenants soft-deletados) y Hard Delete (Popconfirm con advertencia irreversible, exclusivo SuperAdmin) y botón "Crear Nuevo Tenant" (modal que muestra la API Key generada). Tag visual `DB Tier` (`💎 Dedicated` vs `👥 Shared`) y retención de 30 días para tenants soft-deletados.
 
 ---
 
@@ -153,7 +155,7 @@ Controller: `backend/src/tenants/tenants.controller.ts`.
   - `dashboard.tsx` (general), `super-admin-dashboard.tsx` (tenants + health check), `users.tsx`, `tenant-access.tsx` (asignar tenants/roles a usuarios), `customers.tsx`, `products.tsx`, `bookings.tsx`, `spa-dashboard.tsx`, `modules.tsx` (App Store), `quotations.tsx`, `integrations.tsx`, `giveaways.tsx`, `pos.tsx` (Punto de Venta con Modo Mozo y Modo Caja con cobro centralizado), `kds.tsx` (Pantalla de Cocina con conexión WebSockets en tiempo real y semáforo de criticidad por tiempo).
 - **Servicios API** en `src/services/`: `api.ts` (axios con interceptor que inyecta `Authorization: Bearer` o `x-api-key` desde `localStorage`), `tenant.service.ts`.
 - Branding por tenant: `src/components/tenant/BrandingProvider.tsx` + `UserProfileMenu`, hook `useMultiTenant`.
-- **Super-admin dashboard** (`super-admin-dashboard.tsx`): lista tenants en tabla, stats y health check. Actualmente el botón "Crear Nuevo Tenant" es un `message.info` placeholder y NO tiene acciones de deshabilitar/eliminar (esto es parte del trabajo pendiente).
+- **Super-admin dashboard** (`super-admin-dashboard.tsx`): lista tenants en tabla, stats y health check. Columna "Acciones" con Deshabilitar/Habilitar (toggle), Eliminar (soft-delete), Restaurar y Hard Delete (SuperAdmin), botón "Crear Nuevo Tenant" (modal con API Key generada) y tag visual de tier de BD.
 
 ### Autenticación en frontend
 - `localStorage`: `accessToken` (JWT), `apiKey`, `apiKey` usado para branding.
@@ -239,24 +241,31 @@ docker compose up -d     # levantar stack dev
 1. **Deshabilitar / habilitar / eliminar tenants desde el dashboard** (frontend `super-admin-dashboard.tsx` + backend `tenants.controller.ts`). Se agregaron `PATCH /:id/disable`, `PATCH /:id/enable` y `DELETE /:id`.
 2. **Rol `ADMIN` puede gestionar tenants** además del SuperAdmin.
 
-### 8.2 Multi-Tier Isolation — **En progreso (v0.7.0)**
-1. **Schema Prisma actualizado:** campos `isolationTier`, `dedicatedDatabaseUrl`, `dedicatedSchemaVersion` en modelo `Tenant`.
+### 8.2 Multi-Tier Isolation — **Completado (v0.7.0 / v1.0.0)**
+1. **Schema Prisma actualizado:** campos `isolationTier`, `dedicatedDatabaseUrl`, `dedicatedSchemaVersion`, `softDeleted`, `deletedAt` en modelo `Tenant`.
 2. **`TenantConnectionManager`** (`backend/src/common/tenant-connection.manager.ts`): resuelve PrismaClient por tier (shared → singleton, dedicated → pool cacheado).
 3. **`@TenantPrisma()` decorator** (`backend/src/common/tenant-prisma.decorator.ts`): extrae PrismaClient del request.
 4. **`ApiKeyGuard` actualizado:** inyecta `req.tenantPrisma` después de resolver el tenant.
-5. **Pendiente:** migración gradual de services, script de provisioning de DB dedicada, UI admin para promover tenant.
+5. **Script de provisioning** (`scripts/provision-dedicated-db.sh`): creación automatizada de DB dedicada + `prisma db push`.
+6. **UI Admin:** endpoint `PATCH /api/v1/tenants/:id/isolation-tier` y tag visual `DB Tier` en Super Admin Dashboard.
 
 ### 8.3 ORDERFLOW_MODE (Feature Flag) — **Diseñado, pendiente implementación**
 - Variable `ORDERFLOW_MODE` (`community` | `enterprise`) para seleccionar entre multi-tenant y single-tenant.
 - En modo `enterprise`: `SingleTenantGuard` reemplaza a `ApiKeyGuard`, `tenantId` fijo desde `ENTERPRISE_TENANT_ID`.
 - Mismo codebase, mismo schema, sin bifurcación de código.
 
-### 8.4 Microservicios Standalone — **En Ejecución (v1.1.3 / v1.2.0-dev)**
+### 8.4 Microservicios Standalone — **Completado (v1.1.3 / v1.1.9)**
 - Módulos con bajo acoplamiento se extraen como microservicios vendibles de forma independiente.
 - **Roadmap Dedicado Vivo:** [docs/ROADMAP_MICROSERVICES.md](docs/ROADMAP_MICROSERVICES.md) (y sincronizado en la Wiki en `/opt/wiki/orderflow/docs/ROADMAP_MICROSERVICES.md`).
 - **Estado Actual:**
-  - ✅ **Grupo A (Listos):** `giveaways-standalone`, `whatsapp-catalog-standalone`, `biolinks-standalone` (orquestados en `docker-compose.standalone.yml`).
-  - 🚧 **Grupo B (En Fase de Extracción):** `bookings-standalone` (Turnos/Spa), `quotations-standalone` (Presupuestos), `loyalty-standalone` (Fidelización).
+  - ✅ **6 Microservicios Standalone production-ready** (orquestados en `docker-compose.standalone.yml`):
+    - `giveaways-standalone` (`:3020`, `sorteos.*`) — Sorteos, Google OAuth.
+    - `whatsapp-catalog-standalone` (`:3021`, `catalogo.*`) — Catálogo, modificadores, GPS, zonas, plantillas.
+    - `biolinks-standalone` (`:3022`, `bio.*`) — Linktree 0% comisión, In-Bio Fast Checkout.
+    - `bookings-standalone` (`:3023`, `turnos.*`) — Agendamiento, comisiones, Google Calendar (pendiente).
+    - `quotations-standalone` (`:3024`, `presupuestos.*`) — Presupuestos DNIT/SET.
+    - `loyalty-standalone` (`:3025`, `fidelizacion.*`) — Tarjetas, tiers BRONZE→PLATINUM.
+  - 🚧 **Storefront Builder** (`storefront-builder-standalone`, `:3026`) — en planning.
 - Auth compartida vía `packages/auth-shared` (JWT/API Key validation sin acoplamiento a DB monolítica).
 - Routing vía Traefik v3.3: cada standalone tiene su propio subdominio (`sorteos.*`, `catalogo.*`, `bio.*`, `turnos.*`).
 

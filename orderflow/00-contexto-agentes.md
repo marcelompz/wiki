@@ -17,7 +17,7 @@ Ambos modos comparten el mismo schema Prisma y el mismo código de services. La 
 - Repo Core: `https://github.com/marcelompz/orderflow`
 - Repo Traefik Gateway Subsystem: `https://github.com/marcelompz/traefik-orderflow.git` (servidor: `/srv/traefik`, local: `/opt/traefik-orderflow/`)
 - Servidor Hetzner VPS (Producción): `hetzner-orderflow:/srv/orderflow` (alias SSH configurado)
-- Versión actual: **v1.0.0** (staging + production operativos).
+- Versión actual: **v1.1.9** (staging + production operativos).
 - Lenguaje: TypeScript en todo el stack.
 
 ---
@@ -235,7 +235,7 @@ docker compose up -d     # levantar stack dev
 - En modo `enterprise`: `SingleTenantGuard` reemplaza a `ApiKeyGuard`, `tenantId` fijo desde `ENTERPRISE_TENANT_ID`.
 - Mismo codebase, mismo schema, sin bifurcación de código.
 
-### 8.4 Microservicios Standalone — **En Ejecución (v1.1.4 / v1.2.0-dev)**
+### 8.4 Microservicios Standalone — **En Ejecución (v1.1.9)**
 - Módulos con bajo acoplamiento se extraen como microservicios vendibles de forma independiente.
 - **Roadmap Dedicado Vivo:** [docs/ROADMAP_MICROSERVICES.md](docs/ROADMAP_MICROSERVICES.md) (y sincronizado en la Wiki en `/opt/wiki/orderflow/docs/ROADMAP_MICROSERVICES.md`).
 - **Estado Actual:**

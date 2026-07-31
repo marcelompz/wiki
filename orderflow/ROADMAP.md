@@ -1,9 +1,9 @@
-# 🗺️ ROADMAP DE ORDERFLOW - v1.1.7 → v2.0.0
+# 🗺️ ROADMAP DE ORDERFLOW - v1.1.9 → v2.0.0
 
 **Última Actualización:** 2026-07-30 ART  
-**Versión Actual:** **`v1.1.7`** ✅ **RELEASED (Stable)** | **`v1.2.0-dev`** 🚧 IN DEVELOPMENT  
+**Versión Actual:** **`v1.1.9`** ✅ **RELEASED (Stable)** | **`v1.2.0-dev`** 🚧 IN DEVELOPMENT  
 **Próximo Release:** **v2.0.0 (Kubernetes + Escala Horizontal)**  
-**Estado:** ✅ **STAGING & PRODUCTION OPERATIVE** | 🏆 **COMMERCIAL RELEASE v1.1.7 STABLE** | QA E2E Suite Integrada  
+**Estado:** ✅ **STAGING & PRODUCTION OPERATIVE** | 🏆 **COMMERCIAL RELEASE v1.1.9 STABLE** | QA E2E Suite Integrada  
 **Visión Estratégica:** Plataforma SaaS omnicanal de alta velocidad con aislamiento multi-tier, marketplace de plugins de terceros, facturación automática Stripe/Mercado Pago y escalado horizontal a Kubernetes.
 
 > 📦 **Estrategia de Microservicios Standalone:** Ver el roadmap dedicado de la suite de productos independientes en [docs/ROADMAP_MICROSERVICES.md](docs/ROADMAP_MICROSERVICES.md).
@@ -137,7 +137,7 @@ OrderFlow evoluciona en tres ejes estratégicos:
 
 | Feature | Estado | Prioridad | Sprint |
 |---------|--------|-----------|--------|
-| **Testing avanzado (80% cobertura)** | ⚠️ En progreso (339 tests) | 🔴 Alta | Sprint 5-6 |
+| **Testing avanzado (80% cobertura)** | ⚠️ En progreso (389 tests) | 🔴 Alta | Sprint 5-6 |
 | **Playwright E2E suite** | ✅ Hecho (14 tests) | 🔴 Alta | Sprint 5 |
 | **k6 smoke / carga continua en CI** | ✅ Hecho | 🔴 Alta | Sprint 5-6 |
 | **Code Splitting & Performance UX** | ✅ Hecho | 🔴 Alta | Sprint 5 |
@@ -279,7 +279,7 @@ Permite vender módulos individuales (Giveaways, WhatsApp Catalog, Bio-Links, et
 - [x] Tag visual `DB Tier` (`💎 Dedicated` vs `👥 Shared`) en el Super Admin Dashboard
 - [x] Giveaway admin improvements
 - [x] Super Admin tenant management (toggle disable/enable, delete hard cascade, rol ADMIN gestor)
-- [x] Unit tests para servicios core (339 tests passing, 43 suites)
+- [x] Unit tests para servicios core (389 tests passing, 43 suites)
 - [x] Playwright E2E suite para flujos críticos (login, checkout, bio-link, POS, KDS, storefront - 14 tests passing)
 - [x] Servidor Redis 7 integrado en `docker-compose.yml` para rate-limiting y WebSockets
 - [x] Índices de alto rendimiento en Prisma (`orders`, `products`, `appointment_assignments`)
@@ -341,6 +341,7 @@ Permite vender módulos individuales (Giveaways, WhatsApp Catalog, Bio-Links, et
 - ✅ **Localhost:** Desarrollo (`http://localhost:3011`)
 - ✅ **Staging:** Hetzner VPS (`http://staging.provecchio.com`) - DNS Cloudflare operativo
 - ✅ **Production:** Hetzner VPS (`https://provecchio.com`)
+- ✅ **Provecchio:** Servidor físico (`https://provecchio.com`) - Deploy selectivo con validación previa
 
 ### Servidores
 | Servidor | IP | Hostname | Propósito |

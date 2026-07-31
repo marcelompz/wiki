@@ -4,8 +4,8 @@
 
 ---
 
-**Fecha:** 2026-07-30
-**Versión:** v1.1.7 Stable
+**Fecha:** 2026-07-31
+**Versión:** v1.1.9 Stable
 **Estado:** ✅ APROBADO
 
 > **Nota:** Este es el reporte de testing actualizado. Para scripts de carga k6 y Playwright, ver [TESTING_E2E.md](TESTING_E2E.md) y [TESTING_SCRIPTS.md](TESTING_SCRIPTS.md).
@@ -17,7 +17,7 @@
 El sistema OrderFlow SaaS ha sido probado en su totalidad. Todos los componentes críticos (POS, KDS, Bio-Links, Loyalty, Bookings, Quotations, Multi-Tenant Auth, Billing, Microservicios Standalone) funcionan correctamente.
 
 ### **Métricas de Testing**
-- ✅ **Backend Unit Tests:** 46 suites pasadas / 353 tests aprobados (100% de éxito).
+- ✅ **Backend Unit Tests:** 50 suites pasadas / 389 tests aprobados (100% de éxito).
 - ✅ **Frontend E2E (Playwright):** 14 tests pasados (rutas públicas, auth guards, checkout, POS, KDS).
 - ✅ **Multi-Tenant:** Aislamiento de datos y multi-tier connection manager verificado.
 - ✅ **Carga (k6):** Latencia P95 < 500ms en endpoints públicos de catálogo y Bio-Links.

@@ -1,6 +1,6 @@
 # 📦 Estrategia de Versionamiento - OrderFlow
 
-**Última actualización:** 2026-07-26  
+**Última actualización:** 2026-07-31  
 **Versión:** **v1.1.0** (Stable Release)
 
 ---
