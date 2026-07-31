@@ -1,6 +1,40 @@
 # Changelog
 
-Todos los cambios notables en este proyecto se documentarán en este archivo.
+Todos los cambivos notables en este proyecto se documentarán en este archivo.
+
+## [1.1.7] - 2026-07-30
+
+### 🎭 QA E2E Rendering Suite & Solución de Subdominios Dinámicos
+- **Suite QA E2E Playwright**: Creado el script [`scripts/qa_e2e_check.py`](file:///opt/orderflow/scripts/qa_e2e_check.py) para verificación E2E en navegador headless (cargado de DOM, eliminación de spinner `.ant-spin-spinning` y validación de categorías).
+- **Integración al Pipeline Harness (`init.sh`)**: Incorporado el paso `[5/5]` en [`scripts/init.sh`](file:///opt/orderflow/scripts/init.sh) para ejecutar de forma obligatoria las pruebas E2E en el proceso de validación previa a cada deploy.
+- **Resolución de Branding y Subdominios Dinámicos**:
+  - Eliminado el fallback a Provecchio en [`frontend/src/components/tenant/BrandingProvider.tsx`](file:///opt/orderflow/frontend/src/components/tenant/BrandingProvider.tsx) cuando el subdominio es explícito.
+  - Ajustado `objectFit: contain` y `padding: 8px` en el avatar del logo del catálogo.
+  - Homologado el subdominio `spa-wellness` en la base de datos de producción y actualizado el catálogo de Gaia Wellness a sus 3 categorías oficiales (`Aceites esenciales`, `Almohadillas terapéuticas`, `Difusores`).
+
+### 💬 WhatsApp Catalog Admin — Overhaul de Personalización Visual
+- **ColorPicker con eyedropper** para `headerBgColor`, `bodyBgColor` y `categoryColors` por categoría.
+- **Controles de ajuste** de banner (`bannerFit`, `bannerPosition`) y logo (`logoFit`, `logoPadding`).
+- **Modo de visualización de categorías**: `filter` (lista + buscador) vs `accordion` (acordeón plegable).
+- **Widget de vista previa en vivo** del encabezado público con banner, logo y colores reales.
+- **Subida de imágenes de fondo por categoría** con selector de categoría.
+- **Sanitización de colores** en backend (`whatsapp-catalog.service.ts`) para prevenir crashes de parsing.
+- **Thumbnails interactivos** para banner y logo con estado React dedicado.
+
+### 🔒 Backend & Security Fixes
+- **JwtAuthGuard**: Bypass del tenant mismatch check para SuperAdmins.
+- **Helmet**: `crossOriginResourcePolicy: false` para permitir carga de imágenes en subdominios.
+- **Subida/Listado de imágenes**: URLs relativas (`/uploads/...`) en lugar de absolutas.
+- **PublicCatalogController**: Eliminado alias `wellness` hardcodeado, resolución genérica por subdominio.
+- **TenantsController**: Incluido `apiKeySecret` en resolución pública por subdominio.
+
+### 🛡️ Frontend Stability
+- **AdminApp**: Guardia de arreglos en `isModuleActive`, `defaultCoreModules` fallback, interceptor envía ambos headers (Bearer + API Key).
+- **catalog-with-categories**: Endpoint actualizado a `/api/v1/public/storefront/${subdomain}/products`, array guards.
+
+### 📦 Infraestructura
+- **docker-compose.prod.yml**: Volumen persistente `uploads_data:/app/uploads`.
+- **seed-gaiaspa-doterra.ts**: 3 categorías oficiales + imágenes locales doTERRA.
 
 ## [1.1.5] - 2026-07-29
 

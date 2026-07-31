@@ -1,9 +1,9 @@
-# 🗺️ ROADMAP DE ORDERFLOW - v1.1.4 → v2.0.0
+# 🗺️ ROADMAP DE ORDERFLOW - v1.1.7 → v2.0.0
 
-**Última Actualización:** 2026-07-29 ART  
-**Versión Actual:** **`v1.1.4`** ✅ **RELEASED (Stable)** | **`v1.2.0-dev`** 🚧 IN DEVELOPMENT  
+**Última Actualización:** 2026-07-30 ART  
+**Versión Actual:** **`v1.1.7`** ✅ **RELEASED (Stable)** | **`v1.2.0-dev`** 🚧 IN DEVELOPMENT  
 **Próximo Release:** **v2.0.0 (Kubernetes + Escala Horizontal)**  
-**Estado:** ✅ **STAGING & PRODUCTION OPERATIVE** | 🏆 **COMMERCIAL RELEASE v1.1.4 STABLE**  
+**Estado:** ✅ **STAGING & PRODUCTION OPERATIVE** | 🏆 **COMMERCIAL RELEASE v1.1.7 STABLE** | QA E2E Suite Integrada  
 **Visión Estratégica:** Plataforma SaaS omnicanal de alta velocidad con aislamiento multi-tier, marketplace de plugins de terceros, facturación automática Stripe/Mercado Pago y escalado horizontal a Kubernetes.
 
 > 📦 **Estrategia de Microservicios Standalone:** Ver el roadmap dedicado de la suite de productos independientes en [docs/ROADMAP_MICROSERVICES.md](docs/ROADMAP_MICROSERVICES.md).
@@ -444,6 +444,7 @@ Permite vender módulos individuales (Giveaways, WhatsApp Catalog, Bio-Links, et
 | **v0.7.0** | 2026-11-15 | ⏳ Pendiente | Multi-Tier Isolation + Microservicios Standalone (Giveaways + WA Catalog) |
 | **v1.0.0 Stable** | ✅ 2026-07-26 | ✅ **COMPLETADO** | Release oficial comercial SaaS (Multi-Tier + Redis WebSockets + Billing UI) |
 | **v1.1.3 Stable** | ✅ 2026-07-27 | ✅ **COMPLETADO** | File Store Unificado por Tenant + Backups + Admin WhatsApp Catalog + Troubleshooting Docs + Cleanup Legacy Config |
+| **v1.1.7 Stable** | ✅ 2026-07-30 | ✅ **COMPLETADO** | QA E2E Playwright Suite, Subdomain Resolution Fixes, WhatsApp Catalog Admin Visual Customization Overhaul, Frontend Stability Guards |
 | **v1.2.0-dev** | 🚧 2026-08-15 | 🚧 **EN PROCESO** | Customización del catálogo WhatsApp (Admin Tenant + SuperAdmin) + Plan UX/UI mobile-first + Endpoint público unificado `/api/v1/public/catalog` para todos los canales + Trío de Microservicios Standalone completado (`giveaways`, `whatsapp-catalog`, `biolinks`) + Migración 100% `@TenantPrisma()` |
 | **v2.0.0** | 2027+ | ⏳ Futuro | Kubernetes + autoscaling + multi-región |
 

@@ -1,8 +1,8 @@
-# 📊 Informe de Madurez de OrderFlow (v1.1.4 Stable Release)
+# 📊 Informe de Madurez de OrderFlow (v1.1.7 Stable Release)
 
 ## Evaluación General
 
-| Área | Madurez Previa | Madurez Actual (v1.1.4) |
+| Área | Madurez Previa | Madurez Actual (v1.1.7) |
 | :--- | :---: | :---: |
 | **Arquitectura Multi-Tier & Core** | 9.5/10 | **10/10** |
 | **Desarrollo del producto** | 8.5/10 | **9.8/10** |

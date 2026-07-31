@@ -1,17 +1,17 @@
-# 🚀 OrderFlow — Official Wiki Documentation (v1.1.4 Stable Release)
+# 🚀 OrderFlow — Official Wiki Documentation (v1.1.7 Stable Release)
 
 ![OrderFlow Isotipo](../images/orderflow-isotipo.png){width="150"}
 
-[![Version](https://img.shields.io/badge/version-v1.1.4-blue.svg)](VERSION)
+[![Version](https://img.shields.io/badge/version-v1.1.7-blue.svg)](VERSION)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Deploy](https://img.shields.io/badge/deploy-staging%20%2B%20production-success)](https://github.com/marcelompz/orderflow/actions)
-[![Unit Tests](https://img.shields.io/badge/unit_tests-353_passing-brightgreen.svg)](docs/05-testing-report.md)
+[![Unit Tests](https://img.shields.io/badge/unit_tests-389_passing-brightgreen.svg)](docs/05-testing-report.md)
 [![Architecture](https://img.shields.io/badge/architecture-Multi--Tenant_Multi--Tier_Microservices-purple.svg)](docs/02-architecture.md)
 
 > **Multi-tenant Order Management, E-commerce, POS & Bookings System**
-> - **Current Version:** `v1.1.0` (Stable Release)
-> - **Last Update:** 2026-07-26
-> - **Status:** ✅ Commercial Operational (Staging & Production) | Multi-Tier Isolation (100%), Standalone Microservices Trio & Billing SaaS Engine
+> - **Current Version:** `v1.1.7` (Stable Release)
+> - **Last Update:** 2026-07-30
+> - **Status:** ✅ Commercial Operational (Staging & Production) | Multi-Tier Isolation (100%), Standalone Microservices Trio, Billing SaaS Engine & QA E2E Suite
 
 Omnichannel high-speed sales SaaS platform, ERP-agnostic and multi-industry (Spa/Wellness, Retail, Automotive, Gastronomy). Features e-commerce, interactive WhatsApp catalog, Bio-Links, bookings/appointments system, quotations with DNIT/SET regulations, giveaways, loyalty program, offline-first Point of Sale (POS) with real-time Kitchen Display System (KDS) via WebSockets, **Multi-Tier Tenant Isolation** architecture with independent PostgreSQL databases for Enterprise tenants, and decoupled **Standalone** microservices.
 

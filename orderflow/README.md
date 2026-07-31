@@ -1,17 +1,17 @@
-# 🚀 OrderFlow — Documentación Oficial Wiki (v1.1.4 Stable Release)
+# 🚀 OrderFlow — Documentación Oficial Wiki (v1.1.7 Stable Release)
 
 ![OrderFlow Isotipo](../images/orderflow-isotipo.png){width="150"}
 
-[![Version](https://img.shields.io/badge/version-v1.1.4-blue.svg)](VERSION)
+[![Version](https://img.shields.io/badge/version-v1.1.7-blue.svg)](VERSION)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Deploy](https://img.shields.io/badge/deploy-staging%20%2B%20production-success)](https://github.com/marcelompz/orderflow/actions)
-[![Tests Unitarios](https://img.shields.io/badge/tests_unitarios-353_passing-brightgreen.svg)](docs/05-testing-report.md)
+[![Tests Unitarios](https://img.shields.io/badge/tests_unitarios-389_passing-brightgreen.svg)](docs/05-testing-report.md)
 [![Architecture](https://img.shields.io/badge/architecture-Multi--Tenant_Multi--Tier_Microservices-purple.svg)](docs/02-architecture.md)
 
 > **Sistema Multi-Tenant de Gestión de Pedidos, E-commerce, POS & Bookings**
-> - **Versión Actual:** `v1.1.4` (Stable Release)
-> - **Última Actualización:** 2026-07-29
-> - **Estado:** ✅ Comercial Operativo (Staging & Production) | Multi-Tier Isolation (100%), Trío de Microservicios Standalone & Billing SaaS Engine
+> - **Versión Actual:** `v1.1.7` (Stable Release)
+> - **Última Actualización:** 2026-07-30
+> - **Estado:** ✅ Comercial Operativo (Staging & Production) | Multi-Tier Isolation (100%), Trío de Microservicios Standalone, Billing SaaS Engine & QA E2E Suite
 
 Plataforma SaaS omnicanal de ventas de alta velocidad, agnóstica al ERP y multi-rubro (Spa/Wellness, Retail, Automotriz, Gastronomía). Ofrece e-commerce, catálogo interactivo por WhatsApp, Bio-Links, sistema de turnos/bookings, presupuestos con normativa DNIT/SET, sorteos (giveaways), programa de fidelización, punto de venta (POS) offline-first con pantalla de cocina (KDS) en tiempo real mediante WebSockets y arquitectura **Multi-Tier Tenant Isolation** con bases de datos PostgreSQL independientes por tenant Enterprise más microservicios **Standalone** desacoplados.
 

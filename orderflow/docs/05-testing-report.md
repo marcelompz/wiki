@@ -4,8 +4,8 @@
 
 ---
 
-**Fecha:** 2026-07-27
-**Versión:** v1.1.3 Stable
+**Fecha:** 2026-07-30
+**Versión:** v1.1.7 Stable
 **Estado:** ✅ APROBADO
 
 > **Nota:** Este es el reporte de testing actualizado. Para scripts de carga k6 y Playwright, ver [TESTING_E2E.md](TESTING_E2E.md) y [TESTING_SCRIPTS.md](TESTING_SCRIPTS.md).
