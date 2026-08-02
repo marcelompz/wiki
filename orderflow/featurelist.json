@@ -1,7 +1,7 @@
 {
   "project": "OrderFlow SaaS Omnicanal",
-  "version": "1.1.9",
-  "last_updated": "2026-07-31",
+  "version": "1.4.0",
+  "last_updated": "2026-08-01",
   "features": [
     {
       "id": "FEAT-001",
@@ -41,7 +41,7 @@
     {
       "id": "FEAT-006",
       "category": "Harness Engineering",
-      "title": "Protocolo de Actuación AGENTS.md v2.0.0 y script init.sh",
+      "title": "Protocolo de Actuación AGENTS.md v2.1.0 y script init.sh",
       "status": "completed",
       "assigned_module": "AGENTS.md & scripts/init.sh"
     },
@@ -135,6 +135,69 @@
       "title": "Gestor y Constructor Visual de Página Principal del Tenant (Plantillas por Rubro, Paleta/Tipografía y Bloques Dinámicos)",
       "status": "completed",
       "assigned_module": "frontend/src/pages/admin/homepage-builder.tsx, backend/src/tenants"
+    },
+    {
+      "id": "FEAT-020",
+      "category": "Integraciones / Tango ERP",
+      "title": "Adaptador Multi-Tenant Tango ERP Gestión (Sincronización Bidireccional de Clientes, Pedidos y Stock)",
+      "status": "completed",
+      "assigned_module": "backend/src/integrations/tango",
+      "qa_validation": "init.sh passed: 50 suites / 389 tests | E2E QA: provecchio.com + spa-wellness.pesallaccia.com + admin routes all HTTP 200",
+      "troubleshooting_docs": [
+        "docs/troubleshooting/13-provecchio-missing-frontend-502.md",
+        "docs/troubleshooting/06-provecchio-traefik-ssl-and-502-diagnosis.md"
+      ]
+    },
+    {
+      "id": "FEAT-021",
+      "category": "Core / Multimoneda & ERPs",
+      "title": "Soporte Multimoneda SaaS (Moneda Base PYG por Defecto, Cotizaciones en Productos/Pedidos y DTOs ERP Normalizados)",
+      "status": "completed",
+      "assigned_module": "backend/prisma/schema.prisma & backend/src/common/services/currency.service.ts"
+    },
+    {
+      "id": "FEAT-022",
+      "category": "Core / Multimoneda",
+      "title": "Automatización de Cotizaciones desde Fuentas Locales de PY (BCP, Cambios Chaco, Bonanza, DólarApi) con Cron 15min, Cache DB + In-Memory y Provider Chain",
+      "status": "completed",
+      "assigned_module": "backend/src/currency/ & backend/src/common/services/currency.service.ts & backend/prisma/schema.prisma",
+      "qa_validation": "init.sh passed: 54 suites / 426 tests | Backend build clean | Frontend build clean"
+    },
+    {
+      "id": "FEAT-023",
+      "category": "Integraciones / Facturación Electrónica",
+      "title": "Integración FacturaSend (SIFEN) — Emisión de DE vía Odoo y Directo",
+      "status": "completed",
+      "assigned_module": "docs/PLAN_FACTURASEND_INTEGRATION.md & backend/src/integrations/facturasend/",
+  "version": "1.5.0",
+      "qa_validation": "init.sh passed: 58 suites / 497 tests | Backend build clean | Frontend build clean | E2E QA: all admin routes HTTP 200, no JS errors",
+      "blocking": ["FEAT-022 (complete — exchange rate service reusable)"]
+    },
+    {
+      "id": "FEAT-024",
+      "category": "Core / Multi-Tenant",
+      "title": "OrderFlow como Tenant Enterprise (DB Dedicada + Fixes Frontend/Routing)",
+      "status": "completed",
+      "assigned_module": "backend multitenant infra + frontend Dockerfile/App.tsx + docker-compose.prod.yml",
+      "blocking": ["FEAT-001 (multi-tier infra already completed)"]
+    },
+    {
+      "id": "FEAT-025",
+      "category": "Frontend / UX-UI Mobile-First",
+      "title": "Ajuste e Implementación de la UX/UI Mobile-First e Intuitiva (Admin Backoffice + Client Endpoints)",
+      "status": "in_progress",
+      "assigned_module": "frontend/src/ & docs/PLAN_UX_UI_MOBILE_FIRST.md",
+      "blocking": []
+    },
+    {
+      "id": "FEAT-026",
+      "category": "Core / CRM Unificado",
+      "title": "Contactos Unificados estilo Odoo: menú único reemplaza Usuarios y Clientes, roles múltiples, campos de empleado y empresa",
+      "status": "completed",
+      "assigned_module": "backend/src/contacts & frontend/src/pages/admin/contacts.tsx & backend/prisma/schema.prisma",
+      "qa_validation": "init.sh passed | Backend tests: 19/19 contacts | Frontend build clean"
     }
-  ]
+  ],
+  "version": "1.5.1",
+  "last_updated": "2026-08-01"
 }

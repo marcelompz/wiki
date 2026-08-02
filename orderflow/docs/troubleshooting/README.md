@@ -14,6 +14,12 @@ Ordená por problema y área. Cada entrada incluye síntomas, causa raíz y solu
 | [04](04-prisma-p1000-db-auth-and-redis-fallback.md) | P1000 & Redis/Socket.io | Backend / Prisma / Redis | 502 por auth PostgreSQL; bucle de reconexión Redis | ✅ Resuelto |
 | [05](05-whatsapp-catalog-install-and-api-key-auth.md) | WhatsApp Catalog & API Key Auth | Backend / WhatsApp Catalog / Auth | 404/403 al instalar/configurar WhatsApp Catalog | ✅ Resuelto |
 | [06](06-postgresql-camelcase-column-names.md) | Columnas camelCase en PostgreSQL | Backend / Prisma / SQL | Errores de sintaxis al ejecutar SQL directo contra Prisma | ✅ Resuelto |
+| [06-SSL](06-provecchio-traefik-ssl-and-502-diagnosis.md) | SSL & 502 en Provecchio (anterior) | DevOps / Traefik / Cloudflare | 502 en API; NS_ERROR_REDIRECT_LOOP en `provecchio.com` | ✅ Resuelto |
+| [13](13-provecchio-missing-frontend-502.md) | 502 Contenedor Frontend Ausente | DevOps / Docker / Deploy | 502 Bad Gateway `provecchio.com` tras deploy: contenedor `orderflow-frontend-prod` no creado | ✅ Resuelto |
+| [09](09-docker-orphan-containers-cleanup.md) | Contenedores Duplicados en Docker | DevOps / Docker / Deploy | Contenedores `backend` duplicados corriendo en paralelo | ✅ Resuelto |
+| [10](10-react-router-routes-conflict-and-iterable-guards.md) | Conflicto de Rutas React & Excepciones Iterables | Frontend / React Router / Types | Pantalla en blanco en dominios de producción (`provecchio.com` / `pesallaccia.com`); `t is not iterable` | ✅ Resuelto |
+| [11](11-web-builder-and-dashboard-consolidation.md) | Unificación de Dashboards & Diseñador Web Omnicanal | Frontend / Admin App / UX | Duplicidad de Spa Dashboard; posicionamiento del Diseñador Web desacoplado | ✅ Resuelto |
+| [12](12-bookings-iterable-guard-fix.md) | Guardia Defensiva en BookingsPage | Frontend / Bookings / React | `TypeError: l.filter is not a function` en `/admin/bookings` | ✅ Resuelto |
 
 ---
 
@@ -40,6 +46,11 @@ Ordená por problema y área. Cada entrada incluye síntomas, causa raíz y solu
 
 ### Integraciones
 - **Odoo `ECONNREFUSED` / JSON-RPC:** ver [#03](03-odoo-user-sync-and-tenant-modules-management.md) — puerto 8084/443 y soporte híbrido JSON-RPC + XML-RPC.
+
+### Despliegue & Contenedores
+- **502 Bad Gateway tras deploy:** ver [#13](13-provecchio-missing-frontend-502.md) — contenedor `orderflow-frontend-prod` creado pero no iniciado por timeout; forzar con `docker compose up -d frontend`.
+- **502 en API con frontend OK:** ver [#06-SSL](06-provecchio-traefik-ssl-and-502-diagnosis.md) — contenedores no conectados a red `traefik-public`.
+- **Contenedores duplicados:** ver [#09](09-docker-orphan-containers-cleanup.md) — `--remove-orphans` y limpieza de stacks.
 
 ---
 

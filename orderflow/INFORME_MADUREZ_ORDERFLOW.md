@@ -1,8 +1,8 @@
-# 📊 Informe de Madurez de OrderFlow (v1.1.9 Stable Release)
+# 📊 Informe de Madurez de OrderFlow (v1.5.1 Stable Release)
 
 ## Evaluación General
 
-| Área | Madurez Previa | Madurez Actual (v1.1.9) |
+| Área | Madurez Previa | Madurez Actual (v1.5.1) |
 | :--- | :---: | :---: |
 | **Arquitectura Multi-Tier & Core** | 9.5/10 | **10/10** |
 | **Desarrollo del producto** | 8.5/10 | **9.8/10** |
@@ -32,85 +32,19 @@ OrderFlow se ha consolidado como una plataforma SaaS omnicanal multi-tenant de p
 -   Ecosistema integrado (POS, KDS, Mobile, Loyalty, **BioLinks**).
 
 ### Pendientes
-Lo que todavía falta para decir "Enterprise"
+Lo que todavía falta para decir "Enterprise" (v1.5.1)
 
-Aquí veo la mayor diferencia.
+1. Testing — Cobertura real ~45% (426 tests / 54 suites). Meta 80%. Frontend unit tests casi inexistentes (2 archivos).
 
-1. Testing
+2. Odoo: Facturación (`account.move`) y cola durable/reintentos — sin sincronizar.
 
-Es la deuda técnica más importante.
-
-El propio roadmap reconoce una cobertura real de aproximadamente 35–40% y fija una meta del 80%.
-
-Yo intentaría llegar a:
-
-80% unitario
-integración
-E2E
-Playwright
-carga continua
-
-2. Observabilidad
-
-Ya tienen:
-
-Sentry
-Prometheus
-Winston
-
-Muy bien.
-
-Pero para un SaaS grande agregaría:
-
-Grafana
-Loki
-Tempo
-Alertmanager
-dashboards por tenant
-
-3. Seguridad
-
-Todavía no veo mencionados aspectos como:
-
-auditoría completa
-RBAC granular
-rate limit por tenant
-rotación automática de API Keys
-secretos gestionados
-backup verificado
-disaster recovery documentado
-
-4. Billing
-
-Curiosamente, siendo un SaaS, el propio SaaS todavía no parece administrarse solo.
-
-Esperaría ver:
-
-Stripe
-Mercado Pago
-Facturación automática
-Suspensión automática
-Upgrade/Downgrade
-Portal de cliente
-Métricas MRR/ARR
-
-5. Marketplace
-
-En mi opinión este debería ser el siguiente gran salto.
-
-Hoy OrderFlow tiene módulos.
-
-Mañana debería tener plugins.
+3. Kubernetes & Autoscaling — estructura Helm lista pero pendiente migración productiva.
 
 ### Aspectos a fortalecer
 
-1.  Incrementar la cobertura de testing hasta aproximadamente 80%.
-2.  Incorporar billing SaaS automatizado.
-3.  Completar sincronización bidireccional del conector Odoo.
-4.  Mejorar observabilidad (Grafana, Loki, Alertmanager).
-5.  Reforzar seguridad (auditoría, DRP, rotación de credenciales).
-6.  Validar el producto con clientes reales antes de ampliar el alcance
-    funcional.
+1. Incrementar la cobertura de testing hasta aproximadamente 80%.
+2. Completar sincronización bidireccional del conector Odoo (facturación + cola durable).
+3. Migración a Kubernetes para autoscaling horizontal (v2.0.0).
 
 ## Conclusión
 

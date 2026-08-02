@@ -17,7 +17,7 @@ Ambos modos comparten el mismo schema Prisma y el mismo código de services. La 
 - Repo Core: `https://github.com/marcelompz/orderflow`
 - Repo Traefik Gateway Subsystem: `https://github.com/marcelompz/traefik-orderflow.git` (servidor: `/srv/traefik`, local: `/opt/traefik-orderflow/`)
 - Servidor Hetzner VPS (Producción): `hetzner-orderflow:/srv/orderflow` (alias SSH configurado)
-- Versión actual: **v1.1.9** (staging + production operativos).
+- Versión actual: **v1.2.0** (staging + production operativos).
 - Lenguaje: TypeScript en todo el stack.
 
 ---
@@ -27,8 +27,8 @@ Ambos modos comparten el mismo schema Prisma y el mismo código de services. La 
 | Capa | Tecnologías |
 |------|-------------|
 | **Backend** | NestJS 10, Prisma (PostgreSQL 15), JWT + API Keys |
-| **Frontend web** | React 18, Vite, Refine.dev, Ant Design 5 |
-| **Mobile** | React Native + Expo, Zustand |
+| **Frontend web** | React 18, Vite, Refine.dev, Ant Design 5, **Axios** (Cliente HTTP oficial) |
+| **Mobile** | React Native + Expo, Zustand, **Axios** (Cliente HTTP oficial) |
 | **DevOps** | Docker Compose, Traefik v3.3 (reverse proxy exclusivo & SSL), GitHub Actions, SSH deploy scripts |
 | **Observabilidad** | Winston (logs), Sentry (frontend), health checks |
 
@@ -55,7 +55,7 @@ orderflow/
 ├── ROADMAP.md, CHANGELOG.md, README.md, VERSION
 ```
 
-> **Convención de documentación:** `docs/` está organizado por número (`01-quickstart.md`, `02-architecture.md`…) y por tema (`AUTH_FLOW.md`, `ARQUITECTURA_MODULAR.md`, `GUIA_DESPLIEGUE_Y_TENANTS.md`, etc.). Antes de grandes cambios, revisá los `.md` relevantes.
+> **Convención de documentación:** `docs/` está organizado por número (`01-quickstart.md`, `02-architecture.md`, `11-axios-vs-fetch.md`…) y por tema (`AUTH_FLOW.md`, `ARQUITECTURA_MODULAR.md`, `GUIA_DESPLIEGUE_Y_TENANTS.md`, etc.). Antes de grandes cambios, revisá los `.md` relevantes. Nota: En OrderFlow **Axios** es el estándar de cliente HTTP obligado frente a Fetch (ver `11-axios-vs-fetch.md`).
 
 ---
 
@@ -132,7 +132,9 @@ Controller: `backend/src/tenants/tenants.controller.ts`.
 | `PATCH /api/v1/tenants/:id` | ApiKeyGuard + ADMIN/SuperAdmin | Update genérico |
 | `PATCH /api/v1/tenants/:id/disable` | ApiKeyGuard + ADMIN/SuperAdmin | **Deshabilitar** (`active=false`, reversible) |
 | `PATCH /api/v1/tenants/:id/enable` | ApiKeyGuard + ADMIN/SuperAdmin | **Habilitar** (`active=true`) |
-| `DELETE /api/v1/tenants/:id` | ApiKeyGuard + ADMIN/SuperAdmin | **Eliminar** (hard delete, irreversible, cascade) |
+| `DELETE /api/v1/tenants/:id` | ApiKeyGuard + ADMIN/SuperAdmin | **Soft-delete** (`softDeleted=true`, `active=false`, retención 30 días) |
+| `POST /api/v1/tenants/:id/restore` | ApiKeyGuard + ADMIN/SuperAdmin | **Restaurar** tenant soft-deletado (`softDeleted=false`, `active=true`) |
+| `DELETE /api/v1/tenants/:id/hard-delete` | SuperAdmin | **Eliminar físico** (irreversible, cascade, limpieza de DNS Cloudflare) |
 
 **Autorización de gestión (`assertCanManageTenant`):**
 - **SuperAdmin** (`isSuperAdmin` por JWT o master API key): gestiona cualquier tenant.
@@ -141,7 +143,7 @@ Controller: `backend/src/tenants/tenants.controller.ts`.
 - `findAll` devuelve **todos** los tenants al SuperAdmin, o los tenants where el usuario es `ADMIN` (incluye inactivos, para poder rehabilitar).
 - La creación de tenant (`POST`) sigue siendo **pública** por diseño (ver `GUIA_DESPLIEGUE_Y_TENANTS.md`).
 
-**UI (super-admin-dashboard.tsx):** columna "Acciones" con Deshabilitar/Habilitar (toggle), Eliminar (Popconfirm con advertencia irreversible) y botón "Crear Nuevo Tenant" (modal que muestra la API Key generada).
+**UI (super-admin-dashboard.tsx):** columna "Acciones" con Deshabilitar/Habilitar (toggle), Eliminar (soft-delete), Restaurar (solo tenants soft-deletados) y Hard Delete (Popconfirm con advertencia irreversible, exclusivo SuperAdmin) y botón "Crear Nuevo Tenant" (modal que muestra la API Key generada). Tag visual `DB Tier` (`💎 Dedicated` vs `👥 Shared`) y retención de 30 días para tenants soft-deletados.
 
 ---
 
@@ -153,7 +155,7 @@ Controller: `backend/src/tenants/tenants.controller.ts`.
   - `dashboard.tsx` (general), `super-admin-dashboard.tsx` (tenants + health check), `users.tsx`, `tenant-access.tsx` (asignar tenants/roles a usuarios), `customers.tsx`, `products.tsx`, `bookings.tsx`, `spa-dashboard.tsx`, `modules.tsx` (App Store), `quotations.tsx`, `integrations.tsx`, `giveaways.tsx`, `pos.tsx` (Punto de Venta con Modo Mozo y Modo Caja con cobro centralizado), `kds.tsx` (Pantalla de Cocina con conexión WebSockets en tiempo real y semáforo de criticidad por tiempo).
 - **Servicios API** en `src/services/`: `api.ts` (axios con interceptor que inyecta `Authorization: Bearer` o `x-api-key` desde `localStorage`), `tenant.service.ts`.
 - Branding por tenant: `src/components/tenant/BrandingProvider.tsx` + `UserProfileMenu`, hook `useMultiTenant`.
-- **Super-admin dashboard** (`super-admin-dashboard.tsx`): lista tenants en tabla, stats y health check. Actualmente el botón "Crear Nuevo Tenant" es un `message.info` placeholder y NO tiene acciones de deshabilitar/eliminar (esto es parte del trabajo pendiente).
+- **Super-admin dashboard** (`super-admin-dashboard.tsx`): lista tenants en tabla, stats y health check. Columna "Acciones" con Deshabilitar/Habilitar (toggle), Eliminar (soft-delete), Restaurar y Hard Delete (SuperAdmin), botón "Crear Nuevo Tenant" (modal con API Key generada) y tag visual de tier de BD (`💎 Dedicated` vs `👥 Shared`).
 
 ### Autenticación en frontend
 - `localStorage`: `accessToken` (JWT), `apiKey`, `apiKey` usado para branding.
@@ -165,12 +167,14 @@ Controller: `backend/src/tenants/tenants.controller.ts`.
 ## 6. DevOps / entornos
 
 - **Puertos:** backend `3010`, frontend dev `3011`, postgres `5433→5432`, odoo_adapter `3005`.
-- **Compose:** `docker-compose.yml` (dev), `docker-compose.prod.yml` (prod), `docker-compose.nginx.yml` (edge-proxy legacy/no usar).
+- **Compose:** `docker-compose.yml` (dev), `docker-compose.prod.yml` (prod).
+- **Configuración obsoleta:** El directorio `old/` contiene configuraciones legacy de NGINX/edge-proxy que fueron reemplazadas por Traefik v3.3. **No usar ni referenciar** archivos dentro de `old/` para configuraciones activas.
 - **Variables de entorno:** `.env` (prod), `.env.staging`, `.env.production`, `.env.prod`. Claves críticas: `DATABASE_URL`, `JWT_SECRET`, `JWT_REFRESH_SECRET`, `MASTER_API_KEY`, `API_KEY_HEADER`, `CLOUDFLARE_API_TOKEN`, `SENTRY_DSN`, `VITE_SENTRY_DSN`, `GRAFANA_ADMIN_PASSWORD`, `ORDERFLOW_MODE` (`community` | `enterprise`), `ENTERPRISE_TENANT_ID` (solo en modo enterprise).
 - **Integración de Cloudflare / DNS Dinámica:** El token de la API de Cloudflare se configura en la variable `CLOUDFLARE_API_TOKEN` en `.env.staging` (para staging) y `.env` (para producción). El backend (`cloudflare-dns.service.ts`) utiliza este token al crear un Tenant para registrar automáticamente su subdominio como CNAME con la opción `proxied: false` (DNS Only / nube gris). Esto redirige el tráfico al host para que Traefik gestione el certificado SSL de producción de Let's Encrypt (evitando la limitación de handshake SSL de Cloudflare en subdominios de 4to nivel).
 - **Prisma:** `prisma/schema.prisma` es la fuente de verdad. Migraciones en `.gitignore`; en prod se usa `prisma db push`. Siempre regenerá el cliente tras cambiar el schema.
 - **CI/CD:** GitHub Actions (build + test + deploy a Hetzner VPS staging/production). Scripts en `scripts/` (`deploy-production.sh`, etc.).
 - **Backups:** `backups/` + scripts SFTP; retención 7 días.
+- **File Store por Tenant (OBLIGATORIO):** Todos los archivos generados o subidos por tenant deben almacenarse bajo `uploads/{tenantId}/{module}/...` dentro del working directory del backend. Esto garantiza aislamiento total entre tenants, coherencia con backups/restores y compatibilidad con `shared` y `dedicated`. Queda prohibido almacenar archivos de negocio en carpetas globales sin partición por `tenantId`.
 - **Observabilidad:** Prometheus endpoint `/metrics`, Winston logs JSON, Sentry (`instrument.ts`), health checks. Stack avanzado documentado en `docs/observability/` (Loki, Tempo, Grafana, Alertmanager).
 
 ### 6.1 Entornos diferenciados
@@ -179,14 +183,28 @@ OrderFlow tiene **tres entornos** diferenciados y **no son equivalentes**:
 
 | Entorno | Tipo | Estado | Notas |
 |---------|------|--------|-------|
-| **staging** | VPS Hetzner | Actualizable | Refleja `main`; se usa para validación pre-producción. |
-| **production** | VPS Hetzner | Actualizable | Entorno productivo principal. Deploy con `docker-compose.prod.yml`. |
+| **staging** | VPS Hetzner | Actualizable | Refleja `main`; se usa para validación pre-producción (`staging.pesallaccia.com`). |
+| **production** | VPS Hetzner | Actualizable | Entorno productivo principal (`pesallaccia.com`). Deploy con `docker-compose.prod.yml`. |
 | **provecchio** | Servidor físico | **Actualizable** | Versión in-house en producción (`provecchio.com`). Recibe deploys selectivos con validación previa. |
 
-**Regla operativa:**
+**Regla operativa & Aislamiento de Traefik en Provecchio:**
 - `staging`, `production` y `provecchio` reciben deploy desde CI/CD o manual.
 - `provecchio` posee su propia instancia de Traefik en `/srv/traefik/` que habita de forma **100% aislada** de `/srv/orderflow/`. Tiene su propio `docker-compose.yml`, `.env`, `traefik.yml` y certificados `acme.json`.
 - Los cambios en este repositorio (`/opt/orderflow/`) se aplican a `provecchio` mediante `scripts/update-provecchio-version.sh` (hotfix quirúrgico) o deploy manual. Provecchio utiliza su propio `.env.prod` local (donde se encuentra `CF_DNS_API_TOKEN`).
+- **Diagnóstico 502 Bad Gateway:** Si `provecchio.com` arroja HTTP 502 o falla en la emisión de certificados SSL, consultar la guía de diagnóstico en [docs/troubleshooting/06-provecchio-traefik-ssl-and-502-diagnosis.md](troubleshooting/06-provecchio-traefik-ssl-and-502-diagnosis.md).
+
+### 6.2 Limpieza de configuración obsoleta (`old/`)
+
+Las configuraciones legacy de NGINX/edge-proxy fueron movidas a `old/` para preservarlas como referencia hasta la próxima fase de madurez.
+
+**Política de retención:**
+- `old/` está ignorado en `.gitignore` por defecto.
+- Los archivos dentro de `old/` son **solo referencia histórica**.
+- **Eliminación total:** cuando se cumpla **uno** de estos hitos:
+  1. Deploy de **v1.2.0** en producción con todos los módulos estables.
+  2. Próxima auditoría de producción programada (**2026-09-22**).
+  3. Finalización de la **Fase 1 del plan de maduración** (80% cobertura de tests).
+- Criterio de desbloqueo: cualquier hito alcanzado habilita la eliminación permanente de `old/` del repositorio.
 
 ---
 
@@ -223,24 +241,31 @@ docker compose up -d     # levantar stack dev
 1. **Deshabilitar / habilitar / eliminar tenants desde el dashboard** (frontend `super-admin-dashboard.tsx` + backend `tenants.controller.ts`). Se agregaron `PATCH /:id/disable`, `PATCH /:id/enable` y `DELETE /:id`.
 2. **Rol `ADMIN` puede gestionar tenants** además del SuperAdmin.
 
-### 8.2 Multi-Tier Isolation — **En progreso (v0.7.0)**
-1. **Schema Prisma actualizado:** campos `isolationTier`, `dedicatedDatabaseUrl`, `dedicatedSchemaVersion` en modelo `Tenant`.
+### 8.2 Multi-Tier Isolation — **Completado (v0.7.0 / v1.0.0)**
+1. **Schema Prisma actualizado:** campos `isolationTier`, `dedicatedDatabaseUrl`, `dedicatedSchemaVersion`, `softDeleted`, `deletedAt` en modelo `Tenant`.
 2. **`TenantConnectionManager`** (`backend/src/common/tenant-connection.manager.ts`): resuelve PrismaClient por tier (shared → singleton, dedicated → pool cacheado).
 3. **`@TenantPrisma()` decorator** (`backend/src/common/tenant-prisma.decorator.ts`): extrae PrismaClient del request.
 4. **`ApiKeyGuard` actualizado:** inyecta `req.tenantPrisma` después de resolver el tenant.
-5. **Pendiente:** migración gradual de services, script de provisioning de DB dedicada, UI admin para promover tenant.
+5. **Script de provisioning** (`scripts/provision-dedicated-db.sh`): creación automatizada de DB dedicada + `prisma db push`.
+6. **UI Admin:** endpoint `PATCH /api/v1/tenants/:id/isolation-tier` y tag visual `DB Tier` en Super Admin Dashboard.
 
 ### 8.3 ORDERFLOW_MODE (Feature Flag) — **Diseñado, pendiente implementación**
 - Variable `ORDERFLOW_MODE` (`community` | `enterprise`) para seleccionar entre multi-tenant y single-tenant.
 - En modo `enterprise`: `SingleTenantGuard` reemplaza a `ApiKeyGuard`, `tenantId` fijo desde `ENTERPRISE_TENANT_ID`.
 - Mismo codebase, mismo schema, sin bifurcación de código.
 
-### 8.4 Microservicios Standalone — **En Ejecución (v1.1.9)**
+### 8.4 Microservicios Standalone — **Completado (v1.1.3 / v1.1.9)**
 - Módulos con bajo acoplamiento se extraen como microservicios vendibles de forma independiente.
 - **Roadmap Dedicado Vivo:** [docs/ROADMAP_MICROSERVICES.md](docs/ROADMAP_MICROSERVICES.md) (y sincronizado en la Wiki en `/opt/wiki/orderflow/docs/ROADMAP_MICROSERVICES.md`).
 - **Estado Actual:**
-  - ✅ **Grupo A (Listos):** `giveaways-standalone`, `whatsapp-catalog-standalone`, `biolinks-standalone` (orquestados en `docker-compose.standalone.yml`).
-  - 🚧 **Grupo B (En Fase de Extracción):** `bookings-standalone` (Turnos/Spa), `quotations-standalone` (Presupuestos), `loyalty-standalone` (Fidelización).
+  - ✅ **6 Microservicios Standalone production-ready** (orquestados en `docker-compose.standalone.yml`):
+    - `giveaways-standalone` (`:3020`, `sorteos.*`) — Sorteos, Google OAuth.
+    - `whatsapp-catalog-standalone` (`:3021`, `catalogo.*`) — Catálogo, modificadores, GPS, zonas, plantillas.
+    - `biolinks-standalone` (`:3022`, `bio.*`) — Linktree 0% comisión, In-Bio Fast Checkout.
+    - `bookings-standalone` (`:3023`, `turnos.*`) — Agendamiento, comisiones, Google Calendar (pendiente).
+    - `quotations-standalone` (`:3024`, `presupuestos.*`) — Presupuestos DNIT/SET.
+    - `loyalty-standalone` (`:3025`, `fidelizacion.*`) — Tarjetas, tiers BRONZE→PLATINUM.
+  - 🚧 **Storefront Builder** (`storefront-builder-standalone`, `:3026`) — en planning.
 - Auth compartida vía `packages/auth-shared` (JWT/API Key validation sin acoplamiento a DB monolítica).
 - Routing vía Traefik v3.3: cada standalone tiene su propio subdominio (`sorteos.*`, `catalogo.*`, `bio.*`, `turnos.*`).
 
@@ -257,7 +282,7 @@ docker compose up -d     # levantar stack dev
 - **`ORDERFLOW_MODE`:** controla el modo de operación (`community` | `enterprise`). En `community` (default), multi-tenant con `ApiKeyGuard`. En `enterprise`, single-tenant con `tenantId` fijo. **No condicionar lógica de negocio en services con esta variable;** la diferencia es solo en la capa de guard/auth.
 - **`tenantId` es sagrado:** NO eliminar `tenantId` de queries ni tablas. Funciona en ambos modos. En enterprise, siempre tiene el mismo valor; en community, aísla los datos entre tenants.
 - **Multi-tier (`isolationTier`):** el `TenantConnectionManager` resuelve el PrismaClient. No instanciar `PrismaClient` manualmente en services; usar `this.prisma` (legacy) o `@TenantPrisma()` (nuevo).
-- **Infraestructura Proxy (Traefik v3.3 Exclusivo):** Nginx fue eliminado y sustituido completamente por **Traefik v3.3** como subsistema nativo exclusivo de OrderFlow y Odoo 19 CE. NO volver a activar, sugerir ni configurar Nginx bajo ninguna circunstancia en ningún servidor. El código y configuración del subsistema perimetral se administra en el repositorio [traefik-orderflow](https://github.com/marcelompz/traefik-orderflow.git), ubicado localmente en `/opt/traefik-orderflow/` y en el servidor en `/srv/traefik/`.
+- **Infraestructura Proxy (Traefik v3.3 Exclusivo):** Nginx fue eliminado y sustituido completamente por **Traefik v3.3** como subsistema nativo exclusivo de OrderFlow y Odoo 19 CE. NO volver a activar, sugerir ni configurar Nginx bajo ninguna circunstancia en ningún servidor. El código y configuración del subsistema perimetral se administra en el repositorio [traefik-orderflow](https://github.com/marcelompz/traefik-orderflow.git), ubicado localmente en `/opt/traefik-orderflow/` y en los servidores en `/srv/traefik/`.
 - **Despliegue e Inicialización de Odoo 19 CE (`odoo19CE`):** En la infraestructura de Odoo 19 (`git@github.com:marcelompz/odoo19CE.git`, `/srv/odoo/odoo19CE`), el script `init_prod_db.sh` preserva la integridad de los datos existentes en la base de datos `prod`. Si la tabla `res_users` ya existe en PostgreSQL, los scripts de `migracion/` NO se vuelven a ejecutar. La importación de migración solo corre automáticamente en inicializaciones desde cero (`./deploy.sh --clean`) o si se pasa explícitamente `FORCE_MIGRATION=true`.
 - **Microservicios standalone:** al extraer un módulo como standalone, mover el código a `services/<nombre>-standalone/`, crear su propio `schema.prisma` (solo los modelos necesarios), y usar `packages/auth-shared` para validación JWT. El módulo original sigue existiendo en el monolito para clientes que usan OrderFlow completo.
 - **No comentar código** salvo que se pida explícitamente.

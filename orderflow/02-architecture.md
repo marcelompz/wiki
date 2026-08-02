@@ -93,17 +93,18 @@ El backend expone endpoints REST documentados en Swagger (`/api/docs`) y un WebS
 
 ---
 
-## 📊 Estado Actual de Arquitectura (v1.1.9 Stable)
+## 📊 Estado Actual de Arquitectura (v1.5.1 Stable)
 
 | Componente | Estado | Tecnología |
 |------------|--------|------------|
-| **Backend Core & Multi-Tier** | ✅ Completo (389 tests passing) | NestJS 10, Prisma, `@TenantPrisma()`, PostgreSQL 15 |
+| **Backend Core & Multi-Tier** | ✅ Completo (426 tests passing) | NestJS 10, Prisma, `@TenantPrisma()`, PostgreSQL 15 |
 | **Caché & WebSockets PubSub** | ✅ Completo | Redis 7 Alpine, `@socket.io/redis-adapter` |
 | **Frontend Web & Billing** | ✅ Completo (Code Splitting) | React 18, Refine.dev, Ant Design 5, Billing Portal |
-| **App Store Marketplace** | ✅ Completo | Real-time Search, Tenant Selector, Module Registry |
+| **App Store Marketplace** | 🚧 En progreso (v1.2.0-dev) | Real-time Search, Tenant Selector, Module Registry |
 | **POS & KDS** | ✅ Completo | Dexie.js, Zustand, WebSockets Socket.io |
 | **Edge Gateway** | ✅ Completo | Traefik v3.3 + SSL Cloudflare |
 | **Microservicios Standalone** | ✅ Completo (6 microservices) | `giveaways-standalone`, `whatsapp-catalog-standalone`, `biolinks-standalone`, `bookings-standalone`, `quotations-standalone`, `loyalty-standalone`, `auth-shared` |
+| **Currency Automation (FEAT-022)** | ✅ Completo | 5 providers (BCP, CambiosChaco, Bonanza, DolarApi, Manual), Cron 15min PY TZ, LRU cache + DB persistence |
 | **Testing E2E** | ✅ Completo (14 tests passing) | Playwright |
 | **Tauri Desktop** | ✅ Completo | Tauri, Rust, ESC/POS |
 | **App Móvil** | ✅ Completo | React Native, Expo |

@@ -1,22 +1,96 @@
 # Changelog
 
-Todos los cambios notables en este proyecto se documentarán en este archivo.
+Todos los cambios notables a este proyecto serán documentados en este archivo.
+
+El formato está basado en [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
+y este proyecto se adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+## [Unreleased]
+
+### Próximos Objetivos (v0.5.0 - Agosto 2026)
+- Testing push: Orders, Giveaways, Loyalty, Cloudflare (target 30%+ cobertura)
+- Extender integración Odoo: diseño de eventos/plugins para nuevos flujos sin hardcodear
+- MIDA / SAP: siguiente familia de integradores sobre la misma base extensible
+- Tauri Desktop Wrapper (POS nativo con impresión ESC/POS)
+
+### Futuro (v1.0.0 - Septiembre 2026)
+- App Store / Google Play publication
+- Multi-language (i18n)
+- White-label completo
+- Analytics dashboard avanzado
+
+### Ajuste de alcance confirmado (v0.4.2)
+- Integración Odoo vigente: OrderFlow → Odoo y Odoo → OrderFlow.
+- Addon nativo Odoo creado en `odoo-addons/orderflow_integration` para sincronizar clientes, productos y ventas hacia OrderFlow.
+- MIDA/SAP queda como próxima extensión, no incluido en el alcance inicial.
+- White-label: solo branding por tenant por ahora; el white-label completo sigue como deuda futura.
+
+### Load Testing (k6) - Producción
+- Ejecutado `k6 run` contra `/api/v1/public/products` con catálogo real SPA Wellness (19 productos doTERRA).
+- Resultado: p(95) ~294-460ms, rate limiting efectivo (~81% 429 a 50 RPS), infraestructura validada.
+
+## [1.5.1] - 2026-08-02
+
+### 🎨 **Responsive UX/UI Backoffice + Traefik v3.4 (QA-001)**
+- **Frontend (admin pages):**
+  - `admin-mobile.css`: CSS global responsive para mobile (<768px): header stack, tablas con scroll horizontal, touch targets 44px, modales con width adaptativo.
+  - 17 páginas admin adaptadas: `customers`, `products`, `users`, `contacts`, `bookings`, `dashboard`, `giveaways`, `integrations`, `loyalty`, `quotations`, `spa-dashboard`, `subscription`, `super-admin-dashboard`, `tenant-access`, `whatsapp-catalog`, `super-whatsapp-catalog`, `homepage-builder`, `pos`, `kds`, `modules`, `biolinks`.
+  - Clases aplicadas: `admin-page`, `admin-page-header`, `admin-table-wrapper`, `admin-modal-form`, `scroll={{ x: 'max-content' }}`.
+- **QA (`scripts/init.sh`):**
+  - Agregada validación de Traefik en producción: estado del contenedor, puertos 80/443, detección de error de API Docker.
+  - Agregado sync automático de `/opt/traefik-orderflow` a `/srv/traefik` en Hetzner después de cada build.
+- **Infraestructura (Traefik):**
+  - Actualizado Traefik de v3.3 a v3.4 en Hetzner.
+  - Configuración centralizada en `/opt/traefik-orderflow` y sincronizada a `/srv/traefik` en producción.
+  - Resuelto error de API Docker (`client version 1.24 is too old`) configurando `DOCKER_API_VERSION=1.55` y endpoint TCP.
+- **Documentación (`AGENTS.md`):**
+  - Actualizada regla de infraestructura: Traefik v3.4 exclusivo, configuración desde `/opt/traefik-orderflow` con sync a `/srv/traefik`.
+
+## [1.3.0] - 2026-08-01
+
+### 💱 **Automatización de Cotizaciones desde Fuentes Locales de PY (FEAT-022)**
+- **Prisma Schema (`schema.prisma`):**
+  - Nuevo modelo `ExchangeRate` con `tenantId`, `fromCurrency`, `toCurrency`, `rate`, `provider`, `isFallback`, `createdAt`/`updatedAt`. Índice `@@unique([tenantId, fromCurrency, toCurrency])`.
+  - Relación `exchangeRates ExchangeRate[]` agregada al modelo `Tenant`.
+- **Currency Providers (`backend/src/currency/providers/`):**
+  - Extraído `dolarapi.com` del código inline del `CurrencyService` → `DolarApiProvider` (USD→ARS, USD→EUR).
+  - Nuevo `BcpProvider` (Banco Central del Paraguay — API pública + parsing HTML).
+  - Nuevo `CambiosChacoProvider` (API/scraper Cambios Chaco).
+  - Nuevo `BonanzaProvider` (API/scraper Bonanza Cambios).
+  - Nuevo `ManualProvider` (fallback configurable desde `Tenant.config.currencyFallbackRate`).
+  - Todos los providers implementan timeout 5s, retry 1x y `withRetry` utility.
+- **CurrencyService (`currency.service.ts`):**
+  - Registrado en `CurrencyModule` (dejaba de ser un servicio huérfano `@Injectable()`).
+  - Chain de providers en orden de prioridad desde `Tenant.config.currencyProviders`.
+  - Persistencia de rates en DB vía `upsertExchangeRate` (findFirst + create/update) con deduplicación por cambio.
+  - Cache: in-memory LRU (max 100 entries, TTL 5 min) + lectura desde `ExchangeRate` DB si está fresca.
+  - Fallback a última rate de DB cuando todos los providers fallan.
+  - Soporte para `currencyRateOverride` (tasa manual de emergencia).
+- **Cron (`CurrencyRateCronService`):**
+  - `@Cron('0 */15 * * * *')` — refresco cada 15 min, solo horario comercial PY (07:00–18:00, timezone `America/Asuncion`).
+  - Itera todos los tenants activos y omite tenants con `currencyRateOverride: true`.
+- **API Admin (`CurrencyController`):**
+  - `GET /api/v1/currency/rates/:from/:to` — rate actual + provider + timestamp (público, tenant por host).
+  - `GET /api/v1/currency/providers/:tenantId` — providers configurados.
+  - `PATCH /api/v1/currency/settings` — actualiza `Tenant.config` (providers, fallback, override).
+  - `POST /api/v1/currency/refresh/:tenantId` — trigger manual de refresh.
+- **QA & Despliegue:** `./scripts/init.sh` pasado (54 suites / 426 tests, build backend y frontend limpios).
 
 ## [1.1.9] - 2026-07-31
 
-### Unificación de Navegación & QA E2E Integral
+### 🚀 **Unificación de Navegación & QA E2E Integral**
 - **Backend (`customers.controller.ts`):**
   - Corregida la ruta base `@Controller('api/v1/customers')` permitiendo la consulta limpia de clientes `/api/v1/customers`.
 - **Frontend (`AdminApp.tsx`, `bookings.tsx`, `homepage-builder.tsx`):**
   - Unificado el menú de administración removiendo duplicidades e integrando la agenda de Spa en **Turnos & Agendas Spa**.
-  - Destacado el módulo **Diseñador Web & Portada** con accesos directos de previsualización.
+  - Destacado el módulo **🎨 Diseñador Web & Portada** con accesos directos de previsualización.
   - Agregada guardia de arbolado defensivo `Array.isArray()` en `BookingsPage`.
 - **QA & Testing (`scripts/qa_e2e_check.py`):**
   - Ampliada la suite E2E de Playwright en Python para verificar la navegación de todas las subrutas administrativas (`/admin/products`, `/admin/customers`, `/admin/bookings`, `/admin/loyalty`, `/admin/homepage-builder`, `/admin/whatsapp-catalog`) y descartar errores JS y HTTP 502/404.
 
 ## [1.1.8] - 2026-07-31
 
-### Gestor Visual de Portada & Enrutamiento Separado (Landing vs. Tienda)
+### 🎨 **Gestor Visual de Portada & Enrutamiento Separado (Landing vs. Tienda)**
 - **Frontend (`TenantHomepage.tsx`, `App.tsx`, `PublicStorefrontPage.tsx`):**
   - Implementada portada institucional dinámica (`TenantHomepage.tsx`) con bloques modulares (Hero, Productos Destacados, Beneficios, Testimonios, Contacto & Redes).
   - Separación de rutas: la raíz (`/`) carga la Portada Institucional del Tenant, mientras que `/tienda` alberga la Tienda/Catálogo interactivo con carrito.
@@ -27,567 +101,668 @@ Todos los cambios notables en este proyecto se documentarán en este archivo.
 - **Protocolo & Documentación:**
   - Actualizados `featurelist.json` (FEAT-019), `docs/00-contexto-agentes.md` y guías de arquitectura.
 
-## [1.1.7] - 2026-07-30
+## [1.1.3] - 2026-07-27
 
-### 🎭 QA E2E Rendering Suite & Solución de Subdominios Dinámicos
-- **Suite QA E2E Playwright**: Creado el script [`scripts/qa_e2e_check.py`](file:///opt/orderflow/scripts/qa_e2e_check.py) para verificación E2E en navegador headless (cargado de DOM, eliminación de spinner `.ant-spin-spinning` y validación de categorías).
-- **Integración al Pipeline Harness (`init.sh`)**: Incorporado el paso `[5/5]` en [`scripts/init.sh`](file:///opt/orderflow/scripts/init.sh) para ejecutar de forma obligatoria las pruebas E2E en el proceso de validación previa a cada deploy.
-- **Resolución de Branding y Subdominios Dinámicos**:
-  - Eliminado el fallback a Provecchio en [`frontend/src/components/tenant/BrandingProvider.tsx`](file:///opt/orderflow/frontend/src/components/tenant/BrandingProvider.tsx) cuando el subdominio es explícito.
-  - Ajustado `objectFit: contain` y `padding: 8px` en el avatar del logo del catálogo.
-  - Homologado el subdominio `spa-wellness` en la base de datos de producción y actualizado el catálogo de Gaia Wellness a sus 3 categorías oficiales (`Aceites esenciales`, `Almohadillas terapéuticas`, `Difusores`).
+### 🛡️ **File Store Unificado por Tenant + Backups**
+- **Backend (`main.ts`, `whatsapp-catalog-admin.controller.ts`):**
+  - Uploads de imágenes del catálogo ahora se guardan en `uploads/whatsapp-catalog/{tenantId}/{filename}` (aislado por tenant).
+  - Agregado endpoint `POST /api/v1/whatsapp-catalog/upload` para subir imágenes de banner/logo con validación de MIME y tamaño.
+  - Servicio estático `/uploads` expuesto desde `process.cwd()/uploads` en `main.ts`.
+- **Backend (`product-imports/scrapers/base-scraper.ts`):**
+  - Unificada ruta de imágenes de proveedores a `uploads/suppliers/{tenantId}/{supplierSlug}/{filename}`.
+  - URLs públicas ahora usan `/uploads/suppliers/...` en vez de `/static/uploads/suppliers/...`.
+- **Backup (`scripts/backup-production.sh`):**
+  - Ahora incluye backup comprimido del file store: `pre_deploy_{env}_{timestamp}_uploads.tar.gz`.
+  - Incluye rollback env snapshot + verificación de tamaño para DB y archivos.
+- **Verificación (`scripts/verify-backups.sh`):**
+  - Ahora valida también backups `_uploads.tar.gz` (tamaño + integridad tar.gz).
+- **Documentación:**
+  - Creado `docs/BACKUP_RESTORE.md` con procedimientos de backup, restore y consideraciones multi-tier.
+  - Actualizada regla de file store en `docs/00-contexto-agentes.md`: todos los archivos deben vivir bajo `uploads/{tenantId}/{module}/`.
+  - Actualizado `.gitignore` para excluir `uploads/` del repositorio.
 
-### 💬 WhatsApp Catalog Admin — Overhaul de Personalización Visual
-- **ColorPicker con eyedropper** para `headerBgColor`, `bodyBgColor` y `categoryColors` por categoría.
-- **Controles de ajuste** de banner (`bannerFit`, `bannerPosition`) y logo (`logoFit`, `logoPadding`).
-- **Modo de visualización de categorías**: `filter` (lista + buscador) vs `accordion` (acordeón plegable).
-- **Widget de vista previa en vivo** del encabezado público con banner, logo y colores reales.
-- **Subida de imágenes de fondo por categoría** con selector de categoría.
-- **Sanitización de colores** en backend (`whatsapp-catalog.service.ts`) para prevenir crashes de parsing.
-- **Thumbnails interactivos** para banner y logo con estado React dedicado.
+## [1.1.2] - 2026-07-27
 
-### 🔒 Backend & Security Fixes
-- **JwtAuthGuard**: Bypass del tenant mismatch check para SuperAdmins.
-- **Helmet**: `crossOriginResourcePolicy: false` para permitir carga de imágenes en subdominios.
-- **Subida/Listado de imágenes**: URLs relativas (`/uploads/...`) en lugar de absolutas.
-- **PublicCatalogController**: Eliminado alias `wellness` hardcodeado, resolución genérica por subdominio.
-- **TenantsController**: Incluido `apiKeySecret` en resolución pública por subdominio.
+### 🐛 **Fix: Envío de pedido por WhatsApp sin contenido**
+- **Frontend (`whatsapp-checkout.tsx`):**
+  - Corregido botón flotante mobile sticky que solo abría WhatsApp sin enviar el mensaje: ahora ejecuta `form.validateFields().then(handleConfirmOrder)` para generar el mensaje completo.
+  - Agregado `name="deliveryAddress"` al `TextArea` de dirección para que `values.deliveryAddress` llegue al cuerpo del mensaje.
+- **Backend (`public-orders.controller.ts`):**
+  - Sigue usando los mismos endpoints, pero ahora el frontenv envía correctamente `subdomain` o `apiKey` resuelto, sin hardcodear claves.
 
-### 🛡️ Frontend Stability
-- **AdminApp**: Guardia de arreglos en `isModuleActive`, `defaultCoreModules` fallback, interceptor envía ambos headers (Bearer + API Key).
-- **catalog-with-categories**: Endpoint actualizado a `/api/v1/public/storefront/${subdomain}/products`, array guards.
+### 🚀 **Admin: Administración del Catálogo WhatsApp**
+- **Backend (`whatsapp-catalog.service.ts`, `whatsapp-catalog-admin.controller.ts`):**
+  - Agregados endpoints de productos del catálogo: `GET/POST/PUT/DELETE /api/v1/whatsapp-catalog/products` y `GET/PUT /api/v1/whatsapp-catalog/page-config`.
+  - CRUD de productos del catálogo con permisos `whatsapp-catalog:read` y `whatsapp-catalog:manage`.
+  - Mapeo de `Decimal` a `number` para precios y campos extendidos de producto.
+- **Backend (`schema.prisma`):**
+  - Agregado campo `order Int` en modelo `Product` para ordenamiento personalizado.
+- **Frontend (`admin/whatsapp-catalog.tsx`):**
+  - Extendido panel de administración con pestaña **Productos** (tabla + crear/editar/eliminar).
+  - Pestaña **Página y Configuración** mantiene toda la configuración de contacto, envíos, zonas, banner, logo y plantilla de mensaje.
+  - El Tenant Admin ahora puede editar completamente la página pública y gestionar su inventario del catálogo sin salir del admin.
 
-### 📦 Infraestructura
-- **docker-compose.prod.yml**: Volumen persistente `uploads_data:/app/uploads`.
-- **seed-gaiaspa-doterra.ts**: 3 categorías oficiales + imágenes locales doTERRA.
+### 🔧 **Fix resolución de tenant en checkout**
+- **Frontend (`whatsapp-checkout.tsx`):**
+  - Eliminada API key hardcodeada del checkout.
+  - Ahora resuelve tenant por `subdomain`, query param o `apiKey` tenant config, igual que el catálogo público.
 
-## [1.1.5] - 2026-07-29
+## [1.1.1] - 2026-07-27
 
-### 🎁 Módulo Fidelización (Loyalty) & Corrección de Integración Frontend
-- **Corrección de Endpoint de Clientes en Loyalty**: En [`frontend/src/pages/admin/loyalty.tsx`](file:///opt/orderflow/frontend/src/pages/admin/loyalty.tsx#L82-L90), se actualizó la solicitud de clientes desde `GET /api/v1/sync/customers` hacia el endpoint estándar `GET /api/v1/customers`.
-- **Validación del Arnés de Calidad**: Aprobadas 50/50 test suites (389 tests pasados) y compilaciones limpias de NestJS y Vite TypeScript via `./scripts/init.sh`.
+### 🐛 **Fix: Catálogo WhatsApp vacío para tenants resueltos por subdominio alias**
+- **Frontend (`whatsapp-catalog.tsx`):**
+  - Eliminada API key hardcodeada de Provecchio Di Mora como fallback.
+  - Ahora prioriza `subdomain` cuando `tenantConfig` fue resuelto por subdominio Traefik.
+  - Solo usa `apiKey` como fallback cuando no hay subdominio disponible.
+- **Backend (`tenants.controller.ts`):**
+  - Expones `subdomain` en la respuesta pública `GET /api/v1/tenants/public/tenant-by-subdomain/:subdomain`.
+- **Troubleshooting:** Agregado incidente y resolución en `docs/troubleshooting/01-traefik-routing-and-spa-cache.md`.
 
-## [1.1.4] - 2026-07-29
+---
 
-### 🛡️ Diagnóstico, Homologación & Aislamiento de Infraestructura Provecchio
-- **Homologación de Traefik en Provecchio**: Se renombró `/srv/traefik-orderflow` a `/srv/traefik` en `dimoraserverlocal` y se unificó en [`docs/00-contexto-agentes.md`](file:///opt/orderflow/docs/00-contexto-agentes.md).
-- **Resolución de Error 502 API & Bucle 301**:
-  - Conexión de `orderflow-backend-prod` a la red `traefik-public`.
-  - Removida la redirección global rígida `:80 -> :443` en Traefik para prevenir bucles de redirección 301 (`NS_ERROR_REDIRECT_LOOP`) con Cloudflare Proxy.
-  - Reparado el bucle de espera de base de datos en `entrypoint.sh` del contenedor backend.
-- **Diagnóstico SSL, Redes & 502**: Creada y actualizada la guía técnica [`docs/troubleshooting/06-provecchio-traefik-ssl-and-502-diagnosis.md`](file:///opt/orderflow/docs/troubleshooting/06-provecchio-traefik-ssl-and-502-diagnosis.md).
-- **Auditoría Integral del Sistema**: Generado el informe oficial de salud de pruebas (389 passing), builds y matriz de entornos en [`docs/AUDITORIA_COMPLETA_2026-07-29.md`](file:///opt/orderflow/docs/AUDITORIA_COMPLETA_2026-07-29.md).
-- **Corrección de Dominios**: Actualización de [`docs/PUERTOS_ENTORNOS.md`](file:///opt/orderflow/docs/PUERTOS_ENTORNOS.md) alineando Hetzner (`pesallaccia.com`) y Provecchio In-House (`provecchio.com`).
+## [1.1.0] - 2026-07-26
+
+### 🚀 **Microservicios Standalone & Extracción de Arquitectura**
+- **Microservicio `whatsapp-catalog-standalone`**:
+  - Extraído el módulo de catálogo WhatsApp a `services/whatsapp-catalog-standalone` como servicio autónomo expuesto en puerto `3021`.
+  - Integrado con la librería interna `@orderflow/auth-shared` para validación multi-tenant compartida de tokens JWT y API Keys.
+
+### 🛡️ **Soft-Delete de Tenants & Retención de Datos**
+- **Modelo de Retención de 30 Días**:
+  - Agregados los campos `softDeleted` y `deletedAt` en el modelo `Tenant` de Prisma.
+  - Endpoint `DELETE /api/v1/tenants/:id` actualizado a Soft-Delete (desactiva el tenant sin borrar datos físicamente).
+  - Creado el endpoint `POST /api/v1/tenants/:id/restore` para restauración inmediata.
+  - Creado el endpoint `DELETE /api/v1/tenants/:id/hard-delete` de eliminación física definitiva restringido exclusivamente al SuperAdmin.
+
+### 📡 **Escalado Horizontal de WebSockets (Redis IoAdapter)**
+- **`RedisIoAdapter` Socket.io**:
+  - Integrado `@socket.io/redis-adapter` e `ioredis` en NestJS bootstrap (`main.ts`).
+  - Sincronización en tiempo real Pub/Sub entre réplicas de KDS y POS con fallback automático a memoria.
+
+### 🏬 **App Store Marketplace & Buscador en Tiempo Real**
+- **Filtro en Tiempo Real**:
+  - Incorporado buscador dinámico `Input.Search` en la App Store (`/admin/modules`).
+  - Filtro por nombre, categoría y descripción en tiempo real.
+
+---
+
+## [1.0.0] - 2026-07-25
+
+### ☸️ **Estructura Kubernetes & Helm (v2.0.0 Ready)**
+- **Arquitectura de Helm Charts Preparada (`k8s/`)**:
+  - Creado el directorio `k8s/` con la estructura completa de Helm Charts en `k8s/helm/orderflow-core` y `k8s/helm/microservices`.
+  - Archivos `Chart.yaml`, `values.yaml` y la guía operativa [k8s/README.md](file:///opt/orderflow/k8s/README.md) listos para desplegar en clusters Kubernetes cuando el servidor requiera autoscaling horizontal masivo.
+
+### 🏆 **RELEASE COMERCIAL HISTÓRICO v1.0.0 — OrderFlow SaaS Platform**
+- **Plataforma Omnicanal Multi-Tenant & Multi-Tier**:
+  - Infraestructura completa con aislamiento de datos `Shared` y `Dedicated PostgreSQL` por tenant Enterprise.
+- **Billing SaaS & Facturación Automática**:
+  - Motor de suscripciones recurrentes integrado con `Stripe` y `Mercado Pago`, cálculo global de MRR/ARR y suspensión automática por impago en `TenantThrottlerGuard`.
+- **Portal de Suscripción Self-Service del Cliente**:
+  - Panel interactivo en `/admin/subscription` para cambiar de plan y elegir preferencia de base de datos dedicada.
+- **Marketplace & Plugin SDK para Terceros**:
+  - Registro de extensiones certificadas de desarrollo independiente (`MarketplaceModule`).
+- **White-Label & Multi-Language (i18n)**:
+  - Personalización total de marcas, dominios custom, favicons, títulos y soporte multi-idioma (Español 🇪🇸, Inglés 🇺🇸, Portugués 🇧🇷).
+- **Conectores ERP Enterprise & Microservicios Standalone**:
+  - Integración nativa con Odoo 19 CE, MIDA y SAP ERP, junto a 3 microservicios desacoplados (`giveaways`, `whatsapp-catalog`, `biolinks`).
+
+### 🔒 **RBAC Granular Ampliado (Seguridad)**
+- **Nuevos Guardias y Permisos**:
+  - `ContactsController`: endpoints de contactos protegidos con `contacts:read`, `contacts:create`, `contacts:update`, `contacts:delete`.
+  - `LoyaltyController`: tarjetas y reglas protegidas con `loyalty:read` y `loyalty:manage`.
+  - `IntegrationsController`: integraciones y sincronización Odoo protegidas con `integrations:read` e `integrations:manage`.
+  - Mocks de `PermissionsGuard` y `RbacService` incorporados a todas las suites unitarias para mantener el 100% de tests verdes (340 tests).
+
+## [0.8.0] - 2026-07-25
+
+### 🔌 **Integraciones ERP Enterprise (MIDA / SAP)**
+- **Conectores ERP MIDA & SAP Enterprise**:
+  - Extendido `IntegrationsService` para dar soporte nativo a pruebas de conectividad y sincronización de eventos webhooks con sistemas ERP MIDA y SAP.
+
+### 🌍 **Internacionalización & Multi-Idioma (v1.0.0 Target)**
+- **Infraestructura Multi-Language i18n**:
+  - Configurado `i18n.ts` con diccionario de traducción completo para Español 🇪🇸, Inglés 🇺🇸 y Portugués 🇧🇷.
+  - Componente global `LanguageSelector.tsx` integrado en la barra de navegación del Admin Dashboard permitiendo alternar idioma en tiempo real con persistencia en `localStorage`.
+
+### 🚀 **RELEASE OFICIAL v0.8.0 — Marketplace SDK, White-Label & Billing SaaS**
+- **Suscripciones & Billing SaaS Engine (`BillingModule`)**:
+  - Gestión de los 4 planes SaaS (`FREE`, `STARTER`, `PRO`, `ENTERPRISE`) y procesamiento de webhooks para pasarelas de pago (`Stripe` y `Mercado Pago`).
+  - Endpoint de consulta de suscripción `GET /api/v1/billing/subscription` y cambio de plan `POST /api/v1/billing/subscribe`.
+  - Endpoint global de métricas MRR/ARR `GET /api/v1/billing/metrics/mrr` para SuperAdmin.
+- **Mecanismo de Suspensión Automática por Impago**:
+  - `TenantThrottlerGuard` bloquea automáticamente con `403 Forbidden` a cuentas en estado `SUSPENDED` por impago.
+- **Portal de Suscripción del Cliente (Frontend)**:
+  - Creada la página `subscription.tsx` en `/admin/subscription` con tarjetas comparativas y modal interactivo de upgrade/downgrade.
+  - Selección self-service entre Base de Datos Compartida (`Shared`) y Dedicada (`Dedicated PostgreSQL`).
+- **Marketplace & Plugin SDK para Desarrolladores (`MarketplaceModule`)**:
+  - Registro dinámico de plugins de terceros con endpoints `GET /api/v1/marketplace/plugins`, `POST /api/v1/marketplace/install` y `POST /api/v1/marketplace/register`.
+- **White-Label Completo**:
+  - Extendido `BrandingProvider.tsx` para inyectar dinámicamente el `document.title` y el `favicon` personalizado del tenant, eliminando marcas de OrderFlow al activar `removeOrderflowBranding`.
+- **Cobertura de Pruebas**:
+  - Suite de backend ampliada a **349 tests unitarios aprobados en 45 test suites (100% éxito)** y **14 tests E2E de Playwright**.
+
+## [0.7.0] - 2026-07-25
+
+### 💳 **Billing SaaS & Métricas Financieras (v1.0.0 Target)**
+- **Self-Service Multi-Tier Database Selection**:
+  - Habilitada la selección interactiva entre Base de Datos Compartida (`Shared`) y Dedicada (`Dedicated PostgreSQL`) en el modal de suscripción del Portal de Cliente.
+- **White-Label Completo (Frontend & Branding)**:
+  - Extendido `BrandingProvider.tsx` para inyectar dinámicamente el `document.title` y el `favicon` personalizado del tenant.
+  - Soporte para la bandera `removeOrderflowBranding` ocultando menciones de marca de OrderFlow en la vista del cliente.
+- **Marketplace & Plugin SDK para Desarrolladores (v0.8.0-dev)**:
+  - Creado `MarketplaceModule` (`MarketplaceController` y `MarketplaceService`) para ofrecer un Registro de Plugins de terceros.
+  - Endpoints `GET /api/v1/marketplace/plugins` (catálogo disponible), `POST /api/v1/marketplace/install` (instalación por tenant) y `POST /api/v1/marketplace/register` (SDK para desarrolladores terceros).
+  - Cobertura de 4 tests unitarios adicionales en `marketplace.controller.spec.ts` elevando la suite a **349 tests unitarios aprobados (100%)**.
+- **Mecanismo de Suspensión por Impago**:
+  - `TenantThrottlerGuard` verifica el estado de la suscripción del tenant en cada petición backend y bloquea con `403 Forbidden` a cuentas en estado `SUSPENDED`.
+- **Portal de Suscripción del Cliente (Frontend)**:
+  - Creada la página `subscription.tsx` con carga diferida (`React.lazy`) en `/admin/subscription`.
+  - Tarjetas comparativas de precios, límites y características por plan (`FREE`, `STARTER`, `PRO`, `ENTERPRISE`).
+  - Modal interactivo de upgrade/downgrade con selección de pasarela preferida (Stripe / Mercado Pago) e indicador de aislamiento de base de datos (`shared` vs `dedicated`).
+- **Nuevo Módulo `BillingModule`**:
+  - `BillingController` y `BillingService` integrados al backend para gestionar planes SaaS (`FREE`, `STARTER`, `PRO`, `ENTERPRISE`) y procesar eventos webhooks de pasarelas de pago (`Stripe`, `Mercado Pago`).
+  - Endpoint de consulta de suscripción `GET /api/v1/billing/subscription` y cambio de plan `POST /api/v1/billing/subscribe`.
+  - Endpoint global de métricas MRR (Monthly Recurrent Revenue) y ARR (Annual Recurrent Revenue) `GET /api/v1/billing/metrics/mrr` para el SuperAdmin.
+  - Cobertura de 5 tests unitarios aprobados en `billing.controller.spec.ts` elevando la suite a **345 tests pasar exitosamente**.
+
+### 🚀 **RELEASE OFICIAL v0.7.0 — Multi-Tier Isolation & Microservicios Standalone**
+- **Multi-Tier Isolation (Bases de Datos Dedicadas por Tenant Enterprise)**:
+  - Soporte completo para tenants `shared` (DB principal) y `dedicated` (PostgreSQL aislada).
+  - Inyección dinámica `@TenantPrisma()` mediante `TenantConnectionManager`.
+  - Script de aprovisionamiento automatizado `scripts/provision-dedicated-db.sh`.
+  - Super Admin Dashboard habilitado con control visual y endpoint `PATCH /tenants/:id/isolation-tier`.
+- **Microservicios Standalone Desacoplados**:
+  - Librería compartida `@orderflow/auth-shared` compilada en TypeScript.
+  - Microservicio standalone `giveaways-standalone` (`:3020`).
+  - Microservicio standalone `whatsapp-catalog-standalone` (`:3021`).
+  - Microservicio standalone `biolinks-standalone` (`:3022`).
+  - Routers dinámicos integrados en **Traefik v3.3**.
+- **Calidad & Integración Continua**:
+  - Pruebas de carga con k6 integradas automáticamente en GitHub Actions CI/CD (`.github/workflows/ci-cd.yml`).
+  - Cobertura total de 340 tests unitarios y 14 tests E2E con Playwright.
+- **Librería Compartida `@orderflow/auth-shared`**:
+  - Creado paquete npm interno `packages/auth-shared/` con utilidades compiladas de validación unificada de JWT (`verifyJwtToken`) y API Keys (`validateApiKeyHeader`).
+- **Microservicio Standalone `giveaways-standalone`**:
+  - Creada estructura base `services/giveaways-standalone/` para empaquetar y comercializar el módulo de Sorteos de forma independiente del monolito.
+  - Incluye `docker-compose.yml` dedicado para ejecución standalone en puerto `3020`.
+- **Segundo Microservicio Standalone `whatsapp-catalog-standalone`**:
+  - Creada la estructura base `services/whatsapp-catalog-standalone/` para comercializar el catálogo interactivo de WhatsApp de forma autónoma.
+  - Incluye su `docker-compose.yml` desacoplado expuesto en el puerto `3021`.
+- **Integración Continua & Pruebas de Carga (k6 en CI/CD)**:
+  - Añadido el job `test-k6-load` a la pipeline de GitHub Actions (`.github/workflows/ci-cd.yml`) ejecutando automáticamente smoke tests de rendimiento de latencia con `grafana/k6-action`.
+
+### ⚡ **Multi-Tier Tenant Isolation (DB Dedicada por Tenant Enterprise)**
+- **Aislamiento Multi-Tier Backend**:
+  - `ApiKeyGuard` inyecta automáticamente `req.tenantPrisma` resolviendo entre DB compartida (`shared`) y DBs dedicadas enterprise (`dedicated`) vía `TenantConnectionManager`.
+  - Inyector `@TenantPrisma()` preparado para controladores del sistema.
+- **Endpoint de Asignación de Tier**:
+  - `PATCH /api/v1/tenants/:id/isolation-tier` para promover o revertir el tier de un tenant (`shared` / `dedicated`) especificando la conexión `dedicatedDatabaseUrl`.
+- **Script de Aprovisionamiento**:
+  - Creado `scripts/provision-dedicated-db.sh` para la creación automatizada de bases de datos PostgreSQL independientes y aplicación del schema Prisma (`prisma db push`).
+- **Super Admin Dashboard (Frontend)**:
+  - Nueva columna y etiqueta visual `DB Tier` (`💎 Dedicated` vs `👥 Shared`) en la tabla de gestión de tenants (`super-admin-dashboard.tsx`).
+
+### ⚡ **Escalabilidad, Performance UX & Cobertura E2E**
+
+#### 🎉 Features & Performance
+- **Integración de Redis 7 en Infraestructura**:
+  - Incorporación de Redis 7 (`redis:7-alpine`) en `docker-compose.yml` con volumen persistente (`redis_data`) y healthchecks.
+  - Habilitado para rate-limiting distribuido y adaptación horizontal de WebSockets KDS/POS.
+- **Índices de Base de Datos de Alto Rendimiento**:
+  - Índices compuestos agregados en Prisma schema: `orders` (`tenantId, createdAt, status` y `tenantId, customerId`) y `products` (`tenantId, active`).
+  - Optimización de latencia en consultas del KDS, POS e historial de clientes.
+- **Optimización UX & Frontend Bundling**:
+  - Implementado *Code Splitting* mediante `React.lazy` y `<Suspense>` en `AdminApp.tsx`.
+  - Carga bajo demanda de módulos de administración (POS, KDS, Sorteos, Bio-Links, Presupuestos), reduciendo la huella del bundle inicial.
+
+#### 🧪 Testing & Calidad
+- **Expansión E2E con Playwright**:
+  - `frontend/e2e/app.spec.ts` ampliado a **14 tests E2E pasando (100% de éxito)**.
+  - Cobertura de rutas públicas, auth guards y navegación de POS, KDS y Bio-Links.
+- **Seguridad & Gestión de Secretos**:
+  - Exclusión estricta de archivos de credenciales (`client_secret*.json`, `*.pem`, `*.key`) en `.gitignore`.
+
+---
+
+## [0.5.1] - 2026-07-19
+
+### ✅ **Observabilidad avanzada & E2E**
+
+#### 🎉 Features Agregadas
+- **Métricas avanzadas en `MetricsModule`:**
+  - HTTP request total, duration y errores con `tenant_id`.
+  - Contadores de negocio: orders, bookings, Bio-Link clicks, webhooks activos, colas.
+  - Endpoint `/metrics` mantenido y documentado.
+
+- **Logs estructurados para Loki:**
+  - Winston JSON con `tenantId`, `requestId`, `traceId`, `context`, `timestamp`.
+  - Transporte diario rotado (`logs/orderflow-*.log`) y consola para desarrollo.
+
+- **Stack avanzado documentado:**
+  - `docs/observability/README.md`
+  - `docs/observability/loki-config.md`
+  - `docs/observability/grafana-dashboards.md`
+  - `docker-compose.observability.yml` (Loki, Tempo, Grafana, Promtail, Alertmanager)
+  - Dashboard JSON inicial: `docs/observability/dashboards/tenant-overview.json`
+
+- **Backend E2E seed:**
+  - Datos mínicos en `backend/test/e2e/seed.ts` para pruebas reproducibles.
+
+- **API Keys - Seguridad inicial:**
+  - Endpoints `POST /api/v1/tenants/:id/api-key/rotate` y `/revoke`.
+  - Auditoría en `ApiKeyRotation` y `ApiKeyAuditLog`.
+  - Rate limit por tenant con `TenantThrottlerGuard`.
+
+- **API Keys - Rotación automática programada:**
+  - `ApiKeyRotationSchedulerService` rota API keys cada 90 días vía `@Cron`.
+  - Sincroniza nuevas claves con integraciones Odoo activas.
+  - Registra rotaciones en `ApiKeyRotation` y `ApiKeyAuditLog`.
+
+- **API Keys - Sincronización automática con Odoo:**
+  - `IntegrationsService.syncApiKeyToOdooIntegrations` actualiza `orderflow_connector.api_key` en Odoo.
+  - Nuevo endpoint en `odoo-adapter`: `POST /odoo/update-connector-api-key`.
+  - Documentado flujo post-rotación en `docs/ODOO_INTEGRATION_GUIDE.md`.
+
+- **k6 smoke / carga continua:**
+  - Ampliación de `scripts/k6-load-test.js` con escenarios de login, health, products, customers, orders y order-create.
+  - Ampliación de `scripts/k6-biolinks-smoke.js` con health, bio 404 y productos públicos.
+
+- **Grafana + Loki + Tempo:**
+  - Stack completo integrado en `docker-compose.prod.yml`.
+  - Servicios: loki, tempo, grafana, promtail, alertmanager.
+  - Dashboards provisionados en `docs/observability/dashboards/`.
+
+- **RBAC granular:**
+  - `RbacService` con catálogo de permisos y seed inicial.
+  - `PermissionsGuard` + decorador `@RequirePermissions()`.
+  - Modelos Prisma: `Permission`, `RolePermission`, `UserTenantPermission`.
+  - Integración en `AppModule` y endpoints protegidos en `ProductsController`.
+
+- **Auditoría completa:**
+  - Modelo Prisma `AuditLog` para eventos genéricos de auditoría.
+  - `AuditService` con scope request para registrar acciones, recursos y cambios.
+
+- **RBAC granular:**
+  - `RbacService` con catálogo de permisos y seed inicial.
+  - `PermissionsGuard` + decorador `@RequirePermissions()`.
+  - Modelos Prisma: `Permission`, `RolePermission`, `UserTenantPermission`.
+
+- **Playwright E2E suite:**
+  - Expansión de `frontend/e2e/app.spec.ts` con rutas públicas y admin.
+  - Cobertura inicial de landing, login, storefront, WhatsApp catalog, Bio-Links, checkout y redirecciones de admin.
+
+- **Backup verificado + DRP documentado:**
+  - `scripts/verify-backups.sh` valida integridad de backups SQL.
+  - Documento `docs/DRP.md` con procedimientos de recuperación por entorno.
+
+- **Secretos gestionados:**
+  - `SecretsValidationService` valida secrets críticos al iniciar la app.
+  - Detección de secrets débiles o faltantes en `DATABASE_URL`, `JWT_SECRET`, `JWT_REFRESH_SECRET`, `MASTER_API_KEY`.
+
+- **RBAC granular propagada a controllers críticos:**
+  - `OrdersController`: `orders:create`, `orders:read`, `orders:update`, `orders:delete`.
+  - `CustomersController`: `customers:create`, `customers:read`, `customers:update`, `customers:delete`.
+  - `BookingsController`: `bookings:create`, `bookings:read`, `bookings:update`, `bookings:delete`, `bookings:manage`.
+  - `GiveawaysController`: endpoints públicos preservados; admin endpoints protegidos con `giveaways:read/create/update/delete/manage`.
+  - `UsersController`: `users:read`, `users:invite`, `users:manage`.
+  - Tests actualizados con mocks de `PermissionsGuard` y `RbacService`.
+
+- **Provecchio Backup & Restore:**
+  - Created `scripts/restore-provecchio.sh`: parses NDJSON backup, transforms data for new multi-tenancy DDL, generates restore SQL with `isolationTier='shared'`.
+  - Created `scripts/update-provecchio-version.sh`: updates Provecchio tenant to stable OrderFlow version (runs migrations, updates VERSION file, refreshes schema version in DB, clears caches).
+  - New migration `20260729170000_add_tenant_multitier_isolation`: adds `isolationTier`, `dedicatedDatabaseUrl`, `dedicatedSchemaVersion` columns to `tenants` table.
+  - Backup files at `/home/marcelompz/backups_sorteo/`: `giveaway_full_data.json` (NDJSON with registrations, winners, giveaway data) and `giveaway_backup_20260729_154949.sql` (DDL schema).
+
+- **App Store / Marketplace (Super Admin Panel):**
+  - RBAC granular en `SystemModulesController`: permisos `modules:read`, `modules:install`, `modules:uninstall`, `modules:configure`.
+  - DTOs con `class-validator` para todos los endpoints de módulos.
+  - Auditoría de acciones de módulos via `AuditService` (install, uninstall, toggle, config, update, readme).
+  - Auto-instalación de dependencias faltantes usando `ModulesRegistry.getInstallOrder()`.
+  - Frontend `modules.tsx`: loading states por acción, remoción de master key hardcodeada.
+
+#### 📚 Documentación
+- `AGENTS.md`: actualizada sección de DevOps con observabilidad avanzada.
+- `ROADMAP.md`: observabilidad marcada como inicial.
+
+---
+
+## [0.5.0] - 2026-07-18
+
+### ✅ **Traefik v3.3 Exclusivo, Redirecciones HTTPS & App Store Fixes**
+
+#### 🔧 Infraestructura & Traefik v3.3
+- **Redirección Global HTTP ➔ HTTPS (Puerto 80)**: Configurado `http.redirections` permanente (HTTP 308) en el entryPoint `web` de Traefik v3.3.
+- **Sintaxis de Dominios Traefik v3**: Corregida sintaxis de exclusión en reglas `!Host(...)` para routers de tenants en `services.yml`.
+- **Integración con Cloudflare Universal SSL**: Configuración validada en modo `Full (Strict)` con `Always Use HTTPS: ON` y renovación automática de certificados Let's Encrypt mediante el desafío `DNS-01` con `CLOUDFLARE_API_TOKEN`.
+
+#### 🐛 Bug Fixes
+- **App Store / Manifiestos de Módulos en Docker (`/admin/modules`)**:
+  - `ModulesRegistry.loadAll()` mejorado con un algoritmo de evaluación de candidate paths (`src/`, `dist/`, `__dirname`, `__dirname/src/`).
+  - Solucionado el problema donde los manifiestos JSON no se encontraban en imágenes Docker de producción (`node:22-alpine` multi-stage build sin `/app/src`).
+- **Navegación y Redirección en `/config`**:
+  - `ApiKeyConfig.tsx`: Se reemplazaron rutas obsoletas (`/spa`, `/retail`) por redirecciones hacia el Panel Admin (`/admin`) o la Tienda (`/tienda`).
+- **Acceso SuperAdmin al Menú de Integraciones**:
+  - `AdminApp.tsx`: Garantizada la visibilidad constante de **Integraciones (`/admin/integrations`)** y herramientas clave para el rol SuperAdmin en la barra lateral.
+
+#### 📚 Documentación
+- `docs/troubleshooting/02-production-docker-manifests-and-ssl-redirects.md` — Guía de troubleshooting para Docker producción, SSL y menú SuperAdmin.
+- `AGENTS.md` — Actualizadas las normas de arquitectura exclusiva de Traefik v3.3 y la preservación de datos en migraciones de Odoo 19 CE.
+
+---
+
+## [0.5.0-alpha.2] - 2026-07-19
+
+### ✅ Bio-Links Ajuste a Especificación (sugerencias_bio-links.md)
+
+#### 🎉 Features Agregadas
+- **Backend alineado a especificación:**
+  - Ruta pública corregida: `GET /api/v1/bio/:slug` (sin `/public` intermedio).
+  - CRUD admin por ID: `GET /:id/detail`, `PATCH /:id`, `DELETE /:id`.
+  - Cache Redis con prefijo `cache:biolink:<slug>` y TTL 3600s.
+  - Invalidación de cache en mutaciones (`upsert`, `update`, `delete`).
+  - `BioLinkClick` para analytics de clics.
+
+- **Frontend Admin:**
+  - Drag & Drop nativo en lista de bloques (eventos HTML5) con reordenamiento y persistencia de `order`.
+  - Bloque BOOKING agregado al wizard con selector de servicios (`/v1/bookings/services`).
+  - Preview smartphone reactiva manteniendo tema, avatar y bloques.
+
+- **Frontend Público:**
+  - Ruta pública consumiendo `/v1/bio/:slug`.
+  - Soporte de bloque BOOKING en Fast Checkout Drawer (campo de fecha/hora).
+  - Tracking de clics a `/v1/bio/:slug/click`.
+
+- **Testing:**
+  - 23 unit tests pasando en `biolinks.service.spec.ts` y `biolinks.controller.spec.ts`.
+  - Cobertura de cache, CRUD por ID, clicks, orden desde Bio-Link.
+
+#### 🔧 Refactor
+- `CreateBioLinkDto` ahora es completamente opcional para updates parciales.
+- Se agregó método `getById` y `updateBioLink`/`deleteBioLink` en servicio.
+- Controller admin renombrado de `getConfig/updateConfig` a `getById/updateById` manteniendo `/config` como alias legacy.
+
+---
+
+## [0.4.3] - 2026-07-16
+
+### ✅ Testing Expansion
+
+#### 🎉 Testing Unitario
+- **Expansión de cobertura de controllers**
+  - `orders.controller.spec.ts`: 8 tests
+  - `products.controller.spec.ts`: 7 tests
+  - `users.controller.spec.ts`: 8 tests
+  - `bookings.controller.spec.ts`: 17 tests
+  - `integrations.controller.spec.ts`: 7 tests
+  - `giveaways.controller.spec.ts`: 12 tests
+  - `contacts.controller.spec.ts`: 9 tests
+  - `loyalty.controller.spec.ts`: 6 tests
+  - `quotations.controller.spec.ts`: 3 tests
+  - `whatsapp-catalog.controller.spec.ts`: 2 tests
+  - `backups.controller.spec.ts`: 4 tests
+  - `health.controller.spec.ts`: 2 tests
+  - `root-health.controller.spec.ts`: 1 test
+  - `metrics.controller.spec.ts`: 1 test
+  - `public-products.controller.spec.ts`: 2 tests
+  - `public-storefront.controller.spec.ts`: 5 tests
+  - `sync-products.controller.spec.ts`: 6 tests
+  - `public-orders.controller.spec.ts`: 1 test
+  - `notifications.controller.spec.ts`: 2 tests
+- **Total:** 298 tests passing, 39 test suites
+- **Fix pre-existentes:**
+  - `customers.controller.spec.ts`: corregidos argumentos invertidos en `syncCustomers`
+  - `notifications.controller.ts`: tipado de `@Request()` arreglado, tests agregados
+  - Regeneración de Prisma Client para resolver `pushToken`
+
+#### 🔧 Refactor
+- Prisma Client regenerado para alinear tipos con `schema.prisma`
+
+---
+
+## [0.4.2] - 2026-07-15
+
+### ✅ Tauri Desktop Wrapper + Observabilidad
+
+#### 🎉 Features Agregadas
+- **Tauri Desktop Wrapper para POS**
+  - Estructura inicial en `desktop/` con Vite + React.
+  - Comandos nativos Rust: impresión ESC/POS (`/dev/usb/lp*`), `toggle_fullscreen`, `set_always_on_top`.
+  - Shortcuts globales registrados desde Rust y consumidos desde el frontend.
+  - Iframe embebido apuntando a `https://pesallaccia.com/admin/pos` con toolbar nativa.
+
+- **Observabilidad**
+  - Backend Sentry: traces/replays configurados en `instrument.ts` con DSN por env.
+  - Frontend Sentry: integrado via `SentryModule` + `SentryExceptionFilter`.
+  - Prometheus `/metrics` endpoint con `prom-client` (histogramas de HTTP, contadores de órdenes y bookings).
+
+#### 🔧 Refactor
+- Dominio configurable backend/frontend (`ROOT_DOMAIN`, `VITE_ROOT_DOMAIN`, `VITE_SYSTEM_SUBDOMAINS`).
+- White-label en páginas públicas: removido branding OrderFlow de footers.
+
+---
+
+## [0.4.1] - 2026-07-15
+
+### ✅ Fixes Producción + Dominio Configurable
+
+#### 🐛 Bug Fixes
+- **Traefik producción** - Corregidos nombres de servicios en `/srv/traefik/dynamic/services.yml`
+  - `orderflow-prod-frontend` → `http://orderflow-frontend-1:80`
+  - `orderflow-prod-backend` → `http://orderflow-backend-1:3010`
+  - `orderflow-staging-frontend` → `http://orderflow-staging-frontend-1:80`
+  - `orderflow-staging-backend` → `http://orderflow-staging-backend-1:3010`
+- **Backend crash loop** - Corregido `POSTGRES_PASSWORD` en `.env` que tenía placeholder en vez de la credencial real de producción.
+- **Frontend login no redirigía** - El backend estaba en restart loop por Prisma `P1000`; una vez fijada la DB, el login funciona correctamente.
+
+#### 🔧 Refactor
+- **Dominio configurable en backend** (`CloudflareDnsService`, `TenantsController`, `main.ts`)
+  - Nuevas variables: `ROOT_DOMAIN` (fallback `DOMAIN_NAME`, fallback `pesallaccia.com`).
+  - CORS dinámico según `ROOT_DOMAIN`.
+- **Dominio configurable en frontend**
+  - Nuevas variables: `VITE_ROOT_DOMAIN`, `VITE_SYSTEM_SUBDOMAINS`.
+  - `App.tsx`: detecta subdominios de tenant usando `VITE_ROOT_DOMAIN` y excluye subdominios de sistema (`orderflow`, `www`, `staging`).
+  - `PublicStorefrontPage.tsx`: usa `VITE_ROOT_DOMAIN` para construir el hostname del tenant.
+  - Sin autenticación: muestra `OrderFlowLandingPage` en vez del warning anterior.
+- **Landing page generalizada**
+  - Eliminadas referencias hardcodeadas a empresas reales (Gaia Spa, Repuestos Enciso).
+  - Links actualizados a rutas genéricas (`/tienda`, `/landing`).
+
+#### 📚 Documentación
+- `docs/GUIA_DESPLIEGUE_Y_TENANTS.md` - Actualizada para reflejar que `/srv/traefik/` ya existe y contiene configuración multi-tenant; eliminado paso de crear desde cero.
+- `docs/GUIA_DESPLIEGUE_SERVIDORES.md` - Aclarado que el backend se accede por path `/api` sobre el dominio principal (no por `api.pesallaccia.com`); eliminadas referencias hardcodeadas a Nginx.
+- `docs/info/verificacion-produccion.md` - Nuevo archivo con verificación de producción.
+
+#### 🔒 Seguridad
+- Credenciales de producción centralizadas en `.env.prod`; `.env` sincronizado con valores reales.
+- Eliminada exposure de nombres de empresas reales en docs de demo y credenciales.
+
+---
 
 ## [0.4.0] - 2026-07-14
 
-### 🏪 POS & KDS Integration (Real-Time WebSockets)
+### ✅ **POS / KDS / Loyalty / Subdominios — Sprint 3**
 
-#### Backend
-- **Prisma Schema Extended** - Añadidos los estados de preparación `PREPARING`, `READY` y `DELIVERED` al enum `OrderStatus`.
-- **WebSocket Gateway (`OrdersGateway`)** - Implementado servidor de sockets en el namespace `/orders` con soporte para multi-tenancy. Agrupa a los clientes en salas independientes por ID de Tenant (`join:tenant`).
-- **Real-Time Triggers** - `OrdersService` ahora inyecta el gateway y emite eventos en tiempo real:
-  - `order:new` cuando un pedido es formalmente cobrado y cerrado.
-  - `order:status_updated` cuando se actualiza el estado de preparación de un plato en cocina.
-- **Nuevos Endpoints REST** - Añadida la ruta `PATCH /api/v1/orders/:id/status` para transicionar el estado de las comandas desde las pantallas del KDS.
+#### 🎉 Features Agregadas
+- **Punto de Venta (POS) Web**
+  - Modo Mozo (agregar ítems a mesas activas) y Modo Caja (cobro centralizado).
+  - Diseño offline-first con Dexie.js (IndexedDB) y Zustand sync queue.
+  - Búsqueda rápida de productos, categorías y modificadores contextuales.
 
-#### Frontend
-- **Punto de Venta Web (POS)** - Desarrollada la vista interactiva dual:
-  * *Modo Mozo:* Carga de platos al carrito, buscador de catálogo, control de stock local y envío de comanda en estado `DRAFT` (pedido pendiente) asociada a una mesa.
-  * *Modo Caja:* Grid interactivo de mesas ocupadas, visor del ticket detallado, aplicación de descuentos y cobro centralizado con selección de método de pago (Efectivo, Tarjeta, Transferencia).
-- **Pantalla de Cocina (KDS)** - Desarrollada la interfaz táctil reactiva conectada al servidor por WebSockets:
-  * Recibe comandas de mozos al instante.
-  * Semáforo de criticidad por tiempo transcurrido (Verde <10m, Amarillo 10-20m, Rojo >20m).
-  * Control de estados interactivo ("Empezar Cocción", "Marcar Listo", "Entregar a Mesa") para actualizar al mozo y liberar la comanda.
-- **Indexación y Menú** - Integración en el panel administrativo de Refine en `/admin/pos` y `/admin/kds` e instalación del paquete `socket.io-client`.
+- **Pantalla de Cocina (KDS) en Tiempo Real**
+  - WebSocket Gateway (`OrdersGateway`) en namespace `/orders` con aislamiento por sala `tenant:<tenantId>`.
+  - Eventos `order:new` y `order:status_updated` para transmisión instantánea de comandas.
+  - Semáforo de criticidad por tiempo: 🟩 Normal (0-10 min), 🟨 Alerta (10-20 min), 🟥 Crítico (20+ min con parpadeo).
 
-#### DevOps
-- Recompilación exitosa en Hetzner VPS de la imagen `orderflow-frontend-prod` y `orderflow-backend-prod` en Staging.
+- **Transición de Estado de Órdenes**
+  - Nuevo endpoint `PATCH /api/v1/orders/:id/status` para control de cocina.
+  - `OrderStatus` enum ampliado: `DRAFT`, `CONFIRMED`, `PREPARING`, `READY`, `DELIVERED`, `CANCELLED`.
 
-### 📅 Bookings & Quotations (Validation & Testing)
+- **Módulo de Fidelización (Loyalty) — Backend**
+  - Controller con 5 endpoints: `GET /card/:customerId`, `GET /rules`, `POST /rules`, `PATCH /rules/:id`, `POST /redeem`.
+  - Motor de acumulación automática de puntos en checkout (`awardPointsForOrder`).
+  - Sistema de tiers: BRONZE → SILVER (500pts) → GOLD (2000pts) → PLATINUM (5000pts).
+  - Auto-generación de tarjetas con código de barras único (`LC-[PREFIX]-[HASH]`).
+  - Schema Prisma: `LoyaltyCard`, `LoyaltyTransaction`, `LoyaltyRule`.
 
-#### Backend
-- **Bookings Unit Testing** - Implementados los tests unitarios en `bookings.service.spec.ts` cubriendo el 100% del servicio (sincronización de recursos, servicios, disponibilidad doble y creación de reservas atómicas).
-- **Quotations Unit Testing** - Verificado y validado el paso de las pruebas unitarias de presupuestos (`quotations.service.spec.ts`) contra el motor de base de datos.
+- **Módulo de Fidelización (Loyalty) — Admin UI**
+  - Panel de administración (`/admin/loyalty`) con KPIs, gestión de reglas (crear/activar/desactivar).
+  - Consulta de tarjeta de fidelidad por cliente con historial de transacciones.
+  - Canje de puntos desde el panel admin con validación de saldo.
+  - Registrado en el menú lateral de AdminApp (condicional al módulo `loyalty`).
 
-#### Frontend
-- **Admin UI Activation** - Habilitadas y validadas las interfaces de usuario para la administración de Turnos/Profesionales (`/admin/bookings`) y Presupuestos (`/admin/quotations`).
-- **SET/DNIT Integration** - Verificado el funcionamiento del autocompletado tributario en vivo con la DNIT de Paraguay desde el modal de creación de nuevos clientes.
+- **Subdominios Públicos por Tenant**
+  - `PublicStorefrontPage`: storefront público que resuelve tenant por subdominio.
+  - Cloudflare DNS automático al crear tenant (`cloudflare-dns.service.ts`).
+  - Soporte para `https://<tenant>.pesallaccia.com` con DNS Only (Traefik SSL).
 
-## [0.2.0-beta.2] - 2026-07-05
+#### 🔧 Infraestructura
+- Sentry frontend integrado (`SentryModule.forRoot()` en AppModule).
+- ThrottlerModule: rate limiting global (100 req/min).
+- ScheduleModule para cron jobs (@nestjs/schedule).
 
-### 🎨 Giveaway Registration Improvements
-- **Video Background** - Contenido dentro del card (no pantalla completa)
-  - Video movido 30% arriba para mostrar rostro
-  - Overlay blanco 50% para mejor contraste de texto
-  - Blur 6px + brightness 0.5
-
-- **Text Contrast** - Todo el texto más oscuro
-  - `textPrimary: #000000` (negro puro)
-  - `textSecondary: #333333` (gris muy oscuro)
-  - Bordes más oscuros: `rgba(0, 0, 0, 0.2)`
-
-- **Date Picker** - Inicia 15 años atrás (sin límites)
-  - `pickerValue` configurado a 15 años atrás
-  - Sin `disabledDate` (permite cualquier fecha)
-  - Formato DD/MM/YYYY automático
-
-- **Google Sign-In** - Scopes adicionales
-  - `user.birthday.read` → Fecha de nacimiento
-  - `user.phonenumber.read` → Teléfono
-  - `user.addresses.read` → Dirección completa
-  - Autocompleta: nombre, email, teléfono, dirección, cumpleaños
-
-### 🛍️ Store Configuration
-- **Root Redirect** - `VITE_ROOT_REDIRECT` env variable
-- **Multi-environment** - `.env.production` vs `.env.provecchio`
-- **Ecommerce URL** - Guardada en localStorage desde BrandingProvider
-- **Back to Store Button** - Usa ecommerceUrl del tenant
-
-### 🚀 Deployment
-- **Deploy Script** - Soporte para `--env production|provecchio`
-- **Docker Compose** - Variable `VITE_ENV_FILE`
-- **Traefik DNS Automation** - DNS-01 Challenge vía Cloudflare con certificados auto-renovables
-
-### 🐛 Bug Fixes
-- **Password Hash** - Node.js bcrypt en vez de Python (PostgreSQL compatibility)
-- **Login 404** - API proxy configurado correctamente
-- **Text Color** - `theme.textPrimary` en inputs
-
-## [0.2.0-beta.1] - 2026-07-04
-
-### 🎯 Giveaway Module - Multi-tenant Sorteos Completos
-
-#### Backend
-- **Auth Service** - JWT ahora incluye `tenantId` desde el login
-  - `login()` genera token con contexto del primer tenant del usuario
-  - Evita error `super-admin-global` en endpoints protegidos
-  - Fix de foreign key constraints en tablas multi-tenant (`giveaways`, `module_installations`)
-
-- **Auth Module** - Agregado PrismaService para obtener tenant info completa
-  - Login retorna `tenants` array con `id`, `name`, `apiKey`
-  - Frontend puede guardar tenant info en localStorage
-
-- **Main.ts** - CORS configurado para múltiples puertos de desarrollo
-  - `localhost:3011`, `localhost:3001`, `localhost:5173`
-  - `credentials: true` para cookies/headers
-
-- **Giveaways Service** - Logging para debug de tenantId + endpoint público
-  - Verifica existencia de tenant antes de crear sorteo
-  - Nuevo endpoint `GET /api/v1/giveaways/public/:id` para sorteo por ID
-  - Mensajes de error claros si tenant no existe
-
-- **Giveaways Service** - Integración con Odoo para sincronización de contactos
-  - Sincronización automática después del registro en sorteo
-  - Busca contacto existente por email/teléfono y actualiza
-  - Crea nuevo contacto si no existe
-  - Soporta documentos de identidad (CI/RUC) para facturación electrónica
-  - Campos sincronizados: nombre, email, teléfono, dirección, fecha nacimiento, documento
-
-#### Frontend
-- **Login.tsx** - Guarda tenant info en localStorage
-  - `tenantId`, `tenantName`, `apiKey` disponibles después del login
-  - `useMultiTenant` hook carga desde localStorage inmediatamente
-
-- **GiveawayRegister.tsx** - URL única por sorteo + Fix de URL duplicada
-  - Ruta cambiada de `/sorteo/:tenantId` a `/sorteo/:giveawayId`
-  - Normaliza `VITE_API_URL` para remover trailing `/api`
-  - Cada sorteo tiene su propia URL pública única
-  - Carga branding del tenant asociado al sorteo
-
-- **GiveawayRegister.tsx** - Branding dinámico con nombre del tenant
-  - Fix: `branding.name` ahora se incluye correctamente desde el endpoint
-  - Isotipo dinámico: `/tenants/{tenant}/isotipo.svg`
-  - Favicon dinámico con logo del tenant
-  - Tema claro/oscuro basado en nombre del tenant o color primario
-
-- **GiveawayRegister.tsx** - Tema Provecchio personalizado
-  - Fondo blanco puro (#ffffff)
-  - Colores de marca: #6F2729 (vino), #B99A9C (rosa viejo)
-  - Texto oscuro para legibilidad sobre fondo claro
-  - Botones sociales con texto oscuro
-
-- **GiveawayRegister.tsx** - Campos para facturación electrónica
-  - Tipo de documento: CI (Cédula) o RUC
-  - Número de documento con validación de solo dígitos
-  - Placeholders dinámicos según tipo de documento
-  - Información de ayuda (6-8 dígitos CI, 6-12 dígitos RUC)
-
-- **Admin Giveaways** - URL correcta en panel de administración
-  - Muestra `window.location.origin/sorteo/{giveawayId}`
-  - Permite compartir sorteos individuales
-
-- **TenantStore.ts** - Fallback de tenantName a tenantId
-  - Si no hay nombre en localStorage, usa el ID como fallback
-  - Guarda nombre cuando se obtiene de la API
-
-- **UseMultiTenant.ts** - Simplificado para cargar desde localStorage
-  - Sin fetch innecesario a `/my-tenants` (requiere JWT)
-  - Estado consistente después del login
-
-### ✅ Completed
-- **Multi-tenant Login Flow** - JWT con tenantId + localStorage completo
-- **Giveaway Public Pages** - CORS fix + URL normalization + URL única por sorteo
-- **Tenant Switcher** - Funciona con JWT actualizado
-- **Database Constraints** - Fix de foreign keys con tenantId correcto
-- **Multiple Giveaways** - Cada sorteo con URL única compartible
-- **Provecchio Branding** - Tema blanco con isotipo SVG dinámico
-- **Dynamic Favicon** - Logo del tenant en la pestaña del navegador
-- **Odoo Integration** - Sincronización automática de contactos después del registro
-- **Document Identity Fields** - Campos CI/RUC para facturación electrónica paraguaya
-
-### 🐛 Bug Fixes
-- **Foreign Key Violations** - `giveaways_tenantId_fkey`, `module_installations_tenantId_fkey`
-- **CORS Errors** - Frontend localhost:3011 bloqueado por backend
-- **Double /api** - URLs como `/api/api/v1/...` causaban 404
-- **Tenant Name Null** - localStorage sin tenantName después del login
-- **Same URL for All Giveaways** - Todos los sorteos mostraban misma URL (tenantId en vez de giveawayId)
-- **Branding Name Missing** - `branding.name` no se guardaba correctamente
-- **Social Buttons Invisible** - Texto blanco sobre fondo blanco en tema claro
-- **Share Endpoint 404** - Endpoint `/share` no implementado, temporalmente deshabilitado
-- **Facebook Login** - Temporalmente deshabilitado, solo Google habilitado
-
-### 🔧 Technical
-- **Video Background** - Soporte para video de fondo por tenant (opcional)
-- **Image Optimization** - Preparado para conversión WebP (pendiente)
-- **JWT Session Extension** - 30 días access token, 365 días refresh token
-- **Google Sign-In** - Integrado para autocompletado de formulario
-- **Tenant Asset Structure** - Convención: `/tenants/{tenant}/isotipo.svg`
+#### 📚 Documentación
+- `docs/POS_KDS_ARCHITECTURE.md` — Arquitectura completa POS/KDS.
+- `docs/06-pos-kds.md` — Guía de integración POS/KDS.
+- `docs/07-uml-diagrams.md` — Diagramas UML del sistema.
+- `docs/08-loyalty.md` — Documentación del módulo Loyalty.
 
 ---
 
-## [0.1.0-alpha.6] - 2026-06-28
+## [0.3.1] - 2026-07-12
 
-### ✅ Completed
-- **Preparación y Maduración para Producción (DevOps):**
-  - **Redes Docker Unificadas:** Configuración de la red bridge de Docker con nombre exacto `orderflow-network` en desarrollo y producción para evitar conflictos de comunicación interna.
-  - **Healthchecks Estabilizados:** Configuración de healthchecks HTTP utilizando `127.0.0.1` en vez de `localhost` en todos los contenedores para evitar problemas de resolución IPv6.
-  - **Orquestación de Odoo Adapter:** Inclusión del contenedor `odoo_adapter` en `docker-compose.prod.yml` y configuración dinámica de su endpoint de conexión en backend con `process.env.ODOO_ADAPTER_URL`.
-  - **Enrutamiento Traefik v3.3:** Reemplazo de NGINX Proxy por Traefik v3.3 como proxy exclusivo, con DNS-01 Challenge vía Cloudflare para certificados SSL automáticos, y routing de Odoo Web en `odoo.provecchio.com`.
-  - **Completitud de Templates .env:** Actualizadas las plantillas [.env.production](file:///opt/orderflow/.env.production) y [.env.staging](file:///opt/orderflow/.env.staging) con variables críticas (`POSTGRES_PASSWORD`, `REDIS_PASSWORD`, `JWT_REFRESH_SECRET` y `ODOO_ADAPTER_URL`).
-- **Correcciones y UX del Frontend:**
-  - **Redirección en Render-Phase corregida:** Se envolvieron todas las navegaciones del checkout en hooks `useEffect` en `whatsapp-checkout.tsx` y `checkout.tsx` para evitar advertencias de React y permitir visualizar la pantalla de pedido exitoso.
-  - **Dirección Dinámica en Catálogo de WhatsApp:** Reemplazo de la dirección física hardcodeada `Hohenau` en el selector de retiro por la variable dinâmica `address` configurada en los ajustes del catálogo.
-  - **Fallback de API Key:** Inicialización automática del `localStorage` con la clave de prueba de Provecchio si no se encuentra configurada, asegurando la carga de catálogos y productos al primer acceso.
-  - **Fix de compilación TS en main.tsx:** Remoción de flags de futuro desaprobados en `<BrowserRouter>` al estar ya implementados de forma nativa por React Router v7.
-  - **Consumo Seguro de Contexto de Mensajería:** Integración del componente de envoltura `<App>` en [BrandingProvider.tsx](file:///opt/orderflow/frontend/src/components/tenant/BrandingProvider.tsx) y migración de alertas a `App.useApp()` en catálogo y checkout de WhatsApp para aplicar los colores del branding del tenant a las alertas y eliminar warnings.
-  - **Limpieza de Advertencias en Componentes:** Corrección del uso del componente `<Spin>` en [whatsapp-checkout.tsx](file:///opt/orderflow/frontend/src/pages/whatsapp-checkout.tsx) para evitar la advertencia de uso independiente de `tip`.
-  - **Actualización de FAQ:** Actualizado el correo electrónico de contacto en [FAQ.md](file:///opt/orderflow/FAQ.md) a `marcelo@pesallaccia.com`.
+### ✅ Mejoras de Gestión de Tenants (Super Admin)
 
-## [0.1.0-alpha.5] - 2026-06-28
+#### 🎉 Features Agregadas
+- **Gestión de Tenants desde el dashboard Super Admin**
+  - Botón **Deshabilitar / Habilitar** por tenant (`active` reversible) en la tabla de tenants.
+  - Acción **Eliminar** tenant con confirmación de eliminación irreversible.
+  - Botón **Crear Nuevo Tenant** funcional (modal) que muestra la API Key generada.
+- **Autorización por rol `ADMIN`**
+  - Un usuario con rol `ADMIN` (vía `UserTenantAccess`) puede gestionar los tenants a los que tiene acceso, sin requerir al Super Admin.
+  - El Super Admin (`isSuperAdmin` por JWT o master API key) sigue gestionando cualquier tenant.
+- **Nuevos endpoints de Tenants** (`backend/src/tenants/tenants.controller.ts`)
+  - `PATCH /api/v1/tenants/:id/disable` → deshabilita (`active=false`).
+  - `PATCH /api/v1/tenants/:id/enable` → rehabilita (`active=true`).
+  - `DELETE /api/v1/tenants/:id` → eliminación definitiva (hard delete, con cascade).
+  - `GET /api/v1/tenants` ahora devuelve también `businessName`, `industry`, `ecommerceEnabled` y `bookingsEnabled`.
 
-### ✅ Completed
-- **Módulo Catálogo de WhatsApp:**
-  - **Mapeo y Registro en Backend:** Creación del módulo dinámico backend con manifiesto `whatsapp-catalog.manifest.json`, controladores públicos configurados y scripts SQL de instalación.
-  - **Frontend Premium de Catálogo:** Creación de `whatsapp-catalog.tsx` con acordeones colapsables para categorías, listado por categorías con badges de conteo y chevrons.
-  - **Banner de Portada por Industria:** Lógica para cargar banners por defecto de alta calidad basados en el rubro del tenant (ej. spa, retail) si no se ha configurado uno personalizado.
-  - **Checkout de WhatsApp con Registro ERP:** Creación de `whatsapp-checkout.tsx` que registra el pedido en las bases de datos de OrderFlow y genera la redirección de chat pre-redactada a WhatsApp.
-  - **Integración con Landing de Tienda:** Botón flotante para acceder al catálogo integrado en `TenantTemplate.tsx`.
-  - **Estandarización de Cliente API:** Refactorización a Axios (`api`) para evitar el bug de doble ruta `/api/api` y soportar fallback de clave API.
-- **Actualización de Enrutamiento (React Router v7):**
-  - **Upgrade de Dependencias:** Actualización de `react-router-dom` y `react-router` a la versión `7.18.0`.
-  - **Limpieza de Tipos:** Desinstalación del paquete obsoleto `@types/react-router-dom` (v5) para corregir y consolidar los tipos nativos en el build de TypeScript.
-  - **Estandarización de BrowserRouter:** Remoción de las configuraciones y flags obsoletas de futuro (`future` prop) en `main.tsx` al estar implementadas de forma predeterminada en la v7.
+#### 🔒 Seguridad
+- `findAll`, `update`, `disable`, `enable` y `delete` de tenants validan `assertCanManageTenant`:
+  Super Admin o `ADMIN` del tenant; cualquier otro rol recibe `403 Forbidden`.
+- La creación de tenants (`POST`) se mantiene **pública** por diseño.
 
 ---
 
-## [0.1.0-alpha.4] - 2026-06-23
+## [0.3.0] - 2026-07-06
 
-### ✅ Completed
-- **App Store Enhancements:** Funcionalidad para actualizar módulos y previsualizar `README.md` directamente desde el panel de administración.
-- **Frontend TS/Dependencies Fixes:** Resolución de múltiples errores de compilación (`noImplicitAny`, dependencias faltantes `@types`, dependencias de Expo/React Navigation).
-- **Code Quality:** Limpieza de imports, variables y propiedades no utilizadas en múltiples componentes frontend.
-- **CI/CD Pipeline Stabilization:** Corrección definitiva de pruebas fallidas y resolución total de advertencias estrictas de TypeScript y ESLint (exit code 0 en backend, frontend y mobile).
-- **Merge & Deploy a Producción:** Despliegue exitoso automatizado a la rama `main` y ambiente productivo tras la validación en Staging.
-- **Backend Test Fixes:** Resolución de fugas de estado entre pruebas (mock resets) en reservas para eliminar falsos `ConflictException`.
-- **Mobile/Frontend Data Mapping:** Sincronización estricta de las interfaces `Product` y `CartItem`, asegurando solidez entre el front y mobile.
+### ✅ **COMPLETADO - Sprint 1**
 
----
+#### 🎉 Features Agregadas
+- **Swagger API Documentation 100%** - 65/65 endpoints documentados
+  - Auth, Tenants, Users, Products, Orders, Giveaways, Contacts, Categories, Bookings, Quotations
+  - Bearer JWT + API Key authentication configurada
+  - Disponible en `http://localhost:3010/api/docs`
 
-## [0.1.0-alpha.3] - 2026-06-22
+- **Staging Environment 100% Operativo**
+  - Deploy en Hetzner VPS (`staging.provecchio.com`)
+  - Nginx API proxy configurado
+  - Database migrations graceful handling
+  - Test user creado (`test@staging.com`)
 
-### ✅ Completed
-- **POS Multi-Sesión:** Tablet split-screen con carrito permanente (POSScreen.tsx)
-- **Sync Offline:** Cola de sincronización con Zustand + AsyncStorage (syncStore.ts + useOfflineSync.ts)
-- **Migraciones SQL:** Motor nativo con template {{TENANT_ID}} para multi-tenant
-- **CI/CD:** Validación de 3 ecosistemas (backend + frontend + mobile)
-- **App Store:** UI completa de gestión de módulos (modules.tsx)
-- **Health Checks:** Endpoint `/api/v1/health` + UI Super Admin Dashboard
-- **Backups SFTP:** Módulo nativo con configuración dinámica por tenant
-- **Quotations Module:** Módulo de presupuestos con migraciones SQL
-- **Tests Unitarios:** Primera batería (ModulesRegistry + SystemModulesService)
-- **Traefik:** Reverse proxy v3.3 con SSL/TLS termination y DNS-01 Challenge
-- **DNIT Integration:** Consulta de RUC a DNIT vía turuc.com.py con cache automático en GlobalDirectory
-- **Dynamic Icons:** Iconos personalizados por módulo en App Store (13 módulos con iconos únicos)
-- **Registry Optimization:** Singleton pattern + búsqueda dual (src/ + dist/)
-- **Testing Utils:** Scripts para validar integridad de manifiestos
-- **App Store Auto-Install:** Módulos core se auto-instalan para tenants nuevos
-- **批量安装 Script:** auto-install-core.ts para instalar todos los módulos core
-- **SQL Migrations:** Automáticas al instalar módulos con template {{TENANT_ID}}
-- **Logger NestJS:** Reemplaza console.error en SystemModulesService
-- **Singleton Registry:** Inyección explícita con useValue en module
-- **Tests Unitarios:** 8 tests para SystemModulesService (60% coverage)
+- **Test Utilities**
+  - `backend/test/utils/mocks.ts` con mocks reutilizables
+  - `createPrismaMock()`, `createJwtMock()`, `createConfigMock()`
+  - 7 tests unitarios pasando (35% coverage baseline)
 
-### 📊 Audit Score
-- **Global:** 84/100 (+13 pts desde alpha.1)
-- **Backend:** 90/100 (+12 pts)
-- **Testing:** 15/100 (iniciado, 4 tests implementados)
-- **DevOps:** 80/100 (+22 pts)
+#### 🐛 Bug Fixes
+- **DB Migration Error** - Fix para `P3005 - schema is not empty` en staging
+  - Creado `backend/entrypoint.sh` para migraciones graceful
+  - Health check de database con netcat
 
-### 🧪 Tests Implementados
-- `modules.registry.spec.ts` (2 tests)
-- `system-modules.service.spec.ts` (2 tests)
+- **Frontend API 404** - Nginx no proxyeaba `/api/*` al backend
+  - Creado `frontend/frontend.conf` con API proxy config
+  - Fix: `/api/*` → `http://orderflow-backend-prod:3010`
 
-### 🐛 Bug Fixes
-- Deploy a producción (dependencia incorrecta de deploy-staging)
-- Assets en build (manifest + SQL empaquetados en dist/)
-- Fallback de clientes anónimos (RUC 000000 para facturación)
+- **Build Docker con Tests** - Tests fallaban en production build
+  - Creado `backend/tsconfig.build.json` excluyendo tests
+  - Updated `Dockerfile.prod` para usar tsconfig.build
 
-### 📦 Módulos Nuevos
-- **Quotations:** Presupuestos con settings (validityDays, termsAndConditions)
-- **Backups:** Copias SFTP automáticas con cron scheduling
+#### 📚 Documentación
+- `docs/GOOGLE_OAUTH_FIX_SUMMARY.md` - OAuth fix summary
+- `docs/GOOGLE_OAUTH_SETUP.md` - OAuth configuration guide
+- `docs/PRODUCCION_DEPLOY_COMPLETE.md` - Production deployment guide
+- `docs/STAGING_DEPLOYMENT_GUIDE.md` - Staging deployment step-by-step
+- `docs/DAY_SUMMARY_2026-07-06.md` - Daily work summary
 
-### 📚 Documentación
-- Wiki: https://wiki.marcelompz.github.io/orderflow/
-- Arquitectura Modular: docs/arquitectura-modular.md
-- Versionamiento: docs/versionamiento.md
-- README Project: docs/README-PROJECT.md
-- Validación DNIT: docs/VALIDACION_INTEGRACION_DNIT_V2.md
+#### 🔧 Technical Debt
+- **35% Test Coverage** - Baseline establecido
+  - 7 tests passing en staging
+  - Test utilities creadas para futuro crecimiento a 50%+
 
 ---
 
-## [0.1.0-alpha.2] - 2026-06-22
+## [0.2.0] - 2026-06-22
 
-### ✅ Completed
-- **P3-1:** admin/customers.tsx CRUD funcional
-- **P3-2:** admin/bookings.tsx + E2E test con Odoo 19
-- **Integración:** Agenda + Facturación certificada al 100%
-- **Infraestructura:** odoo-adapter dockerizado de forma nativa para soportar múltiples tenants.
-- **Limpieza Frontend:** Eliminación de archivos obsoletos según auditoría, estandarizando sobre checkout-simple.tsx.
+### ✅ FASE 3 COMPLETADA
 
-### 📊 Audit Score
-- **Global:** 73.1/100 (+2 pts desde alpha.1)
-- **Frontend:** 82/100 (+4 pts)
-- **Horas ahorradas:** 32h (adelantados del cronograma)
+#### Features
+- **Mobile Offline Mode** - React Native + Zustand persist
+- **SQL Migration Engine** - Native SQL migrations con `{{TENANT_ID}}`
+- **CI/CD Pipeline** - GitHub Actions con 3-ecosystem validation
+- **Unit Tests Init** - 4 tests iniciales (ModulesRegistry, SystemModules)
 
-### 🐛 Bug Fixes
-- Corrección de fallback de clientes anónimos (RUC nulo para invitados)
-- Resiliencia de webhooks con reintentos automáticos (cada 5 min)
-
-### 🔧 Technical Debt
-- Pendiente: 0% test coverage (Jest sin tests reales)
-- Pendiente: Sin health check endpoint `/health`
+#### Technical
+- Modular architecture Odoo-style
+- App Store UI para module management
+- Dynamic module icons
+- Git Flow versioning (MAJOR.MINOR.PATCH-PRERELEASE)
 
 ---
 
-## [0.1.0-alpha.1] - 2026-06-22
+## [0.1.0] - 2026-06-15
 
-### 📋 Initial Audit
-- **Score global:** 71.1/100
-- **Roadmap:** 12 semanas, 434 horas, 37 tareas
-- **Fases:** 0 (Críticos) → 1 (Testing) → 2 (Security) → 3 (Features) → 4 (Prod Ready)
+### ✅ MVP INICIAL
 
-### 📦 Módulos del Sistema
-- Backend (NestJS + Prisma) - Puerto 3010
-- Frontend (React + Vite) - Puerto 3011
-- Mobile (React Native + Expo) - SDK 54.0.0
-- Odoo Adapter (NestJS Microservice)
+#### Features
+- Multi-tenant core con API key isolation
+- Giveaway module con landing page
+- WhatsApp catalog integration
+- Basic authentication (API key only)
 
-### 🎯 Component Scores
-| Componente | Score | Estado |
-|------------|-------|--------|
-| Backend | 78/100 | ⚠️ Production-Ready con deuda técnica |
-| Frontend | 78/100 | ⚠️ Production-Ready con deuda técnica |
-| Mobile | 67.5/100 | ⚠️ MVP funcional, sin persistencia |
-| DevOps | 56/100 | ❌ Crítico para producción |
+#### Technical
+- NestJS + Prisma backend
+- React + Refine.dev frontend
+- PostgreSQL database
+- Docker containers
 
 ---
 
-## [0.0.1] - 2026-06-13
+## Versiones
 
-### 🚀 Initial Commit
-- Arquitectura multi-tenant definida
-- Schema Prisma con 15+ modelos
-- Primer tenant: SPA Wellness
-- Integración con Odoo 19 (webhook-based)
-
----
-
-## [0.2.3] - 2026-07-04 - Tenant Switcher + Gestión de Sesiones (Estilo Odoo)
-
-### 🎯 Added
-
-#### Tenant Switcher (Selector de Tenants)
-- **Componente `TenantSwitcher.tsx`** - Selector de tenants similar a Odoo
-  - Muestra todos los tenants disponibles para el usuario
-  - Cambio de tenant sin re-login (solo recarga de página)
-  - Indicador visual del tenant activo con check verde
-  - Dropdown con lista de tenants accesibles
-
-#### Gestión de Sesiones Multi-Tenant
-- **Lógica Single-Tenant** - Usuarios con 1 tenant ven automáticamente su tenant
-  - Sin selector visible (auto-select al login)
-  - Acceso directo a su administración
-  - No puede acceder a otros tenants
-
-- **Lógica Multi-Tenant** - Usuarios con N tenants ven selector
-  - Selector visible en el header
-  - Puede cambiar entre tenants fácilmente
-  - Cada tenant mantiene su API key independiente
-
-#### UI/UX Enhancements
-- **Indicador de Tenant Activo** - Building icon + nombre del tenant
-- **Menú de Usuario/Perfil** - Reemplaza botón "Cerrar sesión"
-  - Gestión de sesión activa
-  - Información del usuario
-  - Cambio de tenant desde el mismo menú
-  - Cerrar sesión como opción secundaria
-
-### 🔧 Technical
-
-#### Backend
-- **Endpoint `/api/v1/tenants/my-tenants`** - Retorna lista de tenants del usuario
-  - Filtra por `user_tenant_access`
-  - Incluye `apiKey` para cada tenant
-  - Usado por TenantSwitcher para populate
-
-#### Frontend
-- **Auth Service Actualizado** - Maneja cambio de tenant sin re-login
-  - Guarda `tenantId` y `apiKey` en localStorage
-  - Recarga página para aplicar nuevo contexto
-  - Mantiene token JWT válido entre tenants
-
-- **BrandingProvider** - Soporta cambio dinámico de tenant
-  - Limpia cache al cambiar
-  - Recarga configuración del nuevo tenant
-
-### 📊 Database
-
-#### User Roles por Tenant
-```sql
--- Usuarios multi-tenant pueden tener roles diferentes por tenant
-marcelo@pesallaccia.com → ADMIN en Provecchio
-soporte@crossnexion.com → ADMIN en Provecchio
-admin@spa-demo.com → ADMIN en SPA Wellness
-```
-
-#### Tenant Access Control
-- Tabla `user_tenant_access` con:
-  - `userId` - Usuario
-  - `tenantId` - Tenant
-  - `role` - Rol específico (ADMIN, MANAGER, VIEWER, SELLER)
-  - `active` - Estado del acceso
-
-### 🐛 Bug Fixes
-
-#### Giveaways Module
-- **Foreign Key Error** - Corregido `giveaways_tenantId_fkey`
-  - Verifica tenant existe antes de crear sorteo
-  - Mensaje de error claro si tenant inválido
-
-#### JWT Authentication
-- **JWT_SECRET Configuration** - Agregado al `.env` backend
-  - Token se valida correctamente
-  - Roles se incluyen en payload del JWT
-
-#### Database Connection
-- **Database Name** - Corregido de `orderflow_prod_db` a `orderflow_db`
-  - Scripts SQL ahora usan la DB correcta
-
-### 📝 Documentation
-
-#### CHANGELOG
-- Actualizado con todas las features de 0.2.2 y 0.2.3
-- Sección de Deployment para servidor
-- Lista de tenants demo con API keys
-
-#### Environment Variables
-- `.env.example` actualizado con JWT configuration
-- `.env.prod` configurado para Provecchio
-
-### 🚀 Deployment
-
-#### Local Development
-```bash
-cd /opt/orderflow
-docker compose up -d
-
-# Login con usuario multi-tenant
-marcelo@pesallaccia.com / <tu-password>
-
-# Selector de tenants visible en header
-```
-
-#### Production Server (dimoraserverlocal)
-```bash
-ssh dimoraserverlocal
-cd /srv/orderflow
-git pull origin staging
-docker compose --env-file .env.prod -f docker-compose.prod.yml up -d
-
-# Acceso
-http://dimora.provecchio.com:8083
-```
-
-#### Tenants Configurados
-| Tenant | API Key | Estado |
-|--------|---------|--------|
-| Provecchio Di Mora | `0bb60656b9fbfcc27e38ae444e9e376f` | ✅ Activo |
-| SPA Wellness | `067059e2d6ae48d8a5f7c81b85fbf522` | ✅ Activo |
-| Auto Repuestos | `d077a104c7924eec846588af8b0138cc` | ✅ Activo |
-
-### 🔐 Security
-
-#### JWT Configuration
-```env
-JWT_SECRET=orderflow-secret-key-change-in-production
-JWT_EXPIRES_IN=15m
-JWT_REFRESH_SECRET=<secure-random>
-```
-
-#### Tenant Isolation
-- Cada tenant tiene su propia API key
-- Usuarios solo ven sus tenants asignados
-- Roles validados por tenant en cada request
-
----
-
-## [0.2.2] - 2026-07-03 - Single-Tenant + Super Admin
-
-### Added
-- **Single-Tenant Mode** - Variables `DEFAULT_TENANT_ID` y `DEFAULT_API_KEY`
-  - Permite desplegar OrderFlow para un tenant específico
-  - Los usuarios ven directamente SU tienda/administración
-  - Sin pasar por selección de tenant
-  - Ideal para despliegues dedicados (ej: Provecchio)
-
-- **Super Admin Role** - Campo `isSuperAdmin` en User
-  - Owner de OrderFlow tiene acceso total a TODOS los tenants
-  - Puede administrar configuración global
-  - Tenant Admins solo ven SU empresa
-
-- **Multi-Tenant Access** - Tabla `user_tenant_access`
-  - Usuarios pueden estar en múltiples tenants
-  - Roles por tenant (ADMIN, USER, VIEWER)
-  - Un usuario, múltiples empresas
-
-### Changed
-- **Backend .env.example** - Documentación completa de variables
-- **Server .env.prod** - Configurado para Provecchio Di Mora
-- **Tenants Demo** - 3 tenants precargados:
-  - SPA Wellness (Spa) - `067059e2d6ae48d8a5f7c81b85fbf522`
-  - Auto Repuestos (Automotriz) - `d077a104c7924eec846588af8b0138cc`
-  - Provecchio Di Mora (Restaurant) - `0bb60656b9fbfcc27e38ae444e9e376f`
-
-### Security
-- **SingleTenantMiddleware** - Inyecta tenant automáticamente si está configurado
-- **ApiKeyGuard** - Valida API key por tenant
-- **JWT Guards** - Protección de endpoints con roles
-
-### Deployment
-- **Server**: dimoraserverlocal:/srv/orderflow/
-- **Git**: GitHub staging branch
-- **SSL**: Cloudflare (provecchio.com, dimora.provecchio.com)
-- **Puertos**: 8080 (HTTP), 443 (HTTPS via Cloudflare)
+| Versión | Fecha | Estado | Notas |
+|---------|-------|--------|-------|
+| **1.1.9** | 2026-07-31 | ✅ Released | Unificación de navegación & QA E2E integral |
+| **1.1.8** | 2026-07-31 | ✅ Released | Homepage Visual Builder, Landing vs. Tienda routing |
+| **1.1.7** | 2026-07-30 | ✅ Released | QA E2E Playwright Suite, Subdomain Resolution Fixes |
+| **1.1.3** | 2026-07-27 | ✅ Released | File Store Unificado por Tenant + Backups + WhatsApp Catalog Admin |
+| **1.1.2** | 2026-07-27 | ✅ Released | WhatsApp Catalog Admin, Checkout tenant resolution |
+| **1.1.1** | 2026-07-27 | ✅ Released | WhatsApp Catalog subdomain resolution fix |
+| **1.1.0** | 2026-07-26 | ✅ Released | Standalone Suite, Soft-Delete Tenants, Redis WebSockets |
+| **1.0.0** | 2026-07-25 | ✅ Released | Commercial SaaS Release: Billing, Marketplace, White-label, i18n |
+| **0.8.0** | 2026-07-25 | ✅ Released | ERP Integrations (MIDA/SAP), Multi-language i18n |
+| **0.7.0** | 2026-07-25 | ✅ Released | Multi-Tier Isolation, 6 Microservicios Standalone, RBAC, k6 CI |
+| **0.5.1** | 2026-07-19 | ✅ Released | Observabilidad avanzada, RBAC, E2E, API Key rotation |
+| **0.5.0-alpha.2** | 2026-07-19 | 🚧 Alpha | Bio-Links ajuste a especificación |
+| **0.5.0-alpha.1** | 2026-07-18 | 🚧 Alpha | Bio-Links backend + admin UI + public SPA + Fast Checkout |
+| **0.5.0** | 2026-07-18 | ✅ Released | Traefik v3.3 + App Store fixes |
+| **0.4.3** | 2026-07-16 | ✅ Released | Testing expansion: 298 tests / 39 suites |
+| **0.4.2** | 2026-07-15 | ✅ Released | Tauri Desktop POS + Observabilidad (Sentry/Prometheus) |
+| **0.4.1** | 2026-07-15 | ✅ Released | Fixes producción: Traefik, DB password, dominio configurable |
+| **0.4.0** | 2026-07-14 | ✅ Released | POS/KDS WebSockets + Loyalty backend+UI + Subdominios |
+| **0.3.1** | 2026-07-12 | ✅ Released | Gestión de tenants (disable/enable/delete) + rol ADMIN |
+| **0.3.0** | 2026-07-06 | ✅ Released | Swagger 100% + Staging 100% + Tests 35% |
+| **0.2.0** | 2026-06-22 | ✅ Released | Mobile offline + SQL migrations + CI/CD |
+| **0.1.0** | 2026-06-15 | ✅ Released | MVP inicial |
 
 ---

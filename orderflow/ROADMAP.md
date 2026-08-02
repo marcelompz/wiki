@@ -1,9 +1,9 @@
-# 🗺️ ROADMAP DE ORDERFLOW - v1.1.9 → v2.0.0
+# 🗺️ ROADMAP DE ORDERFLOW - v1.5.1 → v2.0.0
 
-**Última Actualización:** 2026-07-30 ART  
-**Versión Actual:** **`v1.1.9`** ✅ **RELEASED (Stable)** | **`v1.2.0-dev`** 🚧 IN DEVELOPMENT  
+**Última Actualización:** 2026-08-01 ART  
+**Versión Actual:** **`v1.5.1`** ✅ **RELEASED (Stable)** | OrderFlow Enterprise Tenant + Frontend/Routing Fixes (FEAT-024)  
 **Próximo Release:** **v2.0.0 (Kubernetes + Escala Horizontal)**  
-**Estado:** ✅ **STAGING & PRODUCTION OPERATIVE** | 🏆 **COMMERCIAL RELEASE v1.1.9 STABLE** | QA E2E Suite Integrada  
+**Estado:** ✅ **STAGING & PRODUCTION OPERATIVE** | 🏆 **COMMERCIAL RELEASE v1.5.1 STABLE** | QA E2E Suite Integrada | 498 tests unitarios pasados  
 **Visión Estratégica:** Plataforma SaaS omnicanal de alta velocidad con aislamiento multi-tier, marketplace de plugins de terceros, facturación automática Stripe/Mercado Pago y escalado horizontal a Kubernetes.
 
 > 📦 **Estrategia de Microservicios Standalone:** Ver el roadmap dedicado de la suite de productos independientes en [docs/ROADMAP_MICROSERVICES.md](docs/ROADMAP_MICROSERVICES.md).
@@ -143,7 +143,7 @@ OrderFlow evoluciona en tres ejes estratégicos:
 | **Code Splitting & Performance UX** | ✅ Hecho | 🔴 Alta | Sprint 5 |
 | **Servidor Redis 7 (PubSub + Cache)**| ✅ Hecho | 🔴 Alta | Sprint 5 |
 | **Índices DB de Alto Rendimiento** | ✅ Hecho | 🔴 Alta | Sprint 5 |
-| **RBAC granular (controllers core)** | ⚠️ En progreso | 🔴 Alta | Sprint 5 | Aplicado en Products, Orders, Customers, Bookings, Giveaways, Users, SystemModules, Quotations |
+| **RBAC granular (controllers core)** | ✅ Completado | 🔴 Alta | Sprint 5 | Aplicado en 21/33 controllers (billing, biolinks, bookings, contacts, customers, giveaways, integrations, loyalty, marketplace, orders, product-imports, products, quotations, system-modules, users, notifications, backups, analytics, whatsapp-catalog-admin/superadmin) |
 | **Rate limit por tenant** | ✅ Hecho | 🔴 Alta | Sprint 5 |
 | **API Keys: rotación automática + auditoría** | ⚠️ En progreso | 🔴 Alta | Sprint 5 | Rotación/revocación manual + scheduler automático 90 días + sync Odoo |
 | **Auditoría completa (AuditLog)** | ⚠️ En progreso | 🔴 Alta | Sprint 5 |
@@ -279,7 +279,7 @@ Permite vender módulos individuales (Giveaways, WhatsApp Catalog, Bio-Links, et
 - [x] Tag visual `DB Tier` (`💎 Dedicated` vs `👥 Shared`) en el Super Admin Dashboard
 - [x] Giveaway admin improvements
 - [x] Super Admin tenant management (toggle disable/enable, delete hard cascade, rol ADMIN gestor)
-- [x] Unit tests para servicios core (389 tests passing, 43 suites)
+- [x] Unit tests para servicios core (389 tests passing, 50 suites)
 - [x] Playwright E2E suite para flujos críticos (login, checkout, bio-link, POS, KDS, storefront - 14 tests passing)
 - [x] Servidor Redis 7 integrado en `docker-compose.yml` para rate-limiting y WebSockets
 - [x] Índices de alto rendimiento en Prisma (`orders`, `products`, `appointment_assignments`)
@@ -306,7 +306,7 @@ Permite vender módulos individuales (Giveaways, WhatsApp Catalog, Bio-Links, et
 - [x] Plan de customización admin/superadmin del catálogo WhatsApp (`docs/PLAN_WHATSAPP_CATALOG_ADMIN.md`)
 - [x] Endpoint público unificado `/api/v1/public/catalog/products` y `/config` para todos los canales (storefront, WhatsApp, etc.)
 
-### Tareas Pendientes
+### Tareas Completadas
 - [x] Segundo microservicio standalone: `services/whatsapp-catalog-standalone/` (`docker-compose.yml` en puerto `3021`)
 - [x] Integration de k6 load testing continuo en GitHub Actions pipeline (`.github/workflows/ci-cd.yml`)
 - [x] Rotación automática programada de API Keys
@@ -341,7 +341,6 @@ Permite vender módulos individuales (Giveaways, WhatsApp Catalog, Bio-Links, et
 - ✅ **Localhost:** Desarrollo (`http://localhost:3011`)
 - ✅ **Staging:** Hetzner VPS (`http://staging.provecchio.com`) - DNS Cloudflare operativo
 - ✅ **Production:** Hetzner VPS (`https://provecchio.com`)
-- ✅ **Provecchio:** Servidor físico (`https://provecchio.com`) - Deploy selectivo con validación previa
 
 ### Servidores
 | Servidor | IP | Hostname | Propósito |
@@ -383,7 +382,7 @@ Permite vender módulos individuales (Giveaways, WhatsApp Catalog, Bio-Links, et
 | **Testing <80%** | Alto | 🔴 Alta | v2.0.0 | ⚠️ En progreso (389 tests / 50 suites, ~45% real) |
 | **E2E + Playwright** | Alto | 🔴 Alta | v0.6.0 | ✅ Hecho (14 tests) |
 | **Carga continua (k6)** | Medio | 🔴 Alta | v0.6.0 | ✅ Integrado en CI/CD |
-| **Seguridad enterprise** | Alto | 🔴 Alta | v0.6.0 | ✅ RBAC granular en 19/22 controllers |
+| **Seguridad enterprise** | Alto | 🔴 Alta | v0.6.0 | ✅ RBAC granular en 21/33 controllers |
 | **Observabilidad avanzada** | Alto | 🔴 Alta | v0.6.0 | ✅ Grafana + Loki + Tempo + Alertmanager |
 | **Multi-Tier Isolation (DB-per-tenant)** | Alto | 🔴 Alta | v0.7.0 | ✅ Completado (TenantConnectionManager + @TenantPrisma) |
 | **Microservicios standalone** | Alto | 🔴 Alta | v0.7.0 | ✅ 6 microservicios production-ready |
@@ -410,12 +409,12 @@ Permite vender módulos individuales (Giveaways, WhatsApp Catalog, Bio-Links, et
 
 | Documento | Estado | Última Actualización | Notas |
 |-----------|--------|---------------------|-------|
-| **README.md** | ✅ Actualizado | 2026-07-18 | Badges y métricas alineadas |
-| **ROADMAP.md** | ✅ Actualizado | 2026-07-19 | Estado del arte y nuevas features incorporadas (v0.6.0+) |
-| **CHANGELOG.md** | ✅ Actualizado | 2026-07-18 | v0.5.0: Traefik v3.3, App Store fixes, HTTPS redirects |
+| **README.md** | ✅ Actualizado | 2026-07-31 | v1.1.9: badges sincronizados, 389 tests |
+| **ROADMAP.md** | ✅ Actualizado | 2026-07-31 | Estado del arte v1.1.9 sincronizado |
+| **CHANGELOG.md** | ✅ Actualizado | 2026-07-31 | v1.1.9: Unificación de navegación + QA E2E integral |
 | **POS_KDS_ARCHITECTURE.md** | ✅ Nuevo | 2026-07-13 | Arquitectura y diseño POS / KDS |
-| **AUDITORIA_COMPLETA.md** | ✅ Actualizado | 2026-07-05 | v0.3.0 |
-| **ESTADO_DEL_ARTE.md** | ✅ Nuevo | 2026-07-18 | Análisis de madurez del sistema y addon Odoo |
+| **AUDITORIA_COMPLETA.md** | ✅ Actualizado | 2026-07-31 | v1.1.9: Matriz de entornos y auditoría completa |
+| **ESTADO_DEL_ARTE.md** | ✅ Actualizado | 2026-07-31 | Análisis de madureza v1.1.9 y gaps remanentes |
 | **TRAEFIK_SERVER_SETUP.md** | ✅ Nuevo | 2026-07-18 | Guía de configuración Traefik v3.3 en `/srv/traefik/` |
 | **PLAN_DE_MADURACION_PRODUCCION.md** | ✅ Completo | 2026-06-23 | Fases 1-5 completadas |
 | **FAQ.md** | ⚠️ Parcial | 2026-07-04 | Pendiente Google OAuth |
@@ -446,7 +445,9 @@ Permite vender módulos individuales (Giveaways, WhatsApp Catalog, Bio-Links, et
 | **v1.0.0 Stable** | ✅ 2026-07-26 | ✅ **COMPLETADO** | Release oficial comercial SaaS (Multi-Tier + Redis WebSockets + Billing UI) |
 | **v1.1.3 Stable** | ✅ 2026-07-27 | ✅ **COMPLETADO** | File Store Unificado por Tenant + Backups + Admin WhatsApp Catalog + Troubleshooting Docs + Cleanup Legacy Config |
 | **v1.1.7 Stable** | ✅ 2026-07-30 | ✅ **COMPLETADO** | QA E2E Playwright Suite, Subdomain Resolution Fixes, WhatsApp Catalog Admin Visual Customization Overhaul, Frontend Stability Guards |
-| **v1.2.0-dev** | 🚧 2026-08-15 | 🚧 **EN PROCESO** | Customización del catálogo WhatsApp (Admin Tenant + SuperAdmin) + Plan UX/UI mobile-first + Endpoint público unificado `/api/v1/public/catalog` para todos los canales + Trío de Microservicios Standalone completado (`giveaways`, `whatsapp-catalog`, `biolinks`) + Migración 100% `@TenantPrisma()` |
+| **v1.1.8 Stable** | ✅ 2026-07-31 | ✅ **COMPLETADO** | Homepage Visual Builder, Landing vs. Tienda routing separation, Google Fonts palette, live Desktop/Mobile preview |
+| **v1.1.9 Stable** | ✅ 2026-07-31 | ✅ **COMPLETADO** | Navigation unification, Array.isArray defensive guards, E2E QA suite expanded to all admin subroutes, 389 tests |
+| **v1.2.0-dev** | 🚧 2026-08-15 | 🚧 **EN PROCESO** | Customización del catálogo WhatsApp (Admin Tenant + SuperAdmin) + Plan UX/UI mobile-first + Endpoint público unificado `/api/v1/public/catalog` para todos los canales + Suite de 6 Microservicios Standalone + Migración progresiva `@TenantPrisma()` |
 | **v2.0.0** | 2027+ | ⏳ Futuro | Kubernetes + autoscaling + multi-región |
 
 ---
