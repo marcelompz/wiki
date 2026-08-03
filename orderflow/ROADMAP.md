@@ -1,7 +1,7 @@
 # 🗺️ ROADMAP DE ORDERFLOW - v1.5.1 → v2.0.0
 
-**Última Actualización:** 2026-08-03 ART (Post-Deploy v1.8.1)
-**Versión Actual:** **`v1.8.1`** ✅ **RELEASED (Stable)** | Proceso de Despliegue Formalizado
+**Última Actualización:** 2026-08-03 ART (Post-Sprint Pagopar + Bookings Integrations)
+**Versión Actual:** **`v1.9.0`** ✅ **RELEASED (Stable)** | Pagopar + Google Calendar + WhatsApp Notifications
 **Próximo Release:** **v2.0.0 (Kubernetes + Escala Horizontal)**  
 **Estado:** ✅ **STAGING & PRODUCTION OPERATIVE** | 🏆 **COMMERCIAL RELEASE v1.5.1 STABLE** | QA E2E Suite Integrada | 498 tests unitarios pasados  
 **Visión Estratégica:** Plataforma SaaS omnicanal de alta velocidad con aislamiento multi-tier, marketplace de plugins de terceros, facturación automática Stripe/Mercado Pago y escalado horizontal a Kubernetes.

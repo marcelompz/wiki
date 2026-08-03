@@ -50,7 +50,14 @@
       "category": "Standalone Suite / Profundización Vertical",
       "title": "Pasarelas de Pago Independientes en Micro-SaaS",
       "status": "in_progress",
-      "assigned_module": "services/*-standalone"
+      "assigned_module": "services/*-standalone & backend/src/billing/pagopar"
+    },
+    {
+      "id": "FEAT-013",
+      "category": "Core / Billing / Profundización Vertical",
+      "title": "Integración de Pagopar como Pasarela de Pagos Local (Paraguay)",
+      "status": "completed",
+      "assigned_module": "backend/src/billing/pagopar & docs/guides/PAGOPAR_INTEGRATION.md"
     },
     {
       "id": "FEAT-008",
@@ -68,10 +75,10 @@
     },
     {
       "id": "FEAT-010",
-      "category": "Profundización Vertical / Turnos & Agendas",
+      "category": "Turnos & Agendas",
       "title": "Notificaciones por WhatsApp y Sync con Google Calendar en Bookings",
-      "status": "pending",
-      "assigned_module": "services/bookings-standalone & backend/src/bookings"
+      "status": "completed",
+      "assigned_module": "backend/src/bookings, backend/src/integrations/google-calendar, backend/src/integrations/whatsapp-notifications"
     },
     {
       "id": "FEAT-011",
@@ -88,7 +95,7 @@
       "assigned_module": "mobile/src/screens/*.tsx"
     },
     {
-      "id": "FEAT-013",
+      "id": "FEAT-029",
       "category": "Catálogo WhatsApp / UX & Ecommerce",
       "title": "Plan de maduración UX/UI mobile-first del catálogo WhatsApp: detalle de producto, filtros avanzados, búsqueda predictiva, wishlist, reseñas, accesibilidad y performance",
       "status": "in_progress",
@@ -197,6 +204,6 @@
       "qa_validation": "init.sh passed | Backend tests: 19/19 contacts | Frontend build clean"
     }
   ],
-  "version": "1.8.1",
-  "last_updated": "2026-08-01"
+  "version": "1.9.0",
+  "last_updated": "2026-08-03"
 }

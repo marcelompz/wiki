@@ -7,27 +7,72 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.
 
 ## [Unreleased]
 
-### Próximos Objetivos (v0.5.0 - Agosto 2026)
-- Testing push: Orders, Giveaways, Loyalty, Cloudflare (target 30%+ cobertura)
-- Extender integración Odoo: diseño de eventos/plugins para nuevos flujos sin hardcodear
-- MIDA / SAP: siguiente familia de integradores sobre la misma base extensible
-- Tauri Desktop Wrapper (POS nativo con impresión ESC/POS)
+## [1.9.0] - 2026-08-03
 
-### Futuro (v1.0.0 - Septiembre 2026)
-- App Store / Google Play publication
-- Multi-language (i18n)
-- White-label completo
-- Analytics dashboard avanzado
+### 🚀 Features
+- **Billing:** Integración de Pagopar como pasarela de pagos local (Paraguay) con webhook, DTOs y módulo dedicado.
+- **Bookings:** Notificaciones post-reserva por WhatsApp Business API y sincronización automática con Google Calendar.
 
-### Ajuste de alcance confirmado (v0.4.2)
-- Integración Odoo vigente: OrderFlow → Odoo y Odoo → OrderFlow.
-- Addon nativo Odoo creado en `odoo-addons/orderflow_integration` para sincronizar clientes, productos y ventas hacia OrderFlow.
-- MIDA/SAP queda como próxima extensión, no incluido en el alcance inicial.
-- White-label: solo branding por tenant por ahora; el white-label completo sigue como deuda futura.
+### 🛠️ Refactor
+- **Integrations:** Agregados `GOOGLE_CALENDAR` y `WHATSAPP` al enum `IntegrationType`.
+- **Schema:** Campo `googleCalendarEventId` en `AppointmentAssignment` para tracking de eventos.
 
-### Load Testing (k6) - Producción
-- Ejecutado `k6 run` contra `/api/v1/public/products` con catálogo real SPA Wellness (19 productos doTERRA).
-- Resultado: p(95) ~294-460ms, rate limiting efectivo (~81% 429 a 50 RPS), infraestructura validada.
+### 📚 Documentación
+- Creada `docs/guides/PAGOPAR_INTEGRATION.md`.
+- Creada `docs/STAFFING_ARCHITECTURE_ANALYSIS.md`.
+
+## [1.8.1] - 2026-08-03
+
+### ⚙️ Proceso y Documentación
+- **Proceso de Despliegue:** Formalizada y documentada la Fase 5 del proceso de despliegue, que incluye la verificación y sincronización explícita con el repositorio de GitHub (tags, changelog, roadmap) como paso final obligatorio.
+- **Documentación:** Creado el documento `docs/guides/DEPLOYMENT_PROCESS.md` que detalla el procedimiento de despliegue en producción de 5 fases.
+- **Protocolo de Agente:** Actualizado `AGENTS.md` para incluir la creación de `git tags` como parte del rol del Revisor/Auditor.
+
+### 🚀 Despliegue v1.8.1 a Producción
+- **Deploy a Hetzner:** Despliegue exitoso de v1.8.1 a producción (`pesallaccia.com`) y staging (`staging.pesallaccia.com`) mediante `./scripts/deploy-production.sh`.
+- **Traefik v3.4:** Toda la documentación de Traefik actualizada de v3.3 a v3.4 en todos los documentos del proyecto.
+- **Versión sincronizada:** `VERSION`, `backend/package.json`, `frontend/package.json`, `featurelist.json`, `README.md` y `ROADMAP.md` actualizados a v1.8.1.
+- **Validación:** `./scripts/init.sh` pasado (54 suites / 444 tests, build backend y frontend limpios).
+- **Troubleshooting:** Creada entrada `#20` en `docs/troubleshooting/` para el error de build de `AdaptiveTable` resuelto durante el despliegue.
+
+## [1.8.0] - 2026-08-03
+
+### 🧪 **Deuda Técnica: Aumento de Cobertura de Pruebas (Backend)**
+- **Planificación:** Creado el documento `docs/PLAN_TESTING_COVERAGE_V1_8_0.md` para guiar el aumento de cobertura de pruebas del backend del ~45% al 70%.
+- **Testing (`orders.service.spec.ts`):** Ampliada la cobertura de `OrdersService`, cubriendo escenarios de error y el caso de éxito para la función `confirm()` (actualización de stock, transacciones e integraciones).
+- **Testing (`billing.service.spec.ts`):** Implementados los tests para el `BillingService`, cubriendo la delegación de webhooks a los servicios de Stripe y Mercado Pago, y el manejo de gateways desconocidos.
+- **Testing (`contacts.service.spec.ts`):** Completada la cobertura de `ContactsService`, incluyendo la creación, actualización y la lógica `findOrCreateFromSource` para manejar contactos existentes y nuevos.
+- **Testing (`integrations.service.spec.ts`):** Ampliada la cobertura de `IntegrationsService`, cubriendo tanto el envío exitoso a Odoo como el caso en que la integración no está activa.
+- **Testing (`currency.service.spec.ts`):** Creado el archivo de especificaciones para `CurrencyService` con la estructura inicial para probar la lógica de cotizaciones.
+
+## [1.7.0] - 2026-08-03
+
+### 💻 **Refinamiento UX/UI Escritorio (Desktop-First Admin)**
+- **Planificación:** Se ha creado el documento `docs/PLAN_DESKTOP_UX_REFINEMENT.md` que guiará la optimización de la experiencia de usuario en el backoffice de escritorio.
+- **Frontend:** Se ha creado la hoja de estilos inicial `frontend/src/styles/admin-desktop.css` con media queries y reglas base para pantallas `>1200px`.
+- **Roadmap:** Se ha actualizado el `ROADMAP.md` para incluir el nuevo objetivo `v1.7.0 — Refinamiento UX/UI Escritorio`.
+- **Frontend (Core):** Se ha importado la nueva hoja de estilos `admin-desktop.css` en el punto de entrada de la aplicación para su aplicación global.
+- **Frontend (Componente Adaptativo):** Se ha creado el componente `AdaptiveTable.tsx`, que renderiza una tabla de Ant Design en escritorio y una lista de tarjetas en móvil, aplicando la Fase 2 del plan de refinamiento de UX.
+- **Frontend (Refactorización):** Se ha refactorizado la página de administración de Productos (`products.tsx`) para utilizar el nuevo `AdaptiveTable`, mejorando la experiencia tanto en escritorio como en móvil.
+- **Frontend (Refactorización):** Se ha refactorizado la página de administración de Contactos (`contacts.tsx`) para utilizar el `AdaptiveTable`, unificando la experiencia de usuario en las vistas de lista principales.
+- **Frontend (Refactorización):** Se ha refactorizado el Dashboard principal (`dashboard.tsx`) para utilizar un layout de múltiples columnas en escritorio, mejorando la densidad de información con KPIs y gráficos.
+
+## [1.6.0] - 2026-08-03
+
+### 📱 **UX/UI Mobile-First & Ergonomía Intuitiva**
+- **Frontend (Catálogo/Checkout):**
+  - Implementada `Sticky Action Bar` y `Bottom Sheets` para mejorar la experiencia de usuario en dispositivos móviles en el catálogo y checkout.
+  - Desarrollado `One-Page Checkout Express` con integración de geolocalización y autocompletado de direcciones para agilizar el proceso de compra.
+- **Frontend (Backoffice):**
+  - Implementada `Navegación Móvil Adaptativa` con una `Bottom Navigation Bar` para el backoffice, optimizando la usabilidad en pantallas pequeñas.
+  - Completada la `Transformación Responsive de Tablas Admin a Tarjetas` para todas las tablas principales del panel de administración, mejorando la visualización en móvil.
+  - Desarrollado `SuperAdmin Tenant Switcher Flotante Táctil` para una gestión de tenants más eficiente en dispositivos táctiles.
+## [1.5.2] - 2026-08-03
+
+### 📄 **Análisis y Documentación del Ecosistema**
+- **Documentación:**
+  - Creado `docs/RESUMEN_ECOSISTEMA_Y_PROYECTOS.md` con un resumen completo del estado del arte de OrderFlow, Traefik y la Wiki.
+  - Creado `docs/ANALISIS_METODOLOGIA_HUMANO_IA.md` con el análisis del modelo de desarrollo "Cyborg Lead Developer".
 
 ## [1.5.1] - 2026-08-02
 
@@ -45,6 +90,41 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.
   - Resuelto error de API Docker (`client version 1.24 is too old`) configurando `DOCKER_API_VERSION=1.55` y endpoint TCP.
 - **Documentación (`AGENTS.md`):**
   - Actualizada regla de infraestructura: Traefik v3.4 exclusivo, configuración desde `/opt/traefik-orderflow` con sync a `/srv/traefik`.
+
+## [1.5.0] - 2026-08-01
+
+### 🏢 **OrderFlow como Tenant Enterprise + Fixes Frontend/Routing (FEAT-024)**
+- **Frontend (`Dockerfile.prod`, `docker-compose.prod.yml`):**
+  - Agregados `ARG` faltantes para `VITE_ROOT_DOMAIN` y `VITE_SYSTEM_SUBDOMAINS` en build de producción.
+  - Agregados build args correspondientes en `docker-compose.prod.yml` con defaults por entorno.
+- **Frontend (`App.tsx`):**
+  - `ROOT_DOMAIN` ahora fallback a `window.location.hostname` cuando `VITE_ROOT_DOMAIN` no está definido, evitando break de `provecchio.com`.
+- **Frontend (admin pages):**
+  - Corregidos todos los calls a `/api/v1/sync/customers` (404) redirigiéndolos a `/api/v1/customers` y `/api/v1/customers/sync`.
+  - Archivos: `customers.tsx`, `dashboard.tsx`, `spa-dashboard.tsx`, `quotations.tsx`, `checkout.tsx`, `checkout-simple.tsx`.
+- **Infraestructura (`docker-compose.prod.yml`):**
+  - Confirmado que `pesallaccia.com` se despliega en servidor Hetzner separado; regla Traefik de provecchio mantenida sin rutas cruzadas.
+- **Configuración (`.env.prod`, `.env.production`):**
+  - Agregada variable `ORDERFLOW_COMPANY_DB_URL` para provisioning de DB dedicada del tenant enterprise.
+- **QA & Despliegue:** `./scripts/init.sh` pasado (58 suites / 498 tests, build backend y frontend limpios, E2E Playwright sin errores).
+
+## [1.4.0] - 2026-08-01
+
+### 🇵🇾 **Facturación Electrónica Paraguaya con FacturaSend (SIFEN)**
+- **Prisma Schema (`schema.prisma`):**
+  - Nuevo modelo `FacturasendTenantConfig` para almacenar la configuración de FacturaSend por tenant.
+  - Nuevo modelo `ElectronicDocument` para registrar los documentos electrónicos emitidos.
+- **Servicios:**
+  - `FacturasendAuthService`: Gestión de configuración y cifrado AES-256 de API keys.
+  - `FacturasendClient`: Cliente HTTP con reintentos y timeout para la API de FacturaSend.
+  - `FacturasendMapper`: Mapeo de datos de OrderFlow a JSON de FacturaSend (multi-moneda, IVA 5/10%, B2B/B2C).
+  - `FacturasendService`: Lógica de emisión, consulta de estado, pruebas de conexión y emisión desde payloads de Odoo.
+  - `FacturasendLocationService`: Caché de ubicaciones SIFEN (departamentos/ciudades).
+- **Controller:**
+  - `FacturasendController`: REST API para configuración, pruebas, emisión, listado de documentos y recepción de webhooks.
+- **Integración:**
+  - Hook en `orders.service.confirm()` para emisión directa si el tenant tiene configuración de FacturaSend.
+- **QA & Despliegue:** `./scripts/init.sh` pasado (72 tests específicos de FacturaSend, 58 suites / 498 tests totales).
 
 ## [1.3.0] - 2026-08-01
 
@@ -569,8 +649,8 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.
   - Links actualizados a rutas genéricas (`/tienda`, `/landing`).
 
 #### 📚 Documentación
-- `docs/GUIA_DESPLIEGUE_Y_TENANTS.md` - Actualizada para reflejar que `/srv/traefik/` ya existe y contiene configuración multi-tenant; eliminado paso de crear desde cero.
-- `docs/GUIA_DESPLIEGUE_SERVIDORES.md` - Aclarado que el backend se accede por path `/api` sobre el dominio principal (no por `api.pesallaccia.com`); eliminadas referencias hardcodeadas a Nginx.
+- `docs/guides/GUIA_DESPLIEGUE_Y_TENANTS.md` - Actualizada para reflejar que `/srv/traefik/` ya existe y contiene configuración multi-tenant; eliminado paso de crear desde cero.
+- `docs/guides/GUIA_DESPLIEGUE_SERVIDORES.md` - Aclarado que el backend se accede por path `/api` sobre el dominio principal (no por `api.pesallaccia.com`); eliminadas referencias hardcodeadas a Nginx.
 - `docs/info/verificacion-produccion.md` - Nuevo archivo con verificación de producción.
 
 #### 🔒 Seguridad
@@ -743,6 +823,10 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.
 | Versión | Fecha | Estado | Notas |
 |---------|-------|--------|-------|
 | **1.1.9** | 2026-07-31 | ✅ Released | Unificación de navegación & QA E2E integral |
+| **1.7.0** | 2026-08-03 | ✅ Released | UX/UI Mobile-First & Ergonomía Intuitiva (Continuación) |
+| **1.6.0** | 2026-08-03 | ✅ Released | Inicio del Plan de Refinamiento UX/UI para Escritorio |
+| **1.5.2** | 2026-08-03 | ✅ Released | Análisis y Documentación del Ecosistema |
+| **1.5.1** | 2026-08-02 | ✅ Released | Responsive UX/UI Backoffice + Traefik v3.4 (QA-001) |
 | **1.1.8** | 2026-07-31 | ✅ Released | Homepage Visual Builder, Landing vs. Tienda routing |
 | **1.1.7** | 2026-07-30 | ✅ Released | QA E2E Playwright Suite, Subdomain Resolution Fixes |
 | **1.1.3** | 2026-07-27 | ✅ Released | File Store Unificado por Tenant + Backups + WhatsApp Catalog Admin |

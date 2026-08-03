@@ -17,7 +17,7 @@ Ambos modos comparten el mismo schema Prisma y el mismo código de services. La 
 - Repo Core: `https://github.com/marcelompz/orderflow`
 - Repo Traefik Gateway Subsystem: `https://github.com/marcelompz/traefik-orderflow.git` (servidor: `/srv/traefik`, local: `/opt/traefik-orderflow/`)
 - Servidor Hetzner VPS (Producción): `hetzner-orderflow:/srv/orderflow` (alias SSH configurado)
-- Versión actual: **v1.2.0** (staging + production operativos).
+  - Versión actual: **v1.8.1** (staging + production operativos).
 - Lenguaje: TypeScript en todo el stack.
 
 ---
@@ -29,7 +29,7 @@ Ambos modos comparten el mismo schema Prisma y el mismo código de services. La 
 | **Backend** | NestJS 10, Prisma (PostgreSQL 15), JWT + API Keys |
 | **Frontend web** | React 18, Vite, Refine.dev, Ant Design 5, **Axios** (Cliente HTTP oficial) |
 | **Mobile** | React Native + Expo, Zustand, **Axios** (Cliente HTTP oficial) |
-| **DevOps** | Docker Compose, Traefik v3.3 (reverse proxy exclusivo & SSL), GitHub Actions, SSH deploy scripts |
+| **DevOps** | Docker Compose, Traefik v3.4 (reverse proxy exclusivo & SSL), GitHub Actions, SSH deploy scripts |
 | **Observabilidad** | Winston (logs), Sentry (frontend), health checks |
 
 ---
@@ -168,7 +168,7 @@ Controller: `backend/src/tenants/tenants.controller.ts`.
 
 - **Puertos:** backend `3010`, frontend dev `3011`, postgres `5433→5432`, odoo_adapter `3005`.
 - **Compose:** `docker-compose.yml` (dev), `docker-compose.prod.yml` (prod).
-- **Configuración obsoleta:** El directorio `old/` contiene configuraciones legacy de NGINX/edge-proxy que fueron reemplazadas por Traefik v3.3. **No usar ni referenciar** archivos dentro de `old/` para configuraciones activas.
+- **Configuración obsoleta:** El directorio `old/` contiene configuraciones legacy de NGINX/edge-proxy que fueron reemplazadas por Traefik v3.4. **No usar ni referenciar** archivos dentro de `old/` para configuraciones activas.
 - **Variables de entorno:** `.env` (prod), `.env.staging`, `.env.production`, `.env.prod`. Claves críticas: `DATABASE_URL`, `JWT_SECRET`, `JWT_REFRESH_SECRET`, `MASTER_API_KEY`, `API_KEY_HEADER`, `CLOUDFLARE_API_TOKEN`, `SENTRY_DSN`, `VITE_SENTRY_DSN`, `GRAFANA_ADMIN_PASSWORD`, `ORDERFLOW_MODE` (`community` | `enterprise`), `ENTERPRISE_TENANT_ID` (solo en modo enterprise).
 - **Integración de Cloudflare / DNS Dinámica:** El token de la API de Cloudflare se configura en la variable `CLOUDFLARE_API_TOKEN` en `.env.staging` (para staging) y `.env` (para producción). El backend (`cloudflare-dns.service.ts`) utiliza este token al crear un Tenant para registrar automáticamente su subdominio como CNAME con la opción `proxied: false` (DNS Only / nube gris). Esto redirige el tráfico al host para que Traefik gestione el certificado SSL de producción de Let's Encrypt (evitando la limitación de handshake SSL de Cloudflare en subdominios de 4to nivel).
 - **Prisma:** `prisma/schema.prisma` es la fuente de verdad. Migraciones en `.gitignore`; en prod se usa `prisma db push`. Siempre regenerá el cliente tras cambiar el schema.
@@ -267,7 +267,7 @@ docker compose up -d     # levantar stack dev
     - `loyalty-standalone` (`:3025`, `fidelizacion.*`) — Tarjetas, tiers BRONZE→PLATINUM.
   - 🚧 **Storefront Builder** (`storefront-builder-standalone`, `:3026`) — en planning.
 - Auth compartida vía `packages/auth-shared` (JWT/API Key validation sin acoplamiento a DB monolítica).
-- Routing vía Traefik v3.3: cada standalone tiene su propio subdominio (`sorteos.*`, `catalogo.*`, `bio.*`, `turnos.*`).
+- Routing vía Traefik v3.4: cada standalone tiene su propio subdominio (`sorteos.*`, `catalogo.*`, `bio.*`, `turnos.*`).
 
 ### 8.5 Visión a largo plazo — **v2.0.0+**
 - Migración Docker Compose → Kubernetes.
@@ -282,7 +282,7 @@ docker compose up -d     # levantar stack dev
 - **`ORDERFLOW_MODE`:** controla el modo de operación (`community` | `enterprise`). En `community` (default), multi-tenant con `ApiKeyGuard`. En `enterprise`, single-tenant con `tenantId` fijo. **No condicionar lógica de negocio en services con esta variable;** la diferencia es solo en la capa de guard/auth.
 - **`tenantId` es sagrado:** NO eliminar `tenantId` de queries ni tablas. Funciona en ambos modos. En enterprise, siempre tiene el mismo valor; en community, aísla los datos entre tenants.
 - **Multi-tier (`isolationTier`):** el `TenantConnectionManager` resuelve el PrismaClient. No instanciar `PrismaClient` manualmente en services; usar `this.prisma` (legacy) o `@TenantPrisma()` (nuevo).
-- **Infraestructura Proxy (Traefik v3.3 Exclusivo):** Nginx fue eliminado y sustituido completamente por **Traefik v3.3** como subsistema nativo exclusivo de OrderFlow y Odoo 19 CE. NO volver a activar, sugerir ni configurar Nginx bajo ninguna circunstancia en ningún servidor. El código y configuración del subsistema perimetral se administra en el repositorio [traefik-orderflow](https://github.com/marcelompz/traefik-orderflow.git), ubicado localmente en `/opt/traefik-orderflow/` y en los servidores en `/srv/traefik/`.
+- **Infraestructura Proxy (Traefik v3.4 Exclusivo):** Nginx fue eliminado y sustituido completamente por **Traefik v3.4** como subsistema nativo exclusivo de OrderFlow y Odoo 19 CE. NO volver a activar, sugerir ni configurar Nginx bajo ninguna circunstancia en ningún servidor. El código y configuración del subsistema perimetral se administra en el repositorio [traefik-orderflow](https://github.com/marcelompz/traefik-orderflow.git), ubicado localmente en `/opt/traefik-orderflow/` y en los servidores en `/srv/traefik/`.
 - **Despliegue e Inicialización de Odoo 19 CE (`odoo19CE`):** En la infraestructura de Odoo 19 (`git@github.com:marcelompz/odoo19CE.git`, `/srv/odoo/odoo19CE`), el script `init_prod_db.sh` preserva la integridad de los datos existentes en la base de datos `prod`. Si la tabla `res_users` ya existe en PostgreSQL, los scripts de `migracion/` NO se vuelven a ejecutar. La importación de migración solo corre automáticamente en inicializaciones desde cero (`./deploy.sh --clean`) o si se pasa explícitamente `FORCE_MIGRATION=true`.
 - **Microservicios standalone:** al extraer un módulo como standalone, mover el código a `services/<nombre>-standalone/`, crear su propio `schema.prisma` (solo los modelos necesarios), y usar `packages/auth-shared` para validación JWT. El módulo original sigue existiendo en el monolito para clientes que usan OrderFlow completo.
 - **No comentar código** salvo que se pida explícitamente.
