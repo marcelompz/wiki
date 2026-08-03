@@ -53,7 +53,7 @@ Ordená por problema y área. Cada entrada incluye síntomas, causa raíz y solu
 - **502 Bad Gateway tras deploy:** ver [#13](13-provecchio-missing-frontend-502.md) — contenedor `orderflow-frontend-prod` creado pero no iniciado por timeout; forzar con `docker compose up -d frontend`.
 - **502 en API con frontend OK:** ver [#06-SSL](06-provecchio-traefik-ssl-and-502-diagnosis.md) — contenedores no conectados a red `traefik-public`.
 - **Contenedores duplicados:** ver [#09](09-docker-orphan-containers-cleanup.md) — `--remove-orphans` y limpieza de stacks.
-- **Warning `CLOUDFLARE_API_TOKEN` no set:** ver [#18](18-cloudflare-api-token-warn.md) — variable `CLOUDFLARE_DNS_API_TOKEN` renombrada a `CLOUDFLARE_API_TOKEN` en `.env.production`.
+- **Warning `CLOUDFLARE_API_TOKEN` no set:** ver [#18](18-cloudflare-api-token-warn.md) — OrderFlow ya no maneja `CLOUDFLARE_API_TOKEN` ni `CF_DNS_API_TOKEN`; la gestión DNS es responsabilidad exclusiva de Traefik (`/opt/traefik-orderflow` → `/srv/traefik`).
 - **Login fallido por secrets faltantes:** ver [#19](19-login-secrets-missing.md) — `.env.production` con placeholders post-commit de seguridad; restaurar secrets desde rollback artifacts y sincronizar POSTGRES_PASSWORD.
 
 ---
