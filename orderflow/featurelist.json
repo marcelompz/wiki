@@ -266,15 +266,15 @@
       "id": "FEAT-035",
       "category": "Frontend / UX-UI Mobile-First",
       "title": "Navegación Móvil Adaptativa Backoffice (Bottom Navigation Bar)",
-      "status": "pending",
-      "assigned_module": "frontend/src/AdminApp.tsx, frontend/src/components/",
+      "status": "completed",
+      "assigned_module": "frontend/src/AdminApp.tsx, frontend/src/components/admin/MobileBottomNav.tsx",
       "blocking": ["FEAT-025"]
     },
     {
       "id": "FEAT-036",
       "category": "Frontend / UX-UI Responsive",
       "title": "Transformación Responsive de Tablas Admin a Tarjetas (Responsive Cards)",
-      "status": "pending",
+      "status": "completed",
       "assigned_module": "frontend/src/pages/admin/products.tsx, customers.tsx, bookings.tsx",
       "blocking": []
     },
