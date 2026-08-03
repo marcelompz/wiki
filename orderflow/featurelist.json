@@ -1,7 +1,7 @@
 {
   "project": "OrderFlow SaaS Omnicanal",
-  "version": "1.4.0",
-  "last_updated": "2026-08-01",
+  "version": "1.8.1",
+  "last_updated": "2026-08-03",
   "features": [
     {
       "id": "FEAT-001",
@@ -49,7 +49,7 @@
       "id": "FEAT-007",
       "category": "Standalone Suite / Profundización Vertical",
       "title": "Pasarelas de Pago Independientes en Micro-SaaS",
-      "status": "pending",
+      "status": "in_progress",
       "assigned_module": "services/*-standalone"
     },
     {
@@ -169,7 +169,6 @@
       "title": "Integración FacturaSend (SIFEN) — Emisión de DE vía Odoo y Directo",
       "status": "completed",
       "assigned_module": "docs/PLAN_FACTURASEND_INTEGRATION.md & backend/src/integrations/facturasend/",
-  "version": "1.5.0",
       "qa_validation": "init.sh passed: 58 suites / 497 tests | Backend build clean | Frontend build clean | E2E QA: all admin routes HTTP 200, no JS errors",
       "blocking": ["FEAT-022 (complete — exchange rate service reusable)"]
     },
@@ -198,6 +197,6 @@
       "qa_validation": "init.sh passed | Backend tests: 19/19 contacts | Frontend build clean"
     }
   ],
-  "version": "1.5.1",
+  "version": "1.8.1",
   "last_updated": "2026-08-01"
 }

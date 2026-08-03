@@ -1,7 +1,7 @@
 # 🗺️ ROADMAP DE ORDERFLOW - v1.5.1 → v2.0.0
 
-**Última Actualización:** 2026-08-01 ART  
-**Versión Actual:** **`v1.5.1`** ✅ **RELEASED (Stable)** | OrderFlow Enterprise Tenant + Frontend/Routing Fixes (FEAT-024)  
+**Última Actualización:** 2026-08-03 ART (Post-Deploy v1.8.1)
+**Versión Actual:** **`v1.8.1`** ✅ **RELEASED (Stable)** | Proceso de Despliegue Formalizado
 **Próximo Release:** **v2.0.0 (Kubernetes + Escala Horizontal)**  
 **Estado:** ✅ **STAGING & PRODUCTION OPERATIVE** | 🏆 **COMMERCIAL RELEASE v1.5.1 STABLE** | QA E2E Suite Integrada | 498 tests unitarios pasados  
 **Visión Estratégica:** Plataforma SaaS omnicanal de alta velocidad con aislamiento multi-tier, marketplace de plugins de terceros, facturación automática Stripe/Mercado Pago y escalado horizontal a Kubernetes.
@@ -26,7 +26,7 @@
 | **Loyalty / Fidelización** | ✅ Completo | ✅ Sí | ✅ Sí | Tarjetas, reglas, redención, tiers BRONZE→PLATINUM, integración POS |
 | **Tauri Desktop Wrapper** | ✅ Completo | ✅ Sí | ✅ Sí | POS nativo + impresión ESC/POS + shortcuts Rust |
 | **Observabilidad & CI/CD Load** | ✅ Completo | ✅ Sí | ✅ Sí | Sentry + Prometheus + k6 load tests continuos en GitHub Actions |
-| **Cloudflare / DNS & Traefik** | ✅ Completo | ✅ Sí | ✅ Sí | Subdominios automáticos + Traefik v3.3 routing por microservicio |
+| **Cloudflare / DNS & Traefik** | ✅ Completo | ✅ Sí | ✅ Sí | Subdominios automáticos + Traefik v3.4 routing por microservicio |
 | **Integrations (Odoo)** | ✅ Completo | ✅ Sí | ✅ Sí | OrderFlow ↔ Odoo: webhooks push + wizard pull + addon nativo Odoo 19 CE |
 
 ---
@@ -74,7 +74,7 @@
 ### ✅ Objetivo 6: Deploy & Infraestructura
 - [x] **Staging environment** en Hetzner VPS
 - [x] **Production environment** en Hetzner VPS
-- [x] **Traefik v3.3 exclusivo** + Let's Encrypt wildcard + HTTPS redirect permanente
+- [x] **Traefik v3.4 exclusivo** + Let's Encrypt wildcard + HTTPS redirect permanente
 - [x] **Cloudflare DNS** automático por tenant (`CloudflareDnsService`) + dominio configurable (`ROOT_DOMAIN`)
 - [x] **CI/CD** con GitHub Actions
 - [x] **Docker** containers health-check
@@ -183,9 +183,9 @@ Permite vender módulos individuales (Giveaways, WhatsApp Catalog, Bio-Links, et
 | **`packages/auth-shared`** — librería JWT/API Key compartida | ✅ Hecho | 🔴 Alta |
 | **`services/giveaways-standalone/`** — primer microservicio | ✅ Hecho | 🔴 Alta |
 | **`services/whatsapp-catalog-standalone/`** — segundo microservicio | ✅ Hecho | 🔴 Alta |
-| **Router Traefik por microservicio** | ⏳ Pendiente | 🟡 Media |
-| **Docker Compose standalone** (`services/giveaways-standalone`, `services/whatsapp-catalog-standalone`) | ✅ Hecho | 🟡 Media |
-| **Bio-Links standalone** (desacoplar `OrdersModule`) | ⏳ Pendiente | 🟡 Media |
+| **Router Traefik por microservicio** | ✅ Hecho | 🟡 Media |
+| **Docker Compose standalone** (`services/giveaways-standalone`, `services/whatsapp-catalog-standalone`, etc.) | ✅ Hecho | 🟡 Media |
+| **Bio-Links standalone** (`services/biolinks-standalone/`) | ✅ Hecho | 🟡 Media |
 
 > **Acoplamiento verificado (Jul 2026):** Giveaways (0 deps cross-module ✅), WhatsApp Catalog (0 deps ✅), Bio-Links (depende de OrdersModule 🟡), Bookings (0 deps ✅), Quotations (0 deps ✅).
 
@@ -229,7 +229,97 @@ Permite vender módulos individuales (Giveaways, WhatsApp Catalog, Bio-Links, et
 
 ---
 
-### 🟢 v2.0.0 — Kubernetes + Escala (Target: 2027+)
+### 🟢 v1.5.0 — OrderFlow Enterprise Tenant + Frontend/Routing Fixes (COMPLETADO)
+
+| Feature | Estado | Prioridad | Sprint |
+|---------|--------|-----------|--------|
+| **Fix Dockerfile.prod ARGs** (`VITE_ROOT_DOMAIN`, `VITE_SYSTEM_SUBDOMAINS`) | ✅ Hecho | 🔴 Alta | Sprint 1 |
+| **Fix docker-compose.prod.yml build args** | ✅ Hecho | 🔴 Alta | Sprint 1 |
+| **Fix App.tsx ROOT_DOMAIN fallback** (multi-domain support) | ✅ Hecho | 🔴 Alta | Sprint 1 |
+| **Fix `/api/v1/sync/customers` 404** (frontend calls updated) | ✅ Hecho | 🔴 Alta | Sprint 1 |
+| **Fix Traefik routing** (pesallaccia.com stays on Hetzner, not provecchio) | ✅ Hecho | 🔴 Alta | Sprint 1 |
+| **Dedicated DB provisioning script/plan** for OrderFlow company tenant | ✅ Hecho | 🔴 Alta | Sprint 1 |
+| **`ORDERFLOW_COMPANY_DB_URL` env var** added to `.env.prod` and `.env.production` | ✅ Hecho | 🔴 Alta | Sprint 1 |
+| **Multi-tier isolation validation** via `./scripts/init.sh` | ✅ Hecho | 🔴 Alta | Final |
+| **E2E QA** (Playwright: zero JS errors, zero HTTP 502/404) | ✅ Hecho | 🔴 Alta | Final |
+
+### 🎨 v1.6.0 — UX/UI Mobile-First & Ergonomía Intuitiva (EN PROCESO)
+
+| Feature | Estado | Prioridad | Sprint |
+|---------|--------|-----------|--------|
+| **Plan de Arquitectura UX/UI Mobile-First** (`docs/PLAN_UX_UI_MOBILE_FIRST.md`) | ✅ Hecho | 🔴 Alta | Sprint 1 |
+| **Sticky Action Bar & Bottom Sheets en Catálogo/Checkout** | 🚧 En proceso | 🔴 Alta | Sprint 1 |
+| **One-Page Checkout Express (Geolocalización + Autocompletado)** | ⏳ Pendiente | 🔴 Alta | Sprint 1 |
+| **Navegación Móvil Adaptativa Backoffice (`Bottom Navigation Bar`)** | ⏳ Pendiente | 🔴 Alta | Sprint 2 |
+| **Transformación Responsive de Tablas Admin a Tarjetas (`Responsive Cards`)** | ⏳ Pendiente | 🔴 Alta | Sprint 2 |
+| **SuperAdmin Tenant Switcher Flotante Táctil** | ⏳ Pendiente | 🟡 Media | Sprint 2 |
+
+
+### 💻 v1.7.0 — Refinamiento UX/UI Escritorio (Desktop-First Admin) (PLANIFICADO)
+
+| Feature | Estado | Prioridad | Sprint |
+|---------|--------|-----------|--------|
+| **Plan de Refinamiento UX/UI Escritorio** (`docs/PLAN_DESKTOP_UX_REFINEMENT.md`) | ✅ Hecho | 🔴 Alta | Sprint 3 |
+| **Crear `admin-desktop.css` para Media Queries >1200px** | ✅ Hecho | 🔴 Alta | Sprint 3 |
+| **Componentes Adaptativos (Tabla vs. Tarjetas)** | ✅ Hecho | 🔴 Alta | Sprint 3 |
+| **Refactorización de Dashboard a Multi-Columna** | 🚧 En proceso | 🟡 Media | Sprint 4 |
+| **Refactorización de Tablas (Productos, Clientes)** | ✅ Hecho | 🟡 Media | Sprint 4 |
+
+---
+
+### 🧪 v1.8.0 — Deuda Técnica: Aumento de Cobertura de Pruebas (COMPLETADO)
+
+| Feature | Estado | Prioridad | Sprint |
+|---------|--------|-----------|--------|
+| **Plan de Aumento de Cobertura de Pruebas** (`docs/PLAN_TESTING_COVERAGE_V1_8_0.md`) | ✅ Hecho |  Alta | Sprint 1 |
+| **Añadir Specs para `orders.service.ts`** (Casos de borde, errores) | ✅ Hecho | 🔴 Alta | Sprint 1 |
+| **Añadir Specs para `billing.service.ts`** (Webhooks, cambios de plan) | ✅ Hecho | 🔴 Alta | Sprint 1 |
+| **Añadir Specs para `contacts.service.ts`** (Tipos, jerarquía) | ✅ Hecho | 🟡 Media | Sprint 2 |
+| **Añadir Specs para `integrations.service.ts`** (Resiliencia, errores) | ✅ Hecho | 🟡 Media | Sprint 2 |
+| **Añadir Specs para `currency.service.ts`** (Cache, fallbacks) | ✅ Hecho | 🟡 Media | Sprint 2 |
+| **Configurar reporte de cobertura** (`jest --coverage`) | ✅ Hecho | 🟢 Baja | Sprint 2 |
+
+---
+
+### 🟢 v1.4.0 — Facturación Electrónica Paraguaya con FacturaSend (COMPLETADO)
+
+| Feature | Estado | Prioridad | Sprint |
+|---------|--------|-----------|--------|
+| **FacturasendTenantConfig model** (schema.prisma) | ✅ Hecho | 🔴 Alta | Sprint 1 |
+| **ElectronicDocument model** (schema.prisma) | ✅ Hecho | 🔴 Alta | Sprint 1 |
+| **FacturasendAuthService** (config CRUD + AES-256 encryption) | ✅ Hecho | 🔴 Alta | Sprint 2 |
+| **FacturasendClient** (HTTP client con retry + timeout) | ✅ Hecho | 🔴 Alta | Sprint 2 |
+| **FacturasendMapper** (OrderFlow → Facturasend JSON: multi-currency, IVA 5/10%, B2B/B2C) | ✅ Hecho | 🔴 Alta | Sprint 2 |
+| **FacturasendService** (emit, status, test, emitFromOdooPayload) | ✅ Hecho | 🔴 Alta | Sprint 2 |
+| **FacturasendController** (REST API: config, test, emit, documents, webhook) | ✅ Hecho | 🔴 Alta | Sprint 2 |
+| **Hook en orders.service.confirm()** (emit directo si tenant config) | ✅ Hecho | 🔴 Alta | Sprint 2 |
+| **FacturasendLocationService** (cache de deptos/ciudades SIFEN) | ✅ Hecho | 🔴 Alta | Sprint 2 |
+| **Unit tests** (mapper, service, client, controller specs) | ✅ Hecho | 🔴 Alta | Sprint 2 |
+| **Odoo addon** → webhook `sale-order-confirmed` con tax breakdown | ⏳ Pendiente | 🔴 Alta | Sprint 3 |
+| **odoo-adapter plugin** `facturasend-invoice` | ⏳ Pendiente | 🔴 Alta | Sprint 3 |
+| **Webhook receiver** (FacturaSend → OrderFlow estado DE) | ⏳ Pendiente | 🟡 Media | Sprint 4 |
+| **Frontend admin** (config, lista DEs, detalle XML/KuDE/PDF) | ⏳ Pendiente | 🟡 Media | Sprint 4 |
+| **WebSocket notifications** (estado DE en tiempo real) | ⏳ Pendiente | 🟡 Media | Sprint 4 |
+| **Cron retry + SIFEN polling** | ⏳ Pendiente | 🔴 Alta | Sprint 5 |
+| **E2E Playwright** (admin routes `/admin/facturasend/*`) | ⏳ Pendiente | 🟡 Media | Sprint 5 |
+| **init.sh validation** | ✅ Completado | 🔴 Alta | Final |
+
+> **Arquitectura:** Dos vías de emisión. (1) **Directa:** OrderFlow backend llama Facturasend API desde `orders.service.confirm()`. (2) **Odoo-mediated:** Odoo addon emite webhook `sale-order-confirmed` → odoo-adapter → OrderFlow → Facturasend. El API key de Facturasend se almacena en OrderFlow backend. Multi-currency reutiliza `ExchangeRate` service (FEAT-022). Cache global de ubicaciones SIFEN. Plan completo: `docs/PLAN_FACTURASEND_INTEGRATION.md`.
+
+---
+
+### 💠 v1.9.0 — Calidad, Integración y Evolución (PLANIFICADO)
+
+| Feature | Estado | Prioridad | Sprint |
+|---------|--------|-----------|--------|
+| **Base de Pruebas Unitarias Frontend** (`Vitest` + `React Testing Library`) | ⏳ Pendiente | 🔴 Alta | Sprint 1 |
+| **Completar Integración Odoo** (Facturación `account.move` + Cola Durable) | ⏳ Pendiente | 🔴 Alta | Sprint 1-2 |
+| **Profundizar Funcionalidad de Microservicios** (Pasarelas de pago autónomas) | ⏳ Pendiente | 🟡 Media | Sprint 2 |
+
+
+---
+
+### � v2.0.0 — Kubernetes + Escala (Target: 2027+)
 
 | Feature | Estado | Prioridad |
 |---------|--------|----------|
@@ -322,7 +412,7 @@ Permite vender módulos individuales (Giveaways, WhatsApp Catalog, Bio-Links, et
 
 | Métrica | Actual | Target v1.2.0 | Target v2.0 |
 |---------|--------|---------------|-------------|
-| **Cobertura de Tests** | 389 passing / 50 suites (~45% real) | 60% | 80% (unitario + integración + E2E) |
+| **Cobertura de Tests** | 498 passing / 58 suites (~45% real) | 70% | 80% (unitario + integración + E2E) |
 | **Endpoints Documentados** | 100% | 100% | 100% |
 | **Deploy Time** | 2-3 min | <2 min | <1 min |
 | **Build Time** | 8-30s | <10s | <5s |
@@ -447,7 +537,13 @@ Permite vender módulos individuales (Giveaways, WhatsApp Catalog, Bio-Links, et
 | **v1.1.7 Stable** | ✅ 2026-07-30 | ✅ **COMPLETADO** | QA E2E Playwright Suite, Subdomain Resolution Fixes, WhatsApp Catalog Admin Visual Customization Overhaul, Frontend Stability Guards |
 | **v1.1.8 Stable** | ✅ 2026-07-31 | ✅ **COMPLETADO** | Homepage Visual Builder, Landing vs. Tienda routing separation, Google Fonts palette, live Desktop/Mobile preview |
 | **v1.1.9 Stable** | ✅ 2026-07-31 | ✅ **COMPLETADO** | Navigation unification, Array.isArray defensive guards, E2E QA suite expanded to all admin subroutes, 389 tests |
-| **v1.2.0-dev** | 🚧 2026-08-15 | 🚧 **EN PROCESO** | Customización del catálogo WhatsApp (Admin Tenant + SuperAdmin) + Plan UX/UI mobile-first + Endpoint público unificado `/api/v1/public/catalog` para todos los canales + Suite de 6 Microservicios Standalone + Migración progresiva `@TenantPrisma()` |
+| **v1.3.0 Stable** | ✅ 2026-08-01 | ✅ **COMPLETADO** | Automatización de Cotizaciones PY (FEAT-022): 5 providers (BCP, CambiosChaco, Bonanza, DólarApi, Manual), Cron 15min TZ Paraguay, LRU cache + DB persistence, 426 tests |
+| **v1.4.0 Stable** | ✅ 2026-08-01 | ✅ **COMPLETADO** | Facturación Electrónica Paraguaya (FacturaSend/SIFEN). 72 tests. init.sh: 58 suites / 498 tests. |
+| **v1.5.1 Stable** | ✅ 2026-08-02 | ✅ **COMPLETADO** | Responsive UX/UI Backoffice + Traefik v3.4 (QA-001) |
+| **v1.7.0 Stable** | ✅ 2026-08-03 | ✅ **COMPLETADO** | UX/UI Mobile-First & Ergonomía Intuitiva + Refinamiento UX/UI Escritorio |
+| **v1.8.0** | ✅ 2026-08-03 | ✅ **COMPLETADO** | Deuda Técnica: Aumento de Cobertura de Pruebas (Backend) |
+| **v1.8.1** | ✅ 2026-08-03 | ✅ **COMPLETADO** | Proceso de Despliegue Formalizado y Documentado |
+| **v1.9.0** | 2026-09-15 | ⏳ Pendiente | Calidad Frontend, Finalización Odoo y Evolución de Microservicios |
 | **v2.0.0** | 2027+ | ⏳ Futuro | Kubernetes + autoscaling + multi-región |
 
 ---
