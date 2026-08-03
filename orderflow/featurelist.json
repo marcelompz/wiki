@@ -197,13 +197,40 @@
     },
     {
       "id": "FEAT-026",
-      "category": "Core / CRM Unificado",
-      "title": "Contactos Unificados estilo Odoo: menú único reemplaza Usuarios y Clientes, roles múltiples, campos de empleado y empresa",
+      "category": "Gobernanza y Colaboración",
+      "title": "CONTRIBUTING.md y SECURITY.md para colaboradores externos",
       "status": "completed",
-      "assigned_module": "backend/src/contacts & frontend/src/pages/admin/contacts.tsx & backend/prisma/schema.prisma",
-      "qa_validation": "init.sh passed | Backend tests: 19/19 contacts | Frontend build clean"
+      "assigned_module": "CONTRIBUTING.md, SECURITY.md"
+    },
+    {
+      "id": "FEAT-027",
+      "category": "Infraestructura / Escalabilidad",
+      "title": "Estrategia de Escalabilidad Horizontal Documentada (NestJS + Microservicios)",
+      "status": "completed",
+      "assigned_module": "docs/escalabilidad-horizontal.md"
+    },
+    {
+      "id": "FEAT-028",
+      "category": "Infraestructura / Disaster Recovery",
+      "title": "Estrategia de Backup y Restauración Automatizada (PostgreSQL + Uploads)",
+      "status": "completed",
+      "assigned_module": "docs/backups.md & scripts/backup-database.sh"
+    },
+    {
+      "id": "FEAT-029",
+      "category": "Infraestructura / Observabilidad",
+      "title": "Stack de Monitorización Prometheus + Grafana + Alertmanager",
+      "status": "completed",
+      "assigned_module": "docs/monitoreo.md"
+    },
+    {
+      "id": "FEAT-030",
+      "category": "Soporte y SLA",
+      "title": "Definición de SLA por Plan Comercial (Startup, Professional, Enterprise)",
+      "status": "completed",
+      "assigned_module": "docs/sla.md"
     }
   ],
-  "version": "1.9.0",
+  "version": "1.10.0",
   "last_updated": "2026-08-03"
 }

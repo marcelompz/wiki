@@ -7,6 +7,15 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.
 
 ## [Unreleased]
 
+## [1.10.0] - 2026-08-03
+
+### 📚 Documentación
+- **Gobernanza:** Creado `CONTRIBUTING.md` y `SECURITY.md` para colaboradores externos.
+- **Escalabilidad:** Documentada estrategia de escalado horizontal de NestJS + microservicios.
+- **Disaster Recovery:** Documentado procedimiento de backup/restauración y replicación PostgreSQL.
+- **Monitorización:** Definido stack Prometheus + Grafana + Alertmanager con métricas y alertas.
+- **SLA:** Creado `docs/sla.md` con acuerdos por plan (Startup, Professional, Enterprise).
+
 ## [1.9.0] - 2026-08-03
 
 ### 🚀 Features
