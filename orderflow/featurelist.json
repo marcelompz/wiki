@@ -234,16 +234,16 @@
       "id": "FEAT-031",
       "category": "Integraciones / Odoo",
       "title": "Odoo 19 CE: sincronización de facturación account.move y cola durable",
-      "status": "in_progress",
-      "assigned_module": "odoo19CE/addons/orderflow_connector/, odoo-adapter/, backend/src/integrations/",
+      "status": "completed",
+      "assigned_module": "odoo-addons/orderflow_integration/, odoo-adapter/, backend/src/integrations/",
       "blocking": ["FEAT-023 (FacturaSend completado — emisión DE)"]
     },
     {
       "id": "FEAT-032",
       "category": "Integraciones / Facturación Electrónica",
       "title": "FacturaSend: completar Odoo addon, odoo-adapter plugin, webhook receiver, frontend admin, cron retry + SIFEN polling",
-      "status": "in_progress",
-      "assigned_module": "backend/src/integrations/facturasend/, frontend/src/pages/admin/, odoo-adapter/",
+      "status": "completed",
+      "assigned_module": "backend/src/integrations/facturasend/, odoo-adapter/, odoo-addons/orderflow_integration/",
       "blocking": ["FEAT-023", "FEAT-031"]
     },
     {
