@@ -20,6 +20,8 @@ Ordená por problema y área. Cada entrada incluye síntomas, causa raíz y solu
 | [10](10-react-router-routes-conflict-and-iterable-guards.md) | Conflicto de Rutas React & Excepciones Iterables | Frontend / React Router / Types | Pantalla en blanco en dominios de producción (`provecchio.com` / `pesallaccia.com`); `t is not iterable` | ✅ Resuelto |
 | [11](11-web-builder-and-dashboard-consolidation.md) | Unificación de Dashboards & Diseñador Web Omnicanal | Frontend / Admin App / UX | Duplicidad de Spa Dashboard; posicionamiento del Diseñador Web desacoplado | ✅ Resuelto |
 | [12](12-bookings-iterable-guard-fix.md) | Guardia Defensiva en BookingsPage | Frontend / Bookings / React | `TypeError: l.filter is not a function` en `/admin/bookings` | ✅ Resuelto |
+| [18](18-cloudflare-api-token-warn.md) | CLOUDFLARE_API_TOKEN No Configurada | DevOps / Cloudflare / DNS | Warning en backend al desplegar; operaciones DNS de tenants fallan | ✅ Resuelto |
+| [19](19-login-secrets-missing.md) | Login Fallido por Secrets Faltantes | DevOps / Backend / Auth | Login imposible; SecretsValidation error; backend en crash loop | ✅ Resuelto |
 
 ---
 
@@ -51,6 +53,8 @@ Ordená por problema y área. Cada entrada incluye síntomas, causa raíz y solu
 - **502 Bad Gateway tras deploy:** ver [#13](13-provecchio-missing-frontend-502.md) — contenedor `orderflow-frontend-prod` creado pero no iniciado por timeout; forzar con `docker compose up -d frontend`.
 - **502 en API con frontend OK:** ver [#06-SSL](06-provecchio-traefik-ssl-and-502-diagnosis.md) — contenedores no conectados a red `traefik-public`.
 - **Contenedores duplicados:** ver [#09](09-docker-orphan-containers-cleanup.md) — `--remove-orphans` y limpieza de stacks.
+- **Warning `CLOUDFLARE_API_TOKEN` no set:** ver [#18](18-cloudflare-api-token-warn.md) — variable `CLOUDFLARE_DNS_API_TOKEN` renombrada a `CLOUDFLARE_API_TOKEN` en `.env.production`.
+- **Login fallido por secrets faltantes:** ver [#19](19-login-secrets-missing.md) — `.env.production` con placeholders post-commit de seguridad; restaurar secrets desde rollback artifacts y sincronizar POSTGRES_PASSWORD.
 
 ---
 
