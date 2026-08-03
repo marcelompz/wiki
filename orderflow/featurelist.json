@@ -229,8 +229,122 @@
       "title": "Definición de SLA por Plan Comercial (Startup, Professional, Enterprise)",
       "status": "completed",
       "assigned_module": "docs/sla.md"
+    },
+    {
+      "id": "FEAT-031",
+      "category": "Integraciones / Odoo",
+      "title": "Odoo 19 CE: sincronización de facturación account.move y cola durable",
+      "status": "in_progress",
+      "assigned_module": "odoo19CE/addons/orderflow_connector/, odoo-adapter/, backend/src/integrations/",
+      "blocking": ["FEAT-023 (FacturaSend completado — emisión DE)"]
+    },
+    {
+      "id": "FEAT-032",
+      "category": "Integraciones / Facturación Electrónica",
+      "title": "FacturaSend: completar Odoo addon, odoo-adapter plugin, webhook receiver, frontend admin, cron retry + SIFEN polling",
+      "status": "in_progress",
+      "assigned_module": "backend/src/integrations/facturasend/, frontend/src/pages/admin/, odoo-adapter/",
+      "blocking": ["FEAT-023", "FEAT-031"]
+    },
+    {
+      "id": "FEAT-033",
+      "category": "Frontend / Testing",
+      "title": "Base de Pruebas Unitarias Frontend (Vitest + React Testing Library)",
+      "status": "in_progress",
+      "assigned_module": "frontend/ (vitest.config.ts, src/**/*.test.tsx)",
+      "blocking": []
+    },
+    {
+      "id": "FEAT-034",
+      "category": "Frontend / UX-UI Mobile-First",
+      "title": "One-Page Checkout Express (Geolocalización + Autocompletado)",
+      "status": "pending",
+      "assigned_module": "frontend/src/pages/whatsapp-checkout.tsx, backend/src/products/public-catalog.controller.ts",
+      "blocking": ["FEAT-025 (mobile UX base)"]
+    },
+    {
+      "id": "FEAT-035",
+      "category": "Frontend / UX-UI Mobile-First",
+      "title": "Navegación Móvil Adaptativa Backoffice (Bottom Navigation Bar)",
+      "status": "pending",
+      "assigned_module": "frontend/src/AdminApp.tsx, frontend/src/components/",
+      "blocking": ["FEAT-025"]
+    },
+    {
+      "id": "FEAT-036",
+      "category": "Frontend / UX-UI Responsive",
+      "title": "Transformación Responsive de Tablas Admin a Tarjetas (Responsive Cards)",
+      "status": "pending",
+      "assigned_module": "frontend/src/pages/admin/products.tsx, customers.tsx, bookings.tsx",
+      "blocking": []
+    },
+    {
+      "id": "FEAT-037",
+      "category": "Frontend / UX-UI Desktop",
+      "title": "SuperAdmin Tenant Switcher Flotante Táctil",
+      "status": "pending",
+      "assigned_module": "frontend/src/pages/admin/super-admin-dashboard.tsx",
+      "blocking": []
+    },
+    {
+      "id": "FEAT-038",
+      "category": "Frontend / UX-UI Desktop",
+      "title": "Refactorización de Dashboard a Multi-Columna",
+      "status": "in_progress",
+      "assigned_module": "frontend/src/pages/admin/dashboard.tsx",
+      "blocking": []
+    },
+    {
+      "id": "FEAT-039",
+      "category": "Backend / Testing",
+      "title": "Aumentar Cobertura de Pruebas Backend a 80%",
+      "status": "in_progress",
+      "assigned_module": "backend/src/ (orders, billing, integrations, bookings, products specs)",
+      "blocking": []
+    },
+    {
+      "id": "FEAT-040",
+      "category": "QA / E2E",
+      "title": "E2E Playwright para FacturaSend (rutas admin + validaciones)",
+      "status": "pending",
+      "assigned_module": "scripts/qa_e2e_check.py, frontend/src/pages/admin/facturasend.tsx",
+      "blocking": ["FEAT-032"]
     }
   ],
-  "version": "1.10.0",
+      "category": "Gobernanza y Colaboración",
+      "title": "CONTRIBUTING.md y SECURITY.md para colaboradores externos",
+      "status": "completed",
+      "assigned_module": "CONTRIBUTING.md, SECURITY.md"
+    },
+    {
+      "id": "FEAT-027",
+      "category": "Infraestructura / Escalabilidad",
+      "title": "Estrategia de Escalabilidad Horizontal Documentada (NestJS + Microservicios)",
+      "status": "completed",
+      "assigned_module": "docs/escalabilidad-horizontal.md"
+    },
+    {
+      "id": "FEAT-028",
+      "category": "Infraestructura / Disaster Recovery",
+      "title": "Estrategia de Backup y Restauración Automatizada (PostgreSQL + Uploads)",
+      "status": "completed",
+      "assigned_module": "docs/backups.md & scripts/backup-database.sh"
+    },
+    {
+      "id": "FEAT-029",
+      "category": "Infraestructura / Observabilidad",
+      "title": "Stack de Monitorización Prometheus + Grafana + Alertmanager",
+      "status": "completed",
+      "assigned_module": "docs/monitoreo.md"
+    },
+    {
+      "id": "FEAT-030",
+      "category": "Soporte y SLA",
+      "title": "Definición de SLA por Plan Comercial (Startup, Professional, Enterprise)",
+      "status": "completed",
+      "assigned_module": "docs/sla.md"
+    }
+  ],
+  "version": "1.11.0",
   "last_updated": "2026-08-03"
 }

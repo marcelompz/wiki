@@ -7,6 +7,13 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.
 
 ## [Unreleased]
 
+## [1.11.0] - 2026-08-03
+
+### 📚 Documentación
+- **Plan de Sprint:** Creado `docs/PLAN_SPRINT_V1_11_0.md` con alcance, secuenciación y criterios de aceptación para v1.11.0/v1.12.0.
+- **Contribución:** Renombrado `CONTRIBUTING.md` a `CONTRIBUTINGen.md` y creada versión en español `CONTRIBUTING.md`.
+- **Análisis:** Agregado `docs/INFORME_MADUREZ_1.9.0_actualizado.md` con reevaluación de documentación.
+
 ## [1.10.0] - 2026-08-03
 
 ### 📚 Documentación
