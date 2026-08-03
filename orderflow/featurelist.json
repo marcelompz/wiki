@@ -290,7 +290,7 @@
       "id": "FEAT-038",
       "category": "Frontend / UX-UI Desktop",
       "title": "Refactorización de Dashboard a Multi-Columna",
-      "status": "in_progress",
+      "status": "completed",
       "assigned_module": "frontend/src/pages/admin/dashboard.tsx",
       "blocking": []
     },
