@@ -282,7 +282,7 @@
       "id": "FEAT-037",
       "category": "Frontend / UX-UI Desktop",
       "title": "SuperAdmin Tenant Switcher Flotante Táctil",
-      "status": "pending",
+      "status": "completed",
       "assigned_module": "frontend/src/pages/admin/super-admin-dashboard.tsx",
       "blocking": []
     },
