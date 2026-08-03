@@ -258,8 +258,8 @@
       "id": "FEAT-034",
       "category": "Frontend / UX-UI Mobile-First",
       "title": "One-Page Checkout Express (Geolocalización + Autocompletado)",
-      "status": "pending",
-      "assigned_module": "frontend/src/pages/whatsapp-checkout.tsx, backend/src/products/public-catalog.controller.ts",
+      "status": "completed",
+      "assigned_module": "frontend/src/pages/whatsapp-checkout.tsx",
       "blocking": ["FEAT-025 (mobile UX base)"]
     },
     {
