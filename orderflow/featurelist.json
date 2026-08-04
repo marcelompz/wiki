@@ -306,10 +306,10 @@
       "id": "FEAT-040",
       "category": "QA / E2E",
       "title": "E2E Playwright para FacturaSend (rutas admin + validaciones)",
-      "status": "pending",
-      "assigned_module": "scripts/qa_e2e_check.py, frontend/src/pages/admin/facturasend.tsx",
+      "status": "completed",
+      "assigned_module": "frontend/e2e/facturasend-api.spec.ts",
       "blocking": ["FEAT-032"]
-    }
+    },
   ],
       "category": "Gobernanza y Colaboración",
       "title": "CONTRIBUTING.md y SECURITY.md para colaboradores externos",
