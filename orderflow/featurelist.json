@@ -1,7 +1,7 @@
 {
   "project": "OrderFlow SaaS Omnicanal",
-  "version": "1.8.1",
-  "last_updated": "2026-08-03",
+  "version": "1.11.0",
+  "last_updated": "2026-08-04",
   "features": [
     {
       "id": "FEAT-001",
@@ -95,7 +95,7 @@
       "assigned_module": "mobile/src/screens/*.tsx"
     },
     {
-      "id": "FEAT-029",
+      "id": "FEAT-041",
       "category": "Catálogo WhatsApp / UX & Ecommerce",
       "title": "Plan de maduración UX/UI mobile-first del catálogo WhatsApp: detalle de producto, filtros avanzados, búsqueda predictiva, wishlist, reseñas, accesibilidad y performance",
       "status": "in_progress",
