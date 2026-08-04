@@ -1,6 +1,6 @@
 {
   "project": "OrderFlow SaaS Omnicanal",
-  "version": "1.11.0",
+  "version": "1.12.0",
   "last_updated": "2026-08-04",
   "features": [
     {
@@ -250,7 +250,7 @@
       "id": "FEAT-033",
       "category": "Frontend / Testing",
       "title": "Base de Pruebas Unitarias Frontend (Vitest + React Testing Library)",
-      "status": "in_progress",
+      "status": "completed",
       "assigned_module": "frontend/ (vitest.config.ts, src/**/*.test.tsx)",
       "blocking": []
     },

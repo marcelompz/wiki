@@ -7,6 +7,22 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.
 
 ## [Unreleased]
 
+## [1.12.0] - 2026-08-04
+
+### 🚀 Features
+- **Frontend Testing:** Configuración de Vitest + React Testing Library y tests iniciales para hooks y stores críticos.
+- **UX/UI Mobile:** One-Page Checkout Express con modo express y autocompletado de direcciones.
+- **UX/UI Mobile:** Navegación móvil adaptativa backoffice con Bottom Navigation Bar.
+- **UX/UI Responsive:** Transformación de tablas admin a tarjetas responsive en customers y bookings.
+- **UX/UI Desktop:** SuperAdmin Tenant Switcher flotante táctil.
+- **UX/UI Desktop:** Refactorización de Dashboard a layout multi-columna.
+- **Backend Testing:** Aumento de cobertura con service tests para billing, contacts, orders, webhook-cron, whatsapp-catalog y product-imports.
+- **QA/E2E:** Suite Playwright para validar endpoints públicos de FacturaSend (401 unauthenticated).
+
+### 🛠️ Refactor
+- Reorganización de featurelist.json: renumeración de FEAT-029 duplicado a FEAT-041.
+- Actualización de versiones a v1.12.0 en VERSION, package.json, README, ROADMAP, CHANGELOG.
+
 ## [1.11.0] - 2026-08-03
 
 ### 📚 Documentación
