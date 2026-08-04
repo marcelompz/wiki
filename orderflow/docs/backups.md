@@ -1,12 +1,12 @@
-# Disaster Recovery y Backups — OrderFlow
+# Disaster Recovery y Failover — OrderFlow
 
-**Estado:** Diseño  
-**Versión:** v1.10.0+  
-**Objetivo:** Definir la estrategia de backup, retención y restauración para garantizar la continuidad del negocio.
+**Estado:** Diseño + Procedimiento  
+**Versión:** v1.12.0+  
+**Objetivo:** Definir el procedimiento de backup, restauración y failover para garantizar la continuidad del negocio.
 
 ---
 
-## 1. Política de Backups
+## 1. Estrategia de Backup
 
 ### 1.1 Tipos de Backup
 
@@ -17,101 +17,81 @@
 | **Pre-deploy** | Antes de cada deploy | 30 días | Base de datos completa |
 | **Uploads** | Diario | 7 días | `/uploads/{tenantId}/` |
 
-### 1.2 herramientas
+### 1.2 Herramientas
 
 - **Base de datos:** `pg_dump` + `gzip` (nativo PostgreSQL)
-- **Uploads:** `rsync` o `tar` comprimido
-- **Automatización:** `cron` en el VPS de producción
-- **Remoto:** SFTP a servidor de backups secundario (o S3-compatible)
+- **Uploads:** `tar` comprimido
+- **Réplica standby:** Provecchio como servidor de réplica read-only (detenido por defecto)
 
 ---
 
 ## 2. Procedimiento de Backup
 
-### 2.1 Backup de Base de Datos
+### 2.1 Backup desde Primary (Hetzner VPS)
 
 ```bash
 #!/bin/bash
 # scripts/backup-database.sh
 
-set -e
+set -euo pipefail
 
 TIMESTAMP=$(date +%Y%m%d_%H%M%S)
 BACKUP_DIR="/opt/orderflow/backups/postgres"
 RETENTION_DAYS=7
 
-mkdir -p $BACKUP_DIR
+mkdir -p "$BACKUP_DIR"
 
 # Backup completo
-pg_dump -Fc -U $POSTGRES_USER -d $POSTGRES_DB -f $BACKUP_DIR/db_$TIMESTAMP.dump
+pg_dump -Fc -U "$POSTGRES_USER" -d "$POSTGRES_DB" -f "$BACKUP_DIR/db_$TIMESTAMP.dump"
 
 # Comprimir
-gzip $BACKUP_DIR/db_$TIMESTAMP.dump
-
-# Subir a remoto (si está configurado)
-if [ -n "$BACKUP_SFTP_HOST" ]; then
-  scp $BACKUP_DIR/db_$TIMESTAMP.dump.gz $BACKUP_SFTP_USER@$BACKUP_SFTP_HOST:/backups/orderflow/
-fi
+gzip "$BACKUP_DIR/db_$TIMESTAMP.dump"
 
 # Limpiar backups antiguos
-find $BACKUP_DIR -name "db_*.dump.gz" -mtime +$RETENTION_DAYS -delete
+find "$BACKUP_DIR" -name "db_*.dump.gz" -mtime +$RETENTION_DAYS -delete
 
 echo "✅ Backup completado: db_$TIMESTAMP.dump.gz"
 ```
 
-**Variables de entorno requeridas:**
-
-```env
-POSTGRES_USER=orderflow
-POSTGRES_DB=orderflow
-BACKUP_SFTP_HOST=backup.example.com
-BACKUP_SFTP_USER=orderflow-backup
-```
-
-### 2.2 Backup de Uploads
+### 2.2 Backup desde Provecchio (Réplica Standby)
 
 ```bash
 #!/bin/bash
-# scripts/backup-uploads.sh
+# scripts/backup-from-replica.sh
 
-TIMESTAMP=$(date +%Y%m%d_%H%M%U)
-UPLOAD_DIR="/opt/orderflow/backend/uploads"
-BACKUP_DIR="/opt/orderflow/backups/uploads"
+set -euo pipefail
 
-tar -czf $BACKUP_DIR/uploads_$TIMESTAMP.tar.gz -C $UPLOAD_DIR .
+# 1. Iniciar réplica
+bash /opt/orderflow/scripts/replica-start.sh
 
-find $BACKUP_DIR -name "uploads_*.tar.gz" -mtime +7 -delete
-```
+# 2. Esperar a que esté lista
+sleep 30
 
-### 2.3 Cron Jobs
+# 3. Ejecutar backup desde réplica
+docker compose -f docker-compose.prod.yml -f docker-compose.replica.yml exec database-replica pg_dump -Fc -U orderflow -d orderflow_db -f /tmp/db_replica.dump
 
-```cron
-# /etc/cron.d/orderflow-backups
+# 4. Copiar backup a local
+docker compose -f docker-compose.prod.yml -f docker-compose.replica.yml cp database-replica:/tmp/db_replica.dump /opt/orderflow/backups/postgres/db_replica_$(date +%Y%m%d_%H%M%S).dump
 
-# Backup completo de BD: diario a las 02:00 ART
-0 2 * * * root /opt/orderflow/scripts/backup-database.sh >> /var/log/orderflow-backup.log 2>&1
-
-# Backup de uploads: diario a las 02:30 ART
-30 2 * * * root /opt/orderflow/scripts/backup-uploads.sh >> /var/log/orderflow-backup.log 2>&1
-
-# Backup pre-deploy: manual (se ejecuta antes de cada deploy)
+# 5. Detener réplica
+bash /opt/orderflow/scripts/replica-stop.sh
 ```
 
 ---
 
 ## 3. Procedimiento de Restauración
 
-### 3.1 Restauración Completa
+### 3.1 Restauración Completa desde Backup
 
 ```bash
 # 1. Detener servicios
 docker compose -f docker-compose.prod.yml down
 
 # 2. Restaurar base de datos
-pg_restore -U $POSTGRES_USER -d $POSTGRES_DB -c /opt/orderflow/backups/postgres/db_20260803_020000.dump.gz
+pg_restore -U "$POSTGRES_USER" -d "$POSTGRES_DB" -c /opt/orderflow/backups/postgres/db_20260804_020000.dump.gz
 
 # 3. Restaurar uploads
-tar -xzf /opt/orderflow/backups/uploads/uploads_20260803_020000.tar.gz -C /opt/orderflow/backend/uploads/
+tar -xzf /opt/orderflow/backups/uploads/uploads_20260804_020000.tar.gz -C /opt/orderflow/backend/uploads/
 
 # 4. Reiniciar servicios
 docker compose -f docker-compose.prod.yml up -d
@@ -124,52 +104,79 @@ curl -f https://orderflow.com/health
 
 ```bash
 # Listar tablas en el dump
-pg_restore -l db_20260803_020000.dump | grep appointments
+pg_restore -l db_20260804_020000.dump | grep appointments
 
 # Restaurar solo una tabla
-pg_restore -U $POSTGRES_USER -d $POSTGRES_DB -t appointment_assignments db_20260803_020000.dump
+pg_restore -U "$POSTGRES_USER" -d "$POSTGRES_DB" -t appointment_assignments db_20260804_020000.dump
 ```
 
 ---
 
-## 4. Estrategia de Replicación (Alta Disponibilidad)
+## 4. Procedimiento de Failover
 
-### 4.1 Streaming Replication (PostgreSQL)
+### 4.1 Cuándo activar el failover
 
-```
-Primary (write) ──→ Replica (read-only)
-     │
-     └─ WAL streaming en tiempo real
-```
+- El primary (Hetzner VPS) no responde por más de 5 minutos.
+- Traefik no puede alcanzar el backend o la base de datos.
+- Se detecta corrupción de datos en el primary.
 
-**Configuración en `postgresql.conf` (primary):**
+### 4.2 Pasos de failover a Provecchio
 
-```ini
-wal_level = replica
-max_wal_senders = 3
-wal_keep_size = 1GB
-```
-
-**Configuración en `postgresql.conf` (replica):**
-
-```ini
-hot_standby = on
-```
-
-**Inicialización:**
+**Paso 1: Promocionar la réplica**
 
 ```bash
-# En el primary
-pg_basebackup -h primary-host -D /var/lib/postgresql/data -U replicator -P --wal-method=stream
+# En Provecchio
+bash /opt/orderflow/scripts/replica-start.sh
+sleep 30
+bash /opt/orderflow/scripts/replica-promote.sh
 ```
 
-### 4.2 Failover Manual
+**Paso 2: Verificar que la réplica es primary**
 
 ```bash
-# En caso de fallo del primary, promover la réplica
-pg_ctl promote -D /var/lib/postgresql/data
+docker compose -f docker-compose.prod.yml -f docker-compose.replica.yml exec database-replica psql -U orderflow -d orderflow_db -c "SELECT pg_is_in_recovery();"
+# Debe retornar: f (false = ya no está en recovery)
+```
 
-# Actualizar DATABASE_URL en el backend al nuevo primary
+**Paso 3: Apuntar el backend a la nueva base de datos**
+
+```bash
+# En Provecchio, actualizar DATABASE_URL
+export DATABASE_URL=postgresql://orderflow:GwV2UpPdZnCocfdjmOKUfqiX@database-replica:5432/orderflow_db?schema=public
+
+# Reiniciar backend
+docker compose -f docker-compose.prod.yml -f docker-compose.replica.yml up -d backend
+```
+
+**Paso 4: Redirigir tráfico**
+
+```bash
+# Si Traefik está en Provecchio, asegurarse de que esté corriendo
+docker compose -f docker-compose.prod.yml -f docker-compose.replica.yml up -d traefik
+
+# Actualizar DNS/Cloudflare si es necesario para apuntar a Provecchio
+```
+
+**Paso 5: Verificar funcionamiento**
+
+```bash
+curl -f https://provecchio.com/health
+curl -f https://provecchio.com/api/v1/health
+```
+
+### 4.3 Recuperación del Primary Original
+
+Cuando el servidor principal se recupera:
+
+```bash
+# 1. Detener servicios en el principal
+docker compose -f docker-compose.prod.yml down
+
+# 2. Configurar el antiguo primary como nueva réplica
+docker compose -f docker-compose.prod.yml -f docker-compose.replica.yml up -d database-replica
+
+# 3. Verificar replicación
+docker compose -f docker-compose.prod.yml -f docker-compose.replica.yml logs database-replica | grep "replication"
 ```
 
 ---
@@ -178,7 +185,7 @@ pg_ctl promote -D /var/lib/postgresql/data
 
 ```bash
 # Verificar que el backup no está corrupto
-pg_restore -l /opt/orderflow/backups/postgres/db_20260803_020000.dump.gz > /dev/null && echo "✅ Backup OK"
+pg_restore -l /opt/orderflow/backups/postgres/db_20260804_020000.dump.gz > /dev/null && echo "✅ Backup OK"
 
 # Verificar tamaño esperado
 ls -lh /opt/orderflow/backups/postgres/db_*.dump.gz
@@ -188,29 +195,27 @@ ls -lh /opt/orderflow/backups/postgres/db_*.dump.gz
 
 ---
 
-## 6. Retención y Cumplimiento
+## 6. Monitoreo
 
-- Backups diarios: 7 días
-- Backups pre-deploy: 30 días
-- Backups de uploads: 7 días
-- Backups remotos (SFTP/S3): misma retención que local
-- Logs de backup: 30 días en `/var/log/orderflow-backup.log`
+### 6.1 Alertas
 
----
+| Alerta | Condición | Acción |
+|--------|-----------|--------|
+| **Primary down** | `docker ps` no muestra `orderflow-database-prod` | Iniciar réplica Provecchio |
+| **Replica lag** | WAL lag > 100MB | Verificar red entre primary y réplica |
+| **Backup fallido** | `pg_dump` retorna error | Revisar espacio en disco y credenciales |
 
-## 7. Responsabilidades
+### 6.2 Dashboards
 
-| Rol | Responsabilidad |
-|-----|----------------|
-| **DevOps/SRE** | Configurar cron jobs, monitorear éxito de backups, ejecutar restauraciones |
-| **Backend Lead** | Validar integridad de backups, coordinar restauraciones |
-| **Tech Lead** | Aprobar cambios en la estrategia de backup |
+- **Grafana:** Agregar panel de estado de réplica.
+- **Sentry:** Alertar si el backend no puede conectar a la base de datos.
+- **Uptime Kuma:** Monitorear endpoints críticos desde outside.
 
 ---
 
-## 8. Próximos Pasos
+## 7. Próximos Pasos
 
-1. Automatizar backups con el script `scripts/backup-database.sh`
-2. Configurar replicación de PostgreSQL en staging
-3. Ejecutar prueba de restauración completa en staging
-4. Documentar procedimiento en runbook de operaciones
+1. Automatizar backup diario con cron en Hetzner VPS.
+2. Configurar `wal_level = replica` en PostgreSQL primary.
+3. Probar failover completo en staging.
+4. Documentar runbook de operaciones para el equipo de soporte.
