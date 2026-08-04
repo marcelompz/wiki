@@ -85,8 +85,9 @@
       "id": "FEAT-011",
       "category": "Infraestructura & Alta Disponibilidad",
       "title": "Ampliación a Servidor Secundario (Clúster Staging/Production Aislado con Replica Read-Only)",
-      "status": "pending",
-      "assigned_module": "scripts/deploy-staging.sh & Traefik v3.3"
+      "status": "in_progress",
+      "assigned_module": "docker-compose.prod.yml, docker-compose.provecchio.yml, scripts/deploy-*.sh, docs/ROADMAP.md",
+      "blocking": ["FEAT-001 (multi-tier infra)"]
     },
     {
       "id": "FEAT-012",

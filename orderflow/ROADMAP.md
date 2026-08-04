@@ -436,6 +436,7 @@ Permite vender módulos individuales (Giveaways, WhatsApp Catalog, Bio-Links, et
 | Servidor | IP | Hostname | Propósito |
 |----------|-----|----------|-----------|
 | **Hetzner VPS** | `178.105.226.175` | `dimoraserver1` | Staging + Production |
+| **Provecchio (Réplica/Backup)** | *(misma red Hetzner)* | `provecchio` | Réplica read-only + backup en caliente; se detiene cuando no se necesita para ahorrar CPU/RAM |
 | **Local Server** | `38.52.135.227` | `dimoraserverlocal` | Development |
 
 ### Proxy Perimetral (Traefik v3.3 Exclusivo)
@@ -445,6 +446,11 @@ Permite vender módulos individuales (Giveaways, WhatsApp Catalog, Bio-Links, et
 - ✅ **Config dinámica:** `services.yml` (routers por host: OrderFlow, Axon, Aieer) + `headers.yml`
 - ✅ **SSL:** Let's Encrypt wildcard `*.pesallaccia.com` + redirección HTTP→HTTPS permanente
 - ✅ **Recarga dinámica:** `docker exec traefik kill -HUP 1`
+
+### Estrategia de Réplica y Backup
+- 🚧 **Provecchio como servidor de réplica read-only:** se utiliza como secondary/replica en caliente; cuando se detiene el contenedor, no consume CPU/RAM significativa.
+- 🚧 **Objetivo:** alta disponibilidad sin costo permanente de infraestructura.
+- 🚧 **Futuro próximo:** agregar un segundo servidor en la misma red para backup en caliente permanente.
 
 ### CI/CD
 - ✅ **GitHub Actions:** Build + Deploy automático
