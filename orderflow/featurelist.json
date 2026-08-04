@@ -50,7 +50,8 @@
       "category": "Standalone Suite / Profundización Vertical",
       "title": "Pasarelas de Pago Independientes en Micro-SaaS",
       "status": "in_progress",
-      "assigned_module": "services/*-standalone & backend/src/billing/pagopar"
+      "assigned_module": "backend/src/billing/gateways/*, backend/src/billing/billing.service.ts",
+      "blocking": ["FEAT-013 (Pagopar completado)"]
     },
     {
       "id": "FEAT-013",
