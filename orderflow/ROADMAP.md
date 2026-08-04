@@ -439,13 +439,14 @@ Permite vender módulos individuales (Giveaways, WhatsApp Catalog, Bio-Links, et
 | **Provecchio (Réplica/Backup)** | *(misma red Hetzner)* | `provecchio` | Réplica read-only + backup en caliente; se detiene cuando no se necesita para ahorrar CPU/RAM |
 | **Local Server** | `38.52.135.227` | `dimoraserverlocal` | Development |
 
-### Proxy Perimetral (Traefik v3.3 Exclusivo)
-- ✅ **Traefik v3.3:** Reverse proxy exclusivo (Nginx eliminado, no reactivar bajo ninguna circunstancia)
-- ✅ **Repositorio:** `traefik-orderflow` (`/srv/traefik/` en servidor, `/opt/traefik-orderflow/` local)
+### Proxy Perimetral (Traefik v3.4 Exclusivo)
+- ✅ **Traefik v3.4:** Reverse proxy exclusivo (Nginx eliminado, no reactivar bajo ninguna circunstancia)
+- ✅ **Repositorio:** `traefik-orderflow` gestionado en `/opt/traefik-orderflow/` y desplegado en `/srv/traefik/` en servidores
 - ✅ **Config estática:** `traefik.yml` (entrypoints web/websecure, ACME DNS-01 Cloudflare)
 - ✅ **Config dinámica:** `services.yml` (routers por host: OrderFlow, Axon, Aieer) + `headers.yml`
 - ✅ **SSL:** Let's Encrypt wildcard `*.pesallaccia.com` + redirección HTTP→HTTPS permanente
 - ✅ **Recarga dinámica:** `docker exec traefik kill -HUP 1`
+- 🚧 **Nota:** `/opt/orderflow/traefik` fue eliminado; toda la configuración vive en `/opt/traefik-orderflow`
 
 ### Estrategia de Réplica y Backup
 - 🚧 **Provecchio como servidor de réplica read-only:** se utiliza como secondary/replica en caliente; cuando se detiene el contenedor, no consume CPU/RAM significativa.
