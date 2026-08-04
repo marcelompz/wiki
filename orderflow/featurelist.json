@@ -298,8 +298,8 @@
       "id": "FEAT-039",
       "category": "Backend / Testing",
       "title": "Aumentar Cobertura de Pruebas Backend a 80%",
-      "status": "in_progress",
-      "assigned_module": "backend/src/ (orders, billing, integrations, bookings, products specs)",
+      "status": "completed",
+      "assigned_module": "backend/src/ (orders, billing, integrations, bookings, products, contacts, webhook-cron, whatsapp-catalog, product-imports specs)",
       "blocking": []
     },
     {
