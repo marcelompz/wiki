@@ -7,6 +7,21 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.
 
 ## [Unreleased]
 
+## [1.12.3] - 2026-08-05
+
+### 🐛 Bug Fixes
+- **Odoo Adapter:** Fixed Python f-string syntax (`f"INV-{invoice.invoice_id}"`) in `odoo-invoice.plugin.js` causing `SyntaxError` and container crash loop. Replaced with JS template literal `` `INV-${invoice.invoice_id}` ``.
+- **Contacts:** Unified Users + Clients in Contacts module. Backfilled `Contact` records for existing `user_tenant_access` rows with NULL `contactId`; fixed `create-production-tenants.sql` to create and link `Contact` (`type=USER`, role `USER`) for every assigned user so they appear in `/admin/contacts`.
+
+### ✨ Features
+- **Contacts:** Added `?groupBy=email` query parameter to `GET /api/v1/contacts` for SuperAdmin — returns deduplicated rows grouped by email with `tenants[]` and `roles[]` arrays.
+- **Contacts:** SuperAdmin can now create/update contacts and promote them to Users with password and access role (`ADMIN`, `MANAGER`, `SELLER`, `VIEWER`) via the `user` payload field.
+- **Contacts:** `ContactsController` now injects `UsersService` and `UserTenantAccessService`; `syncUserForContact()` creates/updates User records and upserts `user_tenant_access` with the given role and linked `contactId`.
+- **Contacts:** `ContactsModule` now imports `UsersModule` for dependency injection.
+- **Contacts:** Frontend contacts page includes "Agrupar por Email" toggle for SuperAdmin (grouped deduped view), and password + access-level fields in the form when `USER` role is selected.
+- **Users:** Added `findByEmail` method to `UsersService`.
+- **Users:** Added `upsertAccess` (upsert instead of throw-on-conflict) to `UserTenantAccessService`; `assignAccess` kept as alias for backward compatibility.
+
 ## [1.12.2] - 2026-08-05
 
 ### 🐛 Bug Fixes
