@@ -1,7 +1,7 @@
 # 🗺️ ROADMAP DE ORDERFLOW - v1.5.1 → v2.0.0
 
-**Última Actualización:** 2026-08-04 ART (Post-Sprint v1.12.0 — UX/UI Mobile + Backoffice Desktop)
-**Versión Actual:** **`v1.12.0`** ✅ **RELEASED (Stable)** | UX/UI Mobile + Backoffice Desktop + Testing
+**Última Actualización:** 2026-08-04 ART (Post-Sprint v1.12.1 — Order Confirmation Hardening)
+**Versión Actual:** **`v1.12.2`** ✅ **RELEASED (Stable)** | Admin UX Hardening + Testing Fixes
 **Próximo Release:** **v1.13.0 (Testing & QA)**  
 **Estado:** ✅ **STAGING & PRODUCTION OPERATIVE** | 🏆 **COMMERCIAL RELEASE v1.5.1 STABLE** | QA E2E Suite Integrada | 498 tests unitarios pasados  
 **Visión Estratégica:** Plataforma SaaS omnicanal de alta velocidad con aislamiento multi-tier, marketplace de plugins de terceros, facturación automática Stripe/Mercado Pago y escalado horizontal a Kubernetes.

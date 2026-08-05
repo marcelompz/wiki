@@ -1,7 +1,7 @@
 # Disaster Recovery y Failover — OrderFlow
 
 **Estado:** Diseño + Procedimiento  
-**Versión:** v1.12.0+  
+**Versión:** v1.12.1+  
 **Objetivo:** Definir el procedimiento de backup, restauración y failover para garantizar la continuidad del negocio.
 
 ---

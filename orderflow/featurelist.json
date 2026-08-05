@@ -1,7 +1,7 @@
 {
   "project": "OrderFlow SaaS Omnicanal",
-  "version": "1.12.0",
-  "last_updated": "2026-08-04",
+  "version": "1.12.2",
+  "last_updated": "2026-08-05",
   "features": [
     {
       "id": "FEAT-001",
@@ -100,8 +100,9 @@
       "id": "FEAT-041",
       "category": "Catálogo WhatsApp / UX & Ecommerce",
       "title": "Plan de maduración UX/UI mobile-first del catálogo WhatsApp: detalle de producto, filtros avanzados, búsqueda predictiva, wishlist, reseñas, accesibilidad y performance",
-      "status": "in_progress",
-      "assigned_module": "frontend/src/pages/whatsapp-catalog.tsx, frontend/src/pages/whatsapp-checkout.tsx, docs/PLAN_WHATSAPP_CATALOG_UX_UI.md"
+      "status": "completed",
+      "assigned_module": "frontend/src/pages/whatsapp-catalog.tsx, frontend/src/pages/whatsapp-checkout.tsx, docs/PLAN_WHATSAPP_CATALOG_UX_UI.md",
+      "blocking": []
     },
     {
       "id": "FEAT-014",
@@ -193,9 +194,8 @@
       "id": "FEAT-025",
       "category": "Frontend / UX-UI Mobile-First",
       "title": "Ajuste e Implementación de la UX/UI Mobile-First e Intuitiva (Admin Backoffice + Client Endpoints)",
-      "status": "in_progress",
-      "assigned_module": "frontend/src/ & docs/PLAN_UX_UI_MOBILE_FIRST.md",
-      "blocking": []
+      "status": "completed",
+      "assigned_module": "frontend/src/ & docs/PLAN_UX_UI_MOBILE_FIRST.md"
     },
     {
       "id": "FEAT-026",
@@ -283,7 +283,7 @@
     {
       "id": "FEAT-037",
       "category": "Frontend / UX-UI Desktop",
-      "title": "SuperAdmin Tenant Switcher Flotante Táctil",
+      "title": "SuperAdmin Tenant Switcher Desktop-First (header selector + mobile FAB)",
       "status": "completed",
       "assigned_module": "frontend/src/pages/admin/super-admin-dashboard.tsx",
       "blocking": []
@@ -311,42 +311,8 @@
       "status": "completed",
       "assigned_module": "frontend/e2e/facturasend-api.spec.ts",
       "blocking": ["FEAT-032"]
-    },
-  ],
-      "category": "Gobernanza y Colaboración",
-      "title": "CONTRIBUTING.md y SECURITY.md para colaboradores externos",
-      "status": "completed",
-      "assigned_module": "CONTRIBUTING.md, SECURITY.md"
-    },
-    {
-      "id": "FEAT-027",
-      "category": "Infraestructura / Escalabilidad",
-      "title": "Estrategia de Escalabilidad Horizontal Documentada (NestJS + Microservicios)",
-      "status": "completed",
-      "assigned_module": "docs/escalabilidad-horizontal.md"
-    },
-    {
-      "id": "FEAT-028",
-      "category": "Infraestructura / Disaster Recovery",
-      "title": "Estrategia de Backup y Restauración Automatizada (PostgreSQL + Uploads)",
-      "status": "completed",
-      "assigned_module": "docs/backups.md & scripts/backup-database.sh"
-    },
-    {
-      "id": "FEAT-029",
-      "category": "Infraestructura / Observabilidad",
-      "title": "Stack de Monitorización Prometheus + Grafana + Alertmanager",
-      "status": "completed",
-      "assigned_module": "docs/monitoreo.md"
-    },
-    {
-      "id": "FEAT-030",
-      "category": "Soporte y SLA",
-      "title": "Definición de SLA por Plan Comercial (Startup, Professional, Enterprise)",
-      "status": "completed",
-      "assigned_module": "docs/sla.md"
     }
   ],
-  "version": "1.11.0",
-  "last_updated": "2026-08-03"
+  "version": "1.12.2",
+  "last_updated": "2026-08-05"
 }

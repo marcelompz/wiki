@@ -7,6 +7,35 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.
 
 ## [Unreleased]
 
+## [1.12.2] - 2026-08-05
+
+### 🐛 Bug Fixes
+- **Admin:** Merge sidebar items Usuarios/Clientes into single Contactos entry.
+- **Admin:** Guard `installedModules.some()` against non-array values to fix Contactos page crash (`U.some is not a function`).
+- **Tests:** Fix `bookings.service.spec.ts`, `webhook-cron.service.spec.ts`, `product-imports.service.spec.ts` missing mocks/typing.
+
+## [1.12.1] - 2026-08-04
+
+### 🐛 Bug Fixes
+- **Orders:** Mover side-effects (webhook, WebSocket KDS) fuera de la transacción de confirmación para separar commit de DB de notificaciones.
+- **Orders:** Aplicar `discountAmount` consistente en `PATCH /api/v1/orders/:id/confirm` y persistirlo en metadata.
+- **Orders:** Endurecer transición `DRAFT -> CONFIRMED` con `UPDATE WHERE status = 'DRAFT'` para evitar confirmaciones concurrentes.
+- **Orders/Stock:** Agregar flag `allowNegativeStock` por tenant para controlar si se permite stock negativo al confirmar pedidos.
+- **Orders/Cash:** Reemplazar upsert ad-hoc de `Integration` ("Caja - Ventas") por modelo formal `CashMovement` con registro individual por orden.
+
+### 🛠️ Refactor
+- **Schema:** Agregar modelo `CashMovement` y campo `allowNegativeStock` en `Tenant`.
+- **Mobile:** Completar flujo client-first con historial y detalle de pedidos en `app/(tabs)/profile/orders`.
+- **WhatsApp Catalog:** Agregar detalle de producto en modal, wishlist UI, reseñas mock, ordenamiento, paginación, compartir y ayuda en `whatsapp-catalog.tsx`.
+- **Frontend/UX Mobile-First:** Reparar build frontend (`MobileBottomNav`, `bookings`, `super-admin-dashboard`, `whatsapp-checkout`) y completar FEAT-025.
+- **Frontend/UX Desktop-First:** Rediseñar FEAT-037 como tenant switcher desktop-first en header de SuperAdmin, con FAB mobile-only.
+- **QA/Auditoría:** Agregar workflow CI mínimo (`.github/workflows/ci.yml`), ESLint backend, Semgrep domain rules, scripts `lint`/`typecheck` y documentación de implementación en `docs/OrderFlow_Herramientas_Auditoria_Codigo.md`.
+- **Deuda técnica:** Corregir `featurelist.json` (JSON inválido por trailing comma y features duplicadas fuera del array), aplicar code-split frontend en `vite.config.ts` (`manualChunks`) y eliminar warning de chunk >500kB.
+
+### 📚 Documentación
+- **Sprint:** Creado `docs/OrderFlow_v1.12.1_Informe_Sprint.md` con análisis diferencial y veredicto.
+- **UX Mobile-First:** Actualizado `docs/guides/PLAN_UX_UI_MOBILE_FIRST.md` con estado completado.
+
 ## [1.12.0] - 2026-08-04
 
 ### 🚀 Features

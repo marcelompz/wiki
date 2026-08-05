@@ -1,0 +1,40 @@
+rules:
+  - id: tenant-prisma-required
+    patterns:
+      - pattern: this.prisma.$queryRaw`...`
+      - pattern: this.prisma.$executeRaw`...`
+    message: "Avoid raw SQL without explicit tenant scoping. Prefer @TenantPrisma() or model-level access."
+    severity: WARNING
+    languages: [typescript]
+
+  - id: no-log-api-key
+    patterns:
+      - pattern: console.log($X)
+      - metavariable-pattern:
+          metavariable: $X
+          patterns:
+            - pattern-regex: (apiKey|api_key|password|token|secret|passwordHash)
+    message: "Do not log API keys, tokens, or password hashes."
+    severity: ERROR
+    languages: [typescript]
+
+  - id: confirm-status-guard
+      - pattern: tx.order.update({ ..., where: { id: ... }, data: { status: 'CONFIRMED', ... } })
+      - pattern-not: where: { id: ..., status: 'DRAFT' }
+    message: "Order confirmation should atomically enforce status='DRAFT' to prevent double-confirm races."
+    severity: WARNING
+    languages: [typescript]
+
+  - id: webhook-timeout
+      - pattern: axios.post($URL, ...)
+      - pattern-not: timeout: ...
+    message: "Outbound HTTP calls should set a timeout to avoid hanging requests."
+    severity: WARNING
+    languages: [typescript]
+
+  - id: no-raw-sql-tenant
+      - pattern: prisma.$queryRaw`...`
+      - pattern-not: WHERE ... tenantId ...
+    message: "Raw SQL queries should include tenantId filtering."
+    severity: ERROR
+    languages: [typescript]

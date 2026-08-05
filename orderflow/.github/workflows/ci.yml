@@ -1,0 +1,56 @@
+name: CI
+
+on:
+  push:
+    branches: [ main, staging ]
+  pull_request:
+    branches: [ main, staging ]
+
+jobs:
+  backend:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./backend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm ci
+      - run: npx tsc --noEmit
+      - run: npx eslint "src/**/*.ts" --max-warnings=0
+      - run: npx prisma validate
+      - run: npm audit --audit-level=high
+      - run: npx jest --runInBand --maxWorkers=1 src/orders/orders.service.spec.ts
+      - uses: docker://gitleaks/gitleaks:latest
+        with:
+          args: detect --source . --report-path /tmp/gitleaks.json --report-format json
+        continue-on-error: true
+
+  frontend:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./frontend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm ci
+      - run: npx tsc --noEmit
+      - run: npx eslint "src/**/*.{ts,tsx}" --max-warnings=0
+      - run: npm run build
+
+  semgrep:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: semgrep/semgrep-action@v1
+        with:
+          config: >-
+            p/security-audit
+            p/secrets
+            p/typescript
+            .semgrep/orderflow.yml
