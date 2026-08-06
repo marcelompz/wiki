@@ -16,10 +16,16 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.
 ## [1.13.1] - 2026-08-05
 
 ### 🛠️ Refactor
-- **Scripts:** Modified `init.sh` to accept flags (`--skip-e2e`, `--only-backend`, etc.) to prevent OS hangs on local development by allowing selective execution of validation steps.
+- **Scripts:** Modified `init.sh` to accept flags (`--skip-e2e`, `--only-backend`, etc.) to prevent OS hangs on local development by allowing selective execution of validation steps. Changed Jest execution to `--maxWorkers=2` to bound CPU/RAM usage.
+### 🧹 Cleanup
+- **Branding:** Removed `Linktree` (direct competitor) from all system references across code, schema comments and documentation.
+- **UI:** Removed `Odoo` from the Integrations admin menu label (`"Integraciones (Odoo)"` → `"Integraciones"`). Odoo integration code/adapter references are unchanged.
+### 🔧 Build
+- **Versions:** Aligned `backend/package.json` and `frontend/package.json` to `1.13.1` (was `1.13.0`).
 ### 📚 Documentación
 - **Troubleshooting:** Added doc #25 (`25-init-sh-hangs-os.md`) explaining why `init.sh` saturates CPU/RAM and documenting the new flags as a solution.
 - **Troubleshooting:** Updated `docs/troubleshooting/README.md` to index the new document #25.
+- **Roadmap:** Incorporated 5 strategic milestones from `docs/Informe_Comparativo_Odoo_vs_OrderFlow.md` as `v1.14.0` (pre-K8s) targets: Durable Event Queue, Extensible EventBus, Multi-Warehouse Inventory, Configurable Integration Mapper and Expanded AuditLog.
 
 ## [1.13.0] - 2026-08-05
 
