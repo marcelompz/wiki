@@ -1,8 +1,8 @@
 # 🗺️ ROADMAP DE ORDERFLOW - v1.5.1 → v2.0.0
 
-**Última Actualización:** 2026-08-06 ART (Release v1.14.0 — Core Architecture Milestones)
-**Versión Actual:** **`v1.14.0`** ✅ **RELEASED (Stable)** | Core Architecture: Durable Event Queue (BullMQ/Redis), Extensible EventBus, Multi-Warehouse Double-Entry Inventory, Configurable Integration Mapper & Expanded AuditLog.
-**Próximo Release:** **v1.15.0 (Planning)**
+**Última Actualización:** 2026-08-06 ART (Release v1.15.0 — Social Commerce Omnichannel Hub)
+**Versión Actual:** **`v1.15.0`** ✅ **RELEASED (Stable)** | Social Commerce: Omnichannel Catalog (WhatsApp, Telegram, Instagram, Messenger, Custom Webhook), Multi-Channel Adapter Pattern, CatalogChannelConfig Model.
+**Próximo Release:** **v1.16.0 (Planning)**
 **Estado:** ✅ **STAGING & PRODUCTION OPERATIVE** | 🏆 **COMMERCIAL RELEASE v1.5.1 STABLE** | QA E2E Suite Integrada | 498 tests unitarios pasados  
 **Visión Estratégica:** Plataforma SaaS omnicanal de alta velocidad con aislamiento multi-tier, marketplace de plugins de terceros, facturación automática Stripe/Mercado Pago y escalado horizontal a Kubernetes.
 
@@ -17,6 +17,7 @@
 | **Multi-Tenant Core & Multi-Tier** | ✅ Completo | ✅ Sí | ✅ Sí | Auth JWT + API Key, DB dedicada por tenant enterprise, `@TenantPrisma()` |
 | **Giveaway Module & Standalone** | ✅ Completo | ✅ Sí | ✅ Sí | CRUD, landing, sorteos, Google OAuth, standalone microservice |
 | **WhatsApp Catalog & Standalone** | ✅ Completo | ✅ Sí | ✅ Sí | Catálogo, carrito, checkout y standalone microservice. Modo Free: pre-venta manual por WhatsApp. Modo Premium: gestión completa con pasarela de pagos. |
+| **Social Commerce Hub (Catálogo Omnicanal)** | ✅ Completo | ✅ Sí | ✅ Sí | Evolución de WhatsApp Catalog a catálogo omnicanal. Soporta WhatsApp, Telegram, Instagram, Messenger y Custom Webhook. Pattern Strategy con IMessagingAdapter. Modelo CatalogChannelConfig para gestión de canales. |
 | **Bio-Links & Standalone** | ✅ Completo | ✅ Sí | ✅ Sí | API + Redis + Admin Drag&Drop + Public SPA + Fast Checkout, standalone microservice |
 | **Super Admin** | ✅ Completo | ✅ Sí | ✅ Sí | Usuarios, tenants, roles, disable/enable/delete tenant, DB tier toggle |
 | **Bookings (Spa)** | ✅ Completo | ✅ Sí | ✅ Sí | Turnos, comisiones, atomicidad y tests unitarios 100% |
@@ -28,6 +29,20 @@
 | **Observabilidad & CI/CD Load** | ✅ Completo | ✅ Sí | ✅ Sí | Sentry + Prometheus + k6 load tests continuos en GitHub Actions |
 | **Cloudflare / DNS & Traefik** | ✅ Completo | ✅ Sí | ✅ Sí | Subdominios automáticos + Traefik v3.4 routing por microservicio |
 | **Integrations (Odoo)** | ✅ Completo | ✅ Sí | ✅ Sí | OrderFlow ↔ Odoo: webhooks push + wizard pull + addon nativo Odoo 19 CE |
+
+---
+
+### 🚀 Release v1.15.0 - Social Commerce Omnichannel Hub
+
+| Feature | Estado |
+|---------|--------|
+| Refactorización WhatsApp Catalog → Social Catalog | ✅ Completo |
+| Modelo Prisma `CatalogChannelConfig` + enum `MessagingChannel` | ✅ Completo |
+| Strategy Pattern `IMessagingAdapter` (WhatsApp, Telegram, Instagram, Messenger, Custom Webhook) | ✅ Completo |
+| Migración de datos `whatsappNumber` → `CatalogChannelConfig` | ✅ Completo |
+| Frontend: `ChannelSelector`, `messaging-deep-links.ts` | ✅ Completo |
+| Aliases de rutas legacy (`/whatsapp-catalog` → `/social-catalog`) | ✅ Completo |
+| Webhooks Stripe/MercadoPago migrados a `/social-catalog` | ✅ Completo |
 
 ---
 

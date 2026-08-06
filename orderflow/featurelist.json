@@ -1,6 +1,6 @@
 {
   "project": "OrderFlow SaaS Omnicanal",
-  "version": "1.14.0",
+  "version": "1.15.0",
   "last_updated": "2026-08-06",
   "features": [
     {
@@ -68,6 +68,14 @@
       "title": "Profundización Integral: Variantes/Modificadores, Geolocalización GPS, Tarifas por Zona y Plantillas WhatsApp",
       "status": "completed",
       "assigned_module": "frontend/src/pages/whatsapp-*.tsx & backend/src/whatsapp-catalog"
+    },
+    {
+      "id": "FEAT-048",
+      "category": "Social Commerce / Catálogo Omnicanal",
+      "title": "Refactorización WhatsApp Catalog → Social Catalog Hub (Catálogo Omnicanal)",
+      "status": "completed",
+      "assigned_module": "backend/src/social-catalog/, frontend/src/pages/social-*, prisma/schema.prisma",
+      "depends_on": ["FEAT-008"]
     },
     {
       "id": "FEAT-009",

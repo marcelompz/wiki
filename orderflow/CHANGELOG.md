@@ -9,6 +9,30 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.
 
 ---
 
+## [1.15.1] - 2026-08-06
+
+### 🚀 Added (Social Catalog Payments)
+- **FEAT-013 Ext:** Integración de Pagopar en `social-catalog` checkout.
+  - Backend: `PagoparSocialService` con creación de transacción y webhook propio en `/api/v1/social-catalog/webhooks/pagopar`.
+  - `PaymentService` ahora soporta `gateway: 'pagopar'` además de `stripe` y `mercadopago`.
+  - Frontend: opción "Pago con Pagopar" en el formulario de checkout del catálogo social.
+
+---
+
+## [1.15.0] - 2026-08-06
+
+### 🚀 Added (Social Commerce Omnichannel Hub)
+- **FEAT-48:** Refactorización completa de `whatsapp-catalog` a `social-catalog` (Catálogo Social Omnicanal).
+  - **Backend:** Nuevo módulo `backend/src/social-catalog/` con arquitectura Strategy Pattern para canales de mensajería.
+  - **Prisma Schema:** Enum `MessagingChannel` (WHATSAPP, INSTAGRAM, MESSENGER, TELEGRAM, CUSTOM_WEBHOOK) y modelo `CatalogChannelConfig` con relación a `Tenant`.
+  - **Adapters:** `WhatsappAdapter`, `TelegramAdapter`, `InstagramAdapter`, `MessengerAdapter`, `CustomWebhookAdapter` con interfaz `IMessagingAdapter`.
+  - **Migración:** Script `migrate-whatsapp-to-social.ts` que extrae `whatsappNumber` del JSON de `ModuleInstallation` y crea registros en `CatalogChannelConfig`.
+  - **Frontend:** Utilidad `messaging-deep-links.ts` con `generateDeepLink`, `getChannelIcon`, `getChannelColor`, `getChannelLabel`. Componente `ChannelSelector` para selección de canal.
+  - **Rutas:** Aliases legacy mantenidos (`/whatsapp-catalog` → `/social-catalog`, `/whatsapp-checkout` → `/social-checkout`).
+  - **Webhooks:** Rutas de Stripe y MercadoPago migradas a `/api/v1/social-catalog/webhooks/`.
+
+---
+
 ## [1.14.0] - 2026-08-06
 
 ### 🚀 Added (Core Architecture / EventBus, Queues, Inventory, Mapper & Audit)
