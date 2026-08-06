@@ -7,9 +7,27 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.
 
 ## [Unreleased]
 
-### 📋 Roadmap Updates
-- **ROADMAP.md:** Added 5 strategic milestones from `docs/Informe_Comparativo_Odoo_vs_OrderFlow.md`, all targeted to **v1.14.0 (pre-K8s)** since they are foundational architecture (events, audit, robust integrations, advanced inventory) that must exist before the Kubernetes migration:
-  - **v1.14.0:** Durable Event Queue (BullMQ/Redis) for webhook reliability; Extensible Event Architecture (EventBus); Multi-Warehouse Inventory (double-entry model); Configurable Integration Mapper for `orderflow_connector`; Expanded AuditLog for transactional auditing
+---
+
+## [1.14.0] - 2026-08-06
+
+### 🚀 Added (Core Architecture / EventBus, Queues, Inventory, Mapper & Audit)
+- **FEAT-43:** Implementación de la cola duradera de eventos y webhooks con **BullMQ** y **Redis 7** (`backend/src/queues/`).
+- **FEAT-44:** Arquitectura de Eventos Extensible e interna con **`EventsModule`** y `@nestjs/event-emitter` (`backend/src/events/`).
+  - **`AppEventBusPublisher`:** Publicador centralizado de eventos de dominio (`OrderCreatedEvent`, `OrderStatusChangedEvent`, `BookingCreatedEvent`, `CustomerCreatedEvent`).
+  - **`WebhookEventListener`:** Listener desacoplado que reacciona a eventos de órdenes y despacha de forma asíncrona hacia la cola BullMQ de FEAT-43.
+- **FEAT-45:** Control de Inventario Multidepósito y Doble Entrada en `backend/src/inventory/` y `schema.prisma`.
+  - **Entidades Prisma:** Modelos `Warehouse`, `Location`, `StockQuant` y `StockMove` con relaciones inversas en `Tenant` y `Product`.
+  - **`InventoryService` & `InventoryController`:** Lógica transaccional para creación de depósitos/ubicaciones y ejecución de transferencias atómicas entre ubicaciones de origen y destino (`StockMoveState.DONE`).
+- **FEAT-46:** Mapeador de Integraciones Configurable (`orderflow_connector`) en `backend/src/integrations/orderflow-connector/`.
+  - **Modelo Prisma:** Entidad `IntegrationFieldMap` para almacenar reglas dinámicas de transformación JSON por tenant e integración (`ODOO`, `TANGO`, `SAP`, `CUSTOM`).
+  - **`IntegrationMapperService` & `IntegrationMapperController`:** Motor de transformación dinámica con soporte para rutas anidadas (`customer.taxId` -> `vat`).
+- **FEAT-47:** Auditoría Transaccional Ampliada en `backend/src/common/audit.service.ts` y `schema.prisma`.
+  - **Campos Extendidos:** Clasificación por severidad (`INFO`, `WARNING`, `CRITICAL`) y metadatos JSON flexibles (`metadata`) para contexto transaccional en `AuditLog`.
+- **Módulo de Colas (`QueuesModule`):** Módulo global NestJS configurado con conexión asíncrona a Redis para registro de colas.
+- **Productor de Webhooks (`WebhookQueueProducer`):** Despacho asíncrono con reintentos exponenciales (*exponential backoff* en 5 intentos: 2s, 4s, 8s, 16s, 32s).
+- **Procesador de Webhooks (`WebhookQueueProcessor`):** Consumidor con timeout de 10s y auditoría de eventos entregados o fallos permanentes en `AuditLog`.
+- **Pruebas Unitarias:** Cobertura de tests unitarios completa para `EventsModule`, `QueuesModule`, `InventoryModule`, `OrderflowConnectorModule` y `AuditService` (67 test suites / 525 tests pasados).
 
 ---
 

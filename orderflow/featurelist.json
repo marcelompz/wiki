@@ -1,7 +1,7 @@
 {
   "project": "OrderFlow SaaS Omnicanal",
-  "version": "1.12.2",
-  "last_updated": "2026-08-05",
+  "version": "1.14.0",
+  "last_updated": "2026-08-06",
   "features": [
     {
       "id": "FEAT-001",
@@ -51,7 +51,9 @@
       "title": "Pasarelas de Pago Independientes en Micro-SaaS",
       "status": "completed",
       "assigned_module": "backend/src/billing/gateways/*, backend/src/billing/billing-public.controller.ts, backend/src/billing/billing.service.ts",
-      "blocking": ["FEAT-013 (Pagopar completado)"]
+      "blocking": [
+        "FEAT-013 (Pagopar completado)"
+      ]
     },
     {
       "id": "FEAT-013",
@@ -87,7 +89,9 @@
       "title": "Ampliación a Servidor Secundario (Clúster Staging/Production Aislado con Replica Read-Only)",
       "status": "in_progress",
       "assigned_module": "docker-compose.prod.yml, docker-compose.provecchio.yml, scripts/deploy-*.sh, docs/ROADMAP.md",
-      "blocking": ["FEAT-001 (multi-tier infra)"]
+      "blocking": [
+        "FEAT-001 (multi-tier infra)"
+      ]
     },
     {
       "id": "FEAT-012",
@@ -180,7 +184,9 @@
       "status": "completed",
       "assigned_module": "docs/PLAN_FACTURASEND_INTEGRATION.md & backend/src/integrations/facturasend/",
       "qa_validation": "init.sh passed: 58 suites / 497 tests | Backend build clean | Frontend build clean | E2E QA: all admin routes HTTP 200, no JS errors",
-      "blocking": ["FEAT-022 (complete — exchange rate service reusable)"]
+      "blocking": [
+        "FEAT-022 (complete — exchange rate service reusable)"
+      ]
     },
     {
       "id": "FEAT-024",
@@ -188,7 +194,9 @@
       "title": "OrderFlow como Tenant Enterprise (DB Dedicada + Fixes Frontend/Routing)",
       "status": "completed",
       "assigned_module": "backend multitenant infra + frontend Dockerfile/App.tsx + docker-compose.prod.yml",
-      "blocking": ["FEAT-001 (multi-tier infra already completed)"]
+      "blocking": [
+        "FEAT-001 (multi-tier infra already completed)"
+      ]
     },
     {
       "id": "FEAT-025",
@@ -238,7 +246,9 @@
       "title": "Odoo 19 CE: sincronización de facturación account.move y cola durable",
       "status": "completed",
       "assigned_module": "odoo-addons/orderflow_integration/, odoo-adapter/, backend/src/integrations/",
-      "blocking": ["FEAT-023 (FacturaSend completado — emisión DE)"]
+      "blocking": [
+        "FEAT-023 (FacturaSend completado — emisión DE)"
+      ]
     },
     {
       "id": "FEAT-032",
@@ -246,7 +256,10 @@
       "title": "FacturaSend: completar Odoo addon, odoo-adapter plugin, webhook receiver, frontend admin, cron retry + SIFEN polling",
       "status": "completed",
       "assigned_module": "backend/src/integrations/facturasend/, odoo-adapter/, odoo-addons/orderflow_integration/",
-      "blocking": ["FEAT-023", "FEAT-031"]
+      "blocking": [
+        "FEAT-023",
+        "FEAT-031"
+      ]
     },
     {
       "id": "FEAT-033",
@@ -262,7 +275,9 @@
       "title": "One-Page Checkout Express (Geolocalización + Autocompletado)",
       "status": "completed",
       "assigned_module": "frontend/src/pages/whatsapp-checkout.tsx",
-      "blocking": ["FEAT-025 (mobile UX base)"]
+      "blocking": [
+        "FEAT-025 (mobile UX base)"
+      ]
     },
     {
       "id": "FEAT-035",
@@ -270,7 +285,9 @@
       "title": "Navegación Móvil Adaptativa Backoffice (Bottom Navigation Bar)",
       "status": "completed",
       "assigned_module": "frontend/src/AdminApp.tsx, frontend/src/components/admin/MobileBottomNav.tsx",
-      "blocking": ["FEAT-025"]
+      "blocking": [
+        "FEAT-025"
+      ]
     },
     {
       "id": "FEAT-036",
@@ -310,9 +327,76 @@
       "title": "E2E Playwright para FacturaSend (rutas admin + validaciones)",
       "status": "completed",
       "assigned_module": "frontend/e2e/facturasend-api.spec.ts",
-      "blocking": ["FEAT-032"]
+      "blocking": [
+        "FEAT-032"
+      ]
+    },
+    {
+      "id": "FEAT-042",
+      "category": "Core / Contacts",
+      "title": "Mejoras a la Gestión de Contactos (Odoo res.partner parity)",
+      "status": "completed",
+      "assigned_module": "backend/src/contacts, backend/prisma/schema.prisma",
+      "qa_validation": "init.sh passed: build clean | DB migrated | all new endpoints mapped",
+      "blocking": []
+    },
+    {
+      "id": "FEAT-43",
+      "category": "Core / Architecture",
+      "title": "Durable Event Queue (BullMQ/Redis) para webhooks",
+      "status": "completed",
+      "assigned_module": "backend/src/webhooks, backend/src/integrations, backend/src/queues",
+      "roadmap_milestone": "v1.14.0",
+      "source": "docs/Informe_Comparativo_Odoo_vs_OrderFlow.md",
+      "blocking": []
+    },
+    {
+      "id": "FEAT-44",
+      "category": "Core / Architecture",
+      "title": "Arquitectura de Eventos Extensible (EventBus interno)",
+      "status": "completed",
+      "assigned_module": "backend/src/events",
+      "roadmap_milestone": "v1.14.0",
+      "source": "docs/Informe_Comparativo_Odoo_vs_OrderFlow.md",
+      "blocking": [
+        "FEAT-043"
+      ]
+    },
+    {
+      "id": "FEAT-45",
+      "category": "Core / Inventory",
+      "title": "Control de Inventario Multidepósito (doble entrada)",
+      "status": "completed",
+      "assigned_module": "backend/src/inventory",
+      "roadmap_milestone": "v1.14.0",
+      "source": "docs/Informe_Comparativo_Odoo_vs_OrderFlow.md",
+      "blocking": [
+        "FEAT-043"
+      ]
+    },
+    {
+      "id": "FEAT-46",
+      "category": "Core / Integrations",
+      "title": "Mapeador de Integraciones Configurable (orderflow_connector)",
+      "status": "completed",
+      "assigned_module": "backend/src/integrations/orderflow_connector",
+      "roadmap_milestone": "v1.14.0",
+      "source": "docs/Informe_Comparativo_Odoo_vs_OrderFlow.md",
+      "blocking": [
+        "FEAT-043"
+      ]
+    },
+    {
+      "id": "FEAT-47",
+      "category": "Core / Audit",
+      "title": "Auditoría Transaccional Ampliada (AuditLog expandido)",
+      "status": "completed",
+      "assigned_module": "backend/src/audit",
+      "roadmap_milestone": "v1.14.0",
+      "source": "docs/Informe_Comparativo_Odoo_vs_OrderFlow.md",
+      "blocking": []
     }
   ],
-  "version": "1.12.2",
-  "last_updated": "2026-08-05"
+  "lastUpdated": "2026-08-05",
+  "last_id": "FEAT-47"
 }

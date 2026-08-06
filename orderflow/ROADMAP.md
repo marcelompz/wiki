@@ -1,8 +1,8 @@
 # 🗺️ ROADMAP DE ORDERFLOW - v1.5.1 → v2.0.0
 
-**Última Actualización:** 2026-08-05 ART (Post-Release v1.13.1 — init.sh Refactor & Docs)
-**Versión Actual:** **`v1.13.1`** ✅ **RELEASED (Stable)** | Refactor: `init.sh` now accepts flags to prevent OS hangs. Docs: Added troubleshooting guide #25 for the issue.
-**Próximo Release:** **v1.14.0 (Planning)**
+**Última Actualización:** 2026-08-06 ART (Release v1.14.0 — Core Architecture Milestones)
+**Versión Actual:** **`v1.14.0`** ✅ **RELEASED (Stable)** | Core Architecture: Durable Event Queue (BullMQ/Redis), Extensible EventBus, Multi-Warehouse Double-Entry Inventory, Configurable Integration Mapper & Expanded AuditLog.
+**Próximo Release:** **v1.15.0 (Planning)**
 **Estado:** ✅ **STAGING & PRODUCTION OPERATIVE** | 🏆 **COMMERCIAL RELEASE v1.5.1 STABLE** | QA E2E Suite Integrada | 498 tests unitarios pasados  
 **Visión Estratégica:** Plataforma SaaS omnicanal de alta velocidad con aislamiento multi-tier, marketplace de plugins de terceros, facturación automática Stripe/Mercado Pago y escalado horizontal a Kubernetes.
 
