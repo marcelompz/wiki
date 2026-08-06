@@ -22,6 +22,11 @@ Ordená por problema y área. Cada entrada incluye síntomas, causa raíz y solu
 | [12](12-bookings-iterable-guard-fix.md) | Guardia Defensiva en BookingsPage | Frontend / Bookings / React | `TypeError: l.filter is not a function` en `/admin/bookings` | ✅ Resuelto |
 | [18](18-cloudflare-api-token-warn.md) | CLOUDFLARE_API_TOKEN No Configurada | DevOps / Cloudflare / DNS | Warning en backend al desplegar; operaciones DNS de tenants fallan | ✅ Resuelto |
 | [19](19-login-secrets-missing.md) | Login Fallido por Secrets Faltantes | DevOps / Backend / Auth | Login imposible; SecretsValidation error; backend en crash loop | ✅ Resuelto |
+| [20](20-frontend-adaptive-table-build-error.md) | Build Frontend Fallido: `AdaptiveTable` Faltante | Frontend / Docker / TypeScript | Error TS2307 en build de producción; 502 Bad Gateway | ✅ Resuelto |
+| [22](22-odoo-adapter-python-fstring-syntax-error.md) | Odoo-Adapter Restart Loop: Python f-String in JS | DevOps / Odoo Adapter | Contenedor `orderflow-odoo-adapter-prod` en crash loop por `f"INV-{...}"` en `.js` | ✅ Resuelto |
+| [23](23-contacts-empty-unification.md) | Contactos vacíos: usuarios no linkeados | Backend / Contacts / Auth | Módulo Contactos vacío; usuarios asignados no aparecen (seed sin `contactId`) | ✅ Resuelto |
+| [24](24-deploy-script-bugs-fixed.md) | Bugs en deploy-production.sh corregidos | DevOps / Deploy / Traefik | Sin health check de app; sin rollback; sin validación de env vars; Traefik sin backend | ✅ Resuelto |
+| 25 | init.sh cuelga el SO | Scripts / Dev Env | Alta carga de CPU/RAM al ejecutar init.sh | ✅ Resuelto |
 
 ---
 
@@ -51,10 +56,15 @@ Ordená por problema y área. Cada entrada incluye síntomas, causa raíz y solu
 
 ### Despliegue & Contenedores
 - **502 Bad Gateway tras deploy:** ver [#13](13-provecchio-missing-frontend-502.md) — contenedor `orderflow-frontend-prod` creado pero no iniciado por timeout; forzar con `docker compose up -d frontend`.
+- **Error TS2307 `AdaptiveTable` no encontrado en build de producción:** ver [#20](20-frontend-adaptive-table-build-error.md) — el componente `AdaptiveTable` fue referenciado en imports pero su archivo fuente no existía; se creó en `frontend/src/components/common/AdaptiveTable.tsx`.
 - **502 en API con frontend OK:** ver [#06-SSL](06-provecchio-traefik-ssl-and-502-diagnosis.md) — contenedores no conectados a red `traefik-public`.
 - **Contenedores duplicados:** ver [#09](09-docker-orphan-containers-cleanup.md) — `--remove-orphans` y limpieza de stacks.
 - **Warning `CLOUDFLARE_API_TOKEN` no set:** ver [#18](18-cloudflare-api-token-warn.md) — OrderFlow ya no maneja `CLOUDFLARE_API_TOKEN` ni `CF_DNS_API_TOKEN`; la gestión DNS es responsabilidad exclusiva de Traefik (`/opt/traefik-orderflow` → `/srv/traefik`).
 - **Login fallido por secrets faltantes:** ver [#19](19-login-secrets-missing.md) — `.env.production` con placeholders post-commit de seguridad; restaurar secrets desde rollback artifacts y sincronizar POSTGRES_PASSWORD.
+- **Crash loop `orderflow-odoo-adapter-prod`:** ver [#22](22-odoo-adapter-python-fstring-syntax-error.md) — sintaxis de f-string de Python (`f"INV-{...}"`) en archivo `.js` causaba `SyntaxError` en Node.js.
+- **Contactos vacíos / usuarios no aparecen:** ver [#23](23-contacts-empty-unification.md) — `user_tenant_access.contactId` NULL porque el seed no crea el `Contact`; backfill + fix en `create-production-tenants.sql`.
+- **Bugs en deploy-production.sh:** ver [#24](24-deploy-script-bugs-fixed.md) — sin health check de aplicación, sin rollback, sin validación de env vars, Traefik sin conexión al backend, sin timeout en migraciones.
+- **`init.sh` cuelga el SO por alta carga:** ver #25 — el script es una barrera de CI que ejecuta tests, builds y E2E, saturando los recursos locales; se agregaron flags para ejecución selectiva.
 
 ---
 

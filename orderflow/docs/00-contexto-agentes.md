@@ -17,7 +17,7 @@ Ambos modos comparten el mismo schema Prisma y el mismo código de services. La 
 - Repo Core: `https://github.com/marcelompz/orderflow`
 - Repo Traefik Gateway Subsystem: `https://github.com/marcelompz/traefik-orderflow.git` (servidor: `/srv/traefik`, local: `/opt/traefik-orderflow/`)
 - Servidor Hetzner VPS (Producción): `hetzner-orderflow:/srv/orderflow` (alias SSH configurado)
-  - Versión actual: **v1.5.1** (staging + production operativos).
+  - Versión actual: **v1.8.1** (staging + production operativos).
 - Lenguaje: TypeScript en todo el stack.
 
 ---
@@ -29,7 +29,7 @@ Ambos modos comparten el mismo schema Prisma y el mismo código de services. La 
 | **Backend** | NestJS 10, Prisma (PostgreSQL 15), JWT + API Keys |
 | **Frontend web** | React 18, Vite, Refine.dev, Ant Design 5, **Axios** (Cliente HTTP oficial) |
 | **Mobile** | React Native + Expo, Zustand, **Axios** (Cliente HTTP oficial) |
-| **DevOps** | Docker Compose, Traefik v3.3 (reverse proxy exclusivo & SSL), GitHub Actions, SSH deploy scripts |
+| **DevOps** | Docker Compose, Traefik v3.4 (reverse proxy exclusivo & SSL), GitHub Actions, SSH deploy scripts |
 | **Observabilidad** | Winston (logs), Sentry (frontend), health checks |
 
 ---
@@ -155,7 +155,7 @@ Controller: `backend/src/tenants/tenants.controller.ts`.
   - `dashboard.tsx` (general), `super-admin-dashboard.tsx` (tenants + health check), `users.tsx`, `tenant-access.tsx` (asignar tenants/roles a usuarios), `customers.tsx`, `products.tsx`, `bookings.tsx`, `spa-dashboard.tsx`, `modules.tsx` (App Store), `quotations.tsx`, `integrations.tsx`, `giveaways.tsx`, `pos.tsx` (Punto de Venta con Modo Mozo y Modo Caja con cobro centralizado), `kds.tsx` (Pantalla de Cocina con conexión WebSockets en tiempo real y semáforo de criticidad por tiempo).
 - **Servicios API** en `src/services/`: `api.ts` (axios con interceptor que inyecta `Authorization: Bearer` o `x-api-key` desde `localStorage`), `tenant.service.ts`.
 - Branding por tenant: `src/components/tenant/BrandingProvider.tsx` + `UserProfileMenu`, hook `useMultiTenant`.
-- **Super-admin dashboard** (`super-admin-dashboard.tsx`): lista tenants en tabla, stats y health check. Columna "Acciones" con Deshabilitar/Habilitar (toggle), Eliminar (soft-delete), Restaurar y Hard Delete (SuperAdmin), botón "Crear Nuevo Tenant" (modal con API Key generada) y tag visual de tier de BD.
+- **Super-admin dashboard** (`super-admin-dashboard.tsx`): lista tenants en tabla, stats y health check. Columna "Acciones" con Deshabilitar/Habilitar (toggle), Eliminar (soft-delete), Restaurar y Hard Delete (SuperAdmin), botón "Crear Nuevo Tenant" (modal con API Key generada) y tag visual de tier de BD (`💎 Dedicated` vs `👥 Shared`).
 
 ### Autenticación en frontend
 - `localStorage`: `accessToken` (JWT), `apiKey`, `apiKey` usado para branding.
@@ -168,7 +168,7 @@ Controller: `backend/src/tenants/tenants.controller.ts`.
 
 - **Puertos:** backend `3010`, frontend dev `3011`, postgres `5433→5432`, odoo_adapter `3005`.
 - **Compose:** `docker-compose.yml` (dev), `docker-compose.prod.yml` (prod).
-- **Configuración obsoleta:** El directorio `old/` contiene configuraciones legacy de NGINX/edge-proxy que fueron reemplazadas por Traefik v3.3. **No usar ni referenciar** archivos dentro de `old/` para configuraciones activas.
+- **Configuración obsoleta:** El directorio `old/` contiene configuraciones legacy de NGINX/edge-proxy que fueron reemplazadas por Traefik v3.4. **No usar ni referenciar** archivos dentro de `old/` para configuraciones activas.
 - **Variables de entorno:** `.env` (prod), `.env.staging`, `.env.production`, `.env.prod`. Claves críticas: `DATABASE_URL`, `JWT_SECRET`, `JWT_REFRESH_SECRET`, `MASTER_API_KEY`, `API_KEY_HEADER`, `CLOUDFLARE_API_TOKEN`, `SENTRY_DSN`, `VITE_SENTRY_DSN`, `GRAFANA_ADMIN_PASSWORD`, `ORDERFLOW_MODE` (`community` | `enterprise`), `ENTERPRISE_TENANT_ID` (solo en modo enterprise).
 - **Integración de Cloudflare / DNS Dinámica:** El token de la API de Cloudflare se configura en la variable `CLOUDFLARE_API_TOKEN` en `.env.staging` (para staging) y `.env` (para producción). El backend (`cloudflare-dns.service.ts`) utiliza este token al crear un Tenant para registrar automáticamente su subdominio como CNAME con la opción `proxied: false` (DNS Only / nube gris). Esto redirige el tráfico al host para que Traefik gestione el certificado SSL de producción de Let's Encrypt (evitando la limitación de handshake SSL de Cloudflare en subdominios de 4to nivel).
 - **Prisma:** `prisma/schema.prisma` es la fuente de verdad. Migraciones en `.gitignore`; en prod se usa `prisma db push`. Siempre regenerá el cliente tras cambiar el schema.
@@ -185,12 +185,12 @@ OrderFlow tiene **tres entornos** diferenciados y **no son equivalentes**:
 |---------|------|--------|-------|
 | **staging** | VPS Hetzner | Actualizable | Refleja `main`; se usa para validación pre-producción (`staging.pesallaccia.com`). |
 | **production** | VPS Hetzner | Actualizable | Entorno productivo principal (`pesallaccia.com`). Deploy con `docker-compose.prod.yml`. |
-| **provecchio** | Servidor físico | **Congelado / legacy** | Versión in-house en producción (`provecchio.com`). **No aplicar actualizaciones automáticas del repo actual.** Mantener aislado. |
+| **provecchio** | Servidor físico | **Actualizable** | Versión in-house en producción (`provecchio.com`). Recibe deploys selectivos con validación previa. |
 
 **Regla operativa & Aislamiento de Traefik en Provecchio:**
-- Solo `staging` y `production` reciben deploy normal desde CI/CD.
-- `provecchio` se trata como **producción legacy congelada**. La instancia de Traefik de Provecchio habita en `/srv/traefik/` de forma **100% aislada** de `/srv/orderflow/`. Posee su propio `docker-compose.yml`, `.env`, `traefik.yml` y certificados `acme.json`.
-- Los cambios en este repositorio (`/opt/orderflow/`) o en `.env.provecchio` **NO fluyen a la infraestructura de Provecchio**. Provecchio debe utilizar únicamente su archivo `.env.prod` / `.env` local congelado (donde se encuentra `CF_DNS_API_TOKEN`).
+- `staging`, `production` y `provecchio` reciben deploy desde CI/CD o manual.
+- `provecchio` posee su propia instancia de Traefik en `/srv/traefik/` que habita de forma **100% aislada** de `/srv/orderflow/`. Tiene su propio `docker-compose.yml`, `.env`, `traefik.yml` y certificados `acme.json`.
+- Los cambios en este repositorio (`/opt/orderflow/`) se aplican a `provecchio` mediante `scripts/update-provecchio-version.sh` (hotfix quirúrgico) o deploy manual. Provecchio utiliza su propio `.env.prod` local (donde se encuentra `CF_DNS_API_TOKEN`).
 - **Diagnóstico 502 Bad Gateway:** Si `provecchio.com` arroja HTTP 502 o falla en la emisión de certificados SSL, consultar la guía de diagnóstico en [docs/troubleshooting/06-provecchio-traefik-ssl-and-502-diagnosis.md](troubleshooting/06-provecchio-traefik-ssl-and-502-diagnosis.md).
 
 ### 6.2 Limpieza de configuración obsoleta (`old/`)
@@ -261,13 +261,13 @@ docker compose up -d     # levantar stack dev
   - ✅ **6 Microservicios Standalone production-ready** (orquestados en `docker-compose.standalone.yml`):
     - `giveaways-standalone` (`:3020`, `sorteos.*`) — Sorteos, Google OAuth.
     - `whatsapp-catalog-standalone` (`:3021`, `catalogo.*`) — Catálogo, modificadores, GPS, zonas, plantillas.
-    - `biolinks-standalone` (`:3022`, `bio.*`) — Linktree 0% comisión, In-Bio Fast Checkout.
+    - `biolinks-standalone` (`:3022`, `bio.*`) — Bio-Links 0% comisión, In-Bio Fast Checkout.
     - `bookings-standalone` (`:3023`, `turnos.*`) — Agendamiento, comisiones, Google Calendar (pendiente).
     - `quotations-standalone` (`:3024`, `presupuestos.*`) — Presupuestos DNIT/SET.
     - `loyalty-standalone` (`:3025`, `fidelizacion.*`) — Tarjetas, tiers BRONZE→PLATINUM.
   - 🚧 **Storefront Builder** (`storefront-builder-standalone`, `:3026`) — en planning.
 - Auth compartida vía `packages/auth-shared` (JWT/API Key validation sin acoplamiento a DB monolítica).
-- Routing vía Traefik v3.3: cada standalone tiene su propio subdominio (`sorteos.*`, `catalogo.*`, `bio.*`, `turnos.*`).
+- Routing vía Traefik v3.4: cada standalone tiene su propio subdominio (`sorteos.*`, `catalogo.*`, `bio.*`, `turnos.*`).
 
 ### 8.5 Visión a largo plazo — **v2.0.0+**
 - Migración Docker Compose → Kubernetes.
@@ -282,7 +282,7 @@ docker compose up -d     # levantar stack dev
 - **`ORDERFLOW_MODE`:** controla el modo de operación (`community` | `enterprise`). En `community` (default), multi-tenant con `ApiKeyGuard`. En `enterprise`, single-tenant con `tenantId` fijo. **No condicionar lógica de negocio en services con esta variable;** la diferencia es solo en la capa de guard/auth.
 - **`tenantId` es sagrado:** NO eliminar `tenantId` de queries ni tablas. Funciona en ambos modos. En enterprise, siempre tiene el mismo valor; en community, aísla los datos entre tenants.
 - **Multi-tier (`isolationTier`):** el `TenantConnectionManager` resuelve el PrismaClient. No instanciar `PrismaClient` manualmente en services; usar `this.prisma` (legacy) o `@TenantPrisma()` (nuevo).
-- **Infraestructura Proxy (Traefik v3.3 Exclusivo):** Nginx fue eliminado y sustituido completamente por **Traefik v3.3** como subsistema nativo exclusivo de OrderFlow y Odoo 19 CE. NO volver a activar, sugerir ni configurar Nginx bajo ninguna circunstancia en ningún servidor. El código y configuración del subsistema perimetral se administra en el repositorio [traefik-orderflow](https://github.com/marcelompz/traefik-orderflow.git), ubicado localmente en `/opt/traefik-orderflow/` y en los servidores en `/srv/traefik/`.
+- **Infraestructura Proxy (Traefik v3.4 Exclusivo):** Nginx fue eliminado y sustituido completamente por **Traefik v3.4** como subsistema nativo exclusivo de OrderFlow y Odoo 19 CE. NO volver a activar, sugerir ni configurar Nginx bajo ninguna circunstancia en ningún servidor. El código y configuración del subsistema perimetral se administra en el repositorio [traefik-orderflow](https://github.com/marcelompz/traefik-orderflow.git), ubicado localmente en `/opt/traefik-orderflow/` y en los servidores en `/srv/traefik/`.
 - **Despliegue e Inicialización de Odoo 19 CE (`odoo19CE`):** En la infraestructura de Odoo 19 (`git@github.com:marcelompz/odoo19CE.git`, `/srv/odoo/odoo19CE`), el script `init_prod_db.sh` preserva la integridad de los datos existentes en la base de datos `prod`. Si la tabla `res_users` ya existe en PostgreSQL, los scripts de `migracion/` NO se vuelven a ejecutar. La importación de migración solo corre automáticamente en inicializaciones desde cero (`./deploy.sh --clean`) o si se pasa explícitamente `FORCE_MIGRATION=true`.
 - **Microservicios standalone:** al extraer un módulo como standalone, mover el código a `services/<nombre>-standalone/`, crear su propio `schema.prisma` (solo los modelos necesarios), y usar `packages/auth-shared` para validación JWT. El módulo original sigue existiendo en el monolito para clientes que usan OrderFlow completo.
 - **No comentar código** salvo que se pida explícitamente.

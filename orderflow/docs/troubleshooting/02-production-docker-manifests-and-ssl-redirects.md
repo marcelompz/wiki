@@ -38,7 +38,7 @@ Esto permite al registrador ubicar los manifiestos tanto en entornos de desarrol
 
 ### 🔬 Causa Raíz
 1. **Sintaxis Traefik v3:** En Traefik v3, la regla `!Host(...)` en archivos de servicio dinámicos acepta **un único parámetro por llamada**. Pasar listas separadas por comas arrojaba un error de parsing y descartaba los routers de tenant.
-2. **Cloudflare Proxy & SSL Handshake:** Con la nube naranja (`proxied: true`), Cloudflare requiere un modo SSL compatible con la terminación de certificados que realiza Traefik v3.3 en el origen.
+2. **Cloudflare Proxy & SSL Handshake:** Con la nube naranja (`proxied: true`), Cloudflare requiere un modo SSL compatible con la terminación de certificados que realiza Traefik v3.4 en el origen.
 
 ### 🛠️ Solución Aplicada
 1. **Traefik `services.yml`:** Se corrigieron los routers en [`services.yml`](file:///opt/traefik-orderflow/dynamic/services.yml#L123-L131) separando cada exclusión en `!Host(...)` individuales.

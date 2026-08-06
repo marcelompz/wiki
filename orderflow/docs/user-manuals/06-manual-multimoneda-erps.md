@@ -1,4 +1,4 @@
-# 📖 Manual de Usuario: Sistema Multimoneda e Integraciones ERP (OrderFlow v1.5.1)
+# 📖 Manual de Usuario: Sistema Multimoneda e Integraciones ERP (OrderFlow v1.5.0)
 
 > **Dirigido a:** Administradores de Tenant, Usuarios de Ventas/POS, Operadores de E-commerce y Contadores.  
 > **Versión:** 1.3.0  
@@ -19,7 +19,7 @@
 
 ## 1. Introducción
 
-Bienvenido al manual de usuario de las características de **Soporte Multimoneda** e **Integraciones ERP Normalizadas** de **OrderFlow v1.5.1**.
+Bienvenido al manual de usuario de las características de **Soporte Multimoneda** e **Integraciones ERP Normalizadas** de **OrderFlow v1.5.0**.
 
 Con esta versión, OrderFlow permite operar comercialmente en múltiples divisas (Guaraníes `PYG`, Pesos Argentinos `ARS`, Dólares `USD`, Reales `BRL`, Euros `EUR`), realizar la conversión automática de precios según la cotización del día y sincronizar todos los comprobantes y stock con tu sistema ERP central sin importar el país de tu negocio.
 

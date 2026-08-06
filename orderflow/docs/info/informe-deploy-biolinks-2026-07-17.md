@@ -9,7 +9,7 @@
 
 ## 1. Resumen Ejecutivo
 
-Se completó con éxito el desarrollo, prueba, sincronización con GitHub y despliegue en producción del nuevo módulo **OrderFlow Bio-Links** (directorio transaccional tipo Linktree con 0% de comisión por plataforma, *In-Bio Fast Checkout Drawer*, y sincronización en tiempo real con POS y KDS vía WebSockets).
+Se completó con éxito el desarrollo, prueba, sincronización con GitHub y despliegue en producción del nuevo módulo **OrderFlow Bio-Links** (directorio transaccional con 0% de comisión por plataforma, *In-Bio Fast Checkout Drawer*, y sincronización en tiempo real con POS y KDS vía WebSockets).
 
 Adicionalmente, se verificó el correcto funcionamiento de la plataforma en producción, el inicio de sesión del administrador mediante Master API Key y la habilitación del Bio-Link para el tenant **Gaia Spa & Wellness** (`spa-wellness-001`).
 

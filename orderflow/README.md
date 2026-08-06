@@ -79,7 +79,7 @@
 - **POS:** Punto de venta
 - **KDS:** Cocina (Kitchen Display)
 - **Giveaways:** Sorteos
-- **BioLinks:** Linktree-style
+- **BioLinks:** Bio-Link directory with 0% platform commission
 - **Homepage Builder:** Constructor visual de landing
 
 ---

@@ -1,8 +1,8 @@
 # 🗺️ ROADMAP DE ORDERFLOW - v1.5.1 → v2.0.0
 
-**Última Actualización:** 2026-08-05 ART (Post-Sprint v1.12.3 — Contacts & Odoo Adapter Fixes)
-**Versión Actual:** **`v1.12.3`** ✅ **RELEASED (Stable)** | Contacts: GroupBy Email, SuperAdmin User Sync, Odoo Adapter Fix
-**Próximo Release:** **v1.13.0 (Testing & QA)**  
+**Última Actualización:** 2026-08-05 ART (Post-Release v1.13.1 — init.sh Refactor & Docs)
+**Versión Actual:** **`v1.13.1`** ✅ **RELEASED (Stable)** | Refactor: `init.sh` now accepts flags to prevent OS hangs. Docs: Added troubleshooting guide #25 for the issue.
+**Próximo Release:** **v1.14.0 (Planning)**
 **Estado:** ✅ **STAGING & PRODUCTION OPERATIVE** | 🏆 **COMMERCIAL RELEASE v1.5.1 STABLE** | QA E2E Suite Integrada | 498 tests unitarios pasados  
 **Visión Estratégica:** Plataforma SaaS omnicanal de alta velocidad con aislamiento multi-tier, marketplace de plugins de terceros, facturación automática Stripe/Mercado Pago y escalado horizontal a Kubernetes.
 
@@ -319,10 +319,10 @@ Permite vender módulos individuales (Giveaways, WhatsApp Catalog, Bio-Links, et
 
 ---
 
-### � v2.0.0 — Kubernetes + Escala (Target: 2027+)
+### v2.0.0 — Kubernetes + Escala + Arquitectura Avanzada (Target: 2027+)
 
 | Feature | Estado | Prioridad |
-|---------|--------|----------|
+|---------|--------|-----------|
 | **Migración Docker Compose → Kubernetes** (Estructura de Helm charts en `k8s/` lista) | 🟡 Estructura Lista | 🟢 Baja |
 | **Helm charts para OrderFlow core + microservicios** (`k8s/helm/`) | 🟡 Estructura Lista | 🟢 Baja |
 | **Autoscaling por microservicio** | ⏳ Futuro | 🟢 Baja |
@@ -331,261 +331,16 @@ Permite vender módulos individuales (Giveaways, WhatsApp Catalog, Bio-Links, et
 | **Service Mesh (Istio / Linkerd)** para inter-service auth | ⏳ Futuro | 🟢 Baja |
 | **Multi-región / multi-cloud** | ⏳ Futuro | 🟢 Baja |
 
+#### Lecciones de Odoo → Hoja de Ruta (Beta → v2.0)
+
+Estos 5 patrones estratégicos se incorporan del análisis comparativo `docs/Informe_Comparativo_Odoo_vs_OrderFlow.md`. **Todos son hitos previos a la migración a Kubernetes (v1.14.0):** establecen la base arquitectónica (eventos, auditoría, integraciones robustas, inventario avanzado) que debe existir antes de escalar a orquestación de contenedores.
+
+| # | Patrón | Descripción | Sprint Target |
+|---|--------|-------------|---------------|
+| 1 | **Cola de Tareas Robustas (Durable Event Queue)** | Implementar BullMQ/Redis para reintentos y colas duraderas. Asegurar que ningún webhook hacia FacturaSend, pasarelas de pago o integraciones ERP se pierda ante fallas de red. | v1.14.0 |
+| 2 | **Arquitectura de Eventos Extensible** | Consolidar un sistema de eventos internos (`EventBus`) que permita habilitar o extender funcionalidades por tenant sin modificar el código fuente central. | v1.14.0 |
+| 3 | **Control de Inventario Multidepósito** | Evolucionar el manejo de stock hacia un modelo de doble entrada con transferencias internas, ubicaciones múltiples y reservas temporales para pedidos. | v1.14.0 |
+| 4 | **Mapeador de Integraciones Configurable** | Ampliar el conector `orderflow_connector` para permitir mapeo de campos dinámico y resolución visual de conflictos de sincronización. | v1.14.0 |
+| 5 | **Auditoría Transaccional Ampliada** | Expandir la tabla `AuditLog` para rastrear cambios sensibles en configuraciones de negocio, permisos y aperturas/cierres de caja. | v1.14.0 |
+
 > **Estrategia de escalado:** Docker Compose (actual, infra compartida en Hetzner VPS) es el runtime hasta v1.0. A partir de v2.0 se evalúa K8s según volumen de tenants y microservicios standalone desplegados. Traefik se mantiene como Ingress Controller nativo.
-
----
-
-### ✅ Ya Completado (mantenidos por referencia)
-
-| Feature | Estado | Versión |
-|---------|--------|--------|
-| Mobile Offline Mode | ✅ Completo | v0.2.0 |
-| Push Notifications | ✅ Completo | v0.4.2 |
-| Monitoring (Grafana/Prometheus) | ✅ Completo | v0.4.2 |
-| Load Testing (k6) | ✅ Ejecutado | v0.5.1 |
-| Extensibilidad Odoo | ✅ Diseño extensible | v0.4.0 |
-| Tauri Desktop Wrapper | ✅ Completo | v0.4.2 |
-
----
-
-## 📦 SPRINT ACTUAL (Sprint 5 — Agosto 2026: Calidad + Arquitectura Multi-Tier)
-
-### Objetivos
-1. 🚧 Elevar cobertura de testing a 80% (unitario + integración + E2E Playwright).
-2. 🚧 Observabilidad avanzada: Grafana, Loki, Tempo, Alertmanager, dashboards por tenant.
-3. 🚧 Seguridad: RBAC granular en todos los controllers, rate limit por tenant, auditoría completa.
-4. 🚧 Multi-Tier Isolation: schema + `TenantConnectionManager` + `@TenantPrisma()` decorator.
-5. 🚧 Microservicios standalone: `auth-shared` + primer standalone (Giveaways).
-6. 🚧 Fix y consolidación del App Store (registry completo con todos los módulos).
-
-### Tareas Completadas
-- [x] Librería compartida `packages/auth-shared` para la validación unificada de JWT/API Key en microservicios
-- [x] Estructura del primer microservicio standalone: `services/giveaways-standalone/`
-- [x] Docker Compose standalone para despliegue independiente (`services/giveaways-standalone/docker-compose.yml`)
-- [x] Schema Prisma & ApiKeyGuard inyección `tenantPrisma` por tier (`shared`/`dedicated`)
-- [x] `TenantConnectionManager` resolución dinámica de pools de conexión dedicada
-- [x] Script de aprovisionamiento de DB dedicada: `scripts/provision-dedicated-db.sh`
-- [x] Endpoint `PATCH /api/v1/tenants/:id/isolation-tier` en `TenantsController`
-- [x] Tag visual `DB Tier` (`💎 Dedicated` vs `👥 Shared`) en el Super Admin Dashboard
-- [x] Giveaway admin improvements
-- [x] Super Admin tenant management (toggle disable/enable, delete hard cascade, rol ADMIN gestor)
-- [x] Unit tests para servicios core (389 tests passing, 50 suites)
-- [x] Playwright E2E suite para flujos críticos (login, checkout, bio-link, POS, KDS, storefront - 14 tests passing)
-- [x] Servidor Redis 7 integrado en `docker-compose.yml` para rate-limiting y WebSockets
-- [x] Índices de alto rendimiento en Prisma (`orders`, `products`, `appointment_assignments`)
-- [x] Code Splitting con `React.lazy` + `<Suspense>` en `AdminApp.tsx` (14 chunks independientes)
-- [x] Secretos gestionados en `.gitignore` (`client_secret*.json`, `*.pem`, `*.key`)
-- [x] RBAC granular aplicado a `QuotationsController` (`quotations:create`, `quotations:read`)
-- [x] Swagger/OpenAPI docs & README.md actualizado
-- [x] Especificación estratégica y plan de Bio-Links en `docs/BioLinks.md`
-- [x] POS Web offline-first (Dexie.js + Zustand sync queue)
-- [x] KDS WebSockets (`OrdersGateway`, rooms por tenant, semáforo tiempo real)
-- [x] Loyalty backend + admin UI (tiers, reglas, redención, integración POS)
-- [x] Tauri Desktop Wrapper (impresión ESC/POS, shortcuts Rust)
-- [x] Observabilidad base (Sentry backend+frontend, Prometheus `/metrics`, Winston)
-- [x] Subdominios automáticos por tenant (Cloudflare DNS + Traefik wildcard)
-- [x] Dominio configurable backend/frontend (`ROOT_DOMAIN`, `VITE_ROOT_DOMAIN`)
-- [x] Addon Odoo 19 CE (`orderflow_connector`): webhooks push + wizard pull
-- [x] Bio-Links completo: API + Redis + Admin Drag&Drop + SPA Pública + Fast Checkout
-- [x] Fix App Store: manifiestos faltantes (giveaways, notifications, analytics) + registry actualizado + iconos frontend
-- [x] App Store seguridad: RBAC granular (`modules:read`, `modules:install`, `modules:uninstall`, `modules:configure`), DTOs, auditoría
-- [x] App Store frontend: loading states, remover master key hardcodeada, mejora UX
-- [x] RBAC granular aplicado a controllers secundarios (`ContactsController`, `LoyaltyController`, `IntegrationsController`, `BioLinksController`)
-- [x] Catálogo WhatsApp público (`whatsapp-catalog.tsx`, `whatsapp-checkout.tsx`) con checkout express, modificadores, GPS y zonas de entrega
-- [x] Plan de maduración UX/UI mobile-first del catálogo WhatsApp (`docs/PLAN_WHATSAPP_CATALOG_UX_UI.md`)
-- [x] Plan de customización admin/superadmin del catálogo WhatsApp (`docs/PLAN_WHATSAPP_CATALOG_ADMIN.md`)
-- [x] Endpoint público unificado `/api/v1/public/catalog/products` y `/config` para todos los canales (storefront, WhatsApp, etc.)
-
-### Tareas Completadas
-- [x] Segundo microservicio standalone: `services/whatsapp-catalog-standalone/` (`docker-compose.yml` en puerto `3021`)
-- [x] Integration de k6 load testing continuo en GitHub Actions pipeline (`.github/workflows/ci-cd.yml`)
-- [x] Rotación automática programada de API Keys
-- [x] Schema Prisma: `isolationTier`, `dedicatedDatabaseUrl` en Tenant
-- [x] `TenantConnectionManager` + `@TenantPrisma()` decorator
-- [x] `packages/auth-shared` — librería JWT/API Key compartida
-- [x] `services/giveaways-standalone/` — primer microservicio standalone
-- [x] `services/whatsapp-catalog-standalone/` — segundo microservicio standalone
-
----
-
-| **Provecchio Backup & Restore (new DDL)** | ⚠️ En progreso | 🔴 Alta | Sprint 5 | Scripts creados: restore-provecchio.sh, update-provecchio-version.sh, migration 20260729170000 |
-
-| Métrica | Actual | Target v1.2.0 | Target v2.0 |
-|---------|--------|---------------|-------------|
-| **Cobertura de Tests** | 498 passing / 58 suites (~45% real) | 70% | 80% (unitario + integración + E2E) |
-| **Endpoints Documentados** | 100% | 100% | 100% |
-| **Deploy Time** | 2-3 min | <2 min | <1 min |
-| **Build Time** | 8-30s | <10s | <5s |
-| **Uptime** | 95% | 99% | 99.9% |
-| **Response Time (p95)** | 200ms | <150ms | <100ms |
-| **Load Testing (k6)** | P95 294-460ms | P95 < 300ms | P95 < 200ms |
-| **Módulos Production Ready** | 16+ módulos core | 18+ módulos | 20+ módulos |
-| **Microservicios Standalone** | 6 | 6+ | 8+ |
-| **Tenants Enterprise (DB dedicada)** | Soporte implementado | N tenants | N tenants |
-
----
-
-## 🔧 INFRAESTRUCTURA ACTUAL
-
-### Ambientes
-- ✅ **Localhost:** Desarrollo (`http://localhost:3011`)
-- ✅ **Staging:** Hetzner VPS (`http://staging.provecchio.com`) - DNS Cloudflare operativo
-- ✅ **Production:** Hetzner VPS (`https://provecchio.com`)
-
-### Servidores
-| Servidor | IP | Hostname | Propósito |
-|----------|-----|----------|-----------|
-| **Hetzner VPS** | `178.105.226.175` | `dimoraserver1` | Staging + Production |
-| **Provecchio (Réplica/Backup)** | *(misma red Hetzner)* | `provecchio` | Réplica read-only + backup en caliente; se detiene cuando no se necesita para ahorrar CPU/RAM |
-| **Local Server** | `38.52.135.227` | `dimoraserverlocal` | Development |
-
-### Proxy Perimetral (Traefik v3.4 Exclusivo)
-- ✅ **Traefik v3.4:** Reverse proxy exclusivo (Nginx eliminado, no reactivar bajo ninguna circunstancia)
-- ✅ **Repositorio:** `traefik-orderflow` gestionado en `/opt/traefik-orderflow/` y desplegado en `/srv/traefik/` en servidores
-- ✅ **Config estática:** `traefik.yml` (entrypoints web/websecure, ACME DNS-01 Cloudflare)
-- ✅ **Config dinámica:** `services.yml` (routers por host: OrderFlow, Axon, Aieer) + `headers.yml`
-- ✅ **SSL:** Let's Encrypt wildcard `*.pesallaccia.com` + redirección HTTP→HTTPS permanente
-- ✅ **Recarga dinámica:** `docker exec traefik kill -HUP 1`
-- 🚧 **Nota:** `/opt/orderflow/traefik` fue eliminado; toda la configuración vive en `/opt/traefik-orderflow`
-
-### Estrategia de Réplica y Backup
-- 🚧 **Provecchio como servidor de réplica read-only:** se utiliza como secondary/replica en caliente; cuando se detiene el contenedor, no consume CPU/RAM significativa.
-- 🚧 **Objetivo:** alta disponibilidad sin costo permanente de infraestructura.
-- 🚧 **Futuro próximo:** agregar un segundo servidor en la misma red para backup en caliente permanente.
-
-### CI/CD
-- ✅ **GitHub Actions:** Build + Deploy automático
-- ✅ **Branches:** staging → main
-- ✅ **Deploy Script:** `./scripts/deploy-production.sh`
-- ✅ **Docker Build:** Inside containers (no host npm)
-
-### Docker
-- ✅ **Containers:** 6 activos (frontend, backend, db, redis, odoo_adapter, edge-proxy/traefik)
-- ✅ **Healthchecks:** Todos configurados
-- ✅ **Redes:** orderflow-network (bridge) + traefik-public
-- ✅ **Volúmenes:** postgres_data, redis_data (persistencia)
-
-### Backups
-- ✅ **Scripts:** backup.sh, restore.sh
-- ✅ **Frecuencia:** Diaria (cron)
-- ✅ **Retention:** 7 días
-
----
-
-## ⚠️ DEUDAS TÉCNICAS
-
-| Deuda | Impacto | Prioridad | Target | Estado |
-|-------|---------|-----------|--------|--------|
-| **Testing <80%** | Alto | 🔴 Alta | v2.0.0 | ⚠️ En progreso (389 tests / 50 suites, ~45% real) |
-| **E2E + Playwright** | Alto | 🔴 Alta | v0.6.0 | ✅ Hecho (14 tests) |
-| **Carga continua (k6)** | Medio | 🔴 Alta | v0.6.0 | ✅ Integrado en CI/CD |
-| **Seguridad enterprise** | Alto | 🔴 Alta | v0.6.0 | ✅ RBAC granular en 21/33 controllers |
-| **Observabilidad avanzada** | Alto | 🔴 Alta | v0.6.0 | ✅ Grafana + Loki + Tempo + Alertmanager |
-| **Multi-Tier Isolation (DB-per-tenant)** | Alto | 🔴 Alta | v0.7.0 | ✅ Completado (TenantConnectionManager + @TenantPrisma) |
-| **Microservicios standalone** | Alto | 🔴 Alta | v0.7.0 | ✅ 6 microservicios production-ready |
-| **Billing SaaS** | Alto | 🔴 Alta | v1.0.0 | ✅ Completado (Stripe + MercadoPago + MRR/ARR) |
-| **Marketplace / Plugin SDK** | Medio | 🔴 Alta | v1.0.0 | ✅ Completado (MarketplaceModule) |
-| **Kubernetes / Autoscaling** | Medio | 🟡 Media | v2.0.0 | ⏳ Estructura Helm lista |
-| **Sin docs API** | Alto | 🔴 Alta | v0.3.0 | ✅ Resuelto v0.3.0 |
-| **README desactualizado** | Medio | 🔴 Alta | v0.3.0 | ✅ Resuelto v0.3.0 |
-| **Mobile offline** | Medio | 🟡 Media | v0.2.0 | ✅ Completo |
-| **Sin monitoring** | Alto | 🟡 Media | v0.4.2 | ✅ Completo |
-| **Load testing (k6)** | Medio | 🟡 Media | v0.5.1 | ✅ Ejecutado + integrado en CI |
-| **App Store / Marketplace vacío** | Medio | 🔴 Alta | v0.5.1 | ✅ Resuelto (manifiestos + registry + iconos) |
-| **Google OAuth verification** | Medio | 🟡 Media | v0.6.0 | ⏳ En proceso (video) |
-| **White-label completo** | Medio | 🟢 Baja | v1.0.0 | ✅ Completado (dominio custom, favicon, título, branding removal) |
-| **Analytics avanzado** | Medio | 🟢 Baja | v1.0.0 | ✅ Completado (AnalyticsModule) |
-| **MIDA / SAP** | Medio | 🟡 Media | v1.0.0 | ✅ Completado (conectores en IntegrationsService) |
-| **Addon Odoo: variantes/inventario/facturación** | Medio | 🟡 Media | v0.7.0 | ⚠️ Variantes e inventario completados; facturación pendiente |
-| **i18n (multi-language)** | Bajo | 🟢 Baja | v1.0.0 | ✅ Completado (ES/EN/PT) |
-| **Mobile: publicación App Store/Play** | Bajo | 🟢 Baja | v1.0.0 | ❌ Pendiente |
-
----
-
-## 📚 DOCUMENTACIÓN
-
-| Documento | Estado | Última Actualización | Notas |
-|-----------|--------|---------------------|-------|
-| **README.md** | ✅ Actualizado | 2026-07-31 | v1.1.9: badges sincronizados, 389 tests |
-| **ROADMAP.md** | ✅ Actualizado | 2026-07-31 | Estado del arte v1.1.9 sincronizado |
-| **CHANGELOG.md** | ✅ Actualizado | 2026-07-31 | v1.1.9: Unificación de navegación + QA E2E integral |
-| **POS_KDS_ARCHITECTURE.md** | ✅ Nuevo | 2026-07-13 | Arquitectura y diseño POS / KDS |
-| **AUDITORIA_COMPLETA.md** | ✅ Actualizado | 2026-07-31 | v1.1.9: Matriz de entornos y auditoría completa |
-| **ESTADO_DEL_ARTE.md** | ✅ Actualizado | 2026-07-31 | Análisis de madureza v1.1.9 y gaps remanentes |
-| **TRAEFIK_SERVER_SETUP.md** | ✅ Nuevo | 2026-07-18 | Guía de configuración Traefik v3.3 en `/srv/traefik/` |
-| **PLAN_DE_MADURACION_PRODUCCION.md** | ✅ Completo | 2026-06-23 | Fases 1-5 completadas |
-| **FAQ.md** | ⚠️ Parcial | 2026-07-04 | Pendiente Google OAuth |
-| **IMPLEMENTACION_SORTEO.md** | ✅ Actualizado | 2026-07-04 | Completo |
-| **COMPATIBILITY.md** | ⚠️ Parcial | 2026-06-22 | Pendiente |
-| **STAGING_DEPLOYMENT_GUIDE.md** | ✅ Nuevo | 2026-07-05 | Guía completa Hetzner |
-| **PRODUCCION_DEPLOY_COMPLETE.md** | ✅ Nuevo | 2026-07-05 | Deploy production |
-| **GOOGLE_OAUTH_FIX_SUMMARY.md** | ✅ Nuevo | 2026-07-05 | OAuth fix docs |
-| **GOOGLE_OAUTH_SETUP.md** | ✅ Nuevo | 2026-07-05 | OAuth config guide |
-| **ODOO_INTEGRATION_GUIDE.md** | ✅ Actualizado | 2026-07-18 | Addon Odoo 19 CE `orderflow_connector` |
-
----
-
-## 🎯 PRÓXIMOS HITOS
-
-| Hito | Fecha Target | Estado | Notas |
-|------|--------------|--------|-------|
-| **v0.3.0-beta.0** | ✅ 2026-07-05 | ✅ **COMPLETADO** | Staging + Production operativos |
-| **v0.3.0-rc.0** | ✅ 2026-07-15 | ✅ **COMPLETADO** | Google OAuth verification |
-| **v0.4.0-beta.0** | ✅ 2026-07-14 | ✅ **COMPLETADO** | POS & KDS Integration (WebSockets + UI) |
-| **v0.4.1** | ✅ 2026-07-15 | ✅ **COMPLETADO** | Fixes producción + dominio configurable |
-| **v0.4.2** | ✅ 2026-07-15 | ✅ **COMPLETADO** | Tauri Desktop POS + Observabilidad (Sentry/Prometheus) |
-| **v0.4.3** | ✅ 2026-07-16 | ✅ **COMPLETADO** | Testing expansion: 298 tests / 39 suites |
-| **v0.5.0** | ✅ 2026-07-19 | ✅ **COMPLETADO** | Bio-Links + Traefik v3.3 + App Store fixes |
-| **v0.5.1** | ✅ 2026-07-19 | ✅ **COMPLETADO** | Observabilidad avanzada + RBAC + E2E + Fix App Store registry |
-| **v0.6.0** | 2026-09-15 | ⏳ Pendiente | Testing 80%, RBAC completo, Observabilidad operativa |
-| **v0.7.0** | 2026-11-15 | ⏳ Pendiente | Multi-Tier Isolation + Microservicios Standalone (Giveaways + WA Catalog) |
-| **v1.0.0 Stable** | ✅ 2026-07-26 | ✅ **COMPLETADO** | Release oficial comercial SaaS (Multi-Tier + Redis WebSockets + Billing UI) |
-| **v1.1.3 Stable** | ✅ 2026-07-27 | ✅ **COMPLETADO** | File Store Unificado por Tenant + Backups + Admin WhatsApp Catalog + Troubleshooting Docs + Cleanup Legacy Config |
-| **v1.1.7 Stable** | ✅ 2026-07-30 | ✅ **COMPLETADO** | QA E2E Playwright Suite, Subdomain Resolution Fixes, WhatsApp Catalog Admin Visual Customization Overhaul, Frontend Stability Guards |
-| **v1.1.8 Stable** | ✅ 2026-07-31 | ✅ **COMPLETADO** | Homepage Visual Builder, Landing vs. Tienda routing separation, Google Fonts palette, live Desktop/Mobile preview |
-| **v1.1.9 Stable** | ✅ 2026-07-31 | ✅ **COMPLETADO** | Navigation unification, Array.isArray defensive guards, E2E QA suite expanded to all admin subroutes, 389 tests |
-| **v1.3.0 Stable** | ✅ 2026-08-01 | ✅ **COMPLETADO** | Automatización de Cotizaciones PY (FEAT-022): 5 providers (BCP, CambiosChaco, Bonanza, DólarApi, Manual), Cron 15min TZ Paraguay, LRU cache + DB persistence, 426 tests |
-| **v1.4.0 Stable** | ✅ 2026-08-01 | ✅ **COMPLETADO** | Facturación Electrónica Paraguaya (FacturaSend/SIFEN). 72 tests. init.sh: 58 suites / 498 tests. |
-| **v1.5.1 Stable** | ✅ 2026-08-02 | ✅ **COMPLETADO** | Responsive UX/UI Backoffice + Traefik v3.4 (QA-001) |
-| **v1.7.0 Stable** | ✅ 2026-08-03 | ✅ **COMPLETADO** | UX/UI Mobile-First & Ergonomía Intuitiva + Refinamiento UX/UI Escritorio |
-| **v1.8.0** | ✅ 2026-08-03 | ✅ **COMPLETADO** | Deuda Técnica: Aumento de Cobertura de Pruebas (Backend) |
-| **v1.8.1** | ✅ 2026-08-03 | ✅ **COMPLETADO** | Proceso de Despliegue Formalizado y Documentado |
-| **v1.9.0** | 2026-09-15 | ⏳ Pendiente | Calidad Frontend, Finalización Odoo y Evolución de Microservicios |
-| **v2.0.0** | 2027+ | ⏳ Futuro | Kubernetes + autoscaling + multi-región |
-
----
-
-## 🔌 ESTADO DEL ADDON ODOO (`orderflow_connector`)
-
-| Aspecto | Estado | Notas |
-|---------|--------|-------|
-| **Push Odoo → OrderFlow** | ✅ Funcional | Webhooks asíncronos para partners, productos, sale orders |
-| **Pull OrderFlow → Odoo** | ✅ Funcional | Wizard de importación interactivo con selección y estado |
-| **Configuración UI** | ✅ Completo | Panel en Ajustes → Ventas → OrderFlow |
-| **Granularidad de sync** | ✅ Completo | Toggles por entidad (partners, productos, pedidos, inventario) |
-| **Variantes de producto** | ✅ Completo | Soporte para `product.product` por SKU interno y Barcode |
-| **Sincronización de inventario** | ✅ Completo | Endpoint `/sync/products/stock` y consulta `qty_available` / `virtual_available` |
-| **Facturación (account.move)** | ❌ No implementado | No hay sync de facturas hacia/desde OrderFlow |
-| **Reintentos / cola durable** | ❌ No implementado | Threads daemon; si falla, el webhook se pierde |
-| **Deduplicación** | ⚠️ Básica | Búsqueda simple por nombre/email/SKU/ref |
-| **URL configurable** | ⚠️ Parcial | Hardcodeada `pesallaccia.com` como fallback |
-
-**Recomendación:** El addon está en estado **usable para integración básica** (clientes, productos, pedidos). Para sincronización bidireccional completa se requiere: variantes, stock, facturación, cola durable y reintentos.
-
----
-
-## 🌐 ESTADO DE TRAEFIK (Infraestructura Proxy)
-
-| Aspecto | Estado | Notas |
-|---------|--------|-------|
-| **Versión** | v3.3 | Proxy exclusivo OrderFlow + Odoo 19 CE |
-| **Nginx** | ❌ Eliminado | NO reactivar bajo ninguna circunstancia |
-| **Repositorio** | `traefik-orderflow` | Código/config en `/srv/traefik/` (prod) y `/opt/traefik-orderflow/` (local) |
-| **Routers** | ✅ Operativo | OrderFlow (prod+staging), Axon (prod+staging), Aieer (staging) |
-| **SSL** | ✅ Let's Encrypt | Wildcard `*.pesallaccia.com` + DNS-01 Cloudflare |
-| **HTTPS Redirect** | ✅ Permanente | HTTP 308 desde entrypoint `web` |
-| **Actualización** | Procedimiento estándar | `docker compose up -d` en `/srv/traefik` + `kill -HUP 1` |
-
----
-
-**Fin del ROADMAP**

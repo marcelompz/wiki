@@ -504,7 +504,7 @@ orderflow_odoo_adapter   Up
 ### **Propuestas:**
 
 7. `/opt/orderflow/docs/PROPUESTA_VERSIONAMIENTO.md` - Versionamiento unificado (450 líneas)
-8. `/opt/orderflow/docs/ARQUITECTURA_MODULAR.md` - Modularización estilo Odoo (700 líneas)
+8. `/opt/orderflow/docs/guides/ARQUITECTURA_MODULAR.md` - Modularización estilo Odoo (700 líneas)
 9. `/opt/orderflow/docs/ESTADO_MODULARIZACION_VERSIONAMIENTO.md` - Estado de implementación (400 líneas)
 
 ### **Registros:**

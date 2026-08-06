@@ -7,6 +7,43 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.
 
 ## [Unreleased]
 
+### 📋 Roadmap Updates
+- **ROADMAP.md:** Added 5 strategic milestones from `docs/Informe_Comparativo_Odoo_vs_OrderFlow.md`, all targeted to **v1.14.0 (pre-K8s)** since they are foundational architecture (events, audit, robust integrations, advanced inventory) that must exist before the Kubernetes migration:
+  - **v1.14.0:** Durable Event Queue (BullMQ/Redis) for webhook reliability; Extensible Event Architecture (EventBus); Multi-Warehouse Inventory (double-entry model); Configurable Integration Mapper for `orderflow_connector`; Expanded AuditLog for transactional auditing
+
+---
+
+## [1.13.1] - 2026-08-05
+
+### 🛠️ Refactor
+- **Scripts:** Modified `init.sh` to accept flags (`--skip-e2e`, `--only-backend`, etc.) to prevent OS hangs on local development by allowing selective execution of validation steps.
+### 📚 Documentación
+- **Troubleshooting:** Added doc #25 (`25-init-sh-hangs-os.md`) explaining why `init.sh` saturates CPU/RAM and documenting the new flags as a solution.
+- **Troubleshooting:** Updated `docs/troubleshooting/README.md` to index the new document #25.
+
+## [1.13.0] - 2026-08-05
+
+### ✨ Features
+- **Contacts:** Added `taxId` duplicate detection — `create()` and `update()` now verify uniqueness per tenant, throwing `ConflictException` if a duplicate RUC/NIT exists.
+- **Contacts:** Added `findOrCreateByEmail(tenantId, email, defaultData?)` to `ContactsService` — finds a contact by email or creates a new one with default data.
+- **Contacts:** Added `findByEmail(tenantId, email)` to `ContactsService` — returns contact if found or `null`.
+- **Contacts:** Added address propagation — when a company contact's address fields (`street`, `city`, `state`, `zip`, `country`) are updated, changes propagate to all child contacts via batch `updateMany`.
+- **Contacts:** Added `getDisplayName()` computed resolver — returns `"Empresa, Contacto"` format when contact has a company parent, otherwise just `name`.
+- **Contacts:** Added `resolveCommercialPartner()` — walks `parentId` chain up until `isCompany=true` to find the commercial entity root.
+- **Contacts:** Added `convertToCompany(contactId)` — creates a new `isCompany=true` parent contact and links the original as a child.
+- **Contacts:** Added `ContactAddress` model with CRUD endpoints — supports `contact`, `invoice`, `delivery`, `other`, `private` address types with `isDefault` flag.
+- **Contacts:** Added `ContactCategory` and `ContactCategoryMap` (M2M) models with CRUD endpoints — tags/categories for contact segmentation.
+- **Contacts:** Added `userId` field to Contact — assigns a sales representative to a contact.
+- **Contacts:** Added `creditLimit` (Decimal) and `commercialPartnerId` (FK to contacts) fields.
+- **Contacts:** Added `ContactBankAccount` model with CRUD endpoints — bank account data for payment processing.
+- **Contacts:** Added `@@unique([tenantId, email])` and `@@unique([tenantId, taxId])` constraints to prevent duplicates.
+- **Contacts:** Added new API endpoints: `GET/POST /contacts/by-email`, `GET /contacts/:id/display-name`, `GET /contacts/:id/commercial-partner`, `POST /contacts/:id/convert-to-company`, address/category/bank-account CRUD endpoints.
+- **Deploy:** Fixed `deploy-production.sh` — added app-level health check, env var validation, Traefik backend network connect, migration timeout, and rollback improvements.
+- **Troubleshooting:** Added doc #24 documenting deploy script bugs and fixes.
+
+### 🐛 Bug Fixes
+- **Contacts:** Fixed `parentId` field having zero propagation logic — now supports address sync and parent validation.
+
 ## [1.12.3] - 2026-08-05
 
 ### 🐛 Bug Fixes
