@@ -29,6 +29,7 @@ Ordená por problema y área. Cada entrada incluye síntomas, causa raíz y solu
 | [25](25-init-sh-hangs-os.md) | init.sh cuelga el SO | Scripts / Dev Env | Alta carga de CPU/RAM al ejecutar init.sh | ✅ Resuelto |
 | [26](26-jest-memory-leak-out-of-memory.md) | Volcado de memoria en pruebas Jest | Backend / Jest / CI | Error `JavaScript heap out of memory` al ejecutar tests | ✅ Resuelto |
 | [27](27-nest-dependency-resolution-scope-audit-service.md) | Nest can't resolve AuditService in BullMQ | Backend / NestJS / Queues | Error de dependencia al inyectar Scope.REQUEST en processor | ✅ Resuelto |
+| [28](28-postgresql-fatal-too-many-clients.md) | FATAL: sorry, too many clients already | DevOps / PostgreSQL / Docker | Saturación de conexiones por contenedores efímeros de migraciones | ✅ Resuelto |
 
 ---
 
