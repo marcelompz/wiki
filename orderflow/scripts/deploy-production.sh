@@ -31,6 +31,9 @@ BACKUP_FILE="${BASE_DIR}/backups/pre_deploy_${ENV_FILE}_${TIMESTAMP}.sql"
 # SSH options for proxy jump (used when target is not on local network)
 SSH_OPTS=""
 
+# Required environment variables that must be present in .env before deploy
+REQUIRED_ENV_VARS=("DATABASE_URL" "JWT_SECRET" "JWT_REFRESH_SECRET" "MASTER_API_KEY")
+
 mkdir -p "${ARTIFACT_DIR}" "${BASE_DIR}/backups"
 
 echo "=== OrderFlow Production Deploy ==="
@@ -39,8 +42,6 @@ echo "Remote host : ${REMOTE_HOST} (${REMOTE_DIR})"
 echo "Branch      : main"
 
 if [ "${ENV_FILE}" = "production" ]; then
-  # Production uses .env (not tracked by git, contains real secrets)
-  # Falls back to .env.production or .env.prod for local dev
   if [ -f "${BASE_DIR}/.env" ]; then
     ENV_FILE_PATH=".env"
   elif [ -f "${BASE_DIR}/.env.production" ]; then
@@ -52,7 +53,6 @@ if [ "${ENV_FILE}" = "production" ]; then
     exit 1
   fi
 elif [ "${ENV_FILE}" = "provecchio" ]; then
-  # Provecchio: use .env.prod (server-side). Local check is for backup snapshot only.
   if [ -f "${BASE_DIR}/.env.provecchio" ]; then
     ENV_FILE_PATH=".env.provecchio"
   elif [ -f "${BASE_DIR}/.env.prod" ]; then
@@ -61,8 +61,6 @@ elif [ "${ENV_FILE}" = "provecchio" ]; then
     ENV_FILE_PATH=".env"
   fi
 
-  # --- Provecchio SSH target detection ---
-  # Try direct local IP first; fall back to public IP + jump host if unreachable.
   PROVECCIO_LOCAL_IP="192.168.69.240"
   PROVECCIO_JUMP_USER="root"
   PROVECCIO_JUMP_HOST="38.52.135.227"
@@ -80,6 +78,21 @@ elif [ ! -f "${BASE_DIR}/${ENV_FILE_PATH}" ]; then
   echo "❌ Missing env file: ${BASE_DIR}/${ENV_FILE_PATH}"
   exit 1
 fi
+
+# Validate required environment variables are present
+echo "🔍 Validating required environment variables..."
+MISSING_VARS=0
+for var in "${REQUIRED_ENV_VARS[@]}"; do
+  if ! grep -q "^${var}=" "${BASE_DIR}/${ENV_FILE_PATH}" 2>/dev/null; then
+    echo "   ❌ Missing required variable: ${var}"
+    MISSING_VARS=1
+  fi
+done
+if [ "${MISSING_VARS}" -eq 1 ]; then
+  echo "❌ Deploy aborted: missing required environment variables in ${ENV_FILE_PATH}"
+  exit 1
+fi
+echo "✅ All required environment variables present"
 
 cp -f "${BASE_DIR}/${ENV_FILE_PATH}" "${ROLLBACK_INFO}"
 echo "🧷 Rollback env snapshot saved: ${ROLLBACK_INFO}"
@@ -133,7 +146,7 @@ ssh ${SSH_OPTS} "${REMOTE_HOST}" "
 "
 
 echo "🔄 Running Prisma migrations on remote..."
-ssh ${SSH_OPTS} "${REMOTE_HOST}" "cd ${REMOTE_DIR} && docker compose -f ${COMPOSE_FILE} --env-file ${ENV_FILE_PATH} run --rm backend npx prisma migrate deploy" || {
+ssh ${SSH_OPTS} "${REMOTE_HOST}" "cd ${REMOTE_DIR} && timeout 300 docker compose -f ${COMPOSE_FILE} --env-file ${ENV_FILE_PATH} run --rm --entrypoint 'npx prisma migrate deploy' backend" || {
   echo "❌ Migrations failed"
   echo "♻️ Rolling back containers..."
   ssh ${SSH_OPTS} "${REMOTE_HOST}" "cd ${REMOTE_DIR} && docker compose -f ${COMPOSE_FILE} --env-file ${ENV_FILE_PATH} up -d --build --remove-orphans" || true
@@ -176,10 +189,25 @@ ssh ${SSH_OPTS} "${REMOTE_HOST}" "
   echo '✅ Frontend container is running'
 "
 
+echo "🔍 Verifying backend application health (via docker exec, port not published to host)..."
+ssh ${SSH_OPTS} "${REMOTE_HOST}" "
+  ATTEMPTS=0
+  until docker exec orderflow-backend-prod wget -qO- http://localhost:3010/api/v1/health >/dev/null 2>&1; do
+    ATTEMPTS=\$((ATTEMPTS+1))
+    if [ \"\${ATTEMPTS}\" -ge 60 ]; then
+      echo '❌ Backend health check failed after 60s'
+      exit 1
+    fi
+    sleep 1
+  done
+  echo '✅ Backend health check passed'
+"
+
 echo "🚦 Verifying Traefik v3.3 on remote..."
 ssh ${SSH_OPTS} "${REMOTE_HOST}" "
   if [ \"\$(docker inspect --format='{{.State.Running}}' traefik 2>/dev/null)\" = 'true' ]; then
     docker network connect traefik-public orderflow-frontend-prod 2>/dev/null || true
+    docker network connect traefik-public orderflow-backend-prod 2>/dev/null || true
     docker exec traefik kill -HUP 1 2>/dev/null || docker restart traefik 2>/dev/null || true
     echo '✅ Traefik v3.3 active and config reloaded'
   else

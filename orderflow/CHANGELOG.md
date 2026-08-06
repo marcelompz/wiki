@@ -13,6 +13,16 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.
 
 ---
 
+## [1.13.2] - 2026-08-05
+
+### 🛠️ Refactor (Deploy Robustness)
+- **Entrypoint:** `backend/entrypoint.sh` now runs `prisma migrate deploy` (instead of `prisma db push --accept-data-loss`) and executes any provided command via `exec "$@"` instead of always starting the Nest app. This isolates schema/migration checks from application startup and respects migration history in production.
+- **Deploy:** `deploy-production.sh` runs the migration verification with `--entrypoint 'npx prisma migrate deploy'`, so it executes `prisma migrate deploy` in isolation (no app startup). Fixes the false-positive `❌ Migrations failed` caused by Postgres connection exhaustion (`FATAL: too many clients already`) during the deploy container overlap.
+- **Deploy:** Backend health check now uses `docker exec ... wget http://localhost:3010/api/v1/health` inside the container instead of `curl` against the host port (port 3010 is not published to the host). Fixes a false-positive `❌ Backend health check failed`.
+- **Production DB:** Resolved stale failed migration records in `_prisma_migrations` (`20260614022842_init` and subsequent) so `migrate deploy` applies cleanly. The schema was already in sync via previous `db push`.
+
+---
+
 ## [1.13.1] - 2026-08-05
 
 ### 🛠️ Refactor
