@@ -1,6 +1,6 @@
 {
   "project": "OrderFlow SaaS Omnicanal",
-  "version": "1.15.0",
+  "version": "1.16.0",
   "last_updated": "2026-08-06",
   "features": [
     {
@@ -76,6 +76,41 @@
       "status": "completed",
       "assigned_module": "backend/src/social-catalog/, frontend/src/pages/social-*, prisma/schema.prisma",
       "depends_on": ["FEAT-008"]
+    },
+    {
+      "id": "FEAT-049",
+      "category": "Admin UI/UX / Temas",
+      "title": "Tema oscuro de primera clase en admin con toggle y persistencia",
+      "status": "completed",
+      "assigned_module": "frontend/src/theme/theme.ts, frontend/src/hooks/useTheme.ts, frontend/src/components/ThemeToggle.tsx"
+    },
+    {
+      "id": "FEAT-050",
+      "category": "Admin UI/UX / Layout",
+      "title": "Sidebar agrupada por dominios (Operaciones / Catálogo & Canales / Relaciones / Sistema)",
+      "status": "completed",
+      "assigned_module": "frontend/src/components/Sidebar.tsx"
+    },
+    {
+      "id": "FEAT-051",
+      "category": "Admin UI/UX / Topbar",
+      "title": "Topbar mejorada con toggle de tema, chip de tenant y botón Ver Tienda",
+      "status": "completed",
+      "assigned_module": "frontend/src/components/Topbar.tsx"
+    },
+    {
+      "id": "FEAT-052",
+      "category": "Admin UI/UX / Dashboard",
+      "title": "Dashboard KPIs contextualizados con sparklines y empty states accionables",
+      "status": "completed",
+      "assigned_module": "frontend/src/components/DashboardKPIs.tsx, frontend/src/components/EmptyState.tsx, frontend/src/pages/admin/dashboard.tsx"
+    },
+    {
+      "id": "FEAT-053",
+      "category": "Admin UI/UX / Catálogo Social",
+      "title": "Catálogo Social admin con preview por canal (WhatsApp/Telegram/Instagram/Messenger)",
+      "status": "completed",
+      "assigned_module": "frontend/src/components/ProductChannelPreview.tsx, backend/src/social-catalog/social-catalog-admin.controller.ts"
     },
     {
       "id": "FEAT-009",

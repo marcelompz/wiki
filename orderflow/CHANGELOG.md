@@ -9,6 +9,24 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.
 
 ---
 
+## [1.16.0] - 2026-08-06
+
+### 🚀 Added (Admin UI/UX Overhaul)
+- **FEAT-049:** Tema oscuro de primera clase en admin con toggle y persistencia en `localStorage`.
+  - `frontend/src/theme/theme.ts`, `frontend/src/hooks/useTheme.ts`, `frontend/src/components/ThemeToggle.tsx`
+  - Tokens CSS variables + Ant Design `ConfigProvider` con `theme.darkAlgorithm` / `theme.defaultAlgorithm`.
+- **FEAT-050:** Sidebar agrupada por dominios (Operaciones / Catálogo & Canales / Relaciones / Sistema).
+  - `frontend/src/components/Sidebar.tsx` con collapse en desktop y drawer en mobile.
+- **FEAT-051:** Topbar mejorada con toggle de tema, chip de tenant y botón "Ver Tienda".
+  - `frontend/src/components/Topbar.tsx`
+- **FEAT-052:** Dashboard KPIs contextualizados con sparklines y empty states accionables.
+  - `frontend/src/components/DashboardKPIs.tsx`, `frontend/src/components/EmptyState.tsx`
+- **FEAT-053:** Catálogo Social admin con preview por canal (WhatsApp/Telegram/Instagram/Messenger).
+  - `frontend/src/components/ProductChannelPreview.tsx`
+  - Backend endpoint `GET /api/v1/social-catalog/products/:id/channel-preview`
+
+---
+
 ## [1.15.1] - 2026-08-06
 
 ### 🚀 Added (Social Catalog Payments)

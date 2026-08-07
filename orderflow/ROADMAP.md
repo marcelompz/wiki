@@ -1,8 +1,8 @@
 # 🗺️ ROADMAP DE ORDERFLOW - v1.5.1 → v2.0.0
 
-**Última Actualización:** 2026-08-06 ART (Release v1.15.0 — Social Commerce Omnichannel Hub)
-**Versión Actual:** **`v1.15.0`** ✅ **RELEASED (Stable)** | Social Commerce: Omnichannel Catalog (WhatsApp, Telegram, Instagram, Messenger, Custom Webhook), Multi-Channel Adapter Pattern, CatalogChannelConfig Model.
-**Próximo Release:** **v1.16.0 (Planning)**
+**Última Actualización:** 2026-08-06 ART (Release v1.16.0 — Admin UI/UX Overhaul + Tema oscuro)
+**Versión Actual:** **`v1.16.0`** ✅ **RELEASED (Stable)** | Admin UI/UX: Dark mode, grouped sidebar, dashboard KPIs with sparklines, social catalog channel preview.
+**Próximo Release:** **v1.17.0 (Planning)**
 **Estado:** ✅ **STAGING & PRODUCTION OPERATIVE** | 🏆 **COMMERCIAL RELEASE v1.5.1 STABLE** | QA E2E Suite Integrada | 498 tests unitarios pasados  
 **Visión Estratégica:** Plataforma SaaS omnicanal de alta velocidad con aislamiento multi-tier, marketplace de plugins de terceros, facturación automática Stripe/Mercado Pago y escalado horizontal a Kubernetes.
 
@@ -18,6 +18,7 @@
 | **Giveaway Module & Standalone** | ✅ Completo | ✅ Sí | ✅ Sí | CRUD, landing, sorteos, Google OAuth, standalone microservice |
 | **WhatsApp Catalog & Standalone** | ✅ Completo | ✅ Sí | ✅ Sí | Catálogo, carrito, checkout y standalone microservice. Modo Free: pre-venta manual por WhatsApp. Modo Premium: gestión completa con pasarela de pagos. |
 | **Social Commerce Hub (Catálogo Omnicanal)** | ✅ Completo | ✅ Sí | ✅ Sí | Evolución de WhatsApp Catalog a catálogo omnicanal. Soporta WhatsApp, Telegram, Instagram, Messenger y Custom Webhook. Pattern Strategy con IMessagingAdapter. Modelo CatalogChannelConfig para gestión de canales. |
+| **Admin UI/UX Overhaul** | ✅ Completo | ✅ Sí | ✅ Sí | Tema oscuro con toggle y persistencia, sidebar agrupada por dominios, topbar mejorada, dashboard KPIs con sparklines, preview por canal en Catálogo Social admin. |
 | **Bio-Links & Standalone** | ✅ Completo | ✅ Sí | ✅ Sí | API + Redis + Admin Drag&Drop + Public SPA + Fast Checkout, standalone microservice |
 | **Super Admin** | ✅ Completo | ✅ Sí | ✅ Sí | Usuarios, tenants, roles, disable/enable/delete tenant, DB tier toggle |
 | **Bookings (Spa)** | ✅ Completo | ✅ Sí | ✅ Sí | Turnos, comisiones, atomicidad y tests unitarios 100% |
@@ -29,6 +30,18 @@
 | **Observabilidad & CI/CD Load** | ✅ Completo | ✅ Sí | ✅ Sí | Sentry + Prometheus + k6 load tests continuos en GitHub Actions |
 | **Cloudflare / DNS & Traefik** | ✅ Completo | ✅ Sí | ✅ Sí | Subdominios automáticos + Traefik v3.4 routing por microservicio |
 | **Integrations (Odoo)** | ✅ Completo | ✅ Sí | ✅ Sí | OrderFlow ↔ Odoo: webhooks push + wizard pull + addon nativo Odoo 19 CE |
+
+---
+
+### 🚀 Release v1.16.0 - Admin UI/UX Overhaul
+
+| Feature | Estado |
+|---------|--------|
+| Tema oscuro + toggle + persistencia | ✅ Completo |
+| Sidebar agrupada por dominios | ✅ Completo |
+| Topbar mejorada | ✅ Completo |
+| Dashboard KPIs + sparklines + empty states | ✅ Completo |
+| Catálogo Social: preview por canal | ✅ Completo |
 
 ---
 
