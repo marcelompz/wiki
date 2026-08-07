@@ -15,6 +15,7 @@ OrderFlow opera en **dos modos** controlados por la variable `ORDERFLOW_MODE`:
 Ambos modos comparten el mismo schema Prisma y el mismo código de services. La diferencia es la capa de auth/guard y la resolución de la conexión a la DB.
 
 - Repo Core: `https://github.com/marcelompz/orderflow`
+- Glosario Oficial de Términos & Infraestructura: [docs/GLOSARIO_TERMINOS_Y_ECOSISTEMA.md](docs/GLOSARIO_TERMINOS_Y_ECOSISTEMA.md)
 - Repo Traefik Gateway Subsystem: `https://github.com/marcelompz/traefik-orderflow.git` (servidor: `/srv/traefik`, local: `/opt/traefik-orderflow/`)
 - Servidor Hetzner VPS (Producción): `hetzner-orderflow:/srv/orderflow` (alias SSH configurado)
   - Versión actual: **v1.8.1** (staging + production operativos).
@@ -188,9 +189,11 @@ OrderFlow tiene **tres entornos** diferenciados y **no son equivalentes**:
 | **provecchio** | Servidor físico | **Actualizable** | Versión in-house en producción (`provecchio.com`). Recibe deploys selectivos con validación previa. |
 
 **Regla operativa & Aislamiento de Traefik en Provecchio:**
-- `staging`, `production` y `provecchio` reciben deploy desde CI/CD o manual.
+- `staging`, `production` y `provecchio` reciben deploy desde CI/CD o mediante script de despliegue:
+  - Deploy a **Producción Hetzner**: `./scripts/deploy-production.sh production`
+  - Deploy a **Servidor Provecchio**: `./scripts/deploy-production.sh provecchio` *(conecta a `192.168.69.240` o automáticamente mediante ProxyJump `root@38.52.135.227:2021` si la IP local no es accesible. NUNCA ejecutar en localhost).*
 - `provecchio` posee su propia instancia de Traefik en `/srv/traefik/` que habita de forma **100% aislada** de `/srv/orderflow/`. Tiene su propio `docker-compose.yml`, `.env`, `traefik.yml` y certificados `acme.json`.
-- Los cambios en este repositorio (`/opt/orderflow/`) se aplican a `provecchio` mediante `scripts/update-provecchio-version.sh` (hotfix quirúrgico) o deploy manual. Provecchio utiliza su propio `.env.prod` local (donde se encuentra `CF_DNS_API_TOKEN`).
+- Los cambios en este repositorio (`/opt/orderflow/`) se aplican a `provecchio` mediante `./scripts/deploy-production.sh provecchio` o `scripts/update-provecchio-version.sh` (hotfix quirúrgico). Provecchio utiliza su propio `.env.prod` local (donde se encuentra `CF_DNS_API_TOKEN`).
 - **Diagnóstico 502 Bad Gateway:** Si `provecchio.com` arroja HTTP 502 o falla en la emisión de certificados SSL, consultar la guía de diagnóstico en [docs/troubleshooting/06-provecchio-traefik-ssl-and-502-diagnosis.md](troubleshooting/06-provecchio-traefik-ssl-and-502-diagnosis.md).
 
 ### 6.2 Limpieza de configuración obsoleta (`old/`)

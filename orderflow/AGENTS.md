@@ -7,8 +7,9 @@
 ---
 
 ## 🚦 1. Primer Paso Obligatorio: Carga de Contexto
-Antes de examinar código o ejecutar cualquier acción en la base del proyecto, debes consultar el documento de contexto técnico vivo:
-👉 [docs/00-contexto-agentes.md](docs/00-contexto-agentes.md)
+Antes de examinar código o ejecutar cualquier acción en la base del proyecto, debes consultar el documento de contexto técnico vivo y el glosario oficial:
+👉 Contexto vivo: [docs/00-contexto-agentes.md](docs/00-contexto-agentes.md)  
+👉 Glosario Oficial de Términos & Infraestructura: [docs/GLOSARIO_TERMINOS_Y_ECOSISTEMA.md](docs/GLOSARIO_TERMINOS_Y_ECOSISTEMA.md)  
 
 ---
 
@@ -41,6 +42,24 @@ La IA tiene **terminantemente prohibido** entregar una tarea como completada, o 
    - Catálogos públicos y verificación de imágenes rotas (HTTP 200/naturalWidth).
    - Navegación sin cabeza por todos los módulos del panel de administración (`/admin/products`, `/admin/customers`, `/admin/bookings`, `/admin/loyalty`, `/admin/homepage-builder`, `/admin/whatsapp-catalog`).
    - Asertividad de cero excepciones JS en consola y cero errores HTTP 502/404.
+
+### 3.1 Pre-Deploy & Protocolo de Despliegue (OBLIGATORIO)
+Antes de cualquier despliegue a producción o servidores remotos, y como **primer paso**, verificar siempre el estado del repositorio local:
+- `git status` para detectar cambios sin commitear (working tree dirty).
+- Si existen modificaciones pendientes que deben ir al deploy, **commiteerlas y pushearlas a `origin/main`** antes de desplegar (el script `deploy-production.sh` hace `git stash` + `git push`, por lo que los cambios sin commitear quedarían fuera del despliegue).
+- Si por alguna razón se sincronizan archivos directo al servidor sin commit (deploy express), dejar registrado explícitamente que el repo local quedó desincronizado y commiteer/pushear en cuanto el usuario lo autorice.
+- Nunca asumir que el servidor tiene el mismo código que el repo local: tras cualquier fix aplicado directamente en el servidor, reflejarlo en el repo local antes de commiteer.
+
+**Sintaxis Obligatoria de Despliegue (`scripts/deploy-production.sh`):**
+- **Despliegue a Producción Hetzner (`hetzner-orderflow` / `178.105.226.175`):**
+  ```bash
+  ./scripts/deploy-production.sh production
+  ```
+- **Despliegue al Servidor Provecchio (On-Premise `192.168.69.240` / Jump Host `38.52.135.227:2021`):**
+  ```bash
+  ./scripts/deploy-production.sh provecchio
+  ```
+  *(Prohibido ejecutar en localhost cuando se solicite despliegue a Provecchio; usar el argumento `provecchio`).*
 
 ---
 
