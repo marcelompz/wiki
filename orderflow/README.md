@@ -1,12 +1,11 @@
 # OrderFlow SaaS Omnicanal
 
-![Version](https://img.shields.io/badge/version-1.12.2-blue)
+![Version](https://img.shields.io/badge/version-1.16.0-blue)
 ![License](https://img.shields.io/badge/license-Proprietary-red)
 ![NestJS](https://img.shields.io/badge/backend-NestJS-green)
 ![React](https://img.shields.io/badge/frontend-React-blue)
-![PostgreSQL](https://img.shields.io/badge/database-PostgreSQL-blue)
 
-**OrderFlow** es una plataforma SaaS omnicanal para gestión de negocios, con multi-tenancy, facturación electrónica, integraciones ERP, catálogo WhatsApp, punto de venta y fidelización.
+**OrderFlow** es una plataforma SaaS omnicanal para gestión de negocios, con multi-tenancy, facturación electrónica, integraciones ERP, catálogo social omnicanal, punto de venta y fidelización.
 
 ---
 
@@ -173,4 +172,4 @@ Propietario - OrderFlow Team
 ---
 
 **Última actualización:** 2026-08-03  
-**Versión:** 1.12.2
+**Versión:** 1.16.0
