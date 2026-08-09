@@ -9,6 +9,39 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.
 
 ---
 
+## [1.16.1] - 2026-08-07
+
+### 🛠️ Fixed (Admin Dark Mode & Deploy Robustness)
+- **FIX:** Reemplazo de fondos hardcodeados (`#fafafa`, `#f5f5f5`, `#fff`, `#f0f0f0`) por tokens CSS variables en panel admin.
+  - `src/styles/admin-mobile.css`: parche completo con design tokens `light/dark`, utilidades theme-aware (`.bg-subtle`, `.bg-muted`, `.bg-elevated`, `.text-secondary`), `.admin-placeholder/-lg/-md`, `.admin-panel-muted`, overrides Ant Design y fallbacks para estilos inline.
+  - `src/pages/admin/dashboard.tsx`: 3 placeholders del dashboard ahora usan `.admin-placeholder` (sin `backgroundColor: '#fafafa'` inline).
+  - Barrido en `integrations.tsx`, `modules.tsx`, `tenant-access.tsx`, `pos.tsx`, `contacts.tsx`, `social-catalog.tsx` (admin), `MobileBottomNav.tsx`, `ChannelSelector.tsx`, `UserProfileMenu.tsx`, `TenantSwitcher.tsx`, `ApiKeyConfig.tsx`.
+  - Protegido storefront público, giveaway, biolink, landing y badges de estado (sin cambios no deseados).
+- **FIX:** `scripts/deploy-production.sh` — escapado de comillas en mensaje de commit remoto para evitar error `ruta especificada ... no concordó con ningún archivo`.
+- **FIX:** `frontend/.dockerignore` agregado para reducir build context y evitar hangs en `npm ci` por descarga de browsers de Playwright.
+- **FIX:** Dashboard Tag de versión ahora lee `package.json` dinámicamente (antes hardcodeado `v1.16.0`).
+
+### 🔒 Security (Tenant Image Isolation)
+- Eliminado `serve-static` global de `main.ts` (servía TODO `/uploads` sin validación de tenant).
+- `UploadsController` en `src/common/uploads.controller.ts`: endpoints por tenant con validación.
+  - Admin: `GET /api/v1/uploads/{type}/{tenantId}/{filename}` (ApiKeyGuard + assert tenant).
+  - Público: `GET /api/v1/uploads/public/{type}/{tenantId}/{filename}` (valida tenant activo).
+- `products.service.ts` y `social-catalog.service.ts` transforman `imagesUrls` a endpoints por tenant.
+- Frontend `getImageUrl` usa los nuevos endpoints (TenantHomepage, social-catalog público).
+- **Build fix:** `UploadsModule` no se resolvía en Docker build (TS2307); se registró `UploadsController` directo en `AppModule`.
+
+### 🛡️ RLS (Row Level Security) — Base de Implementación
+- `tenant-rls.interceptor.ts` en `src/common/`, registrado como `APP_INTERCEPTOR` en `AppModule`.
+- SQL scripts en `backend/prisma/rls/`: `001_enable_rls.sql`, `002_roles_and_grants.sql`, `003_verify_rls.sql`, `999_disable_rls.sql`.
+- **Pendiente de aplicar en DB:** los scripts SQL aún no se ejecutaron contra PostgreSQL (requiere roles `orderflow_app` / `orderflow_migrator` y verificación de FKs del schema real).
+- Eliminado `docs/orderflow_rls_postgresql/` (ya implementado).
+
+### ⏸️ Deploy
+- Production (pesallaccia.com): ✅ Completo.
+- Provecchio (provecchio.com): ⏳ Pendiente — falló por timeout SSH al jump host (red), no por código. Reintentar mañana.
+
+---
+
 ## [1.16.0] - 2026-08-06
 
 ### 🚀 Added (Admin UI/UX Overhaul)
@@ -95,7 +128,7 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.
 ### 📚 Documentación
 - **Troubleshooting:** Added doc #25 (`25-init-sh-hangs-os.md`) explaining why `init.sh` saturates CPU/RAM and documenting the new flags as a solution.
 - **Troubleshooting:** Updated `docs/troubleshooting/README.md` to index the new document #25.
-- **Roadmap:** Incorporated 5 strategic milestones from `docs/Informe_Comparativo_Odoo_vs_OrderFlow.md` as `v1.14.0` (pre-K8s) targets: Durable Event Queue, Extensible EventBus, Multi-Warehouse Inventory, Configurable Integration Mapper and Expanded AuditLog.
+- **Roadmap:** Incorporated 5 strategic milestones from `docs/Informe_Comparativo_Odoo_vs_OrderFlow.md` as `v1.16.0` (pre-K8s) targets: Durable Event Queue, Extensible EventBus, Multi-Warehouse Inventory, Configurable Integration Mapper and Expanded AuditLog.
 
 ## [1.13.0] - 2026-08-05
 

@@ -1,7 +1,7 @@
 # 🗺️ ROADMAP DE ORDERFLOW - v1.5.1 → v2.0.0
 
-**Última Actualización:** 2026-08-06 ART (Release v1.16.0 — Admin UI/UX Overhaul + Tema oscuro)
-**Versión Actual:** **`v1.16.0`** ✅ **RELEASED (Stable)** | Admin UI/UX: Dark mode, grouped sidebar, dashboard KPIs with sparklines, social catalog channel preview.
+**Última Actualización:** 2026-08-08 ART (Release v1.16.1 — Dark Mode tokens + Tenant Image Isolation + RLS base + Provecchio migration fix)
+**Versión Actual:** **`v1.16.1`** ✅ **RELEASED (Stable)** | Admin UI/UX: Dark mode tokens, tenant image isolation, RLS interceptor base, Provecchio migration history fixed.
 **Próximo Release:** **v1.17.0 (Planning)**
 **Estado:** ✅ **STAGING & PRODUCTION OPERATIVE** | 🏆 **COMMERCIAL RELEASE v1.5.1 STABLE** | QA E2E Suite Integrada | 498 tests unitarios pasados  
 **Visión Estratégica:** Plataforma SaaS omnicanal de alta velocidad con aislamiento multi-tier, marketplace de plugins de terceros, facturación automática Stripe/Mercado Pago y escalado horizontal a Kubernetes.
@@ -42,6 +42,19 @@
 | Topbar mejorada | ✅ Completo |
 | Dashboard KPIs + sparklines + empty states | ✅ Completo |
 | Catálogo Social: preview por canal | ✅ Completo |
+
+---
+
+### 🚀 Release v1.16.1 - Dark Mode Contrast Fix + Tenant Image Isolation + RLS Base + Provecchio Deploy Fix
+
+| Feature | Estado |
+|---------|--------|
+| **Dark Mode Contrast Fix** — CSS variables tokens (`light/dark`) reemplazan fondos hardcodeados en panel admin (`admin-mobile.css`, `dashboard.tsx`, 12+ archivos) | ✅ Completo |
+| **Tenant Image Isolation** — Eliminado `serve-static` global; nuevo `UploadsController` con endpoints por tenant (`/api/v1/uploads/{type}/{tenantId}/{filename}`, público y admin) | ✅ Completo |
+| **RLS (Row Level Security) Base** — `tenant-rls.interceptor.ts` + SQL scripts (`backend/prisma/rls/*.sql`) listos para aplicar en DB | ✅ Completo |
+| **Provecchio Deploy Fix** — Resuelto historial de migraciones inconsistente (baseline migration + limpieza duplicados + check preventivo en `deploy-production.sh`) | ✅ Completo |
+| **Troubleshooting #30** — Documentado: "Provecchio Migration History Inconsistency" | ✅ Completo |
+| **E2E QA** — Playwright validado en ambos entornos (pesallaccia.com + provecchio.com): 0 JS errors, 0 HTTP 502/404 | ✅ Completo |
 
 ---
 
@@ -361,14 +374,14 @@ Permite vender módulos individuales (Giveaways, WhatsApp Catalog, Bio-Links, et
 
 #### Lecciones de Odoo → Hoja de Ruta (Beta → v2.0)
 
-Estos 5 patrones estratégicos se incorporan del análisis comparativo `docs/Informe_Comparativo_Odoo_vs_OrderFlow.md`. **Todos son hitos previos a la migración a Kubernetes (v1.14.0):** establecen la base arquitectónica (eventos, auditoría, integraciones robustas, inventario avanzado) que debe existir antes de escalar a orquestación de contenedores.
+Estos 5 patrones estratégicos se incorporan del análisis comparativo `docs/Informe_Comparativo_Odoo_vs_OrderFlow.md`. **Todos son hitos previos a la migración a Kubernetes (v1.16.0):** establecen la base arquitectónica (eventos, auditoría, integraciones robustas, inventario avanzado) que debe existir antes de escalar a orquestación de contenedores.
 
 | # | Patrón | Descripción | Sprint Target |
-|---|--------|-------------|---------------|
-| 1 | **Cola de Tareas Robustas (Durable Event Queue)** | Implementar BullMQ/Redis para reintentos y colas duraderas. Asegurar que ningún webhook hacia FacturaSend, pasarelas de pago o integraciones ERP se pierda ante fallas de red. | v1.14.0 |
-| 2 | **Arquitectura de Eventos Extensible** | Consolidar un sistema de eventos internos (`EventBus`) que permita habilitar o extender funcionalidades por tenant sin modificar el código fuente central. | v1.14.0 |
-| 3 | **Control de Inventario Multidepósito** | Evolucionar el manejo de stock hacia un modelo de doble entrada con transferencias internas, ubicaciones múltiples y reservas temporales para pedidos. | v1.14.0 |
-| 4 | **Mapeador de Integraciones Configurable** | Ampliar el conector `orderflow_connector` para permitir mapeo de campos dinámico y resolución visual de conflictos de sincronización. | v1.14.0 |
-| 5 | **Auditoría Transaccional Ampliada** | Expandir la tabla `AuditLog` para rastrear cambios sensibles en configuraciones de negocio, permisos y aperturas/cierres de caja. | v1.14.0 |
+||---|--------|-------------|---------------|
+| 1 | **Cola de Tareas Robustas (Durable Event Queue)** | Implementar BullMQ/Redis para reintentos y colas duraderas. Asegurar que ningún webhook hacia FacturaSend, pasarelas de pago o integraciones ERP se pierda ante fallas de red. | v1.16.0 |
+| 2 | **Arquitectura de Eventos Extensible** | Consolidar un sistema de eventos internos (`EventBus`) que permita habilitar o extender funcionalidades por tenant sin modificar el código fuente central. | v1.16.0 |
+| 3 | **Control de Inventario Multidepósito** | Evolucionar el manejo de stock hacia un modelo de doble entrada con transferencias internas, ubicaciones múltiples y reservas temporales para pedidos. | v1.16.0 |
+| 4 | **Mapeador de Integraciones Configurable** | Ampliar el conector `orderflow_connector` para permitir mapeo de campos dinámico y resolución visual de conflictos de sincronización. | v1.16.0 |
+| 5 | **Auditoría Transaccional Ampliada** | Expandir la tabla `AuditLog` para rastrear cambios sensibles en configuraciones de negocio, permisos y aperturas/cierres de caja. | v1.16.0 |
 
 > **Estrategia de escalado:** Docker Compose (actual, infra compartida en Hetzner VPS) es el runtime hasta v1.0. A partir de v2.0 se evalúa K8s según volumen de tenants y microservicios standalone desplegados. Traefik se mantiene como Ingress Controller nativo.
