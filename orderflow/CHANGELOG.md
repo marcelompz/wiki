@@ -9,6 +9,46 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.
 
 ---
 
+## [1.17.0] - 2026-08-09
+
+### 🚀 Added / Improved (Odoo Adapter ↔ OrderFlow Invoice Sync)
+- **FEAT:** `odoo-adapter/src/odoo-client.js` — compatibilidad corregida en `createCustomerInvoice` y `postInvoice` (`execute` unificado para Odoo 19 CE JSON-RPC y XML-RPC).
+- **FEAT:** `odoo-adapter/src/index.js` — nuevo endpoint `POST /webhook/orderflow/invoice-posted` integrado al `OdooInvoicePlugin` para sincronización automática de comprobantes de ventas `account.move`.
+- **FEAT:** `backend/src/products/products.controller.ts` — fallback dinámico `os.tmpdir()` para `FileInterceptor` en tests unitarios para prevenir errores EACCES.
+- **QA:** Barrera de calidad `./scripts/init.sh` validada exitosamente (65 test suites NestJS pasadas, 523 unit tests, Vite React build limpio y auditoría E2E Playwright con cero errores HTTP/JS).
+
+---
+
+## [1.16.3] - 2026-08-09
+
+### 🛠️ Fixed (Sidebar Module Permissions Filtering)
+- **FEAT:** `Sidebar.tsx` — filtro de visibilidad por módulo instalado/activo y permisos JWT.
+  - Mapeo `moduleId`/`permission`/`superAdminOnly` por ítem de menú.
+  - Función `canShowItem`: superAdminOnly → moduleId+isModuleActive → permission.
+  - Grupos sin ítems visibles desaparecen.
+  - Props nuevas: `isModuleActive`, `permissions`, `modulesStatus`.
+  - Fallback loading/error: solo core modules + ítems sin moduleId.
+- **FEAT:** `AdminApp.tsx` — pasa `isModuleActive`, `permissions`, `modulesStatus` al Sidebar.
+  - Extracción de permisos del JWT (`payload.permissions`/`perms`/`roles`).
+  - Estado `modulesStatus`: `'loading' | 'ready' | 'error'` para evitar menú fantasma.
+  - Rutas protegidas por `isModuleActive` (defensa en profundidad) — preparadas.
+- **FEAT:** `MobileBottomNav.tsx` — mismo filtro `canShowItem` con props `isModuleActive`, `permissions`, `isSuperAdmin`.
+- Versión tag en header actualizado a `v1.16.3`.
+
+---
+
+## [1.16.2] - 2026-08-09
+
+### 🛠️ Fixed (Sidebar Collapsible Groups Bug)
+- **FIX:** `Sidebar.tsx` — grupos del menú lateral ahora son colapsables (acordeón) con `useMemo` para estabilidad de referencias.
+  - `menuItems` memoizado según `isSuperAdmin` para evitar recreación en cada render.
+  - `handleOpenChange` simplificado: detecta `newKey` vs `openKeys` actual para acordeón real.
+  - `useEffect` para ruta activa usa `menuItems` memoizado estable.
+  - Fix: click en categoría ahora expande/colapsa correctamente en lugar de recargar la ya abierta.
+  - Versión tag en header actualizado a `v1.16.2`.
+
+---
+
 ## [1.16.1] - 2026-08-07
 
 ### 🛠️ Fixed (Admin Dark Mode & Deploy Robustness)

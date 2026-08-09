@@ -1,7 +1,7 @@
 {
   "project": "OrderFlow SaaS Omnicanal",
-  "version": "1.16.0",
-  "last_updated": "2026-08-06",
+  "version": "1.17.0",
+  "last_updated": "2026-08-09",
   "features": [
     {
       "id": "FEAT-001",
@@ -389,7 +389,7 @@
       "title": "Durable Event Queue (BullMQ/Redis) para webhooks",
       "status": "completed",
       "assigned_module": "backend/src/webhooks, backend/src/integrations, backend/src/queues",
-      "roadmap_milestone": "v1.14.0",
+      "roadmap_milestone": "v1.16.0",
       "source": "docs/Informe_Comparativo_Odoo_vs_OrderFlow.md",
       "blocking": []
     },
@@ -399,7 +399,7 @@
       "title": "Arquitectura de Eventos Extensible (EventBus interno)",
       "status": "completed",
       "assigned_module": "backend/src/events",
-      "roadmap_milestone": "v1.14.0",
+      "roadmap_milestone": "v1.16.0",
       "source": "docs/Informe_Comparativo_Odoo_vs_OrderFlow.md",
       "blocking": [
         "FEAT-043"
@@ -411,7 +411,7 @@
       "title": "Control de Inventario Multidepósito (doble entrada)",
       "status": "completed",
       "assigned_module": "backend/src/inventory",
-      "roadmap_milestone": "v1.14.0",
+      "roadmap_milestone": "v1.16.0",
       "source": "docs/Informe_Comparativo_Odoo_vs_OrderFlow.md",
       "blocking": [
         "FEAT-043"
@@ -423,7 +423,7 @@
       "title": "Mapeador de Integraciones Configurable (orderflow_connector)",
       "status": "completed",
       "assigned_module": "backend/src/integrations/orderflow_connector",
-      "roadmap_milestone": "v1.14.0",
+      "roadmap_milestone": "v1.16.0",
       "source": "docs/Informe_Comparativo_Odoo_vs_OrderFlow.md",
       "blocking": [
         "FEAT-043"
@@ -435,11 +435,19 @@
       "title": "Auditoría Transaccional Ampliada (AuditLog expandido)",
       "status": "completed",
       "assigned_module": "backend/src/audit",
-      "roadmap_milestone": "v1.14.0",
+      "roadmap_milestone": "v1.16.0",
       "source": "docs/Informe_Comparativo_Odoo_vs_OrderFlow.md",
       "blocking": []
+    },
+    {
+      "id": "FEAT-054",
+      "category": "Integraciones / Odoo",
+      "title": "Sincronización de Facturación account.move y endpoint invoice-posted en odoo-adapter",
+      "status": "completed",
+      "assigned_module": "odoo-adapter/src/index.js & odoo-adapter/src/odoo-client.js & odoo-adapter/src/plugins/odoo/odoo-invoice.plugin.js",
+      "roadmap_milestone": "v1.17.0"
     }
   ],
-  "lastUpdated": "2026-08-05",
-  "last_id": "FEAT-47"
+  "lastUpdated": "2026-08-09",
+  "last_id": "FEAT-054"
 }
