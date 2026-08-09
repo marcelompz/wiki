@@ -30,6 +30,7 @@ Ordená por problema y área. Cada entrada incluye síntomas, causa raíz y solu
 | [26](26-jest-memory-leak-out-of-memory.md) | Volcado de memoria en pruebas Jest | Backend / Jest / CI | Error `JavaScript heap out of memory` al ejecutar tests | ✅ Resuelto |
 | [27](27-nest-dependency-resolution-scope-audit-service.md) | Nest can't resolve AuditService in BullMQ | Backend / NestJS / Queues | Error de dependencia al inyectar Scope.REQUEST en processor | ✅ Resuelto |
 | [28](28-postgresql-fatal-too-many-clients.md) | FATAL: sorry, too many clients already | DevOps / PostgreSQL / Docker | Saturación de conexiones por contenedores efímeros de migraciones | ✅ Resuelto |
+| [29](29-production-stale-frontend-image.md) | Imagen Docker Stale + Fallbacks de Versión | DevOps / Frontend / Docker | `pesallaccia.com` muestra `1.16.0` y contraste dark perdido tras deploy `v1.16.1` | ✅ Resuelto |
 
 ---
 
@@ -69,6 +70,7 @@ Ordená por problema y área. Cada entrada incluye síntomas, causa raíz y solu
 - **Bugs en deploy-production.sh:** ver [#24](24-deploy-script-bugs-fixed.md) — sin health check de aplicación, sin rollback, sin validación de env vars, Traefik sin conexión al backend, sin timeout en migraciones.
 - **`init.sh` cuelga el SO por alta carga:** ver [#25](25-init-sh-hangs-os.md) — el script es una barrera de CI que ejecuta tests, builds y E2E, saturando los recursos locales; se agregaron flags para ejecución selectiva.
 - **`JavaScript heap out of memory` al ejecutar Jest:** ver [#26](26-jest-memory-leak-out-of-memory.md) — desbordamiento del heap de Node.js en tests NestJS; resuelto con `NODE_OPTIONS=--max-old-space-size=4096`, `--maxWorkers=50%`, `--runInBand` en CI y `moduleRef.close()` en `afterAll`.
+- **Imagen Docker stale en producción + versión hardcodeada:** ver [#29](29-production-stale-frontend-image.md) — `pesallaccia.com` muestra `1.16.0` y contraste dark perdido; forzar rebuild `--no-cache frontend` y eliminar fallbacks `1.16.0` en UI.
 
 ---
 
