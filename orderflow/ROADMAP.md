@@ -1,7 +1,7 @@
 # 🗺️ ROADMAP DE ORDERFLOW - v1.5.1 → v2.0.0
-**Última Actualización:** 2026-08-10 ART (Release v1.18.0 — Follow-Up Omnicanal + Seller Attribution)
+**Última Actualización:** 2026-08-10 ART (Release v1.19.0 — Rebranding Parcial OmniFlow)
 
-**Versión Actual:** **`v1.18.0`** ✅ **RELEASED (Stable)** | Core: motor de follow-up omnicanal, seller attribution, export CSV, cola BullMQ dedicada.
+**Versión Actual:** **`v1.19.0`** ✅ **RELEASED (Stable)** | Marca pública: OmniFlow. Capa técnica interna: OrderFlow.
 **Próximo Release:** **v1.18.0 (Planning)**
 **Estado:** ✅ **STAGING & PRODUCTION OPERATIVE** | 🏆 **COMMERCIAL RELEASE v1.5.1 STABLE** | QA E2E Suite Integrada | 498 tests unitarios pasados  
 **Visión Estratégica:** Plataforma SaaS omnicanal de alta velocidad con aislamiento multi-tier, marketplace de plugins de terceros, facturación automática Stripe/Mercado Pago y escalado horizontal a Kubernetes.

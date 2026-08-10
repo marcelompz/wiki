@@ -1,12 +1,15 @@
-# AGENTS.md — OrderFlow (contexto para agentes)
+# AGENTS.md — OmniFlow (contexto para agentes)
 
-> Guía de contexto técnico vivo del proyecto **OrderFlow** (plataforma SaaS multi-tenant de ventas de alta velocidad). Lee esto antes de modificar código para entender la arquitectura, las convenciones y el estado actual.
+> Guía de contexto técnico vivo del proyecto **OmniFlow** (plataforma SaaS multi-tenant de alta velocidad). Lee esto antes de modificar código para entender la arquitectura, las convenciones y el estado actual.
 
 ---
 
-## 1. Qué es OrderFlow
+## 1. Qué es OmniFlow / OrderFlow
 
-Plataforma SaaS omnicanal, agnóstica al ERP, multi-rubro (spa, retail, automotriz, farmacia…). Permite catálogo + carrito + checkout, turnos/bookings, presupuestos, sorteos e integración con ERPs externos (Odoo, MIDA, SAP) vía webhooks.
+**OmniFlow** es la marca pública del producto.  
+**OrderFlow** es el nombre técnico interno del repositorio, código, APIs, tablas, variables de entorno, colas, imágenes Docker y rutas Traefik.
+
+No mezclar ambas superficies: el usuario final ve **OmniFlow**; el código y la infraestructura siguen siendo **OrderFlow** hasta que se decida migrar la capa técnica en una fase posterior controlada.
 
 OrderFlow opera en **dos modos** controlados por la variable `ORDERFLOW_MODE`:
 - **`community`** (por defecto): Multi-tenant con aislamiento lógico. Un backend NestJS sirve a N tenants aislados por `tenantId`. Soporta tenants `shared` (DB compartida) y `dedicated` (DB propia enterprise) simultáneamente.
@@ -15,10 +18,12 @@ OrderFlow opera en **dos modos** controlados por la variable `ORDERFLOW_MODE`:
 Ambos modos comparten el mismo schema Prisma y el mismo código de services. La diferencia es la capa de auth/guard y la resolución de la conexión a la DB.
 
 - Repo Core: `https://github.com/marcelompz/orderflow`
+- Marca pública: **OmniFlow**
+- Nombre técnico/código/infra: **OrderFlow**
 - Glosario Oficial de Términos & Infraestructura: [docs/GLOSARIO_TERMINOS_Y_ECOSISTEMA.md](docs/GLOSARIO_TERMINOS_Y_ECOSISTEMA.md)
 - Repo Traefik Gateway Subsystem: `https://github.com/marcelompz/traefik-orderflow.git` (servidor: `/srv/traefik`, local: `/opt/traefik-orderflow/`)
 - Servidor Hetzner VPS (Producción): `hetzner-orderflow:/srv/orderflow` (alias SSH configurado)
-  - Versión actual: **v1.18.0** (staging + production operativos).
+  - Versión actual: **v1.18.2** (staging + production operativos).
 - Lenguaje: TypeScript en todo el stack.
 
 ---
@@ -56,7 +61,10 @@ orderflow/
 ├── ROADMAP.md, CHANGELOG.md, README.md, VERSION
 ```
 
-> **Convención de documentación:** `docs/` está organizado por número (`01-quickstart.md`, `02-architecture.md`, `11-axios-vs-fetch.md`…) y por tema (`AUTH_FLOW.md`, `ARQUITECTURA_MODULAR.md`, `GUIA_DESPLIEGUE_Y_TENANTS.md`, etc.). Antes de grandes cambios, revisá los `.md` relevantes. Nota: En OrderFlow **Axios** es el estándar de cliente HTTP obligado frente a Fetch (ver `11-axios-vs-fetch.md`).
+> **Convención de marca:** este repositorio usa **OrderFlow** como nombre técnico interno (APIs, tablas, variables, colas, jobs, endpoints, módulos backend, configuraciones Docker/Traefik y rutas).  
+> **OmniFlow** es la marca pública/comercial y solo debe aparecer en superficies de presentación (`frontend` títulos/docs públicas, marketing, manuales de usuario, wiki externa).  
+> Está prohibido mezclar ambas marcas en la misma superficie visible.  
+> Nota: En OrderFlow **Axios** es el estándar de cliente HTTP obligado frente a Fetch (ver `11-axios-vs-fetch.md`).
 
 ---
 

@@ -1,11 +1,11 @@
-# OrderFlow SaaS Omnicanal
+# OmniFlow SaaS Omnicanal
 
 ![Version](https://img.shields.io/badge/version-1.18.0-blue)
 ![License](https://img.shields.io/badge/license-Proprietary-red)
 ![NestJS](https://img.shields.io/badge/backend-NestJS-green)
 ![React](https://img.shields.io/badge/frontend-React-blue)
 
-**OrderFlow** es una plataforma SaaS omnicanal para gestión de negocios, con multi-tenancy, facturación electrónica, integraciones ERP, catálogo social omnicanal, punto de venta y fidelización.
+**OmniFlow** es una plataforma SaaS omnicanal para gestión de negocios, con multi-tenancy, facturación electrónica, integraciones ERP, catálogo social omnicanal, punto de venta y fidelización.
 
 ---
 
@@ -19,7 +19,7 @@
        │                                      │
        ▼                                      ▼
 ┌──────────────────┐               ┌──────────────────┐
-│   OrderFlow      │               │   Odoo Adapter   │
+│   OmniFlow       │               │   Odoo Adapter   │
 │   Frontend:3011  │               │   Port:3005      │
 │   Backend:3010   │               │                  │
 │   DB:5432        │               │                  │

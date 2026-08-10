@@ -9,6 +9,47 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.
 
 ---
 
+## [1.19.0] - 2026-08-10
+
+### 🎨 Added / Changed (Rebranding Parcial - Capa Visible)
+- **Marca pública:** se adopta **OmniFlow** como nombre visible para clientes y usuarios finales.
+- **Capa técnica mantenida:** el código, APIs, tablas, variables, colas, jobs, endpoints, imágenes Docker y rutas Traefik siguen bajo **OrderFlow** para preservar compatibilidad productiva.
+- **Frontend:**
+  - Landing page renombrada a `omni-flow-landing.tsx` y textos actualizados.
+  - `App.tsx`, `main.tsx`, `i18n/index.ts`, `BrandingProvider.tsx` y `Sidebar.tsx` actualizados a marca pública OmniFlow.
+  - `index.html`: título y meta tags actualizados.
+- **Documentación técnica:**
+  - `docs/00-contexto-agentes.md`: aclarada convención de marca (OmniFlow público / OrderFlow técnico).
+- **Nota:** este release es 100% compatible hacia atrás; no hay breaking changes en APIs ni esquemas.
+
+## [1.18.2] - 2026-08-10
+
+### 🧪 Added / Changed (E2E Coverage + Integration Flows)
+- **E2E QA ampliada (`scripts/qa_e2e_check.py`):**
+  - Agregada ruta `/admin/follow-up-rules` al smoke test de navegación admin.
+- **Tests de integración backend:**
+  - `orders.seller-attribution.integration.spec.ts`: flujo completo de seller attribution (SELLER auth, DTO, líneas).
+  - `follow-up.flow.integration.spec.ts`: flujo end-to-end de follow-up (regla -> job -> cola -> adapter -> cooldown).
+- **QA:** `./scripts/init.sh` validado.
+
+## [1.18.1] - 2026-08-10
+
+### 🧪 Added / Changed (Test Coverage + Policy)
+- **Tests unitarios Follow-Up Omnicanal (FEAT-056):**
+  - `follow-up.service.spec.ts`: cobertura de `scheduleCartAbandoned`, `scheduleBookingReminder`, `cancelJobsForOrder`, `checkCooldown`, `interpolateVariables`, CRUD de reglas, `retryJob`.
+  - `follow-up-queue.processor.spec.ts`: cobertura de cancelación, regla inactiva, order confirmada, envío por adapter, fallo en max attempts.
+  - `follow-up-queue.producer.spec.ts`: cobertura de encolado con opciones BullMQ y cancelación.
+  - `whatsapp-web-engine.adapter.spec.ts`: URL con `sellerId` y stub de envío.
+  - `custom-webhook.adapter.spec.ts`: mock de `fetch` para verificar payload JSON.
+- **Tests unitarios Seller Attribution (FEAT-057):**
+  - `orders-export.controller.spec.ts`: export CSV con columnas seller/trafficSource.
+  - `orders.service.spec.ts`: sellerId desde DTO, auto-set para rol `SELLER`, propagación por línea.
+- **Testing Policy (`.kilo/testing-policy.md`):**
+  - Estándar mínimo de tests por tipo de cambio (backend services, controllers, queues, adapters, frontend, E2E).
+  - Flujo de desarrollo obligatorio con checklist pre-merge.
+  - Regla de bloqueo: no se mergea ni depliega sin suite actualizada.
+- **QA:** `./scripts/init.sh` validado (tests + builds + E2E Playwright sin errores).
+
 ## [1.18.0] - 2026-08-10
 
 ### 🚀 Added / Changed (FEAT-056 + FEAT-057)
