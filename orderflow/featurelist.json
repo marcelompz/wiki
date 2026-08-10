@@ -1,6 +1,6 @@
 {
   "project": "OrderFlow SaaS Omnicanal",
-  "version": "1.17.0",
+  "version": "1.18.0",
   "last_updated": "2026-08-09",
   "features": [
     {
@@ -446,8 +446,34 @@
       "status": "completed",
       "assigned_module": "odoo-adapter/src/index.js & odoo-adapter/src/odoo-client.js & odoo-adapter/src/plugins/odoo/odoo-invoice.plugin.js",
       "roadmap_milestone": "v1.17.0"
+    },
+    {
+      "id": "FEAT-055",
+      "category": "Frontend / UX-UI / Estética",
+      "title": "Refactorización estética global: Design Tokens + Unificación de Tags semánticos",
+      "status": "completed",
+      "assigned_module": "frontend/src/theme/tokens.ts, frontend/src/styles/admin-mobile.css, frontend/src/pages/admin/*, frontend/src/components/*",
+      "roadmap_milestone": "v1.17.0"
+    },
+    {
+      "id": "FEAT-056",
+      "category": "Core / Retención",
+      "title": "Motor de Follow-Up Omnicanal (RetentionRule + FollowUpJob + BullMQ + sendMessage adapters)",
+      "status": "completed",
+      "assigned_module": "backend/src/follow-up/, backend/src/queues/follow-up-queue.*, backend/src/social-catalog/adapters/*.adapter.ts, prisma/schema.prisma",
+      "roadmap_milestone": "v1.18.0",
+      "depends_on": ["FEAT-048", "FEAT-043"]
+    },
+    {
+      "id": "FEAT-057",
+      "category": "Core / Seller Attribution",
+      "title": "Seller Attribution Engine (sellerId/trafficSource en Order/OrderLine, export CSV, captura URL/POS/SELLER)",
+      "status": "completed",
+      "assigned_module": "backend/prisma/schema.prisma, backend/src/orders/orders.service.ts, backend/src/orders/dto/create-order.dto.ts, backend/src/orders/orders-export.controller.ts, frontend/src/pages/social-*.tsx, frontend/src/pages/admin/pos.tsx",
+      "roadmap_milestone": "v1.18.0",
+      "depends_on": ["FEAT-056"]
     }
   ],
-  "lastUpdated": "2026-08-09",
-  "last_id": "FEAT-054"
+  "lastUpdated": "2026-08-10",
+  "last_id": "FEAT-057"
 }

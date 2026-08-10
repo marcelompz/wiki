@@ -1,8 +1,8 @@
 # 🗺️ ROADMAP DE ORDERFLOW - v1.5.1 → v2.0.0
+**Última Actualización:** 2026-08-10 ART (Release v1.18.0 — Follow-Up Omnicanal + Seller Attribution)
 
-**Última Actualización:** 2026-08-08 ART (Release v1.16.1 — Dark Mode tokens + Tenant Image Isolation + RLS base + Provecchio migration fix)
-**Versión Actual:** **`v1.16.1`** ✅ **RELEASED (Stable)** | Admin UI/UX: Dark mode tokens, tenant image isolation, RLS interceptor base, Provecchio migration history fixed.
-**Próximo Release:** **v1.17.0 (Planning)**
+**Versión Actual:** **`v1.18.0`** ✅ **RELEASED (Stable)** | Core: motor de follow-up omnicanal, seller attribution, export CSV, cola BullMQ dedicada.
+**Próximo Release:** **v1.18.0 (Planning)**
 **Estado:** ✅ **STAGING & PRODUCTION OPERATIVE** | 🏆 **COMMERCIAL RELEASE v1.5.1 STABLE** | QA E2E Suite Integrada | 498 tests unitarios pasados  
 **Visión Estratégica:** Plataforma SaaS omnicanal de alta velocidad con aislamiento multi-tier, marketplace de plugins de terceros, facturación automática Stripe/Mercado Pago y escalado horizontal a Kubernetes.
 

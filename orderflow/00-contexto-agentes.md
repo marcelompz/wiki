@@ -15,9 +15,10 @@ OrderFlow opera en **dos modos** controlados por la variable `ORDERFLOW_MODE`:
 Ambos modos comparten el mismo schema Prisma y el mismo código de services. La diferencia es la capa de auth/guard y la resolución de la conexión a la DB.
 
 - Repo Core: `https://github.com/marcelompz/orderflow`
+- Glosario Oficial de Términos & Infraestructura: [docs/GLOSARIO_TERMINOS_Y_ECOSISTEMA.md](docs/GLOSARIO_TERMINOS_Y_ECOSISTEMA.md)
 - Repo Traefik Gateway Subsystem: `https://github.com/marcelompz/traefik-orderflow.git` (servidor: `/srv/traefik`, local: `/opt/traefik-orderflow/`)
 - Servidor Hetzner VPS (Producción): `hetzner-orderflow:/srv/orderflow` (alias SSH configurado)
-  - Versión actual: **v1.8.1** (staging + production operativos).
+  - Versión actual: **v1.18.0** (staging + production operativos).
 - Lenguaje: TypeScript en todo el stack.
 
 ---
@@ -261,7 +262,7 @@ docker compose up -d     # levantar stack dev
   - ✅ **6 Microservicios Standalone production-ready** (orquestados en `docker-compose.standalone.yml`):
     - `giveaways-standalone` (`:3020`, `sorteos.*`) — Sorteos, Google OAuth.
     - `whatsapp-catalog-standalone` (`:3021`, `catalogo.*`) — Catálogo, modificadores, GPS, zonas, plantillas.
-    - `biolinks-standalone` (`:3022`, `bio.*`) — Linktree 0% comisión, In-Bio Fast Checkout.
+    - `biolinks-standalone` (`:3022`, `bio.*`) — Bio-Links 0% comisión, In-Bio Fast Checkout.
     - `bookings-standalone` (`:3023`, `turnos.*`) — Agendamiento, comisiones, Google Calendar (pendiente).
     - `quotations-standalone` (`:3024`, `presupuestos.*`) — Presupuestos DNIT/SET.
     - `loyalty-standalone` (`:3025`, `fidelizacion.*`) — Tarjetas, tiers BRONZE→PLATINUM.

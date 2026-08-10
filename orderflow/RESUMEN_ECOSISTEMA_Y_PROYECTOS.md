@@ -4,9 +4,9 @@
 
 ---
 
-## 1. Estado del Arte de OrderFlow (v1.8.1)
+## 1. Estado del Arte de OrderFlow (v1.18.0)
 
-El ecosistema OrderFlow ha experimentado una evolución excepcional, transformándose rápidamente de un producto mínimo viable (MVP) a una **plataforma SaaS comercialmente completa y operativa** en su versión `v1.8.1`.
+El ecosistema OrderFlow ha experimentado una evolución excepcional, transformándose rápidamente de un producto mínimo viable (MVP) a una **plataforma SaaS comercialmente completa y operativa** en su versión `v1.18.0`.
 
 ### Panorama General y Madurez
 

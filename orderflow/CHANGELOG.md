@@ -9,7 +9,50 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.
 
 ---
 
+## [1.18.0] - 2026-08-10
+
+### 🚀 Added / Changed (FEAT-056 + FEAT-057)
+- **Follow-Up Omnicanal (FEAT-056):**
+  - `IMessagingAdapter` extendido con `sendMessage()` y `SendMessagePayload`.
+  - Nuevos adaptadores: `WhatsappCloudApiAdapter` (Meta HSM), `WhatsappWebEngineAdapter` (texto libre/queue stub).
+  - `sendMessage()` implementado en WhatsApp/Telegram/Instagram/Messenger/CustomWebhook.
+  - Split de `MessagingChannel`: agregados `WHATSAPP_CLOUD_API` y `WHATSAPP_WEB_QR`.
+  - Modelos Prisma: `RetentionRule`, `FollowUpJob`, `RetentionEventType`, `FollowUpJobStatus`.
+  - Cola BullMQ `follow-up-jobs` (producer/processor) con 3 reintentos y backoff exponencial.
+  - `FollowUpService`: scheduling/cancelación/cooldown/interpolación + CRUD de reglas.
+  - `FollowUpCronService`: cron cada 5min para pendientes/fallidos; limpieza cada 6h.
+  - Integración bookings: `sendBookingReminder()` movido a cola (reemplaza envío síncrono).
+  - Integración orders: DRAFT agenda cart-abandoned; CONFIRMED cancela follow-up jobs.
+  - Endpoints admin: `GET/POST/PATCH/DELETE /follow-up/rules`, `GET /follow-up/jobs`, `POST /follow-up/jobs/:id/retry`.
+  - Frontend: panel admin `follow-up-rules.tsx` + ruta `/admin/follow-up-rules`.
+  - RBAC: permisos `follow-up:read` y `follow-up:write`.
+- **Seller Attribution Engine (FEAT-057):**
+  - Schema: `sellerId` + `trafficSource` en `Order`; `sellerId` en `OrderLine`.
+  - `CreateOrderDto` extendido con `sellerId`, `trafficSource` y `sellerId` por línea.
+  - `OrdersService.create()` autocompleta seller desde JWT `SELLER` (`crm_assisted`) o DTO (`social_catalog`).
+  - Frontend social catalog: captura `?seller=` en `sessionStorage` (24h) y lo adjunta al checkout.
+  - Frontend POS: selector de vendedor + envío de `sellerId` + `trafficSource: pos_counter`.
+  - Export CSV: `GET /api/v1/orders/export` con columnas de seller/traffic source.
+- **QA:** `./scripts/init.sh` validado (523/523 tests, builds limpios, E2E Playwright sin errores).
+
+### 🛠️ Changed
+- Actualización de `featurelist.json` con FEAT-056 y FEAT-057.
+- Alineación de rutas y permisos para panel de retención.
+
 ## [1.17.0] - 2026-08-09
+
+### 🎨 Design Tokens & Dark Mode Contrast (Prompt_Implementar_tokens)
+- **Tokens CSS** (`styles/admin-mobile.css`): semánticos `--success/--warning/--danger/--info` (+ bg/border) en light/dark/prefers-color-scheme; utilidades `.text-*`, `.panel-*`; overrides Ant Design (cards, buttons, modals, dropdowns, selects).
+- **Ant Design Theme** (`theme/theme.ts`): `colorSuccess`, `colorWarning`, `colorError`, `colorInfo` + `colorTextTertiary` en light/dark tokens.
+- **modules.tsx**: Card módulo con `var(--bg-surface)`, `var(--success-border)`, `.module-card--installed`; Selector Tenant → `.panel-info`; Botón backup `var(--success)`; README modal tokens; Títulos `var(--text-primary)`; Grid `gutter={[16,16]}`.
+- **UserProfileMenu.tsx**: Avatar `--accent`; textos `--text-primary/secondary`; Modal tenant `--bg-surface/--bg-elevated`, items `--bg-elevated/--menu-selected/--bg-muted`; Badge Activo `--success`; Cancelar `--bg-elevated`; Quitados `#e6f7ff`, `#666`, `#999`, `#1890ff`, `white`.
+- **integrations.tsx**: 3 cards comparación → `.panel-success`/`.panel-info`/`.panel-warning`; Config panel tokens; Quitados `#f6ffed`, `#e6f7ff`, `#fff7e6`, `#52c41a`, `#1677ff`, `#fa8c16`.
+- **pos.tsx**: Mesa seleccionada `border: var(--accent)`, `background: var(--menu-selected)`; Total `var(--accent)`; Botones sin hardcodes (`#22c55e`, `#2563eb`, `#111827`); `Space` → `div` flex.
+- **Refactor estético global:** migración de ~150 hardcodes de color en páginas admin y componentes a design tokens CSS (`homepage-builder`, `biolinks`, `giveaways`, `super-admin-dashboard`, `loyalty`, `social-catalog`, `kds`, `subscription`, `bookings`, `customers`, `quotations`, `spa-dashboard`, `contacts`, `DashboardKPIs`, `CartDrawer`, `ThemeToggle`, `TenantSwitcher`, `ChannelSelector`, `ProductChannelPreview`, `MobileBottomNav`).
+- **Unificación de Tags:** reemplazo de `<Tag color="blue|green|red|orange|purple|cyan|magenta|gold">` por estilos semánticos con tokens (`var(--accent)`, `var(--success)`, `var(--danger)`, `var(--warning)`, `var(--info)`).
+- **Nuevo export TypeScript:** `frontend/src/theme/tokens.ts` con `designTokens`, `cssVars`, `getDesignTokens(mode)`, `applyCssVars(mode)`.
+- **Quotes fix**: comillas dobles en template strings JSX (`"var(--token)"`).
+- Versión tag: `v1.17.0`.
 
 ### 🚀 Added / Improved (Odoo Adapter ↔ OrderFlow Invoice Sync)
 - **FEAT:** `odoo-adapter/src/odoo-client.js` — compatibilidad corregida en `createCustomerInvoice` y `postInvoice` (`execute` unificado para Odoo 19 CE JSON-RPC y XML-RPC).
