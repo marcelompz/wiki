@@ -278,7 +278,7 @@ docker compose up -d     # levantar stack dev
 - Auth compartida vía `packages/auth-shared` (JWT/API Key validation sin acoplamiento a DB monolítica).
 - Routing vía Traefik v3.4: cada standalone tiene su propio subdominio (`sorteos.*`, `catalogo.*`, `bio.*`, `turnos.*`).
 
-### 8.5 Visión a largo plazo — **v2.0.0+**
+### 8.5 Visión a largo plazo — **v3.0.0+**
 - Migración Docker Compose → Kubernetes.
 - Helm charts para core + microservicios.
 - Autoscaling por servicio.

@@ -157,18 +157,18 @@ OrderFlow evoluciona en tres ejes estratégicos:
 
 1. **Multi-Tier Tenant Isolation** — DB compartida (SMB) + DB dedicada (Enterprise) coexistiendo en el mismo backend.
 2. **Módulos como Microservicios Standalone** — Vender Giveaways, WhatsApp Catalog, Bio-Links, etc. fuera del ecosistema OrderFlow.
-3. **Escalado de Infraestructura** — Docker Compose (actual) → Kubernetes (futuro).
+3. **Escalado de Infraestructura** — Docker Compose (actual) → Kubernetes (postergado a v3.0.0).
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│  v0.6.0          v0.7.0          v1.0.0         v2.0.0         │
+│  v0.6.0          v0.7.0          v1.0.0         v3.0.0         │
 │  ┌──────┐       ┌──────┐       ┌──────┐       ┌──────┐        │
 │  │Test  │       │Multi │       │Billing│       │  K8s │        │
 │  │80%   │──────▶│Tier  │──────▶│+ SaaS │──────▶│  +   │        │
 │  │+RBAC │       │+Micro│       │Portal │       │Scale │        │
 │  │+Obs  │       │srvcs │       │+Mktpl │       │      │        │
 │  └──────┘       └──────┘       └──────┘       └──────┘        │
-│  Sep 2026       Nov 2026       Ene 2027       2027+           │
+│  Sep 2026       Nov 2026       Ene 2027       2028+           │
 └─────────────────────────────────────────────────────────────────┘
 ```
 
@@ -360,7 +360,7 @@ Permite vender módulos individuales (Giveaways, WhatsApp Catalog, Bio-Links, et
 
 ---
 
-### v2.0.0 — Kubernetes + Escala + Arquitectura Avanzada (Target: 2027+)
+### v3.0.0 — Kubernetes + Escala + Arquitectura Avanzada (Target: 2028+)
 
 | Feature | Estado | Prioridad |
 |---------|--------|-----------|
@@ -372,7 +372,7 @@ Permite vender módulos individuales (Giveaways, WhatsApp Catalog, Bio-Links, et
 | **Service Mesh (Istio / Linkerd)** para inter-service auth | ⏳ Futuro | 🟢 Baja |
 | **Multi-región / multi-cloud** | ⏳ Futuro | 🟢 Baja |
 
-#### Lecciones de Odoo → Hoja de Ruta (Beta → v2.0)
+#### Lecciones de Odoo → Hoja de Ruta (Beta → v3.0)
 
 Estos 5 patrones estratégicos se incorporan del análisis comparativo `docs/Informe_Comparativo_Odoo_vs_OrderFlow.md`. **Todos son hitos previos a la migración a Kubernetes (v1.16.0):** establecen la base arquitectónica (eventos, auditoría, integraciones robustas, inventario avanzado) que debe existir antes de escalar a orquestación de contenedores.
 
@@ -384,4 +384,4 @@ Estos 5 patrones estratégicos se incorporan del análisis comparativo `docs/Inf
 | 4 | **Mapeador de Integraciones Configurable** | Ampliar el conector `orderflow_connector` para permitir mapeo de campos dinámico y resolución visual de conflictos de sincronización. | v1.16.0 |
 | 5 | **Auditoría Transaccional Ampliada** | Expandir la tabla `AuditLog` para rastrear cambios sensibles en configuraciones de negocio, permisos y aperturas/cierres de caja. | v1.16.0 |
 
-> **Estrategia de escalado:** Docker Compose (actual, infra compartida en Hetzner VPS) es el runtime hasta v1.0. A partir de v2.0 se evalúa K8s según volumen de tenants y microservicios standalone desplegados. Traefik se mantiene como Ingress Controller nativo.
+> **Estrategia de escalado:** Docker Compose (actual, infra compartida en Hetzner VPS) es el runtime hasta v2.x. A partir de v3.0 se evalúa K8s según volumen de tenants y microservicios standalone desplegados. Traefik se mantiene como Ingress Controller nativo.

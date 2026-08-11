@@ -2,7 +2,7 @@
 
 > Documento de referencia para la evolución arquitectónica de OrderFlow: modos de operación, aislamiento multi-tier, y extracción de módulos como microservicios.
 
-**Última Actualización:** 2026-07-31  
+**Última Actualización:** 2026-07-26  
 **Versión de referencia:** v1.1.0+ / v1.2.0-dev  
 **Estado:** ✅ **IMPLEMENTADO AL 100%** (Migración `@TenantPrisma()` completada en todos los módulos core y microservicios standalone extraídos)
 
@@ -223,9 +223,9 @@ El módulo original **sigue existiendo** en el monolito para clientes OrderFlow.
 
 - Todo corre en Docker Compose sobre Hetzner VPS.
 - Microservicios standalone se agregan como servicios adicionales en compose.
-- Traefik v3.3 rutea por path o subdominio.
+- Traefik v3.4 rutea por path o subdominio.
 
-### 5.2 Fase futura: Kubernetes (v2.0.0+)
+### 5.2 Fase futura: Kubernetes (v3.0.0+)
 
 - Migración a K8s cuando el volumen de tenants y standalone lo justifique.
 - Helm charts para OrderFlow core + cada microservicio.
