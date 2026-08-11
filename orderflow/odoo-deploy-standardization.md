@@ -117,25 +117,33 @@ backend/src/odoo-deploy/
 ### 3.2 Flujo del wizard
 
 ```yaml
-1. Admin ingresa datos del tenant:
+1. Selección de servidor:
+   - Si existe configuración de servidores: selector
+   - Si no: formulario "Crear servidor"
+   - Datos del servidor: nombre, host, puerto SSH, usuario, clave SSH, path base, estado
+
+2. Ingreso de datos del tenant:
    - Nombre cliente
+   - clientId (slug único)
+   - Dominio público (ej: cliente-a.pesallaccia.com)
    - Versión Odoo (18/19/20)
-   - Host público (ej: cliente-a.odoo.provecchio.com)
    - Puerto web
    - Credenciales DB
+   - Credenciales admin Odoo
    - Repositorios de addons/l10n (opcional)
 
-2. Validación:
-   - Verificar que el host no esté en uso
+3. Validación:
+   - Verificar que el dominio no esté en uso
    - Validar accesibilidad del servidor destino
    - Verificar espacio en disco
+   - Validar conectividad SSH
 
-3. Aprobación:
+4. Aprobación:
    - Resumen de configuración
    - Confirmación de despliegue
 
-4. Ejecución:
-   - Crear directorios en /srv/odoo-deploy/<version>/<tenant>/
+5. Ejecución:
+   - Crear directorios en /srv/odoo-deploy/<version>/<clientId>/
    - Generar .env específico
    - Copiar/crear docker-compose override
    - Ejecutar docker compose up -d
@@ -143,11 +151,83 @@ backend/src/odoo-deploy/
    - Ejecutar init_db.sh si es nuevo
    - Verificar health check
 
-5. Finalización:
+6. Finalización:
    - URL pública generada
    - Credenciales admin generadas
    - Estado: activo
 ```
+
+### 3.3 Formularios del wizard
+
+#### 3.3.1 Formulario de servidor
+
+| Campo | Tipo | Requerido | Descripción |
+|-------|------|-----------|-------------|
+| `name` | string | sí | Nombre lógico del servidor |
+| `host` | string | sí | Hostname o IP |
+| `sshPort` | number | sí | Puerto SSH |
+| `sshUser` | string | sí | Usuario SSH |
+| `sshKey` | string | no | Clave SSH privada |
+| `basePath` | string | sí | Path base en el servidor |
+| `active` | boolean | sí | Estado activo/inactivo |
+
+Validaciones:
+- El host no puede estar duplicado
+- Si se provee `sshKey`, debe ser una clave RSA/Ed25519 válida
+- `basePath` debe ser escribible por el usuario SSH
+
+#### 3.3.2 Formulario de tenant/deploy
+
+| Campo | Tipo | Requerido | Descripción |
+|-------|------|-----------|-------------|
+| `serverId` | string | sí | Servidor destino |
+| `clientId` | string | sí | Slug único del cliente |
+| `clientName` | string | sí | Nombre del cliente |
+| `domain` | string | sí | Dominio público |
+| `odooVersion` | string | sí | Versión Odoo |
+| `webPort` | number | sí | Puerto web |
+| `dbName` | string | sí | Nombre de base de datos |
+| `dbUser` | string | sí | Usuario DB |
+| `dbPassword` | string | sí | Password DB |
+| `adminEmail` | string | sí | Email admin Odoo |
+| `adminPassword` | string | sí | Password admin Odoo |
+| `addonsPath` | string | no | Addons custom |
+| `l10nPath` | string | no | Localizaciones |
+| `draftMode` | boolean | no | Modo borrador |
+
+Validaciones:
+- `clientId`: slug único, sin espacios
+- `domain`: formato válido, no duplicado
+- `webPort`: puerto libre en el servidor
+- `dbName`: no duplicado en el servidor
+
+### 3.4 Persistencia de servidores
+
+Los servidores se almacenan en la base de datos de OmniFlow para poder reutilizarlos en deploys futuros.
+
+Modelo propuesto:
+
+```ts
+interface OdooServer {
+  id: string;
+  name: string;
+  host: string;
+  sshPort: number;
+  sshUser: string;
+  sshKey?: string;
+  basePath: string;
+  active: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+}
+```
+
+Endpoint:
+- `POST /api/v1/odoo-deploy/servers` — Crear servidor
+- `GET /api/v1/odoo-deploy/servers` — Listar servidores
+- `GET /api/v1/odoo-deploy/servers/:id` — Obtener servidor
+- `PATCH /api/v1/odoo-deploy/servers/:id` — Actualizar servidor
+- `DELETE /api/v1/odoo-deploy/servers/:id` — Eliminar servidor
 
 ### 3.3 UI Admin
 
