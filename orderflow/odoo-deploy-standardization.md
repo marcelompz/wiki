@@ -1,85 +1,67 @@
-# Plan: Estandarización de Despliegue Odoo
+# Odoo Deploy Standardization
 
-**Fecha:** 2026-08-10  
-**Objetivo:** Unificar el despliegue de Odoo en 3 repositorios versionados, con paths fijos en producción, CI/CD por branch y volumenes Docker persistentes.
+## 1. Visión General
 
----
+Este documento define la estrategia de estandarización de despliegues de Odoo para OrderFlow/OmniFlow, aplicable tanto a despliegues manuales como a la futura automatización desde el panel admin.
 
-## 1. Estado actual del desorden
-
-| Repo actual | Problema |
-|-------------|----------|
-| `github.com/marcelompz/odoo19CE` | Repo entero por version, debería ser branch de `odoo-deploy` |
-| `github.com/marcelompz/Odoo18CE` | Idem anterior, además con nombre inconsistente |
-| Addons mezclados en `/srv/odoo/odoo19CE/addons/` | No hay separación entre infra y addons |
-| `/srv/odoo8085/` | Instancia Odoo separada sin repo ni estructura clara |
-| `/opt/odoo/odoo8084/` | Path local de desarrollo, no sincronizado con producción |
-| Sin CI/CD Odoo | No hay automatización de deploy por version |
-
-Paths actuales encontrados:
-- `/srv/odoo/odoo19CE/addons/orderflow_connector` (addons dentro del deploy)
-- `/srv/odoo8085/` (instancia standalone)
-- `/opt/odoo/odoo8084/addons/orderflow_connector` (local)
+**Alcance:** Odoo 18/19/20+ en servidores on-premise o cloud, con soporte multi-tenant.
 
 ---
 
-## 2. Modelo objetivo
+## 2. Estructura de directorios
 
-### 2.1 Repositorios
-
-| Repo | Propósito | Branchs |
-|------|-----------|---------|
-| `odoo-deploy` | Infraestructura Docker Compose, scripts de init/migracion, configuraciones Traefik | `18`, `19`, `20`, ... |
-| `odoo-addons` | Modulos custom (`orderflow_connector`, etc.) | `18`, `19`, `20`, ... |
-| `odoo-l10n-py` | Localizaciones Paraguay / l10n_py | `18`, `19`, `20`, ... |
-
-### 2.2 Paths producción (fijos, sin symlinks)
+### 2.1 Template base por versión
 
 ```
 /srv/odoo-deploy/
-├── 18/                    # checkout de odoo-deploy branch 18
+├── 18/
 │   ├── docker-compose.yml
-│   ├── .env
+│   ├── .env.example
 │   ├── config/
+│   │   └── odoo.conf
 │   ├── migracion/
+│   │   └── *.sql
 │   ├── init_prod_db.sh
+│   ├── modules.conf
+│   ├── deploy.sh
 │   ├── web-data/          # filestore + sesiones Odoo
 │   └── db-data/           # datos PostgreSQL Odoo
-├── 19/                    # checkout de odoo-deploy branch 19
+├── 19/
 │   └── ...
-
-/srv/odoo-addons/
-├── 18/                    # checkout de odoo-addons branch 18
-│   ├── orderflow_connector/
-│   └── ...
-├── 19/                    # checkout de odoo-addons branch 19
-│   └── ...
-
-/srv/odoo-l10n-py/
-├── 18/                    # checkout de odoo-l10n-py branch 18
-│   ├── l10n_py_ar/
-│   └── ...
-└── 19/                    # checkout de odoo-l10n-py branch 19
-    └── ...
+└── README.md
 ```
 
-Regla: `odoo-deploy` nunca incluye addons. Solo monta `/srv/odoo-addons/<version>` y `/srv/odoo-l10n-py/<version>` como volumenes.
+### 2.2 Addons y localizaciones compartidas
 
-### 2.3 Árbol multi-tenant (ejemplo para múltiples clientes de la nube)
+```
+/srv/odoo-addons/
+├── 18/
+│   ├── orderflow_connector/
+│   └── ...
+└── 19/
+    └── ...
+
+/srv/odoo-l10n-py/
+├── 18/
+│   └── l10n_py_*/
+└── 19/
+    └── l10n_py_*/
+```
+
+### 2.3 Árbol multi-tenant (ejemplo)
 
 ```
 /srv/odoo-deploy/
-├── 18/                                   # template base Odoo 18
-│   ├── docker-compose.yml
+├── 18/
+│   ├── docker-compose.yml          # template base
 │   ├── .env.example
-│   ├── config/
-│   └── migracion/
-├── 18_cliente_a/                         # instancia cliente A
-│   ├── docker-compose.yml                # override / symlink al template
-│   ├── .env                              # variables específicas
-│   ├── web-data/                         # filestore cliente A
-│   └── db-data/                          # PostgreSQL cliente A
-├── 18_cliente_b/                         # instancia cliente B
+│   └── config/
+├── 18_cliente_a/                   # instancia cliente A
+│   ├── docker-compose.yml          # override o symlink al template
+│   ├── .env                        # variables específicas
+│   ├── web-data/                   # filestore cliente A
+│   └── db-data/                    # PostgreSQL cliente A
+├── 18_cliente_b/                   # instancia cliente B
 │   ├── docker-compose.yml
 │   ├── .env
 │   ├── web-data/
@@ -95,145 +77,31 @@ Regla: `odoo-deploy` nunca incluye addons. Solo monta `/srv/odoo-addons/<version
         ├── .env
         ├── web-data/
         └── db-data/
-
-/srv/odoo-addons/
-├── 18/                                   # addons compartidos Odoo 18
-│   ├── orderflow_connector/
-│   └── ...
-└── 19/                                   # addons compartidos Odoo 19
-    └── ...
-
-/srv/odoo-l10n-py/
-├── 18/                                   # localizaciones compartidas Odoo 18
-│   └── l10n_py_*/
-└── 19/                                   # localizaciones compartidas Odoo 19
-    └── l10n_py_*/
 ```
 
 **Reglas multi-tenant:**
-- Cada cliente tiene su propio `docker-compose.yml` override basado en el template de la versión
-- Cada cliente tiene su `.env` con `WEB_HOST`, `WEB_PORT`, `DB_NAME`, `WEB_VOLUMES`, `DB_VOLUMES`
-- Los addons y localizaciones se comparten por versión para evitar duplicación
-- Los datos son completamente independientes por cliente
-- El deploy por cliente no afecta a otros clientes
-
-### 2.3 Docker Compose (version-aware)
-
-```yaml
-services:
-  odoo:
-    image: odoo:${ODOO_VERSION:-19}
-    volumes:
-      - /srv/odoo-deploy/${ODOO_VERSION:-19}:/etc/odoo
-      - /srv/odoo-addons/${ODOO_VERSION:-19}:/mnt/extra-addons
-      - /srv/odoo-l10n-py/${ODOO_VERSION:-19}:/mnt/l10n-py
-      - odoo${ODOO_VERSION:-19}-data:/var/lib/odoo
-    environment:
-      - ODOO_VERSION=${ODOO_VERSION:-19}
-```
+- Cada cliente tiene su propio `docker-compose.yml` override basado en el template de la versión.
+- Cada cliente tiene su `.env` con `WEB_HOST`, `WEB_PORT`, `DB_NAME`, `WEB_VOLUMES`, `DB_VOLUMES`.
+- Addons y localizaciones se comparten por versión para evitar duplicación.
+- Los datos son completamente independientes por cliente.
+- Traefik routea por host: `cliente-a.odoo.provecchio.com` → `odoo_cliente_a:8069`.
 
 ---
 
-## 3. Tareas de estandarización
+## 3. Wizard de despliegue automatizado (OmniFlow)
 
-### Fase 1: Crear estructura de repos (sin tocar producción)
+### 3.1 Módulo backend
 
-1. **Crear `odoo-deploy`** con branches `18`, `19`
-   - Contenido: `docker-compose.yml`, `deploy.sh`, `init_prod_db.sh`, `migracion/`, `config/`
-   - Mover contenido actual de `odoo19CE` excluyendo addons
-   - Mover contenido de `Odoo18CE` excluyendo addons
-
-2. **Crear `odoo-addons`** con branches `18`, `19`
-   - Extraer `orderflow_connector` de `/srv/odoo/odoo19CE/addons/`
-   - Extraer addons de `/opt/odoo/odoo8084/addons/`
-   - Mantener versionado por branch Odoo
-
-3. **Crear `odoo-l10n-py`** con branches `18`, `19`
-   - Mover localizaciones Paraguay existentes
-   - Estructura: `l10n_py_*/` por modulo
-
-### Fase 2: Estandarizar paths producción
-
-4. **Definir paths canónicos:**
-   ```
-   /srv/odoo-deploy/<version>/     # checkout de odoo-deploy branch <version>
-   /srv/odoo-addons/<version>/     # checkout de odoo-addons branch <version>
-   /srv/odoo-l10n-py/<version>/    # checkout de odoo-l10n-py branch <version>
-   ```
-
-5. **Migrar instancias existentes:**
-   - `/srv/odoo/odoo19CE/` → `/srv/odoo-deploy/19/`
-   - `/srv/odoo8085/` → eliminar o archivar (definir en fase 2)
-   - Volumenes Docker existentes se mantienen, solo cambian mounts
-
-### 2.3 Árbol multi-tenant (ejemplo para múltiples clientes de la nube)
-
-```
-/srv/odoo-deploy/
-├── 18/                                   # template base Odoo 18
-│   ├── docker-compose.yml
-│   ├── .env.example
-│   ├── config/
-│   └── migracion/
-├── 18_cliente_a/                         # instancia cliente A
-│   ├── docker-compose.yml                # override / symlink al template
-│   ├── .env                              # variables específicas
-│   ├── web-data/                         # filestore cliente A
-│   └── db-data/                          # PostgreSQL cliente A
-├── 18_cliente_b/                         # instancia cliente B
-│   ├── docker-compose.yml
-│   ├── .env
-│   ├── web-data/
-│   └── db-data/
-└── 19/
-    ├── 19_cliente_x/
-    │   ├── docker-compose.yml
-    │   ├── .env
-    │   ├── web-data/
-    │   └── db-data/
-    └── 19_cliente_y/
-        ├── docker-compose.yml
-        ├── .env
-        ├── web-data/
-        └── db-data/
-
-/srv/odoo-addons/
-├── 18/                                   # addons compartidos Odoo 18
-│   ├── orderflow_connector/
-│   └── ...
-└── 19/                                   # addons compartidos Odoo 19
-    └── ...
-
-/srv/odoo-l10n-py/
-├── 18/                                   # localizaciones compartidas Odoo 18
-│   └── l10n_py_*/
-└── 19/                                   # localizaciones compartidas Odoo 19
-    └── l10n_py_*/
-```
-
-**Reglas multi-tenant:**
-- Cada cliente tiene su propio `docker-compose.yml` override basado en el template de la versión
-- Cada cliente tiene su `.env` con `WEB_HOST`, `WEB_PORT`, `DB_NAME`, `WEB_VOLUMES`, `DB_VOLUMES`
-- Los addons y localizaciones se comparten por versión para evitar duplicación
-- Los datos son completamente independientes por cliente
-- El deploy por cliente no afecta a otros clientes
-- Traefik routea por host: `cliente-a.odoo.provecchio.com` → `odoo_cliente_a:8069`
-
----
-
-## 3. Automatización en OmniFlow
-
-### 3.1 Módulo de Gestión Odoo (Backend)
-
-Nuevo módulo backend: `backend/src/odoo-deploy/`
+Ruta propuesta: `backend/src/odoo-deploy/`
 
 ```
 backend/src/odoo-deploy/
-├── odoo-deploy.controller.ts       # API endpoints
-├── odoo-deploy.service.ts          # Lógica de deploy
+├── odoo-deploy.controller.ts
+├── odoo-deploy.service.ts
 ├── dto/
 │   ├── create-tenant.dto.ts
-│   └── deploy-version.dto.ts
+│   ├── deploy-version.dto.ts
+│   └── tenant-config.dto.ts
 └── odoo-deploy.module.ts
 ```
 
@@ -244,61 +112,72 @@ backend/src/odoo-deploy/
 - `POST /api/v1/odoo-deploy/tenants/:id/backup` — Backup manual
 - `POST /api/v1/odoo-deploy/tenants/:id/restore` — Restaurar backup
 - `GET /api/v1/odoo-deploy/tenants/:id/status` — Estado del deploy
+- `DELETE /api/v1/odoo-deploy/tenants/:id` — Eliminar tenant
 
-### 3.2 Flujo Automatizado
+### 3.2 Flujo del wizard
 
 ```yaml
-Trigger: Admin crea tenant desde OmniFlow
-  ↓
-1. OmniFlow valida configuración
-  ↓
-2. OmniFlow crea directorios en /srv/odoo-deploy/18/<tenant>/
-  ↓
-3. OmniFlow genera .env específico del tenant
-  ↓
-4. OmniFlow ejecuta docker compose up -d
-  ↓
-5. OmniFlow registra tenant en Traefik
-  ↓
-6. OmniFlow ejecuta init_db.sh
-  ↓
-7. OmniFlow verifica health check
-  ↓
-8. OmniFlow notifica completion
+1. Admin ingresa datos del tenant:
+   - Nombre cliente
+   - Versión Odoo (18/19/20)
+   - Host público (ej: cliente-a.odoo.provecchio.com)
+   - Puerto web
+   - Credenciales DB
+   - Repositorios de addons/l10n (opcional)
+
+2. Validación:
+   - Verificar que el host no esté en uso
+   - Validar accesibilidad del servidor destino
+   - Verificar espacio en disco
+
+3. Aprobación:
+   - Resumen de configuración
+   - Confirmación de despliegue
+
+4. Ejecución:
+   - Crear directorios en /srv/odoo-deploy/<version>/<tenant>/
+   - Generar .env específico
+   - Copiar/crear docker-compose override
+   - Ejecutar docker compose up -d
+   - Registrar ruta en Traefik
+   - Ejecutar init_db.sh si es nuevo
+   - Verificar health check
+
+5. Finalización:
+   - URL pública generada
+   - Credenciales admin generadas
+   - Estado: activo
 ```
 
 ### 3.3 UI Admin
 
-Nueva página en OmniFlow Admin: `/admin/odoo-deploy`
+Ruta propuesta: `/admin/odoo-deploy`
 
-**Features:**
-- Lista de tenants Odoo desplegados
-- Estado de cada instancia (up/down/error)
-- Botón deploy/restart por tenant
-- Formulario de creación de tenant
-- Logs en tiempo real
-- Backup/restore con un click
+**Vistas:**
+- Dashboard: lista de tenants con estado, versión, URL, acciones
+- Wizard: formulario paso a paso para nuevo tenant
+- Detalle: logs, health, backup/restore, eliminar
+- Configuración global: servidores destino, plantillas por versión
 
 ---
 
-## 4. Despliegue Manual (Documentación)
+## 4. Despliegue manual
 
 ### 4.1 Prerrequisitos
 
-- Acceso SSH al servidor Provecchio (`root@192.168.69.240` vía jump host `38.52.135.227:2021`)
+- Acceso SSH al servidor destino
 - Docker y Docker Compose instalados
-- Estructura de directorios creada (Fase 1)
+- Estructura de directorios creada
+- Addons y l10n copiados en `/srv/odoo-addons/<version>/` y `/srv/odoo-l10n-py/<version>/`
 
 ### 4.2 Crear nuevo tenant manualmente
 
 ```bash
 # 1. Crear directorios
 mkdir -p /srv/odoo-deploy/18/cliente_nuevo/{web-data,db-data,config,migracion}
-mkdir -p /srv/odoo-addons/18
-mkdir -p /srv/odoo-l10n-py/18
 
 # 2. Copiar template base
-cp -r /srv/odoo-deploy/18/docker-compose.yml /srv/odoo-deploy/18/cliente_nuevo/
+cp /srv/odoo-deploy/18/docker-compose.yml /srv/odoo-deploy/18/cliente_nuevo/
 cp -r /srv/odoo-deploy/18/config/* /srv/odoo-deploy/18/cliente_nuevo/config/
 
 # 3. Crear .env específico
@@ -355,34 +234,42 @@ docker compose up -d
 | Permisos denegados en web-data | `chown -R 100:101 /srv/odoo-deploy/18/cliente_nuevo/web-data` |
 | Puerto ocupado | Cambiar `WEB_PORT` en `.env` |
 | Base de datos no conecta | Verificar `DB_HOST` y credenciales en `.env` |
-| Traefik 502 | Verificar que el servicio esté registrado en Traefik |
+| Traefik 502 | Verificar que el servicio esté registrado y en la misma red |
+| Sesiones no escriben | Verificar permisos en `/var/lib/odoo/sessions` dentro del volumen |
 
 ---
 
-## 4. Puntos de validación
+## 5. Integración con OrderFlow/OmniFlow
 
-| Check | Criterio |
-|-------|----------|
-| Repos creados | 3 repos con branches `18` y `19` |
-| Paths producción | `/srv/odoo-deploy/18/`, `/srv/odoo-deploy/19/`, `/srv/odoo-addons/18/`, `/srv/odoo-addons/19/`, `/srv/odoo-l10n-py/18/`, `/srv/odoo-l10n-py/19/` |
-| Docker | Volumenes montados correctamente, datos persistentes |
-| CI/CD | Workflow dispara en push a branch version |
-| Docs actualizadas | Referencias a paths nuevos, sin referencias a `odoo19CE` |
-| Producción funcionando | Odoo 18 y 19 accesibles por Traefik sin 502 |
+### 5.1 Módulo de gestión Odoo
+
+El wizard debe vivir en OmniFlow como módulo operativo, separado del módulo de integración Odoo existente.
+
+**Responsabilidades:**
+- Gestión del ciclo de vida de instancias Odoo por cliente
+- Despliegue automatizado de instancias
+- Backup/restore por instancia
+- Monitoreo de salud y logs
+- Gestión de Traefik routes por host
+
+### 5.2 Seguridad
+
+- El wizard requiere permisos `super-admin` o `odoo-deploy:manage`.
+- Las credenciales de Odoo/DB se almacenan en `.env` con permisos restrictivos (`600`).
+- El acceso a `/srv/odoo-deploy/` se controla por usuario del sistema.
+
+### 5.3 Auditoría
+
+- Cada acción del wizard genera un log en `logs/odoo-deploy/`.
+- Se registra: quién, cuándo, qué tenant, qué acción.
+- Backups automáticos antes de cada deploy.
 
 ---
 
-## 5. Riesgos y mitigaciones
+## 6. Próximos pasos
 
-| Riesgo | Mitigación |
-|--------|------------|
-| Romper instancia Odoo producción | Hacer backup de DB y volúmenes antes de migrar paths |
-| Pérdida de addons custom | Verificar que `orderflow_connector` y otros estén versionados en `odoo-addons` |
-| Traefik 502 post-deploy | Asegurar red `traefik-public` y labels correctos en docker-compose |
-| Conflicto de branches | Usar branch naming estricto: solo numeros `18`, `19`, `20` |
-
----
-
-## 6. Pregunta pendiente al usuario
-
-¿Querés que ordene eliminar/archivar los repos viejos (`odoo19CE`, `Odoo18CE`) una vez que la migración esté validada, o querés mantenerlos como read-only para auditoría?
+1. Implementar backend `odoo-deploy` module.
+2. Implementar UI admin `/admin/odoo-deploy`.
+3. Agregar validaciones de servidor y disco.
+4. Agregar métricas y alertas por instancia.
+5. Sincronizar con Traefik dinámicamente.
