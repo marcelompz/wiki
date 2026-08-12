@@ -1,7 +1,7 @@
 {
   "project": "OrderFlow SaaS Omnicanal",
-  "version": "1.19.0",
-  "last_updated": "2026-08-09",
+  "version": "1.20.0",
+  "last_updated": "2026-08-11",
   "features": [
     {
       "id": "FEAT-001",
@@ -472,8 +472,26 @@
       "assigned_module": "backend/prisma/schema.prisma, backend/src/orders/orders.service.ts, backend/src/orders/dto/create-order.dto.ts, backend/src/orders/orders-export.controller.ts, frontend/src/pages/social-*.tsx, frontend/src/pages/admin/pos.tsx",
       "roadmap_milestone": "v1.18.0",
       "depends_on": ["FEAT-056"]
+    },
+    {
+      "id": "FEAT-058",
+      "category": "Frontend / Bugfix",
+      "title": "Fix 404 en /admin/orders y chunks corruptos en producción",
+      "status": "completed",
+      "assigned_module": "frontend/src/AdminApp.tsx, frontend/src/pages/admin/orders.tsx",
+      "qa_validation": "init.sh passed: build clean | E2E QA: admin orders page loads without 404",
+      "blocking": []
+    },
+    {
+      "id": "FEAT-059",
+      "category": "Infraestructura / Deploy Manager",
+      "title": "Infrastructure Deploy Manager: despliegue y ciclo de vida multi-sistema desde Super Admin (Odoo, OmniFlow, Axon, AIEER, VitaLog, LeadQualifierCRM)",
+      "status": "in_progress",
+      "assigned_module": "backend/src/deploy-manager/, frontend/src/pages/admin/deploy/, docs/guides/odoo-deploy-standardization.md",
+      "depends_on": ["FEAT-011", "FEAT-016"],
+      "blocking": []
     }
   ],
-  "lastUpdated": "2026-08-10",
-  "last_id": "FEAT-057"
+  "lastUpdated": "2026-08-11",
+  "last_id": "FEAT-059"
 }

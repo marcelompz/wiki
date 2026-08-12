@@ -356,10 +356,59 @@ Permite vender módulos individuales (Giveaways, WhatsApp Catalog, Bio-Links, et
 | **Base de Pruebas Unitarias Frontend** (`Vitest` + `React Testing Library`) | ⏳ Pendiente | 🔴 Alta | Sprint 1 |
 | **Completar Integración Odoo** (Facturación `account.move` + Cola Durable) | ⏳ Pendiente | 🔴 Alta | Sprint 1-2 |
 | **Profundizar Funcionalidad de Microservicios** (Pasarelas de pago autónomas) | ⏳ Pendiente | 🟡 Media | Sprint 2 |
+---
 
 
 ---
 
+
+### 🚀 v1.10.0 — Infrastructure Deploy Manager (OmniFlow como Plataforma de Infraestructura)
+
+OmniFlow se convierte en la plataforma central desde la cual se despliega y gestiona el ciclo de vida de toda la infraestructura de servicios, no solo OrderFlow.
+
+**Visión:** Super Admin despliega desde `/admin/deploy` instancias de:
+- Odoo (18/19/20+)
+- OmniFlow/OrderFlow (multi-tenant)
+- Axon Ecosystem
+- AIEER
+- VitaLog
+- LeadQualifierCRM
+- Otros sistemas gestionados
+
+| Feature | Estado | Prioridad | Sprint |
+|---------|--------|-----------|--------|
+| **Backend `deploy-manager`** — CRUD servidores + instancias + lifecycle actions | 📋 Planificado | 🔴 Alta | Sprint 1 |
+| **Modelo unificado `Server` + `DeployInstance`** con discriminador `system` | 📋 Planificado | 🔴 Alta | Sprint 1 |
+| **UI Super Admin `/admin/deploy`** — dashboard + wizard + detalle | 📋 Planificado | 🔴 Alta | Sprint 1 |
+| **Validaciones** — SSH, puerto libre, dominio no duplicado en Traefik, espacio en disco | 📋 Planificado | 🔴 Alta | Sprint 2 |
+| **Handlers por sistema** — empezando por Odoo y OrderFlow (init/seed/health-check) | 📋 Planificado | 🔴 Alta | Sprint 2 |
+| **Integración dinámica Traefik** — rutas automáticas por dominio público | 📋 Planificado | 🔴 Alta | Sprint 2 |
+| **Backup/restore automatizado** por instancia | 📋 Planificado | 🟡 Media | Sprint 3 |
+| **Métricas y alertas** por instancia | 📋 Planificado | 🟡 Media | Sprint 3 |
+
+**Estructura de directorios:**
+```
+/srv/<sistema>-deploy/<version>/<instancia>/
+├── docker-compose.yml
+├── .env
+├── web-data/
+└── db-data/
+
+/srv/<sistema>-addons/<version>/
+```
+
+**Repositorios involucrados:**
+- `marcelompz/odoo-deploy` — templates Odoo
+- `marcelompz/odoo-addons` — addons custom
+- `marcelompz/odoo-l10n-py` — localizaciones PY
+- `marcelompz/traefik-orderflow` — Traefik compartido
+- `marcelompz/orderflow` — código fuente OmniFlow
+
+> **Arquitectura:** Módulo genérico y extensible. `extraConfig` (JSON) almacena particularidades por sistema. Handlers pluggables por sistema para init, seed, health-check y backup. No condicionado exclusivamente a Odoo.
+
+**Documentación:** `docs/guides/odoo-deploy-standardization.md` (extendido a multi-sistema).
+
+---
 ### v3.0.0 — Kubernetes + Escala + Arquitectura Avanzada (Target: 2028+)
 
 | Feature | Estado | Prioridad |

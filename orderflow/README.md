@@ -149,8 +149,10 @@ cd frontend && npm run build
 
 ## 📝 Documentación
 
+- [Línea de Tiempo y Evolución](docs/timeline.md)
 - [Guía de Deploy](docs/guides/DEPLOYMENT.md)
 - [Modelo de Suscripción](docs/guides/SUBSCRIPTION_MODEL_DESIGN.md)
+- [Odoo Deploy Standardization](docs/guides/odoo-deploy-standardization.md)
 - [Troubleshooting](docs/troubleshooting/)
 - [Contexto para Agentes](docs/00-contexto-agentes.md)
 
