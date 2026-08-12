@@ -26,7 +26,13 @@ Ordená por problema y área. Cada entrada incluye síntomas, causa raíz y solu
 | [22](22-odoo-adapter-python-fstring-syntax-error.md) | Odoo-Adapter Restart Loop: Python f-String in JS | DevOps / Odoo Adapter | Contenedor `orderflow-odoo-adapter-prod` en crash loop por `f"INV-{...}"` en `.js` | ✅ Resuelto |
 | [23](23-contacts-empty-unification.md) | Contactos vacíos: usuarios no linkeados | Backend / Contacts / Auth | Módulo Contactos vacío; usuarios asignados no aparecen (seed sin `contactId`) | ✅ Resuelto |
 | [24](24-deploy-script-bugs-fixed.md) | Bugs en deploy-production.sh corregidos | DevOps / Deploy / Traefik | Sin health check de app; sin rollback; sin validación de env vars; Traefik sin backend | ✅ Resuelto |
-| 25 | init.sh cuelga el SO | Scripts / Dev Env | Alta carga de CPU/RAM al ejecutar init.sh | ✅ Resuelto |
+| [25](25-init-sh-hangs-os.md) | init.sh cuelga el SO | Scripts / Dev Env | Alta carga de CPU/RAM al ejecutar init.sh | ✅ Resuelto |
+| [26](26-jest-memory-leak-out-of-memory.md) | Volcado de memoria en pruebas Jest | Backend / Jest / CI | Error `JavaScript heap out of memory` al ejecutar tests | ✅ Resuelto |
+| [27](27-nest-dependency-resolution-scope-audit-service.md) | Nest can't resolve AuditService in BullMQ | Backend / NestJS / Queues | Error de dependencia al inyectar Scope.REQUEST en processor | ✅ Resuelto |
+| [28](28-postgresql-fatal-too-many-clients.md) | FATAL: sorry, too many clients already | DevOps / PostgreSQL / Docker | Saturación de conexiones por contenedores efímeros de migraciones | ✅ Resuelto |
+| [29](29-production-stale-frontend-image.md) | Imagen Docker Stale + Fallbacks de Versión | DevOps / Frontend / Docker | `pesallaccia.com` muestra `1.16.0` y contraste dark perdido tras deploy `v1.16.1` | ✅ Resuelto |
+| [31](31-nest-invalid-controller-facturasend-gateway.md) | NestJS Invalid Controller: FacturasendGateway | Backend / NestJS / Deploy | 502 Bad Gateway tras deploy por `UnknownRequestMappingException` (Gateway en `controllers`) | ✅ Resuelto |
+| [32](32-production-schema-drift-missing-migrations.md) | Schema Drift: Columnas Faltantes en Producción | Backend / Prisma / Deploy | 500 en login y `/api/v1/orders` tras deploy por columnas nuevas sin migración (`tenants.odooConnection`, `orders.seller_id`, `orders.traffic_source`) | ✅ Resuelto |
 
 ---
 
@@ -64,7 +70,9 @@ Ordená por problema y área. Cada entrada incluye síntomas, causa raíz y solu
 - **Crash loop `orderflow-odoo-adapter-prod`:** ver [#22](22-odoo-adapter-python-fstring-syntax-error.md) — sintaxis de f-string de Python (`f"INV-{...}"`) en archivo `.js` causaba `SyntaxError` en Node.js.
 - **Contactos vacíos / usuarios no aparecen:** ver [#23](23-contacts-empty-unification.md) — `user_tenant_access.contactId` NULL porque el seed no crea el `Contact`; backfill + fix en `create-production-tenants.sql`.
 - **Bugs en deploy-production.sh:** ver [#24](24-deploy-script-bugs-fixed.md) — sin health check de aplicación, sin rollback, sin validación de env vars, Traefik sin conexión al backend, sin timeout en migraciones.
-- **`init.sh` cuelga el SO por alta carga:** ver #25 — el script es una barrera de CI que ejecuta tests, builds y E2E, saturando los recursos locales; se agregaron flags para ejecución selectiva.
+- **`init.sh` cuelga el SO por alta carga:** ver [#25](25-init-sh-hangs-os.md) — el script es una barrera de CI que ejecuta tests, builds y E2E, saturando los recursos locales; se agregaron flags para ejecución selectiva.
+- **`JavaScript heap out of memory` al ejecutar Jest:** ver [#26](26-jest-memory-leak-out-of-memory.md) — desbordamiento del heap de Node.js en tests NestJS; resuelto con `NODE_OPTIONS=--max-old-space-size=4096`, `--maxWorkers=50%`, `--runInBand` en CI y `moduleRef.close()` en `afterAll`.
+- **Imagen Docker stale en producción + versión hardcodeada:** ver [#29](29-production-stale-frontend-image.md) — `pesallaccia.com` muestra `1.16.0` y contraste dark perdido; forzar rebuild `--no-cache frontend` y eliminar fallbacks `1.16.0` en UI.
 
 ---
 
