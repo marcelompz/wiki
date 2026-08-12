@@ -7,6 +7,30 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.
 
 ## [Unreleased]
 
+### 🚀 Added / Changed (FEAT-059 - Infrastructure Deploy Manager)
+- **Backend `deploy-manager` (multi-sistema):**
+  - CRUD de `Server` e `DeployInstance` con discriminador `system` (`odoo | orderflow | axon | aieer | vitalog | leadqualifier | other`).
+  - Endpoints protegidos por `ApiKeyGuard` + `PermissionsGuard` + `infra:deploy` + `isSuperAdmin`.
+  - Lifecycle actions: `deploy`, `start`, `stop`, `restart`, `backup`, `restore`, `status`.
+- **Validaciones centralizadas:**
+  - `DeployValidationService`: puerto libre, dominio único, validación Traefik.
+- **Handlers por sistema:**
+  - `OdooDeployHandler`: templates Docker Compose/odoo.conf, deploy real por SSH.
+  - `OrderFlowDeployHandler`, `AxonDeployHandler`, `AieerDeployHandler`, `VitaLogDeployHandler`, `LeadQualifierDeployHandler`.
+- **Integración Traefik real (file provider):**
+  - `DeployTraefikService`: escribe routers/services dinámicos en `/opt/traefik-orderflow/dynamic/deploy-manager/`.
+  - Auto-reload por `watch: true`; borrado de rutas al eliminar instancia.
+- **Ejecución SSH real:**
+  - `DeploySshService` con `ssh2`: ejecución remota, escritura de archivos, `docker compose up/down/ps`, `docker exec`.
+- **Post-deploy Odoo:**
+  - `OdooIntegrationService`: instala módulo `orderflow_connect` vía SSH y prepara conexión tenant↔Odoo.
+- **UI Super Admin:**
+  - Página `/admin/deploy` con dashboard, CRUD servidores/instancias, wizard de creación, detalle con acciones y drawer de lifecycle.
+- **Documentación:**
+  - `docs/guides/odoo-deploy-standardization.md` extendido a `deploy-manager` genérico multi-sistema.
+  - `docs/timeline.md` con línea de tiempo completa, matriz de avance, troubleshooting histórico y métricas.
+  - Landing page: sección “Evolución de OmniFlow” con `Timeline` y acceso a `/docs/timeline.md`.
+
 ---
 
 ## [1.19.0] - 2026-08-10
