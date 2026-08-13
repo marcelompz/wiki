@@ -62,6 +62,23 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.
 
 ---
 
+## [1.20.3] - 2026-08-13
+
+### 🚀 Added / Changed (Orders Debug)
+- **State Machine:**
+  - `updateStatus` ahora valida transiciones permitidas (`DRAFT → CONFIRMED/CANCEELLED`, etc.) y rechaza inválidas con `400`.
+- **Cancel Seguro:**
+  - Bloquea cancelación de `DELIVERED`.
+  - Repone stock si aplica.
+  - Genera `cashMovement` de reversión (`OUT`).
+  - Emite WS a KDS/POS.
+- **Confirm Idempotente:**
+  - Si ya está `CONFIRMED`, devuelve el pedido sin error ni doble stock/caja.
+- **Tests:**
+  - 17 casos en `orders.service.spec.ts`, incluyendo nuevos escenarios de `updateStatus` y `cancel`.
+
+---
+
 ## [1.19.0] - 2026-08-10
 
 ### 🎨 Added / Changed (Rebranding Parcial - Capa Visible)
