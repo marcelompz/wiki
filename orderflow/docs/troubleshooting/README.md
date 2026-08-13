@@ -33,6 +33,9 @@ Ordená por problema y área. Cada entrada incluye síntomas, causa raíz y solu
 | [29](29-production-stale-frontend-image.md) | Imagen Docker Stale + Fallbacks de Versión | DevOps / Frontend / Docker | `pesallaccia.com` muestra `1.16.0` y contraste dark perdido tras deploy `v1.16.1` | ✅ Resuelto |
 | [31](31-nest-invalid-controller-facturasend-gateway.md) | NestJS Invalid Controller: FacturasendGateway | Backend / NestJS / Deploy | 502 Bad Gateway tras deploy por `UnknownRequestMappingException` (Gateway en `controllers`) | ✅ Resuelto |
 | [32](32-production-schema-drift-missing-migrations.md) | Schema Drift: Columnas Faltantes en Producción | Backend / Prisma / Deploy | 500 en login y `/api/v1/orders` tras deploy por columnas nuevas sin migración (`tenants.odooConnection`, `orders.seller_id`, `orders.traffic_source`) | ✅ Resuelto |
+| [33](33-traefik-dynamic-config-write-failure.md) | No se pudo escribir la configuración de Traefik | DevOps / Traefik / Deploy Manager | Error al crear instancia en `/admin/deploy`: `No se pudo escribir la configuración de Traefik para <domain>` | ✅ Resuelto |
+| [34](34-mobile-admin-drawer-navigation.md) | Mobile Admin: Drawer Navigation + Topbar Compacto | Frontend / Admin UX / Mobile | En mobile, la sidebar se muestra como acordeón inline empujando el contenido; el drawer no abre correctamente | ✅ Resuelto |
+| [35](35-homepage-builder-config-persistence.md) | Persistencia en Diseñador Web & Merge de Config JSON | Frontend / Backend / Web Builder | Al guardar cambios en el Diseñador Web (`/admin/homepage-builder`), no persistían tras cambiar de módulo | ✅ Resuelto |
 
 ---
 
@@ -46,6 +49,7 @@ Ordená por problema y área. Cada entrada incluye síntomas, causa raíz y solu
 - **SPA carga ruta incorrecta / assets viejos:** ver [#01](01-traefik-routing-and-spa-cache.md) — colisión de routers Traefik y fallback de `serve`.
 - **HTTP 522 / HTTPS mixed content:** ver [#01](01-traefik-routing-and-spa-cache.md) y [#02](02-production-docker-manifests-and-ssl-redirects.md) — prioridad de routers y modo SSL en Cloudflare.
 - **Rutas `/api` no llegan al backend:** ver [#02](02-production-docker-manifests-and-ssl-redirects.md) — reglas Traefik y `container_name` fijos.
+- **No se pudo escribir la configuración de Traefik:** ver [#33](33-traefik-dynamic-config-write-failure.md) — directorio dinámico de Traefik no montado en el contenedor de OmniFlow o permisos incorrectos.
 
 ### Base de Datos
 - **P1000 / auth PostgreSQL:** ver [#04](04-prisma-p1000-db-auth-and-redis-fallback.md) — rotación de credenciales y volumen persistente.
