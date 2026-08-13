@@ -14,10 +14,34 @@ Este documento define la estrategia de estandarización de despliegues de infrae
 - Otros sistemas gestionados
 
 **Regla de separación (OBLIGATORIA):**
-- El deploy de OrderFlow (`deploy-production.sh`, `docker-compose.prod.yml`) **NO incluye instancias de Odoo ni de otros sistemas**.
+- El deploy de OrderFlow (`deploy-production.sh`, `docker-compose.prod.yml`) **NO incluye instancias de Odoo ni de otros sistemas externos**.
 - Las instancias de Odoo se despliegan en servidores independientes y no comparten el stack de contenedores de OrderFlow.
-- Los datos de paths (`/srv/odoo-deploy`, `/srv/odoo-addons`, etc.) se conservan como configuración de referencia.
-- La creación y ciclo de vida de instancias se realiza exclusivamente desde `/admin/deploy` (Infrastructure Deploy Manager).
+- Los datos de paths (`/srv/odoo-deploy`, `/srv/odoo-addons`, etc.) se conservan como configuración de referencia en la base de datos de OrderFlow, pero no se instancian desde el compose de producción de OrderFlow.
+- La creación y ciclo de vida de instancias se realiza exclusivamente desde `/admin/deploy` (Infrastructure Deploy Manager / módulo `deploy-manager`).
+- El módulo `deploy-manager` es la **única vía autorizada** para crear, desplegar y gestionar instancias de Odoo, Axon, AIEER, VitaLog, LeadQualifierCRM y otros sistemas.
+- **Prohibido:** incluir servicios de Odoo en `docker-compose.prod.yml` o `deploy-production.sh`. Cualquier cambio que mezcle stacks será revertido en code review.
+
+## 1.1 Arquitectura de separación
+
+```
+Servidor OrderFlow (HetZner / Provecchio)
+├── /srv/orderflow/                    # Repo OrderFlow + deploy productivo
+├── docker-compose.prod.yml           # Solo OrderFlow + odoo_adapter
+├── deploy-production.sh              # Deploy exclusivo de OrderFlow
+└── /srv/traefik/                      # Traefik v3.4 (ruteo dinámico)
+
+Servidor Odoo (independiente)
+├── /srv/odoo-deploy/
+│   ├── 18/                            # Template base Odoo 18
+│   ├── 18_cliente_a/                  # Instancia cliente A
+│   └── 19_cliente_b/                  # Instancia cliente B
+├── /srv/odoo-addons/
+└── /srv/odoo-l10n-py/
+```
+
+**Comunicación entre stacks:**
+- OrderFlow → Odoo: mediante `odoo-adapter` (microservicio propio en el stack de OrderFlow) o webhooks directos.
+- Traefik: enruta tanto dominios de OrderFlow como de Odoo desde una sola instancia centralizada (`/srv/traefik/`), pero cada sistema mantiene su propio stack de contenedores.
 
 ---
 
