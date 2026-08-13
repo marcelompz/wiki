@@ -1,6 +1,6 @@
 {
   "project": "OrderFlow SaaS Omnicanal",
-  "version": "1.20.0",
+  "version": "1.20.2",
   "last_updated": "2026-08-11",
   "features": [
     {
@@ -486,12 +486,33 @@
       "id": "FEAT-059",
       "category": "Infraestructura / Deploy Manager",
       "title": "Infrastructure Deploy Manager: despliegue y ciclo de vida multi-sistema desde Super Admin (Odoo, OmniFlow, Axon, AIEER, VitaLog, LeadQualifierCRM)",
-      "status": "in_progress",
+      "status": "completed",
       "assigned_module": "backend/src/deploy-manager/, frontend/src/pages/admin/deploy/, docs/guides/odoo-deploy-standardization.md",
       "depends_on": ["FEAT-011", "FEAT-016"],
-      "blocking": []
+      "blocking": [],
+      "qa_validation": "init.sh passed: 74 suites / 570 tests | Backend build clean | Frontend build clean | E2E QA: provecchio.com + admin routes all HTTP 200, no JS errors"
+    },
+    {
+      "id": "FEAT-060",
+      "category": "Documentación / UX",
+      "title": "Manuales de usuario automáticos con capturas de pantalla generadas por Playwright",
+      "status": "completed",
+      "assigned_module": "scripts/generate_user_manual.py, scripts/manual_flows/, docs/manual/",
+      "depends_on": ["FEAT-059"],
+      "blocking": [],
+      "qa_validation": "Generador ejecutable: python3 scripts/generate_user_manual.py --flow deploy --markdown --html"
+    },
+    {
+      "id": "FEAT-061",
+      "category": "Frontend / UX",
+      "title": "Mobile Admin UX: Drawer Navigation + Topbar Compacto + Bottom Nav Safe-Area",
+      "status": "completed",
+      "assigned_module": "frontend/src/AdminApp.tsx, frontend/src/components/Sidebar.tsx, frontend/src/components/Topbar.tsx, frontend/src/components/admin/MobileBottomNav.tsx",
+      "depends_on": [],
+      "blocking": [],
+      "qa_validation": "init.sh passed: 74 suites / 570 tests | Frontend build clean | E2E QA: admin mobile drawer + bottom nav sin errores JS"
     }
   ],
-  "lastUpdated": "2026-08-11",
-  "last_id": "FEAT-059"
+  "lastUpdated": "2026-08-13",
+  "last_id": "FEAT-061"
 }

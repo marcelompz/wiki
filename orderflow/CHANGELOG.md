@@ -5,31 +5,60 @@ Todos los cambios notables a este proyecto serán documentados en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 y este proyecto se adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [1.20.1] - 2026-08-12
 
-### 🚀 Added / Changed (FEAT-059 - Infrastructure Deploy Manager)
+### 🚀 Added / Changed (FEAT-059 - Infrastructure Deploy Manager + FEAT-060 - Manuales con Playwright)
 - **Backend `deploy-manager` (multi-sistema):**
   - CRUD de `Server` e `DeployInstance` con discriminador `system` (`odoo | orderflow | axon | aieer | vitalog | leadqualifier | other`).
   - Endpoints protegidos por `ApiKeyGuard` + `PermissionsGuard` + `infra:deploy` + `isSuperAdmin`.
   - Lifecycle actions: `deploy`, `start`, `stop`, `restart`, `backup`, `restore`, `status`.
+- **Odoo Deploy Real:**
+  - `OdooDeployHandler` ahora ejecuta el `deploy.sh` real del servidor por SSH en lugar de generar un template.
+  - Soporte para flags `--clean`, `--with-products`, `--import-data`, `--edition`, `--version`.
+  - Generación de passwords aleatorios y retorno de `deploymentReport` con credenciales.
+  - Estructura canónica de directorios: `/srv/odoo-deploy/<version>/<tenant>/`, `/srv/odoo-addons/<version>/`, `/srv/odoo-l10n-py/<version>/`.
+- **Post-deploy Odoo:**
+  - `OdooIntegrationService`: instala módulo `orderflow_connect` vía SSH y prepara conexión tenant↔Odoo.
+  - Actualización de `Tenant.odooConnection` tras deploy exitoso.
+- **Frontend Wizard:**
+  - Campos de versión y edición (`ce` / `ee`) en formulario de instancia Odoo.
+  - Checkboxes para `--clean` y `--import-data`.
+  - Modal de informe de deploy con passwords copyables y rutas de addons/l10n.
 - **Validaciones centralizadas:**
   - `DeployValidationService`: puerto libre, dominio único, validación Traefik.
-- **Handlers por sistema:**
-  - `OdooDeployHandler`: templates Docker Compose/odoo.conf, deploy real por SSH.
-  - `OrderFlowDeployHandler`, `AxonDeployHandler`, `AieerDeployHandler`, `VitaLogDeployHandler`, `LeadQualifierDeployHandler`.
 - **Integración Traefik real (file provider):**
   - `DeployTraefikService`: escribe routers/services dinámicos en `/opt/traefik-orderflow/dynamic/deploy-manager/`.
   - Auto-reload por `watch: true`; borrado de rutas al eliminar instancia.
 - **Ejecución SSH real:**
   - `DeploySshService` con `ssh2`: ejecución remota, escritura de archivos, `docker compose up/down/ps`, `docker exec`.
-- **Post-deploy Odoo:**
-  - `OdooIntegrationService`: instala módulo `orderflow_connect` vía SSH y prepara conexión tenant↔Odoo.
 - **UI Super Admin:**
   - Página `/admin/deploy` con dashboard, CRUD servidores/instancias, wizard de creación, detalle con acciones y drawer de lifecycle.
+  - Acceso desde menú lateral: **Super Admin → Infraestructura / Deploy**.
 - **Documentación:**
   - `docs/guides/odoo-deploy-standardization.md` extendido a `deploy-manager` genérico multi-sistema.
   - `docs/timeline.md` con línea de tiempo completa, matriz de avance, troubleshooting histórico y métricas.
   - Landing page: sección “Evolución de OmniFlow” con `Timeline` y acceso a `/docs/timeline.md`.
+  - `docs/planes/PLAN_ODOO_PROVECCHIO_DEPLOY.md` con plan detallado para deploy de Odoo 18 en Provecchio.
+- **Manuales de usuario automáticos (FEAT-060):**
+  - `scripts/generate_user_manual.py`: generador de manuales con screenshots automáticos usando Playwright.
+  - Modos: `--flow`, `--all`, `--markdown`, `--html`.
+  - Flujos definidos en `scripts/manual_flows/`.
+  - Salida en `docs/manual/screenshots/` y `docs/manual/*.md`.
+  - Galería navegable en `docs/manual/index.html`.
+
+---
+
+## [1.20.2] - 2026-08-13
+
+### 🚀 Added / Changed (UX/UI Mobile Admin)
+- **Mobile Navigation Drawer:**
+  - `Sidebar` en mobile ahora renderiza como `Drawer` overlay en lugar de acordeón inline.
+  - `Topbar` mobile compacto: hamburger + tenant name truncado + theme toggle + Ver Tienda icon-only + perfil.
+  - Cierre automático del drawer al navegar o tocar fuera.
+  - `MobileBottomNav` mantiene 5 destinos frecuentes con safe-area respetada.
+- **Desktop sin regresiones:**
+  - `Sider` colapsable/expandible mantiene comportamiento previo.
+  - Estado `drawerOpen` aislado de desktop.
 
 ---
 
