@@ -1,15 +1,14 @@
 # AGENTS.md — OrderFlow Harness Engineering Protocol
 
 > **Protocolo Operativo de Actuación y Barrera de Calidad para Inteligencia Artificial**  
-> **Versión:** 2.2.0 (Harness Engineering & E2E QA Standard + Wiki/Traefik Sync)  
-> **Fecha:** 2026-07-31  
+> **Versión:** 2.2.1 (Harness Engineering & E2E QA Standard + Wiki/Traefik Sync + Troubleshooting First)  
+> **Fecha:** 2026-08-07  
 
 ---
 
 ## 🚦 1. Primer Paso Obligatorio: Carga de Contexto
-Antes de examinar código o ejecutar cualquier acción en la base del proyecto, debes consultar el documento de contexto técnico vivo y el glosario oficial:
-👉 Contexto vivo: [docs/00-contexto-agentes.md](docs/00-contexto-agentes.md)  
-👉 Glosario Oficial de Términos & Infraestructura: [docs/GLOSARIO_TERMINOS_Y_ECOSISTEMA.md](docs/GLOSARIO_TERMINOS_Y_ECOSISTEMA.md)  
+Antes de examinar código o ejecutar cualquier acción en la base del proyecto, debes consultar el documento de contexto técnico vivo:
+👉 [docs/00-contexto-agentes.md](docs/00-contexto-agentes.md)
 
 ---
 
@@ -22,6 +21,23 @@ Antes de examinar código o ejecutar cualquier acción en la base del proyecto, 
 5. **Formato y Coexistencia de Módulos:** Verificar acoplamiento cross-module. Si un nuevo módulo posee acoplamiento 0, califica como candidato para la suite de Microservicios Standalone.
 6. **Mantenimiento del Roadmap Standalone:** Cualquier cambio en la suite independiente debe sincronizarse en [docs/ROADMAP_MICROSERVICES.md](docs/ROADMAP_MICROSERVICES.md).
 7. **Sincronización de Documentación con Wiki:** Toda actualización de documentación en `docs/` del proyecto debe reflejarse en la Wiki oficial (`/opt/wiki/orderflow/`). Cuando se actualiza `VERSION`, `CHANGELOG.md`, `ROADMAP.md` o cualquier `.md` en `docs/`, la Wiki debe actualizarse en el mismo paso y hacer push a su repositorio remoto.
+
+---
+
+## 🔍 2.1 Troubleshooting First (Obligatorio)
+
+Antes de investigar un bug o error de build/despliegue, **consultar SIEMPRE** el índice de troubleshooting:
+
+👉 [docs/troubleshooting/README.md](docs/troubleshooting/README.md)
+
+### Regla:
+1. Buscar el síntoma en el índice de troubleshooting.
+2. Si existe una entrada, leer la **causa raíz** y la **solución aplicada** antes de modificar código.
+3. Solo si NO hay una entrada previa, se permite investigar desde cero y, en ese caso, **documentar la nueva entrada** en `docs/troubleshooting/` para futuras referencias.
+
+### Prohibido:
+- Repetir investigaciones de errores ya documentados.
+- Modificar código sin antes verificar si el problema tiene una solución conocida en troubleshooting.
 
 ---
 
@@ -43,23 +59,12 @@ La IA tiene **terminantemente prohibido** entregar una tarea como completada, o 
    - Navegación sin cabeza por todos los módulos del panel de administración (`/admin/products`, `/admin/customers`, `/admin/bookings`, `/admin/loyalty`, `/admin/homepage-builder`, `/admin/whatsapp-catalog`).
    - Asertividad de cero excepciones JS en consola y cero errores HTTP 502/404.
 
-### 3.1 Pre-Deploy & Protocolo de Despliegue (OBLIGATORIO)
-Antes de cualquier despliegue a producción o servidores remotos, y como **primer paso**, verificar siempre el estado del repositorio local:
+### 3.1 Pre-Deploy: Verificación del Repositorio (OBLIGATORIA)
+Antes de cualquier despliegue a producción, y como **primer paso**, verificar siempre el estado del repositorio local:
 - `git status` para detectar cambios sin commitear (working tree dirty).
 - Si existen modificaciones pendientes que deben ir al deploy, **commiteerlas y pushearlas a `origin/main`** antes de desplegar (el script `deploy-production.sh` hace `git stash` + `git push`, por lo que los cambios sin commitear quedarían fuera del despliegue).
 - Si por alguna razón se sincronizan archivos directo al servidor sin commit (deploy express), dejar registrado explícitamente que el repo local quedó desincronizado y commiteer/pushear en cuanto el usuario lo autorice.
 - Nunca asumir que el servidor tiene el mismo código que el repo local: tras cualquier fix aplicado directamente en el servidor, reflejarlo en el repo local antes de commiteer.
-
-**Sintaxis Obligatoria de Despliegue (`scripts/deploy-production.sh`):**
-- **Despliegue a Producción Hetzner (`hetzner-orderflow` / `178.105.226.175`):**
-  ```bash
-  ./scripts/deploy-production.sh production
-  ```
-- **Despliegue al Servidor Provecchio (On-Premise `192.168.69.240` / Jump Host `38.52.135.227:2021`):**
-  ```bash
-  ./scripts/deploy-production.sh provecchio
-  ```
-  *(Prohibido ejecutar en localhost cuando se solicite despliegue a Provecchio; usar el argumento `provecchio`).*
 
 ---
 
@@ -88,6 +93,6 @@ Para evitar la saturación de contexto, toda tarea compleja debe ejecutarse divi
 
 3. 🔍 **Revisor / Auditor:**
    - Ejecuta `./scripts/init.sh`.
-   - Verifica la sincronización de versión en `VERSION`, `CHANGELOG.md`, `ROADMAP.md`, `package.json` y manifiestos `*.manifest.json`.
+    - Verifica la sincronización de versión en `VERSION`, `CHANGELOG.md`, `ROADMAP.md`, `docs/timeline.md`, `README.md`, `backend/src/main.ts` (Swagger version), `package.json` y manifiestos `*.manifest.json`.
    - Crea y sube el tag de la nueva versión: `git tag vX.Y.Z && git push --tags`.
    - Sincroniza la documentación actualizada con la Wiki oficial (`/opt/wiki/orderflow/`) y la documentación de Traefik (`/opt/traefik-orderflow/`), haciendo push a sus respectivos repositorios.

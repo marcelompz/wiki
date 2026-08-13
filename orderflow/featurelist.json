@@ -521,8 +521,18 @@
       "depends_on": [],
       "blocking": [],
       "qa_validation": "init.sh passed: 74 suites / 578 tests | Backend build clean | E2E QA: provecchio.com + admin routes all HTTP 200, no JS errors"
+    },
+    {
+      "id": "FEAT-063",
+      "category": "Backend / Debug",
+      "title": "Orders Debug: create channel validation, /me endpoint, findOne 404, dbClient multi-tier",
+      "status": "completed",
+      "assigned_module": "backend/src/orders/orders.service.ts, backend/src/orders/orders.controller.ts, backend/src/orders/dto/create-order.dto.ts, backend/src/orders/orders.service.spec.ts, backend/src/orders/orders.controller.spec.ts, backend/src/orders/orders.seller-attribution.integration.spec.ts",
+      "depends_on": ["FEAT-062"],
+      "blocking": [],
+      "qa_validation": "init.sh passed: 74 suites / 580 tests | Backend build clean | E2E QA: provecchio.com + admin routes all HTTP 200, no JS errors"
     }
   ],
   "lastUpdated": "2026-08-13",
-  "last_id": "FEAT-062"
+  "last_id": "FEAT-063"
 }
