@@ -1,6 +1,6 @@
 {
   "project": "OrderFlow SaaS Omnicanal",
-  "version": "1.20.3",
+  "version": "1.20.4",
   "last_updated": "2026-08-11",
   "features": [
     {
@@ -536,13 +536,23 @@
       "id": "FEAT-064",
       "category": "Backend / Architecture",
       "title": "Schema Decoupling: Fase 0 multi-file layout + Fase 1 Giveaways standalone",
-      "status": "in_progress",
+      "status": "completed",
       "assigned_module": "backend/prisma/schema.prisma, services/giveaways-standalone/prisma/schema.prisma, services/giveaways-standalone/scripts/migrate-from-core.ts, docs/planes/SCHEMA_DECOUPLING_PLAN.md",
       "depends_on": [],
       "blocking": [],
-      "qa_validation": "prisma validate OK | prisma generate OK | init.sh passed: 74 suites / 580 tests | E2E QA: provecchio.com + admin routes all HTTP 200, no JS errors"
+      "qa_validation": "prisma validate OK | prisma generate OK | init.sh passed: 74 suites / 580 tests | E2E QA: provecchio.com + admin routes all HTTP 200, no JS errors | PostgreSQL schema giveaways created and migrated"
+    },
+    {
+      "id": "FEAT-065",
+      "category": "Backend / Architecture",
+      "title": "Schema Decoupling: Social Catalog + Bio-Links standalone extraction",
+      "status": "in_progress",
+      "assigned_module": "services/social-catalog-standalone/, services/biolinks-standalone/, backend/prisma/schema.prisma, docs/planes/SCHEMA_DECOUPLING_PLAN.md",
+      "depends_on": ["FEAT-064"],
+      "blocking": [],
+      "qa_validation": "prisma validate OK | prisma generate OK | init.sh passed | E2E QA: admin routes all HTTP 200"
     }
   ],
   "lastUpdated": "2026-08-13",
-  "last_id": "FEAT-064"
+  "last_id": "FEAT-065"
 }

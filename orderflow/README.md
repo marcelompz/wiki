@@ -1,6 +1,6 @@
 # OmniFlow SaaS Omnicanal
 
-![Version](https://img.shields.io/badge/version-1.20.3-blue)
+![Version](https://img.shields.io/badge/version-1.20.4-blue)
 ![License](https://img.shields.io/badge/license-Proprietary-red)
 ![NestJS](https://img.shields.io/badge/backend-NestJS-green)
 ![React](https://img.shields.io/badge/frontend-React-blue)
@@ -174,4 +174,4 @@ Propietario - OrderFlow Team
 ---
 
 **Última actualización:** 2026-08-13  
-**Versión:** 1.20.3
+**Versión:** 1.20.4

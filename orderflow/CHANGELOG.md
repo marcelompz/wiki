@@ -5,6 +5,21 @@ Todos los cambios notables a este proyecto serán documentados en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 y este proyecto se adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.20.4] - 2026-08-13
+
+### 🚀 Added / Changed (FEAT-064 - Schema Decoupling + FEAT-065 - Social Catalog/Bio-Links)
+- **Schema Decoupling (Fase 0 + Fase 1 Giveaways):**
+  - `backend/prisma/schema.prisma` documentado con bounded contexts (Platform Core / Commerce Core / Feature Modules).
+  - Schema standalone de Giveaways creado en `services/giveaways-standalone/prisma/schema.prisma`.
+  - Cliente Prisma aislado generado (`giveaways-client`).
+  - Script de migración idempotente: `services/giveaways-standalone/scripts/migrate-from-core.ts`.
+  - Schema PostgreSQL `giveaways` creado y tablas migradas en producción.
+- **Arquitectura:**
+  - Separación de deploys OrderFlow vs Odoo documentada en `docs/guides/odoo-deploy-standardization.md`.
+  - Fase 1 Social Catalog + Bio-Links planificada en `docs/planes/SCHEMA_DECOUPLING_PLAN.md`.
+
+---
+
 ## [1.20.1] - 2026-08-12
 
 ### 🚀 Added / Changed (FEAT-059 - Infrastructure Deploy Manager + FEAT-060 - Manuales con Playwright)
@@ -62,7 +77,7 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.
 
 ---
 
-## [1.20.3] - 2026-08-13
+## [1.20.4] - 2026-08-13
 
 ### 🚀 Added / Changed (Orders Debug)
 - **State Machine:**

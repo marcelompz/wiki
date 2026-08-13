@@ -1,7 +1,7 @@
 # Línea de Tiempo y Evolución de OmniFlow
 
 **Última actualización:** 2026-08-13  
-**Versión actual:** `v1.20.3`  
+**Versión actual:** `v1.20.4`  
 **Documento fuente:** `CHANGELOG.md`, `ROADMAP.md`, `featurelist.json`
 
 ---
@@ -10,7 +10,7 @@
 
 ```mermaid
 timeline
-    title Evolución de OmniFlow / OrderFlow (v0.1.0 → v1.20.3)
+    title Evolución de OmniFlow / OrderFlow (v0.1.0 → v1.20.4)
     2026-06-15 : v0.1.0 MVP inicial
                   : Multi-tenant API key, Giveaways, WhatsApp catalog
                   : NestJS + Prisma + React + Docker
@@ -60,14 +60,20 @@ timeline
     2026-08-10 : v1.19.0 ♻️ Rebranding Parcial OmniFlow
                   : Marca pública OmniFlow, capa técnica OrderFlow
                   : Hito histórico de identidad corporativa
-     2026-08-11 : v1.20.0
-                   : Infrastructure Deploy Manager (planificado)
-     2026-08-12 : v1.20.1
-                   : Deploy-manager multi-sistema + Manuales Playwright
-                   : Separación deploy OrderFlow vs Odoo desde /admin/deploy
+      2026-08-11 : v1.20.0
+                    : Infrastructure Deploy Manager
+      2026-08-12 : v1.20.1
+                    : Deploy-manager multi-sistema + Manuales Playwright
+                    : Separación deploy OrderFlow vs Odoo desde /admin/deploy
+      2026-08-13 : v1.20.2
+                    : Mobile admin drawer navigation + Topbar compacto
+                    : Bottom nav respeta safe-area, sin duplicación de menú
       2026-08-13 : v1.20.3
                     : Orders debug: state machine, cancel reversals, confirm idempotent
                     : 578 tests, E2E QA clean
+      2026-08-13 : v1.20.4
+                    : Schema decoupling: Giveaways standalone + Social Catalog/Bio-Links
+                    : PostgreSQL schema giveaways created and migrated
 ```
 
 ---
