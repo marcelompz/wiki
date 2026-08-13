@@ -5,6 +5,32 @@ Todos los cambios notables a este proyecto serán documentados en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 y este proyecto se adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.20.5] - 2026-08-13
+
+### 🚀 Added / Changed (FEAT-065 - Social Catalog Standalone Extraction)
+- **Schema Decoupling (Fase 2 - Social Catalog):**
+  - Schema monolítico: eliminado `MessagingChannel` enum y modelo `CatalogChannelConfig`.
+  - `RetentionRule.channel` cambiado de `MessagingChannel` a `String` + agregado campo `config Json?`.
+  - `FollowUpJob` mantiene `channel` como String (no enum).
+  - Adapters de mensajería (WhatsApp, Telegram, Instagram, Messenger, Custom Webhook) desacoplados del Prisma monolítico: ahora reciben `config` vía payload.
+- **Social Catalog Standalone (`services/social-catalog-standalone/`):**
+  - Nuevo microservicio con su propio schema Prisma (`MessagingChannel` + `CatalogChannelConfig`).
+  - Cliente Prisma aislado generado (`social-catalog-client`).
+  - Endpoints CRUD para canales de mensajería (`/api/v1/standalone/social-catalog/channels`).
+  - Build y tests validados.
+- **Core (OrderFlow monolito):**
+  - `SocialCatalogService` y `SocialCatalogAdminController` usan `HttpService` para proxy hacia standalone.
+  - `FollowUpQueueProcessor` pasa `config` de regla al adapter.
+  - Eliminados imports de `CatalogChannelConfig` y `MessagingChannel` del core.
+  - Migración de datos one-way script actualizado: `backend/src/social-catalog/migrations/migrate-whatsapp-to-social.ts`.
+- **Validación completa:**
+  - `prisma generate` OK (core + standalone).
+  - 74 test suites / 580 tests passed.
+  - Backend + Frontend builds limpios.
+  - E2E QA (Playwright): provecchio.com + admin routes HTTP 200, sin errores JS.
+
+---
+
 ## [1.20.4] - 2026-08-13
 
 ### 🚀 Added / Changed (FEAT-064 - Schema Decoupling + FEAT-065 - Social Catalog/Bio-Links)

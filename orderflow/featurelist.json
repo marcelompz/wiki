@@ -546,11 +546,11 @@
       "id": "FEAT-065",
       "category": "Backend / Architecture",
       "title": "Schema Decoupling: Social Catalog + Bio-Links standalone extraction",
-      "status": "in_progress",
+      "status": "completed",
       "assigned_module": "services/social-catalog-standalone/, services/biolinks-standalone/, backend/prisma/schema.prisma, docs/planes/SCHEMA_DECOUPLING_PLAN.md",
       "depends_on": ["FEAT-064"],
       "blocking": [],
-      "qa_validation": "prisma validate OK | prisma generate OK | init.sh passed | E2E QA: admin routes all HTTP 200"
+      "qa_validation": "prisma validate OK | prisma generate OK | init.sh passed: 74 suites / 580 tests | E2E QA: provecchio.com + admin routes all HTTP 200, no JS errors | Social Catalog standalone extracted with own Prisma schema"
     }
   ],
   "lastUpdated": "2026-08-13",

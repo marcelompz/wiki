@@ -1,6 +1,6 @@
 # OmniFlow SaaS Omnicanal
 
-![Version](https://img.shields.io/badge/version-1.20.4-blue)
+![Version](https://img.shields.io/badge/version-1.20.5-blue)
 ![License](https://img.shields.io/badge/license-Proprietary-red)
 ![NestJS](https://img.shields.io/badge/backend-NestJS-green)
 ![React](https://img.shields.io/badge/frontend-React-blue)

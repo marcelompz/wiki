@@ -2,13 +2,12 @@
 
 > **Mantenimiento:** este archivo refleja el plan vivo de producto. Cada Feature ID viene de `featurelist.json`.
 
-## Versión actual: 1.20.4 (en curso)
+## Versión actual: 1.20.5 (en curso)
 
 ### 🎯 Objetivo
-- Mejorar la navegación mobile del Admin: drawer overlay, topbar compacto y bottom nav sin duplicación.
-- Gestionar instancias Odoo y otros sistemas exclusivamente desde `/admin/deploy` (Infrastructure Deploy Manager).
+- Extraer Social Catalog a microservicio standalone con schema Prisma propio.
 - Depurar módulo Orders: máquina de estados, cancelación segura y confirmación idempotente.
-- Decoupling de schema Prisma: Fase 0 documentada + Fase 1 Giveaways standalone.
+- Decoupling de schema Prisma: Fase 0 documentada + Fase 1 Giveaways standalone + Fase 2 Social Catalog standalone.
 
 ### 🚀 Features activas
 | ID | Título | Estado |
@@ -19,13 +18,21 @@
 | FEAT-062 | Orders Debug: state machine + cancel reversals + confirm idempotency | `completed` |
 | FEAT-063 | Orders Debug: create channel validation, /me endpoint, findOne 404, dbClient multi-tier | `completed` |
 | FEAT-064 | Schema Decoupling: Fase 0 multi-file layout + Fase 1 Giveaways standalone | `completed` |
-| FEAT-065 | Schema Decoupling: Social Catalog + Bio-Links standalone extraction | `in_progress` |
+| FEAT-065 | Schema Decoupling: Social Catalog + Bio-Links standalone extraction | `completed` |
 
 ### 📅 Próximo hito
-- `v1.20.4` — Schema decoupling: Giveaways standalone + Social Catalog/Bio-Links planificados.
+- `v1.20.5` — Schema decoupling: Social Catalog standalone extraído con schema Prisma propio.
 - `v1.21.0` — Extender manuales a otros flujos (Productos, POS, Catálogo Social).
 
 ## Versiones anteriores
+
+### v1.20.5 — Schema Decoupling: Social Catalog Standalone
+- Schema monolítico: eliminado `MessagingChannel` enum y modelo `CatalogChannelConfig`.
+- `RetentionRule.channel` cambiado a `String` + agregado campo `config Json?`.
+- Adapters de mensajería desacoplados del Prisma monolítico.
+- Social Catalog Standalone (`services/social-catalog-standalone/`): schema Prisma propio, cliente aislado, endpoints CRUD de canales.
+- Core usa proxy HTTP hacia standalone para operaciones de canales.
+- Validación completa: 580 tests, builds limpios, E2E QA OK.
 
 ### v1.20.4 — Schema Decoupling + Orders Debug
 - Schema Decoupling Fase 0: bounded contexts documentados en `backend/prisma/schema.prisma`.
