@@ -531,8 +531,18 @@
       "depends_on": ["FEAT-062"],
       "blocking": [],
       "qa_validation": "init.sh passed: 74 suites / 580 tests | Backend build clean | E2E QA: provecchio.com + admin routes all HTTP 200, no JS errors"
+    },
+    {
+      "id": "FEAT-064",
+      "category": "Backend / Architecture",
+      "title": "Schema Decoupling: Fase 0 multi-file layout + Fase 1 Giveaways standalone",
+      "status": "in_progress",
+      "assigned_module": "backend/prisma/schema.prisma, services/giveaways-standalone/prisma/schema.prisma, services/giveaways-standalone/scripts/migrate-from-core.ts, docs/planes/SCHEMA_DECOUPLING_PLAN.md",
+      "depends_on": [],
+      "blocking": [],
+      "qa_validation": "prisma validate OK | prisma generate OK | init.sh passed: 74 suites / 580 tests | E2E QA: provecchio.com + admin routes all HTTP 200, no JS errors"
     }
   ],
   "lastUpdated": "2026-08-13",
-  "last_id": "FEAT-063"
+  "last_id": "FEAT-064"
 }
