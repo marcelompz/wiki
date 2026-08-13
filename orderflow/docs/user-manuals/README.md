@@ -35,3 +35,7 @@ Bienvenidos al Centro de Documentación Operativa de **OrderFlow**. Los siguient
    - Configuración de la divisa base por tenant (PYG, ARS, USD, etc.) e IVA.
    - Fijación de precios en divisas secundarias y conversión automatizada.
    - Enlace y mapeo con sistemas ERP (Tango ERP, Odoo, Contabilium, Xubio).
+
+7. 🚀 **[07. Guía Técnica & Protocolo E2E del Flujo Comercial](07-flujo-comercial-end-to-end.md)**
+   - Caso de uso completo: Prospecto Landing → Registro FREE → BioLinks → Social Catalog → Venta WhatsApp.
+   - Arquitectura de componentes, eventos de invalidación en Redis y script de prueba Playwright.
