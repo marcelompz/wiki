@@ -36,6 +36,7 @@ Ordená por problema y área. Cada entrada incluye síntomas, causa raíz y solu
 | [33](33-traefik-dynamic-config-write-failure.md) | No se pudo escribir la configuración de Traefik | DevOps / Traefik / Deploy Manager | Error al crear instancia en `/admin/deploy`: `No se pudo escribir la configuración de Traefik para <domain>` | ✅ Resuelto |
 | [34](34-mobile-admin-drawer-navigation.md) | Mobile Admin: Drawer Navigation + Topbar Compacto | Frontend / Admin UX / Mobile | En mobile, la sidebar se muestra como acordeón inline empujando el contenido; el drawer no abre correctamente | ✅ Resuelto |
 | [35](35-homepage-builder-config-persistence.md) | Persistencia en Diseñador Web & Merge de Config JSON | Frontend / Backend / Web Builder | Al guardar cambios en el Diseñador Web (`/admin/homepage-builder`), no persistían tras cambiar de módulo | ✅ Resuelto |
+| [36](36-root-domain-ecommerce-vs-landing-bug.md) | Bug de Ruta Raíz (`/`) Renderizando E-Commerce en vez de Landing | Frontend / App Router / Landing | Al ingresar a la raíz `/` con sesión iniciada, cargaba el catálogo e-commerce en vez de la portada comercial | ✅ Resuelto |
 
 ---
 
