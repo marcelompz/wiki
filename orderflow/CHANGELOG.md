@@ -5,6 +5,33 @@ Todos los cambios notables a este proyecto serán documentados en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 y este proyecto se adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.20.7] - 2026-08-13
+
+### 🚀 Added
+- **Provisioning Autónomo Self-Service (`register-tenant`):**
+  - Endpoint backend público `POST /api/v1/auth/register-tenant` para creación instantánea de tiendas/tenants, asignación de usuario `OWNER` con `UserRole.ADMIN` e instalación por defecto del módulo `biolinks` (Plan FREE).
+  - Pestaña *"Crear mi Catálogo Gratis"* en `/login?mode=register` con auto-login e ingreso inmediato a `/admin/biolinks`.
+- **Rediseño de Landing Page Comercial "Punta de Lanza":**
+  - Tagline *"Tu biografía no es solo un directorio de links: es tu nueva caja registradora"* y propuesta 0% comisiones.
+  - *Calculadora Interactiva de Ahorro* en React para simulación de ventas vs. 12% Linktree Free.
+  - Conmutador interactivo *Tab Switcher Bio-Links vs. Social Catalog* y *Matriz Comparativa Destructiva*.
+- **Optimización Edge Core Performance:**
+  - Purga atómica de claves Redis (`cache:biolink:${slug}`, `bio:${slug}`, `catalog:tenant:${tenantId}`) en `BioLinksService`.
+- **Documentación & QA E2E Comercial:**
+  - Guía técnica `docs/user-manuals/07-flujo-comercial-end-to-end.md` y runner automatizado Playwright `scripts/manual_flows/commercial_flow.py`.
+- **Restauración en Sidebar:**
+  - Separación limpia en el menú lateral entre `BioLinks (Link-in-Bio)` (`/admin/biolinks`) y `Diseño Web & Portada` (`/admin/homepage-builder`).
+
+---
+
+## [1.20.6] - 2026-08-13
+
+### 🐛 Fixed
+- **Root domain landing (BUG #36):** el dominio raíz `/` ahora renderiza `LandingBioLinksCatalog` (spearhead landing page) en vez del catálogo e-commerce cuando hay sesión iniciada. Refactor de `frontend/src/App.tsx` + nuevo `frontend/src/pages/LandingBioLinksCatalog.tsx`.
+- Documentada entrada de troubleshooting `36-root-domain-ecommerce-vs-landing-bug`.
+
+---
+
 ## [1.20.5] - 2026-08-13
 
 ### 🚀 Added / Changed (FEAT-065 - Social Catalog Standalone Extraction)
