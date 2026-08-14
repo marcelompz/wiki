@@ -6,6 +6,10 @@
 
 ## 📋 Índice
 
+### Testing & QA Automation
+- [05-testing-report.md](05-testing-report.md) — Reportes de Testing en OrderFlow
+- [PLAYWRIGHT_MCP_INTEGRATION.md](PLAYWRIGHT_MCP_INTEGRATION.md) — Guía de Integración Playwright MCP en VS Code
+
 ### Deployment
 - [DEPLOYMENT.md](DEPLOYMENT.md) — Guía principal de deploy a producción
 - [GUIA_DESPLIEGUE_SERVIDORES.md](GUIA_DESPLIEGUE_SERVIDORES.md) — Guía de despliegue en servidores

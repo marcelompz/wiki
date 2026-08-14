@@ -1,12 +1,15 @@
-# AGENTS.md — OrderFlow (contexto para agentes)
+# AGENTS.md — OmniFlow (contexto para agentes)
 
-> Guía de contexto técnico vivo del proyecto **OrderFlow** (plataforma SaaS multi-tenant de ventas de alta velocidad). Lee esto antes de modificar código para entender la arquitectura, las convenciones y el estado actual.
+> Guía de contexto técnico vivo del proyecto **OmniFlow** (plataforma SaaS multi-tenant de alta velocidad). Lee esto antes de modificar código para entender la arquitectura, las convenciones y el estado actual.
 
 ---
 
-## 1. Qué es OrderFlow
+## 1. Qué es OmniFlow / OrderFlow
 
-Plataforma SaaS omnicanal, agnóstica al ERP, multi-rubro (spa, retail, automotriz, farmacia…). Permite catálogo + carrito + checkout, turnos/bookings, presupuestos, sorteos e integración con ERPs externos (Odoo, MIDA, SAP) vía webhooks.
+**OmniFlow** es la marca pública del producto.  
+**OrderFlow** es el nombre técnico interno del repositorio, código, APIs, tablas, variables de entorno, colas, imágenes Docker y rutas Traefik.
+
+No mezclar ambas superficies: el usuario final ve **OmniFlow**; el código y la infraestructura siguen siendo **OrderFlow** hasta que se decida migrar la capa técnica en una fase posterior controlada.
 
 OrderFlow opera en **dos modos** controlados por la variable `ORDERFLOW_MODE`:
 - **`community`** (por defecto): Multi-tenant con aislamiento lógico. Un backend NestJS sirve a N tenants aislados por `tenantId`. Soporta tenants `shared` (DB compartida) y `dedicated` (DB propia enterprise) simultáneamente.
@@ -15,10 +18,12 @@ OrderFlow opera en **dos modos** controlados por la variable `ORDERFLOW_MODE`:
 Ambos modos comparten el mismo schema Prisma y el mismo código de services. La diferencia es la capa de auth/guard y la resolución de la conexión a la DB.
 
 - Repo Core: `https://github.com/marcelompz/orderflow`
+- Marca pública: **OmniFlow**
+- Nombre técnico/código/infra: **OrderFlow**
 - Glosario Oficial de Términos & Infraestructura: [docs/GLOSARIO_TERMINOS_Y_ECOSISTEMA.md](docs/GLOSARIO_TERMINOS_Y_ECOSISTEMA.md)
 - Repo Traefik Gateway Subsystem: `https://github.com/marcelompz/traefik-orderflow.git` (servidor: `/srv/traefik`, local: `/opt/traefik-orderflow/`)
 - Servidor Hetzner VPS (Producción): `hetzner-orderflow:/srv/orderflow` (alias SSH configurado)
-  - Versión actual: **v1.8.1** (staging + production operativos).
+  - Versión actual: **v1.18.2** (staging + production operativos).
 - Lenguaje: TypeScript en todo el stack.
 
 ---
@@ -56,7 +61,10 @@ orderflow/
 ├── ROADMAP.md, CHANGELOG.md, README.md, VERSION
 ```
 
-> **Convención de documentación:** `docs/` está organizado por número (`01-quickstart.md`, `02-architecture.md`, `11-axios-vs-fetch.md`…) y por tema (`AUTH_FLOW.md`, `ARQUITECTURA_MODULAR.md`, `GUIA_DESPLIEGUE_Y_TENANTS.md`, etc.). Antes de grandes cambios, revisá los `.md` relevantes. Nota: En OrderFlow **Axios** es el estándar de cliente HTTP obligado frente a Fetch (ver `11-axios-vs-fetch.md`).
+> **Convención de marca:** este repositorio usa **OrderFlow** como nombre técnico interno (APIs, tablas, variables, colas, jobs, endpoints, módulos backend, configuraciones Docker/Traefik y rutas).  
+> **OmniFlow** es la marca pública/comercial y solo debe aparecer en superficies de presentación (`frontend` títulos/docs públicas, marketing, manuales de usuario, wiki externa).  
+> Está prohibido mezclar ambas marcas en la misma superficie visible.  
+> Nota: En OrderFlow **Axios** es el estándar de cliente HTTP obligado frente a Fetch (ver `11-axios-vs-fetch.md`).
 
 ---
 
@@ -189,11 +197,9 @@ OrderFlow tiene **tres entornos** diferenciados y **no son equivalentes**:
 | **provecchio** | Servidor físico | **Actualizable** | Versión in-house en producción (`provecchio.com`). Recibe deploys selectivos con validación previa. |
 
 **Regla operativa & Aislamiento de Traefik en Provecchio:**
-- `staging`, `production` y `provecchio` reciben deploy desde CI/CD o mediante script de despliegue:
-  - Deploy a **Producción Hetzner**: `./scripts/deploy-production.sh production`
-  - Deploy a **Servidor Provecchio**: `./scripts/deploy-production.sh provecchio` *(conecta a `192.168.69.240` o automáticamente mediante ProxyJump `root@38.52.135.227:2021` si la IP local no es accesible. NUNCA ejecutar en localhost).*
+- `staging`, `production` y `provecchio` reciben deploy desde CI/CD o manual.
 - `provecchio` posee su propia instancia de Traefik en `/srv/traefik/` que habita de forma **100% aislada** de `/srv/orderflow/`. Tiene su propio `docker-compose.yml`, `.env`, `traefik.yml` y certificados `acme.json`.
-- Los cambios en este repositorio (`/opt/orderflow/`) se aplican a `provecchio` mediante `./scripts/deploy-production.sh provecchio` o `scripts/update-provecchio-version.sh` (hotfix quirúrgico). Provecchio utiliza su propio `.env.prod` local (donde se encuentra `CF_DNS_API_TOKEN`).
+- Los cambios en este repositorio (`/opt/orderflow/`) se aplican a `provecchio` mediante `scripts/update-provecchio-version.sh` (hotfix quirúrgico) o deploy manual. Provecchio utiliza su propio `.env.prod` local (donde se encuentra `CF_DNS_API_TOKEN`).
 - **Diagnóstico 502 Bad Gateway:** Si `provecchio.com` arroja HTTP 502 o falla en la emisión de certificados SSL, consultar la guía de diagnóstico en [docs/troubleshooting/06-provecchio-traefik-ssl-and-502-diagnosis.md](troubleshooting/06-provecchio-traefik-ssl-and-502-diagnosis.md).
 
 ### 6.2 Limpieza de configuración obsoleta (`old/`)
@@ -272,7 +278,7 @@ docker compose up -d     # levantar stack dev
 - Auth compartida vía `packages/auth-shared` (JWT/API Key validation sin acoplamiento a DB monolítica).
 - Routing vía Traefik v3.4: cada standalone tiene su propio subdominio (`sorteos.*`, `catalogo.*`, `bio.*`, `turnos.*`).
 
-### 8.5 Visión a largo plazo — **v2.0.0+**
+### 8.5 Visión a largo plazo — **v3.0.0+**
 - Migración Docker Compose → Kubernetes.
 - Helm charts para core + microservicios.
 - Autoscaling por servicio.
@@ -286,6 +292,11 @@ docker compose up -d     # levantar stack dev
 - **`tenantId` es sagrado:** NO eliminar `tenantId` de queries ni tablas. Funciona en ambos modos. En enterprise, siempre tiene el mismo valor; en community, aísla los datos entre tenants.
 - **Multi-tier (`isolationTier`):** el `TenantConnectionManager` resuelve el PrismaClient. No instanciar `PrismaClient` manualmente en services; usar `this.prisma` (legacy) o `@TenantPrisma()` (nuevo).
 - **Infraestructura Proxy (Traefik v3.4 Exclusivo):** Nginx fue eliminado y sustituido completamente por **Traefik v3.4** como subsistema nativo exclusivo de OrderFlow y Odoo 19 CE. NO volver a activar, sugerir ni configurar Nginx bajo ninguna circunstancia en ningún servidor. El código y configuración del subsistema perimetral se administra en el repositorio [traefik-orderflow](https://github.com/marcelompz/traefik-orderflow.git), ubicado localmente en `/opt/traefik-orderflow/` y en los servidores en `/srv/traefik/`.
+- **Separación de Deploys (OBLIGATORIA):**
+  - El deploy de OrderFlow (`deploy-production.sh`, `docker-compose.prod.yml`) **NO incluye instancias de Odoo ni de otros sistemas externos**.
+  - Las instancias de Odoo se despliegan en servidores independientes y se gestionan exclusivamente desde `/admin/deploy` (Infrastructure Deploy Manager / `deploy-manager` module).
+  - Los datos de paths (`/srv/odoo-deploy`, `/srv/odoo-addons`, `/srv/odoo-l10n-py`, `/srv/orderflow-deploy`, etc.) se conservan como configuración de referencia en la base de datos de OrderFlow, pero no se instancian desde el compose de producción de OrderFlow.
+  - El módulo `deploy-manager` es la **única vía autorizada** para crear, desplegar y gestionar instancias de Odoo, Axon, AIEER, VitaLog, LeadQualifierCRM y otros sistemas.
 - **Despliegue e Inicialización de Odoo 19 CE (`odoo19CE`):** En la infraestructura de Odoo 19 (`git@github.com:marcelompz/odoo19CE.git`, `/srv/odoo/odoo19CE`), el script `init_prod_db.sh` preserva la integridad de los datos existentes en la base de datos `prod`. Si la tabla `res_users` ya existe en PostgreSQL, los scripts de `migracion/` NO se vuelven a ejecutar. La importación de migración solo corre automáticamente en inicializaciones desde cero (`./deploy.sh --clean`) o si se pasa explícitamente `FORCE_MIGRATION=true`.
 - **Microservicios standalone:** al extraer un módulo como standalone, mover el código a `services/<nombre>-standalone/`, crear su propio `schema.prisma` (solo los modelos necesarios), y usar `packages/auth-shared` para validación JWT. El módulo original sigue existiendo en el monolito para clientes que usan OrderFlow completo.
 - **No comentar código** salvo que se pida explícitamente.

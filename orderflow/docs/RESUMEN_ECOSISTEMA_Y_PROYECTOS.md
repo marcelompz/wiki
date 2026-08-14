@@ -4,9 +4,9 @@
 
 ---
 
-## 1. Estado del Arte de OrderFlow (v1.8.1)
+## 1. Estado del Arte de OrderFlow (v1.18.2)
 
-El ecosistema OrderFlow ha experimentado una evolución excepcional, transformándose rápidamente de un producto mínimo viable (MVP) a una **plataforma SaaS comercialmente completa y operativa** en su versión `v1.8.1`.
+El ecosistema OrderFlow ha experimentado una evolución excepcional, transformándose rápidamente de un producto mínimo viable (MVP) a una **plataforma SaaS comercialmente completa y operativa** en su versión `v1.18.0`.
 
 ### Panorama General y Madurez
 
@@ -30,18 +30,18 @@ El ritmo de desarrollo es notable, con múltiples lanzamientos que han añadido 
 
 ### Gaps y Áreas de Mejora (Próximos Pasos)
 
-A pesar de la alta madurez, se han identificado áreas clave que requieren atención para la consolidación hacia la versión `v2.0.0`:
+A pesar de la alta madurez, se han identificado áreas clave que requieren atención para la consolidación hacia la versión `v3.0.0`:
 
 1.  **Testing (Prioridad Alta):** La cobertura del backend ha mejorado significativamente con la adición de ~100 pruebas unitarias en v1.8.0 (498 tests totales), cubriendo servicios críticos como `orders`, `billing`, `contacts`, `integrations` y `currency`. Sin embargo, la meta global del 80% sigue pendiente y los tests unitarios del frontend continúan siendo un área de mejora importante (FEAT-1.1 del sprint v1.9.0).
 2.  **Integración Odoo Completa:** La sincronización de facturación (`account.move`) y la implementación de una cola de webhooks durable con reintentos automáticos siguen pendientes.
-3.  **Kubernetes & Autoscaling:** La estructura de Helm está preparada, pero la migración del entorno de producción a Kubernetes para habilitar el autoescalado real y otros componentes de infraestructura avanzada (como Service Mesh o Redis Cluster) son objetivos futuros (planificado para v2.0.0).
+3.  **Kubernetes & Autoscaling:** La estructura de Helm está preparada, pero la migración del entorno de producción a Kubernetes para habilitar el autoescalado real y otros componentes de infraestructura avanzada (como Service Mesh o Redis Cluster) son objetivos futuros (planificado para v3.0.0).
 4.  **Modo Enterprise (`ORDERFLOW_MODE`):** El diseño está completo pero la implementación del modo single-tenant enterprise aún está pendiente.
 
 ### Conclusión
 
 OrderFlow es actualmente una **plataforma SaaS robusta, escalable y comercialmente viable**. Ha cerrado con éxito sus brechas más críticas (facturación, marketplace, CRM unificado, facturación electrónica) y ha demostrado una velocidad de desarrollo excepcional.
 
-El foco recomendado para los próximos sprints es **consolidar la calidad y la confianza** a través de un aumento significativo en la cobertura de tests (frontend + backend), finalizar la integración Odoo completa, y preparar la infraestructura para la escala masiva con Kubernetes (v2.0.0).
+El foco recomendado para los próximos sprints es **consolidar la calidad y la confianza** a través de un aumento significativo en la cobertura de tests (frontend + backend), finalizar la integración Odoo completa, y preparar la infraestructura para la escala masiva con Kubernetes (v3.0.0).
 
 ---
 

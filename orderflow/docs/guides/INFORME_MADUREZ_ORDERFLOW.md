@@ -33,13 +33,13 @@ OrderFlow se ha consolidado como una plataforma SaaS omnicanal multi-tenant de p
 
 ### Pendientes
 
-Lo que todavía falta para alcanzar la madurez total (v1.9.0 → v2.0.0)
+Lo que todavía falta para alcanzar la madurez total (v1.9.0 → v3.0.0)
 
 1.  **Testing Frontend** — Los tests unitarios del frontend son prácticamente inexistentes. El sprint v1.9.0 (FEAT-1.1) tiene como objetivo configurar Vitest/Jest con React Testing Library y establecer una línea base de cobertura del 15-20% en componentes críticos.
 
 2.  **Integración Odoo Completa** — La sincronización de facturación (`account.move`) y la implementación de una cola de webhooks durable con reintentos automáticos siguen pendientes (FEAT-2.1, FEAT-2.2 del sprint v1.9.0).
 
-3.  **Kubernetes & Autoscaling** — La estructura de Helm está preparada, pero la migración del entorno de producción a Kubernetes para habilitar el autoescalado real y otros componentes de infraestructura avanzada (como Service Mesh o Redis Cluster) son objetivos futuros (planificado para v2.0.0).
+3.  **Kubernetes & Autoscaling** — La estructura de Helm está preparada, pero la migración del entorno de producción a Kubernetes para habilitar el autoescalado real y otros componentes de infraestructura avanzada (como Service Mesh o Redis Cluster) son objetivos futuros (planificado para v3.0.0).
 
 4.  **Modo Enterprise (`ORDERFLOW_MODE`)** — El diseño está completo pero la implementación del modo single-tenant enterprise aún está pendiente.
 
@@ -47,7 +47,7 @@ Lo que todavía falta para alcanzar la madurez total (v1.9.0 → v2.0.0)
 
 1. Completar la cobertura de tests unitarios en el frontend (objetivo v1.9.0).
 2. Finalizar la sincronización bidireccional del conector Odoo (facturación `account.move` + cola durable).
-3. Migrar la infraestructura de producción a Kubernetes para habilitar el autoescalado horizontal (v2.0.0).
+3. Migrar la infraestructura de producción a Kubernetes para habilitar el autoescalado horizontal (v3.0.0).
 4. Profundizar la funcionalidad de los microservicios, como habilitar pasarelas de pago autónomas y notificaciones avanzadas.
 5. Implementar el modo Enterprise (`ORDERFLOW_MODE`) para clientes single-tenant.
 
@@ -55,4 +55,4 @@ Lo que todavía falta para alcanzar la madurez total (v1.9.0 → v2.0.0)
 
 La principal fortaleza de OrderFlow no es un módulo específico sino su
 posicionamiento como plataforma omnicanal agnóstica al ERP, con un
-ecosistema integrado que incluye POS, KDS, Mobile, Loyalty, BioLinks y ahora un CRM unificado. El siguiente paso estratégico consiste en consolidar la estabilidad operativa, finalizar la deuda técnica en testing y Odoo, y preparar la infraestructura para la escala masiva con Kubernetes.
+ecosistema integrado que incluye POS, KDS, Mobile, Loyalty, BioLinks y ahora un CRM unificado. El siguiente paso estratégico consiste en consolidar la estabilidad operativa, finalizar la deuda técnica en testing y Odoo, y preparar la infraestructura para la escala masiva con Kubernetes (v3.0.0).

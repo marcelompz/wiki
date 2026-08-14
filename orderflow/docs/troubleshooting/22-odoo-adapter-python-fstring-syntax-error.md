@@ -1,7 +1,7 @@
 # Troubleshooting — Odoo-Adapter Restart Loop: Python f-String in JS File
 
 **Fecha:** 2026-08-05  
-**Versión:** v1.12.2  
+**Versión:** v1.16.0  
 **Alcance:** `orderflow-odoo-adapter-prod` crash loop por sintaxis Python en archivo JavaScript
 
 ---

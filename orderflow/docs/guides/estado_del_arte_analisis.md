@@ -207,14 +207,14 @@ La siguiente tabla muestra cómo se cerraron los gaps críticos identificados en
 | **v1.1.9** | — | ✅ Released Jul 31 | Full v1.1.9 suite: homepage builder, navigation unification, E2E QA suite, 389 tests |
 | **v1.1.1-v1.1.9** | Ago 2026 | ✅ Released Jul 31 | WhatsApp Catalog admin UX overhaul, homepage builder, E2E QA suite, subdomain fixes, 389 tests |
 | **v1.2.0-dev** | Ago 2026 | 🚧 En proceso | Migración 100% `@TenantPrisma()` |
-| **v2.0.0** | 2027+ | ⏳ Futuro | Kubernetes + autoscaling |
+| **v3.0.0** | 2028+ | ⏳ Futuro | Kubernetes + autoscaling |
 
 > [!TIP]
-> **El proyecto está significativamente adelantado respecto al roadmap original.** v1.0.0 se entregó ~3 meses antes. El foco debería ser ahora **consolidar calidad** (testing, documentación consistency) antes de v2.0.0.
+> **El proyecto está significativamente adelantado respecto al roadmap original.** v1.0.0 se entregó ~3 meses antes. El foco debería ser ahora **consolidar calidad** (testing, documentación consistency) antes de v3.0.0.
 
 ---
 
-## 8. Priorización Sugerida para v1.2.0 → v2.0.0
+## 8. Priorización Sugerida para v1.2.0 → v3.0.0
 
 ```mermaid
 graph TD
@@ -222,7 +222,7 @@ graph TD
     B --> C["🟡 P1: RBAC controllers restantes<br/>analytics, backups, notifications,<br/>whatsapp-catalog"]
     C --> D["🟡 P1: Migración @TenantPrisma()<br/>Services legacy → req.tenantPrisma"]
     D --> E["🟡 P2: Odoo facturación + cola durable<br/>account.move + queue resiliente"]
-    E --> F["🟢 P3: Kubernetes v2.0.0<br/>Helm → K8s → Autoscaling"]
+    E --> F["🟢 P3: Kubernetes v3.0.0<br/>Helm → K8s → Autoscaling"]
 ```
 
 ---

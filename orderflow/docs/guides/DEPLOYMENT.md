@@ -85,21 +85,7 @@ http://localhost:3011
 
 ---
 
-## 🚀 Deploy a Producción & Servidores Remotos
-
-### Script Unificado de Deploy (`scripts/deploy-production.sh`)
-
-Para realizar el despliegue automático a los distintos entornos remotos, utilizar el script de despliegue indicando el entorno correspondiente:
-
-```bash
-# 1. Despliegue a Producción Hetzner (pesallaccia.com - 178.105.226.175)
-./scripts/deploy-production.sh production
-
-# 2. Despliegue a Servidor Provecchio (provecchio.com - On-Premise 192.168.69.240 / Jump Host 38.52.135.227:2021)
-./scripts/deploy-production.sh provecchio
-```
-
-> **Nota para Agentes IA:** Queda prohibido ejecutar el despliegue en `localhost` cuando el usuario solicite un deploy a **Provecchio** o **Producción**. Siempre se debe invocar `./scripts/deploy-production.sh provecchio` o `./scripts/deploy-production.sh production`.
+## 🚀 Deploy a Producción (Hetzner)
 
 ### Variables de Entorno Requeridas
 
