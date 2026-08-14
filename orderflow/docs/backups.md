@@ -122,16 +122,23 @@ pg_restore -U "$POSTGRES_USER" -d "$POSTGRES_DB" -t appointment_assignments db_2
 
 ### 4.2 Pasos de failover a Provecchio
 
-**Paso 1: Promocionar la réplica**
+**Opción A: Failover manual**
 
 ```bash
 # En Provecchio
 bash /opt/orderflow/scripts/replica-start.sh
-sleep 30
 bash /opt/orderflow/scripts/replica-promote.sh
+bash /opt/orderflow/scripts/replica-status.sh
 ```
 
-**Paso 2: Verificar que la réplica es primary**
+**Opción B: Failover automático**
+
+```bash
+# En Provecchio
+bash /opt/orderflow/scripts/failover-to-provecchio.sh
+```
+
+**Verificación post-failover:**
 
 ```bash
 docker compose -f docker-compose.provecchio.yml exec database-replica psql -U "${POSTGRES_USER:-orderflow}" -d "${POSTGRES_DB:-orderflow_db}" -c "SELECT pg_is_in_recovery();"

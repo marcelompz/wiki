@@ -75,16 +75,19 @@ services:
 
 ```bash
 # scripts/replica-start.sh
-#!/bin/bash
-docker compose -f docker-compose.prod.yml -f docker-compose.replica.yml up -d database-replica
+# Inicia la réplica y espera hasta que PostgreSQL esté listo (pg_isready)
 
 # scripts/replica-stop.sh
-#!/bin/bash
-docker compose -f docker-compose.prod.yml -f docker-compose.replica.yml stop database-replica
+# Detiene la réplica sin eliminar datos
 
 # scripts/replica-promote.sh
-#!/bin/bash
-docker compose -f docker-compose.prod.yml -f docker-compose.replica.yml exec database-replica pg_ctl promote -D /var/lib/postgresql/data
+# Promueve la réplica a primary y verifica pg_is_in_recovery()
+
+# scripts/replica-status.sh
+# Verifica estado del contenedor, modo recovery y configuración
+
+# scripts/failover-to-provecchio.sh
+# Procedimiento automático de failover con logging y health checks
 ```
 
 ### 3.3 Variables de entorno
@@ -95,6 +98,19 @@ PRIMARY_HOST=178.105.226.175
 POSTGRES_USER=orderflow
 POSTGRES_PASSWORD=***
 POSTGRES_DB=orderflow_db
+```
+
+### 3.4 Health Checks
+
+```bash
+# Verificar que la réplica está corriendo
+bash scripts/replica-status.sh
+
+# Verificar replicación
+docker compose -f docker-compose.provecchio.yml logs database-replica | grep "replication"
+
+# Verificar lag de WAL
+docker compose -f docker-compose.provecchio.yml exec database-replica psql -U orderflow -d orderflow_db -c "SELECT pg_size_pretty(pg_wal_lsn_diff(pg_current_wal_lsn(), replay_lsn)) AS wal_lag;" || true
 ```
 
 ---
