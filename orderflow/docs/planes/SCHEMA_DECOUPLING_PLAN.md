@@ -485,7 +485,7 @@ Para sincronizar la estrategia de desinstalación/desacoplamiento de schemas con
 | :--- | :--- | :--- | :--- |
 | Core Monolítico | **OmniCore** | `backend/` / `services/omnicore-standalone/` | `/api/v1/core/*` |
 | Social Catalog / WhatsApp Catalog | **OmniCatalog** | `services/omnicatalog-standalone/` *(antes social-catalog-standalone)* | `/api/v1/omnicatalog/*` -> `/api/v1/social-catalog/*` |
-| Bio-Links | **OmniLinks** | `services/omnilinks-standalone/` *(antes biolinks-standalone)* | `/api/v1/omnilinks/*` -> `/api/v1/biolinks/*` |
+| Bio-Links | **OmniBio** | `services/omnilinks-standalone/` *(antes biolinks-standalone)* | `/api/v1/omnilinks/*` -> `/api/v1/bio/*` |
 | Bookings | **OmniBookings** | `services/omnibookings-standalone/` | `/api/v1/omnibookings/*` -> `/api/v1/bookings/*` |
 | POS Drawer | **OmniPOS** | `services/omnipos-standalone/` | `/api/v1/omnipos/*` -> `/api/v1/pos/*` |
 | Integraciones / Odoo Adapter | **OmniSync** | `services/omnisync-standalone/` *(antes odoo-adapter)* | `/api/v1/omnisync/*` |

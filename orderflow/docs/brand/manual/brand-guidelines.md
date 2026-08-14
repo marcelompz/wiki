@@ -1,6 +1,6 @@
 # Manual de Identidad Corporativa: OmniFlow
 
-**Versión:** 2.0  
+**Versión:** 2.0
 **Concepto Central:** El Núcleo Conector del Negocio en Tiempo Real
 
 ---
@@ -48,6 +48,7 @@ La paleta cromática de OmniFlow está diseñada para garantizar un contraste ó
 | **Card Surface** | Pure White | `#FFFFFF` | `255, 255, 255` | Contenedores modulares, tarjetas y tablas con bordes `#E5E7EB`. |
 
 ### Píldoras de Estado en UI (Status Pills)
+
 - **Confirmado / Pagado:** Fondo `#E6F4F1` | Texto `#007A72`
 - **Pendiente / En Proceso:** Fondo `#FEF3C7` | Texto `#D97706`
 - **Cancelado / Alerta:** Fondo `#FEE2E2` | Texto `#DC2626`
@@ -72,43 +73,49 @@ Toda funcionalidad, módulo o servicio derivado de la plataforma adopta la conve
                           └─────────────┬────────────┘
          ┌───────────────┬──────────────┼──────────────┬──────────────┐
          ▼               ▼              ▼              ▼              ▼
-     OmniLinks      OmniCatalog    OmniBookings     OmniPOS        OmniCore
+     OmniBio      OmniCatalog    OmniBookings     OmniPOS        OmniCore
   (Bio-Links PLG) (Catálogo Redes)   (Reservas)    (Punto Venta)   (ERP + CRM)
 ```
 
 ### Módulos y Extensiones
 
-#### 🔗 OmniLinks *(Anteriormente: Bio Links)*
+#### 🔗 OmniBio *(Anteriormente: Bio Links)*
+
 - **Definición:** Plataforma de páginas de enlace y micro-landings optimizadas para perfiles de redes sociales y tráfico móvil.
 - **Propósito:** Actuar como el punto de entrada directo del cliente para redirigir tráfico a ventas, catálogos o reservas en 1 clic.
 - **Color de Acento:** Teal Brillante (`#00B4A6`).
 - **Descriptor de Producto:** Smart Micro-Landing & Bio Links Engine.
 
 #### 🛍️ OmniCatalog *(Anteriormente: Catálogo de Redes Sociales)*
+
 - **Definición:** Catálogo visual interactivo diseñado nativamente para comercio conversacional y redes sociales.
 - **Propósito:** Permitir a los clientes armar carritos y cerrar pedidos fluidamente vía WhatsApp sin lidiar con e-commerces pesados.
 - **Color de Acento:** Esmeralda Intenso (`#00A896`).
 - **Descriptor de Producto:** WhatsApp-First Dynamic Product Catalog.
 
 #### 📅 OmniBookings *(Anteriormente: Bookings / Reservas)*
+
 - **Definición:** Motor de agendamiento y turnos automatizado con gestión tridimensional (profesional + recurso/cabina + tiempos de buffer).
 - **Propósito:** Eliminar huecos muertos en agendas de servicios (clínicas, spas, consultorios) mediante autogestión directa del cliente.
 - **Color de Acento:** Ciruela Profundo (`#3D2235`).
 - **Descriptor de Producto:** Multi-Resource Smart Scheduling Engine.
 
 #### ⚡ OmniPOS *(Anteriormente: Fast Checkout Drawer / POS)*
+
 - **Definición:** Terminal de punto de venta ultra rápido con arquitectura Offline-First.
 - **Propósito:** Procesar ventas y cobros en mostrador en menos de 5 segundos, garantizando funcionamiento continuo incluso ante pérdidas de conexión a internet.
 - **Color de Acento:** Teal Accesible (`#007A72`).
 - **Descriptor de Producto:** High-Velocity Resilient POS System.
 
 #### 🏢 OmniCore *(Anteriormente: ERP + CRM Modular)*
+
 - **Definición:** Núcleo administrativo modular para gestión de inventarios, CRM, facturación y proveedores.
 - **Propósito:** Operar como suite completa Standalone para MIPYMEs o desacoplarse en módulos individuales según la necesidad operativa.
 - **Color de Acento:** Dark Slate (`#0F0F1A`).
 - **Descriptor de Producto:** Modular Business Management & CRM Core.
 
 #### 🔌 OmniSync *(Capa Agnóstica / Middleware)*
+
 - **Definición:** Capa middleware de integración bidireccional asíncrona mediante webhooks y APIs.
 - **Propósito:** Conectar las interfaces rápidas de OmniFlow con sistemas contables tradicionales preexistentes (SAP, Odoo, ERPNext, Cbase) sin requerir migraciones del backend.
 - **Color de Acento:** Slate Violet (`#4F46E5`).
@@ -121,4 +128,3 @@ Toda funcionalidad, módulo o servicio derivado de la plataforma adopta la conve
 - **Ágil, no burocrático:** Foco prioritario en velocidad de ejecución, simplicidad y acción inmediata.
 - **Conector, no excluyente:** Posicionado como una capa que potencia y acelera los sistemas existentes en vez de forzar cambios traumáticos.
 - **Técnicamente sólido, visualmente limpio:** Comunica robustez tecnológica y estabilidad con un lenguaje claro y orientado al crecimiento del negocio.
-
