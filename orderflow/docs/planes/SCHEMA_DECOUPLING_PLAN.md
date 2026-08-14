@@ -477,4 +477,23 @@ Productos y órdenes se resuelven por API al Core o por eventos. No hay FK Prism
 
 ---
 
+## 12. Mapeo de Rebranding OmniFlow en la Arquitectura Standalone (FEAT-066)
+
+Para sincronizar la estrategia de desinstalación/desacoplamiento de schemas con el rebranding oficial de **OmniFlow**, la denominación de los microservicios standalone adoptará los siguientes alias sin romper compatibilidad técnica con las tablas y rutas legacy:
+
+| Módulo Legacy / Monolito | Nombre Comercial Oficial | Directorio Standalone Target | Alias de API Gateway (Traefik/NestJS) |
+| :--- | :--- | :--- | :--- |
+| Core Monolítico | **OmniCore** | `backend/` / `services/omnicore-standalone/` | `/api/v1/core/*` |
+| Social Catalog / WhatsApp Catalog | **OmniCatalog** | `services/omnicatalog-standalone/` *(antes social-catalog-standalone)* | `/api/v1/omnicatalog/*` -> `/api/v1/social-catalog/*` |
+| Bio-Links | **OmniLinks** | `services/omnilinks-standalone/` *(antes biolinks-standalone)* | `/api/v1/omnilinks/*` -> `/api/v1/biolinks/*` |
+| Bookings | **OmniBookings** | `services/omnibookings-standalone/` | `/api/v1/omnibookings/*` -> `/api/v1/bookings/*` |
+| POS Drawer | **OmniPOS** | `services/omnipos-standalone/` | `/api/v1/omnipos/*` -> `/api/v1/pos/*` |
+| Integraciones / Odoo Adapter | **OmniSync** | `services/omnisync-standalone/` *(antes odoo-adapter)* | `/api/v1/omnisync/*` |
+
+**Nota sobre coexistencia con FEAT-065:**  
+FEAT-065 continúa en desarrollo para asegurar que la extracción lógica de esquemas Prisma de Social Catalog y Bio-Links finalice limpiamente. Los renombramientos de carpetas físicas en `services/` se realizarán mediante alias symlink o migración gradual manteniendo retrocompatibilidad en rutas `v1`.
+
+---
+
 *Documento vivo. Actualizar al completar cada fase.*
+
