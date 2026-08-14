@@ -134,7 +134,7 @@ bash /opt/orderflow/scripts/replica-promote.sh
 **Paso 2: Verificar que la réplica es primary**
 
 ```bash
-docker compose -f docker-compose.prod.yml -f docker-compose.replica.yml exec database-replica psql -U orderflow -d orderflow_db -c "SELECT pg_is_in_recovery();"
+docker compose -f docker-compose.provecchio.yml exec database-replica psql -U "${POSTGRES_USER:-orderflow}" -d "${POSTGRES_DB:-orderflow_db}" -c "SELECT pg_is_in_recovery();"
 # Debe retornar: f (false = ya no está en recovery)
 ```
 
@@ -142,17 +142,17 @@ docker compose -f docker-compose.prod.yml -f docker-compose.replica.yml exec dat
 
 ```bash
 # En Provecchio, actualizar DATABASE_URL
-export DATABASE_URL=postgresql://orderflow:GwV2UpPdZnCocfdjmOKUfqiX@database-replica:5432/orderflow_db?schema=public
+export DATABASE_URL=postgresql://orderflow:${POSTGRES_PASSWORD}@database-replica:5432/${POSTGRES_DB:-orderflow_db}?schema=public
 
 # Reiniciar backend
-docker compose -f docker-compose.prod.yml -f docker-compose.replica.yml up -d backend
+docker compose -f docker-compose.provecchio.yml up -d backend
 ```
 
 **Paso 4: Redirigir tráfico**
 
 ```bash
 # Si Traefik está en Provecchio, asegurarse de que esté corriendo
-docker compose -f docker-compose.prod.yml -f docker-compose.replica.yml up -d traefik
+docker compose -f docker-compose.provecchio.yml up -d traefik
 
 # Actualizar DNS/Cloudflare si es necesario para apuntar a Provecchio
 ```
