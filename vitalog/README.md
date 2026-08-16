@@ -1,41 +1,51 @@
-# VitaLog - Documentación para Usuarios
+# VitaLog - Documentación General y Manuales de Usuario
 
 ![VitaLog Isotipo](../images/vitalog-isotipo.png){width="150"}
 
-Plataforma de monitoreo de salud mental y bienestar emocional.
+Plataforma modular desacoplada (Navaja Suiza de Salud y Bienestar) para la gestión integral de pacientes en Nutrición, Salud Mental, Entrenamiento Físico e Interconsultas Médicas.
 
 ---
 
-## 📖 Guías Disponibles
+## 📖 Guías y Manuales Disponibles
 
-### Para Terapeutas
+### 🥗 Especialidad NutriLog (Nutrición & Antropometría)
+- [**Manual NutriLog**](./manual-nutrilog.md)
+  - Registro de Anamnesis y Recordatorio de 24 horas.
+  - Evaluación Antropométrica Automática (IMC, pliegues ISAK, Durnin-Womersley).
+  - Cálculo metabólico (TMB Mifflin-St Jeor) y reparto de macronutrientes (% PAVB).
+  - Planificador de dietas y generación de Doble Ficha (Profesional 360° vs. Paciente).
+
+### 🧠 Especialidad PsyLog (Salud Mental)
 - [**Guía para Terapeutas**](./guia-terapeutas.md)
-  - Primeros pasos
-  - Ver pacientes
-  - Monitorear ansiedad y estrés
-  - Alertas y notificaciones
+  - Evaluaciones PHQ-9, GAD-7 y severidad psicométrica.
+  - Monitoreo de ansiedad y detonantes emocionales.
+  - Protocolo de detección de crisis y respuestas JITAI.
 
-### Para Pacientes
+### 🏋️ Especialidad FitLog (Entrenamiento & Cargas)
+- [**Manual FitLog**](./manual-fitlog.md)
+  - Prescripción de rutinas de fuerza e hipertrofia.
+  - Calculadora de 1RM (Fórmula de Epley) y tonelaje acumulado.
+  - Monitoreo de percepción de esfuerzo (RPE).
+
+### 🤝 Interconsultas & Consentimiento ABAC
+- [**Guía de Interconsultas y Ficha 360°**](./interconsultas-ficha360.md)
+  - Soberanía de datos del paciente y permisos por dominio.
+  - Ficha Unificada Multidisciplinaria 360°.
+  - Emisión de notas de interconsulta clínica entre profesionales.
+
+### 📱 Para Pacientes (App Móvil & PWA)
 - [**Guía para Pacientes**](./guia-pacientes.md)
-  - Registro y primer acceso
-  - Check-in diario
-  - PHQ-2 y PHQ-9
-  - Biometría (wearables)
-  - Ver mi progreso
+  - PWA "Bio Profesional" (Agendamiento público).
+  - App móvil Offline-First.
+  - Sincronización con Smartwatches (HRV, SpO2, Sueño).
 
 ---
 
-## ❓ FAQ
+## ❓ FAQ & Soporte
 
-Tenés preguntas frecuentes en [faq.md](./faq.md)
-
----
-
-## 🆘 Soporte
-
+- 📄 Preguntas Frecuentes: [faq.md](./faq.md)
 - 📧 Email: soporte@vitalog.app
-- 💬 Chat: [link al chat]
-- 🐛 Bugs: [GitHub Issues](https://github.com/marcelompz/vitalog/issues)
+- 🐛 Reporte de Errores: [GitHub Issues](https://github.com/marcelompz/vitalog/issues)
 
 ---
 
@@ -43,11 +53,6 @@ Tenés preguntas frecuentes en [faq.md](./faq.md)
 
 | Recurso | Link |
 |---------|------|
-| **Web App** | https://app.vitalog.app |
-| **iOS App** | [App Store](#) |
-| **Android App** | [Play Store](#) |
-| **Docs Técnicas** | https://github.com/marcelompz/vitalog/docs |
-
----
-
-*Última actualización: 2026-06-21*
+| **Web App Profesionales** | https://vitalog.pesallaccia.com |
+| **Landing Bio Profesional** | https://vitalog.pesallaccia.com/bio |
+| **Repositorio GitHub** | https://github.com/marcelompz/vitalog |
