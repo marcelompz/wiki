@@ -225,7 +225,7 @@ El módulo original **sigue existiendo** en el monolito para clientes OrderFlow.
 - Microservicios standalone se agregan como servicios adicionales en compose.
 - Traefik v3.4 rutea por path o subdominio.
 
-### 5.2 Fase futura: Kubernetes (v2.0.0+)
+### 5.2 Fase futura: Kubernetes (v3.0.0+)
 
 - Migración a K8s cuando el volumen de tenants y standalone lo justifique.
 - Helm charts para OrderFlow core + cada microservicio.

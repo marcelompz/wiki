@@ -22,7 +22,9 @@ El **Diseñador Visual de Portada** permite personalizar la página de inicio in
 En la pestaña **🏬 Plantillas por Rubro**, selecciona el modelo que mejor describa tu negocio:
 - **Retail / Tienda de Moda:** Diseñado para mostrar catálogos y colecciones de ropa o productos.
 - **Gastronomía / Menú:** Ideal para restaurantes, cafeterías y bares (destaca platillos y pedidos express).
-- **Spa / Servicios:** Pensado para centros de bienestar, barberías y profesionales (destaca tratamientos y agendamiento).
+- **Servicios / Spa:** Pensado para centros de bienestar, barberías y profesionales (destaca tratamientos y agendamiento).
+- **⚡ OmniBio (Bio-Links):** Hub omnicanal optimizado para redes sociales con links directos a WhatsApp, catálogo y reservas.
+- **📲 OmniCatalog (WhatsApp):** Catálogo interactivo directo con carrito flotante y envío de pedido a WhatsApp.
 - **B2B / Corporativo:** Enfocado en empresas mayoristas, presupuestos y atención institucional.
 
 ### Paso 2: Personalizar Colores y Tipografía

@@ -1,0 +1,118 @@
+// =============================================================================
+// Giveaways Standalone — Schema independiente
+// No importa ni referencia modelos del monolito OrderFlow / OmniFlow.
+// =============================================================================
+
+generator client {
+  provider = "prisma-client-js"
+  // Client aislado para no colisionar con el del core
+  output   = "../node_modules/.prisma/giveaways-client"
+}
+
+datasource db {
+  provider = "postgresql"
+  // Ejemplo: postgresql://user:pass@host:5432/orderflow_db?schema=giveaways
+  url      = env("GIVEAWAYS_DATABASE_URL")
+}
+
+// ─────────────────────────────────────────────
+// Enums
+// ─────────────────────────────────────────────
+
+enum GiveawayStatus {
+  DRAFT
+  ACTIVE
+  COMPLETED
+}
+
+// ─────────────────────────────────────────────
+// Domain
+// ─────────────────────────────────────────────
+
+model Giveaway {
+  id          String         @id @default(uuid())
+  /// Solo ID — sin @relation a Tenant del core (Anti-Corruption)
+  tenantId    String
+  name        String
+  description String?
+  /// [{ rank: 1, name: "iPhone 15" }, ...]
+  prizes      Json
+  /// { type: "color"|"image"|"video", color?, url? }
+  background  Json?
+  status      GiveawayStatus @default(ACTIVE)
+  startDate   DateTime
+  endDate     DateTime
+  drawDate    DateTime?
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+
+  registrations GiveawayRegistration[]
+  winners       GiveawayWinner[]
+
+  @@index([tenantId])
+  @@index([tenantId, status])
+  @@index([endDate])
+  @@map("giveaways")
+}
+
+/// Participante local (Anti-Corruption Layer).
+/// Sustituye la FK directa a Contact del monolito.
+/// Ver docs/GIVEAWAYS_SCHEMA_EXTRACTION.md y ACL (próximo documento).
+model Participant {
+  id                String   @id @default(uuid())
+  tenantId          String
+  /// ID del Contact en el Core (opcional, para trazabilidad y sync)
+  externalContactId String?
+  name              String
+  email             String?
+  phone             String?
+  /// google | facebook | manual
+  authProvider      String?
+  metadata          Json?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  registrations GiveawayRegistration[]
+  wins          GiveawayWinner[]
+
+  @@unique([tenantId, email])
+  @@index([tenantId])
+  @@index([externalContactId])
+  @@index([tenantId, phone])
+  @@map("participants")
+}
+
+model GiveawayRegistration {
+  id            String   @id @default(uuid())
+  giveawayId    String
+  participantId String
+  /// facebook, instagram, tiktok, whatsapp, web, ...
+  utmSource     String
+  authProvider  String?
+  createdAt     DateTime @default(now())
+
+  giveaway    Giveaway    @relation(fields: [giveawayId], references: [id], onDelete: Cascade)
+  participant Participant @relation(fields: [participantId], references: [id], onDelete: Cascade)
+
+  @@unique([giveawayId, participantId])
+  @@index([giveawayId])
+  @@index([participantId])
+  @@map("giveaway_registrations")
+}
+
+model GiveawayWinner {
+  id            String   @id @default(uuid())
+  giveawayId    String
+  participantId String
+  prizeName     String
+  /// 1, 2, 3...
+  drawOrder     Int
+  drawnAt       DateTime @default(now())
+
+  giveaway    Giveaway    @relation(fields: [giveawayId], references: [id], onDelete: Cascade)
+  participant Participant @relation(fields: [participantId], references: [id], onDelete: Cascade)
+
+  @@index([giveawayId])
+  @@index([participantId])
+  @@map("giveaway_winners")
+}

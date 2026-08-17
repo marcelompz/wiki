@@ -1,0 +1,13 @@
+{
+  "id": "analytics",
+  "name": "BI & Analytics Hub",
+  "version": "1.0.0",
+  "coreCompatibility": "1.x",
+  "description": "Módulo de Business Intelligence, rankings comparativos mensuales/interanuales (YoY) y análisis de rendimiento comercial.",
+  "icon": "BarChartOutlined",
+  "category": "business_intelligence",
+  "author": "OrderFlow Core Team",
+  "isCore": false,
+  "defaultEnabled": true,
+  "requiredRoles": ["ADMIN", "MANAGER"]
+}

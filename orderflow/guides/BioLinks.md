@@ -1,10 +1,10 @@
 # ⚡ Plan de Incorporación: Módulo de Bio-Links Transaccionales (OrderFlow Bio-Links)
 
-Este documento detalla el plan estratégico, arquitectónico y comercial para incorporar la vertical de **Bio-Links transaccionales** (estilo Linktree optimizado) dentro del ecosistema multi-tenant de **OrderFlow**.
+Este documento detalla el plan estratégico, arquitectónico y comercial para incorporar la vertical de **Bio-Links transaccionales** (directorio bio optimizado) dentro del ecosistema multi-tenant de **OrderFlow**.
 
 ---
 
-## 📊 1. Análisis de Viabilidad y Comparativa Competitiva (OrderFlow vs. Linktree)
+## 📊 1. Análisis de Viabilidad y Comparativa Competitiva (OrderFlow vs. Competencia)
 
 ### 1.1 Evaluación de Viabilidad: **EXCELENTE (9.5/10)**
 La incorporación de un servicio de Bio-Links en OrderFlow no solo es altamente viable, sino que representa una **extensión natural y estratégica de la propuesta de valor del producto**. OrderFlow ya cuenta con:
@@ -15,7 +15,7 @@ La incorporación de un servicio de Bio-Links en OrderFlow no solo es altamente 
 
 ### 1.2 Comparativa de Modelos Comerciales y Comisiones
 
-| Criterio | Linktree Free | Linktree Starter ($8/mes) | Linktree Pro ($15/mes) | Linktree Premium ($35/mes) | **OrderFlow Bio-Links** (Incluido en Starter/Pro/Enterprise) |
+| Criterio | Competencia Free | Competencia Starter ($8/mes) | Competencia Pro ($15/mes) | Competencia Premium ($35/mes) | **OrderFlow Bio-Links** (Incluido en Starter/Pro/Enterprise) |
 |---|---|---|---|---|---|
 | **Comisión por venta** | **12%** | **9%** | **9%** | **0%** | **0% NATIVA en todos los planes** |
 | **Integración e-Commerce** | Externa o link simple | Externa o link simple | Integrada (básica) | Integrada | **Nativa (Stock + POS + KDS + Bookings)** |
@@ -25,7 +25,7 @@ La incorporación de un servicio de Bio-Links en OrderFlow no solo es altamente 
 | **Eliminación de Branding**| No | No | Sí | Sí | **Configurable según plan OrderFlow** |
 
 ### 1.3 Ventaja Competitiva Directa
-1. **Destrucción de la barrera de comisiones:** Un comercio que vende $2,000/mes a través de su Bio-Link en Linktree Free/Starter paga entre **$180 y $240/mes en comisiones de plataforma**. Con OrderFlow, la comisión por plataforma es del **0%**, haciendo que el costo de la suscripción de OrderFlow ($29, $79 o $199/mes) se pague solo inmediatamente.
+1. **Destrucción de la barrera de comisiones:** Un comercio que vende $2,000/mes a través de su Bio-Link en la competencia Free/Starter paga entre **$180 y $240/mes en comisiones de plataforma**. Con OrderFlow, la comisión por plataforma es del **0%**, haciendo que el costo de la suscripción de OrderFlow ($29, $79 o $199/mes) se pague solo inmediatamente.
 2. **Experiencia Sin Fricción (In-Bio Commerce):** El usuario final no es redirigido a un sitio web pesado. Todo el proceso de compra, pago local y agendamiento ocurre dentro de un Drawer flotante súper rápido dentro del propio navegador in-app de Instagram/TikTok/WhatsApp.
 3. **Sincronización Total de Operaciones:** Una compra realizada en la bio genera la comanda en el KDS de la cocina o en el POS de la tienda en tiempo real, deduciendo stock del inventario unificado.
 
@@ -131,9 +131,9 @@ Cada interacción/clic se procesa de forma no bloqueante mediante colas Redis/Bu
 
 ## 📈 Fase 4: Estrategia Comercial y Empaquetado SaaS
 
-| Plan OrderFlow | Precio | Funcionalidad Bio-Link Incluida | Beneficio Clave vs Linktree |
+| Plan OrderFlow | Precio | Funcionalidad Bio-Link Incluida | Beneficio Clave vs Competencia |
 |---|---|---|---|
-| **Starter** | $29 / mes | • Subdominio `empresa.orderflow.app/bio`<br>• Enlaces ilimitados y productos básicos<br>• Marca de agua *"Powered by OrderFlow"*<br>• Píxeles de tracking incluidos | **0% de comisión en ventas** (vs 12%/9% de Linktree Free/Starter). |
+| **Starter** | $29 / mes | • Subdominio `empresa.orderflow.app/bio`<br>• Enlaces ilimitados y productos básicos<br>• Marca de agua *"Powered by OrderFlow"*<br>• Píxeles de tracking incluidos | **0% de comisión en ventas** (vs 12%/9% de la competencia Free/Starter). |
 | **Professional**| $79 / mes | • Eliminación de marca de agua<br>• Bloques transaccionales completos (Productos + Bookings + Sorteos)<br>• Personalización avanzada (Glassmorphism, colores de marca)<br>• Analíticas avanzadas de conversión y fuentes de tráfico | Automatización completa de ventas y reservas directamente desde Instagram/TikTok. |
 | **Enterprise**  | $199 / mes| • Dominio personalizado propio (`links.mi-marca.com`) con SSL automático vía Cloudflare<br>• Soporte de alto tráfico con caché prioritaria en Edge<br>• Multi-locación / Multi-bio por tenant | Solución corporativa completa para marcas con múltiples sucursales o franquicias. |
 

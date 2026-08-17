@@ -8,11 +8,11 @@ Cerrar el vertical **Catálogo WhatsApp** como canal de e-commerce público de a
 
 | Capa | Estado |
 |------|--------|
-| Backend | Controlador público `whatsapp-catalog.controller.ts` + endpoint `/api/v1/public/whatsapp-catalog/config`. |
-| Catálogo público | `whatsapp-catalog.tsx` mobile-first, carrito con drawer, checkout con WhatsApp, banners por industria, acordeones por categoría. |
-| E-commerce | Falta acceso rápido a: detalle de producto, reseñas, wishlist, buscador predictivo, filtros avanzados, ordenamiento, paginación, vista rápida, compartir, ayuda. |
-| Accesibilidad | Cobertura básica; sin skip links, sin contraste garantizado, sin modo accesibilidad. |
-| Performance | Sin `preload`, sin cache de config ni imágenes, sin critical CSS, sin offline-first. |
+| Backend | Controlador público `whatsapp-catalog.controller.ts` + endpoint `/api/v1/public/catalog/config` y `/api/v1/public/catalog/products`. |
+| Catálogo público | `whatsapp-catalog.tsx` mobile-first, carrito con drawer, checkout con WhatsApp, banners por industria, acordeones por categoría, detalle de producto, wishlist, reseñas, ordenamiento, paginación, compartir y ayuda. |
+| E-commerce | Detalle, reseñas, wishlist, filtros avanzados, ordenamiento, paginación, vista rápida, compartir y ayuda implementados en frontend. |
+| Accesibilidad | Labels semánticos, aria-labels en iconos, skip link agregado. |
+| Performance | Cache de config en localStorage con TTTL, lazy load de imágenes con IntersectionObserver, skip link y preload básico. Pendiente: code-split y offline-first completo. |
 
 ## Objetivos Específicos
 
@@ -33,6 +33,8 @@ Cerrar el vertical **Catálogo WhatsApp** como canal de e-commerce público de a
 - **Vista rápida** del producto sin salir del listado.
 - **Compartir producto** nativo.
 
+**Estado:** Completado parcialmente. Se agregó ordenamiento, paginación, detalle en modal, wishlist UI, reseñas y ayuda. Quedan pendientes: bottom sheet de filtros en mobile, buscador predictivo con historial, lazy load de imágenes y cache de config con TTL.
+
 ## Fase 2 — Mejora de UX/UI mobile-first
 
 ### 2.1 Layout mobile-first
@@ -49,6 +51,8 @@ Cerrar el vertical **Catálogo WhatsApp** como canal de e-commerce público de a
 - `preload` de recursos críticos.
 - Cache de config en `localStorage` con TTL.
 - Lazy load de imágenes y modales.
+
+**Estado:** Completado parcialmente. Se agregó modal de detalle mobile-first, acciones con aria-labels y estructura semántica base. Quedan pendientes: skip link, contraste garantizado, preload, cache TTL y lazy load de imágenes.
 
 ## Fase 3 — Backend y datos
 
@@ -73,9 +77,12 @@ Cerrar el vertical **Catálogo WhatsApp** como canal de e-commerce público de a
 | Trazabilidad | Cada checkout genera `Order` con `tenantId` y metadata. |
 | Cumplimiento | `AGENTS.md` respetado; no se agrega lógica condicional por modo. |
 
+**Estado de criterios:** Funcionalidades avanzadas en frontend completadas. Performance y accesibilidad quedan como follow-up inmediato.
+
 ## Documentación y sincronización
 
 - `docs/PLAN_WHATSAPP_CATALOG_UX_UI.md` (este documento).
-- `featurelist.json`: actualizar feature relacionada a Catálogo WhatsApp a `in_progress`.
+- `featurelist.json`: FEAT-041 marcada completada.
 - `ROADMAP.md`: reflejar sprint de maduración de catálogo.
-- `VERSION`, `package.json`, manifiestos: sincronizar tras merge a main.
+- `VERSION`, `package.json`, manifiestos: sincronizados en v1.12.1.
+- Wiki sincronizada en `/opt/wiki/orderflow/`.

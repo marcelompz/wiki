@@ -1,0 +1,22 @@
+// =============================================================================
+// COMMERCE CORE
+// Productos, inventario, pedidos, contactos, integraciones
+// =============================================================================
+// Mover aquí los modelos listados en docs/SCHEMA_DECOUPLING_PLAN.md §2.2
+//
+// Modelos esperados (hasta extraer cada feature):
+//   Product, Warehouse, Location, StockQuant, StockMove
+//   Contact*, Customer, Supplier, GlobalDirectory
+//   Order, OrderLine, Payment, CashMovement, WebhookLog
+//   Service, Resource*, BookingSlot, AppointmentAssignment
+//   Quotation, QuotationItem
+//   Loyalty*, PushToken
+//   Integration*, Tango*, Facturasend*, ElectronicDocument
+//   ImportJob, ExchangeRate
+//   CatalogChannelConfig          → extraer a social-catalog-standalone
+//   BioLink, BioLinkClick         → extraer a biolinks-standalone
+//   RetentionRule, FollowUpJob
+// =============================================================================
+
+// TODO: cortar y pegar los model blocks correspondientes desde
+//       schema.prisma.monolith.bak

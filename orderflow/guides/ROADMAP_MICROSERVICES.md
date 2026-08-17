@@ -20,7 +20,7 @@ OrderFlow opera con un modelo híbrido:
 |--------------------------|-------------------|--------|-----------------|--------|------------------|
 | **1. Giveaways Standalone** | `services/giveaways-standalone` | `:3020` | `sorteos.pesallaccia.com` | ✅ **LISTO (v1.0.0)** | Sorteos virales, captación de leads, Google OAuth. |
 | **2. WhatsApp Catalog Standalone** | `services/whatsapp-catalog-standalone` | `:3021` | `catalogo.pesallaccia.com` | ✅ **LISTO (v1.1.3)** | Modificadores/Sabores, ⚡ Compra 1-Clic, Geolocalización GPS, Tarifas por Zona, Plantillas WhatsApp, Admin Completo y File Store Unificado por Tenant. Modo Free: pre-venta manual por WhatsApp. Modo Premium: gestión completa con pasarela de pagos. |
-| **3. Bio-Links Standalone** | `services/biolinks-standalone` | `:3022` | `bio.pesallaccia.com` | ✅ **LISTO (v1.0.0)** | "Link in Bio" premium estilo Linktree con checkout rápido. |
+| **3. Bio-Links Standalone** | `services/biolinks-standalone` | `:3022` | `bio.pesallaccia.com` | ✅ **LISTO (v1.0.0)** | "Link in Bio" premium con checkout rápido. |
 | **4. Bookings Standalone** | `services/bookings-standalone` | `:3023` | `turnos.pesallaccia.com` | ✅ **LISTO (v1.0.0)** | Agendamiento de turnos, comisiones, agendas Barbería/Spa. |
 | **5. Quotations Standalone** | `services/quotations-standalone` | `:3024` | `presupuestos.pesallaccia.com` | ✅ **LISTO (v1.0.0)** | Presupuestos y cotizaciones B2B con validez DNIT/SET. |
 | **6. Loyalty Standalone** | `services/loyalty-standalone` | `:3025` | `fidelizacion.pesallaccia.com` | ✅ **LISTO (v1.0.0)** | Tarjetas de puntos, recompensas y niveles BRONZE→PLATINUM. |

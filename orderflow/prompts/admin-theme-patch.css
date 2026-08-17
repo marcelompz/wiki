@@ -1,0 +1,319 @@
+/**
+ * OrderFlow Admin — Theme patch (estilo Tailwind dark mode)
+ * Estrategia: [data-theme='dark']  ≡  Tailwind darkMode: 'selector'
+ * Uso: importar en AdminApp / main DESPUÉS de reset Ant Design
+ *      import "./styles/admin-theme-patch.css";
+ */
+
+/* ========== Design tokens ========== */
+:root,
+[data-theme='light'] {
+  --admin-touch-target: 44px;
+  --bg-app: #F4F6F9;
+  --bg-surface: #FFFFFF;
+  --bg-elevated: #F8FAFC;
+  --bg-layout: #F4F6F9;
+  --bg-muted: #F5F5F5;
+  --bg-subtle: #FAFAFA;
+  --text-primary: #0F172A;
+  --text-secondary: #64748B;
+  --text-muted: #94A3B8;
+  --border: #E5E9F0;
+  --border-subtle: #F0F0F0;
+  --accent: #3B82F6;
+  --ant-color-primary: #3B82F6;
+  --group-bg: rgba(15, 23, 42, 0.04);
+  --menu-hover: rgba(0, 0, 0, 0.04);
+  --menu-selected: rgba(59, 130, 246, 0.12);
+  --input-bg: #FFFFFF;
+  --table-header-bg: #F8FAFC;
+  --table-row-hover: rgba(0, 0, 0, 0.02);
+  --scrollbar-thumb: #CBD5E1;
+}
+
+[data-theme='dark'] {
+  --bg-app: #0D1117;
+  --bg-surface: #161B22;
+  --bg-elevated: #21262D;
+  --bg-layout: #0D1117;
+  --bg-muted: #1C2128;
+  --bg-subtle: #161B22;
+  --text-primary: #F0F3F6;
+  --text-secondary: #A0AEC0;
+  --text-muted: #8B9BB0;
+  --border: #30363D;
+  --border-subtle: #21262D;
+  --accent: #3B82F6;
+  --ant-color-primary: #3B82F6;
+  --group-bg: rgba(255, 255, 255, 0.08);
+  --menu-hover: rgba(255, 255, 255, 0.08);
+  --menu-selected: rgba(59, 130, 246, 0.18);
+  --input-bg: #0D1117;
+  --table-header-bg: #1C2128;
+  --table-row-hover: rgba(255, 255, 255, 0.04);
+  --scrollbar-thumb: #30363D;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme]) {
+    --bg-app: #0D1117;
+    --bg-surface: #161B22;
+    --bg-elevated: #21262D;
+    --bg-layout: #0D1117;
+    --bg-muted: #1C2128;
+    --bg-subtle: #161B22;
+    --text-primary: #F0F3F6;
+    --text-secondary: #A0AEC0;
+    --text-muted: #8B9BB0;
+    --border: #30363D;
+    --border-subtle: #21262D;
+    --accent: #3B82F6;
+    --ant-color-primary: #3B82F6;
+    --group-bg: rgba(255, 255, 255, 0.08);
+    --menu-hover: rgba(255, 255, 255, 0.08);
+    --menu-selected: rgba(59, 130, 246, 0.18);
+    --input-bg: #0D1117;
+    --table-header-bg: #1C2128;
+    --table-row-hover: rgba(255, 255, 255, 0.04);
+    --scrollbar-thumb: #30363D;
+  }
+}
+
+/* ========== Base ========== */
+html,
+body,
+#root {
+  background: var(--bg-app) !important;
+  color: var(--text-primary);
+  min-height: 100%;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+/* ========== Utilidades tipo Tailwind (theme-aware) ========== */
+.bg-app       { background-color: var(--bg-app) !important; }
+.bg-surface   { background-color: var(--bg-surface) !important; }
+.bg-elevated  { background-color: var(--bg-elevated) !important; }
+.bg-muted     { background-color: var(--bg-muted) !important; }
+.bg-subtle    { background-color: var(--bg-subtle) !important; }
+.bg-input     { background-color: var(--input-bg) !important; }
+
+.text-primary   { color: var(--text-primary) !important; }
+.text-secondary { color: var(--text-secondary) !important; }
+.text-muted     { color: var(--text-muted) !important; }
+
+.border-theme        { border-color: var(--border) !important; }
+.border-subtle-theme { border-color: var(--border-subtle) !important; }
+
+/* Placeholder / empty chart boxes (reemplaza #fafafa) */
+.admin-placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-elevated);
+  color: var(--text-secondary);
+  border: 1px dashed var(--border);
+  border-radius: 8px;
+  min-height: 120px;
+}
+
+.admin-placeholder-lg { min-height: 300px; }
+.admin-placeholder-md { min-height: 200px; }
+
+/* Panel muted (reemplaza #f5f5f5 / #fafafa en cards internas) */
+.admin-panel-muted {
+  background: var(--bg-muted);
+  border: 1px solid var(--border-subtle);
+  border-radius: 8px;
+  padding: 16px;
+}
+
+/* ========== Sidebar / menu ========== */
+.admin-sider .ant-menu-item-group-title {
+  padding: 8px 12px 4px !important;
+}
+
+.admin-menu-group-label {
+  display: block;
+  padding: 6px 10px;
+  margin: 4px 4px 2px;
+  border-radius: 6px;
+  background: var(--group-bg);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-secondary) !important;
+  line-height: 1.3;
+}
+
+.admin-sider .ant-menu-item-selected {
+  background: var(--menu-selected) !important;
+  color: var(--text-primary) !important;
+  position: relative;
+}
+
+.admin-sider .ant-menu-item-selected::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 6px;
+  bottom: 6px;
+  width: 3px;
+  border-radius: 0 2px 2px 0;
+  background: var(--accent);
+}
+
+.admin-sider .ant-menu-item:hover {
+  background: var(--menu-hover) !important;
+}
+
+/* ========== Ant Design dark overrides ========== */
+[data-theme='dark'] .ant-input,
+[data-theme='dark'] .ant-input-affix-wrapper,
+[data-theme='dark'] .ant-select-selector,
+[data-theme='dark'] .ant-picker,
+[data-theme='dark'] .ant-input-number {
+  background: var(--input-bg) !important;
+  border-color: var(--border) !important;
+  color: var(--text-primary) !important;
+}
+
+[data-theme='dark'] .ant-input::placeholder,
+[data-theme='dark'] .ant-select-selection-placeholder {
+  color: var(--text-secondary) !important;
+  opacity: 0.85;
+}
+
+[data-theme='dark'] .ant-table-thead > tr > th {
+  background: var(--table-header-bg) !important;
+  color: var(--text-primary) !important;
+  border-bottom-color: var(--border) !important;
+}
+
+[data-theme='dark'] .ant-table-tbody > tr:hover > td {
+  background: var(--table-row-hover) !important;
+}
+
+[data-theme='dark'] .ant-table,
+[data-theme='dark'] .ant-table-container {
+  border-color: var(--border) !important;
+}
+
+[data-theme='dark'] .ant-card {
+  border-color: var(--border);
+  background: var(--bg-surface);
+}
+
+[data-theme='dark'] .ant-layout-header,
+[data-theme='dark'] .admin-sider {
+  border-color: var(--border);
+}
+
+[data-theme='dark'] .ant-modal-content,
+[data-theme='dark'] .ant-modal-header {
+  background: var(--bg-surface) !important;
+  color: var(--text-primary);
+}
+
+[data-theme='dark'] .ant-dropdown-menu {
+  background: var(--bg-elevated) !important;
+}
+
+/* Neutralizar fondos hardcodeados frecuentes vía herencia en admin */
+[data-theme='dark'] .admin-page [style*="background-color: rgb(250, 250, 250)"],
+[data-theme='dark'] .admin-page [style*="background-color:#fafafa"],
+[data-theme='dark'] .admin-page [style*="background-color: #fafafa"],
+[data-theme='dark'] .admin-page [style*="background: #fafafa"],
+[data-theme='dark'] .admin-page [style*="background:#fafafa"] {
+  background: var(--bg-elevated) !important;
+  color: var(--text-secondary) !important;
+}
+
+[data-theme='dark'] .admin-page [style*="background: #f5f5f5"],
+[data-theme='dark'] .admin-page [style*="background:#f5f5f5"],
+[data-theme='dark'] .admin-page [style*="background-color: #f5f5f5"] {
+  background: var(--bg-muted) !important;
+  color: var(--text-primary) !important;
+}
+
+[data-theme='dark'] .admin-page [style*="border: 1px solid #f0f0f0"],
+[data-theme='dark'] .admin-page [style*="border-bottom: 1px solid #f0f0f0"],
+[data-theme='dark'] .admin-page [style*="border-top: 1px solid #f0f0f0"] {
+  border-color: var(--border) !important;
+}
+
+/* Mobile bottom nav */
+.admin-mobile-bottom-nav {
+  background: var(--bg-surface) !important;
+  border-top: 1px solid var(--border) !important;
+}
+
+/* Focus a11y */
+.admin-sider .ant-menu-item:focus-visible,
+.ant-btn:focus-visible,
+.ant-input:focus-visible,
+.ant-select-selector:focus-visible {
+  outline: 2px solid var(--accent) !important;
+  outline-offset: 2px;
+}
+
+/* Scrollbar */
+[data-theme='dark'] ::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+[data-theme='dark'] ::-webkit-scrollbar-track {
+  background: var(--bg-app);
+}
+[data-theme='dark'] ::-webkit-scrollbar-thumb {
+  background: var(--scrollbar-thumb);
+  border-radius: 5px;
+  border: 2px solid var(--bg-app);
+}
+[data-theme='dark'] ::-webkit-scrollbar-thumb:hover {
+  background: #484F58;
+}
+[data-theme='dark'] {
+  scrollbar-color: var(--scrollbar-thumb) var(--bg-app);
+}
+
+/* ========== Mobile ========== */
+@media (max-width: 768px) {
+  .ant-layout-sider {
+    position: fixed !important;
+    z-index: 999 !important;
+    height: 100vh !important;
+  }
+  .admin-page-header {
+    flex-direction: column;
+    align-items: stretch !important;
+    gap: 12px !important;
+  }
+  .admin-page-header .ant-input-search {
+    width: 100% !important;
+  }
+  .admin-page-header .ant-space {
+    width: 100%;
+    justify-content: stretch;
+  }
+  .admin-page-header .ant-space-item {
+    flex: 1;
+  }
+  .admin-table-wrapper .ant-table {
+    font-size: 13px;
+  }
+  .admin-table-wrapper .ant-btn {
+    min-height: var(--admin-touch-target);
+    min-width: var(--admin-touch-target);
+  }
+  .admin-modal-form .ant-form-item-label {
+    padding-bottom: 2px;
+  }
+  .ant-table-wrapper .ant-table {
+    overflow-x: auto;
+    display: block;
+  }
+  .ant-table-wrapper .ant-table-container {
+    overflow-x: auto;
+  }
+}

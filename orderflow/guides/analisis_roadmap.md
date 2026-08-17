@@ -1,7 +1,7 @@
 # OrderFlow — Análisis del Roadmap y Estado del Sistema (Actualizado)
 
 **Última actualización:** 02 de Agosto, 2026  
-**Versión del Core:** v1.5.1
+**Versión del Core:** v1.16.1
 
 ---
 
@@ -9,7 +9,7 @@
 
 OrderFlow es una plataforma SaaS multi-tenant omnicanal de alta velocidad. Combina:
 - **POS / KDS en tiempo real**: Punto de Venta (offline-first con Dexie + Zustand) y Pantalla de Cocina (WebSockets).
-- **Bio-Links Transaccionales**: Alternativa con 0% comisión a Linktree para venta directa y reservas.
+- **Bio-Links Transaccionales:** Alternativa con 0% comisión para venta directa y reservas.
 - **E-Commerce & Bookings**: Tienda pública y agendamiento de turnos.
 - **Integraciones ERP**: Conexión nativa con Odoo CE y arquitectura lista para MIDA / SAP.
 - **Traefik v3.4 & Redis**: Edge proxy exclusivo con SSL automático y backend desacoplado con Redis pub/sub.
@@ -65,7 +65,7 @@ OrderFlow es una plataforma SaaS multi-tenant omnicanal de alta velocidad. Combi
 
 ---
 
-## 4. Próximos Pasos (Roadmap v1.6.0 +)
+## 4. Próximos Pasos (Roadmap v1.16.1 +)
 
 1. **Responsive UX/UI Backoffice:**
    - ✅ Completado: 17 páginas admin adaptadas con CSS responsive, tablas scroll horizontal, modales adaptativos.
@@ -73,10 +73,15 @@ OrderFlow es una plataforma SaaS multi-tenant omnicanal de alta velocidad. Combi
    - ✅ Completado: Validación de Traefik en `init.sh` + sync automático `/opt/traefik-orderflow` → `/srv/traefik`.
    - ✅ Completado: Traefik actualizado a v3.4 en producción.
 3. **Microservicios Standalone:**
-   - Extraer Bio-Links y Sorteos a repositorios/servicios independientes (usando `packages/auth-shared`).
-4. **Planes SaaS & Billing:**
+   - ⏳ Pendiente: Extraer Bio-Links y Sorteos a repositorios/servicios independientes (usando `packages/auth-shared`).
+4. **Integración Odoo CE & Auto-Provisioning (v1.16.1+):**
+   - 🟡 En progreso: Completar sincronización `sale.order` y `stock.quant` en `orderflow_connector`.
+   - ⏳ Pendiente: Payload único de Onboarding (`tenant_manifest.json`).
+   - ⏳ Pendiente: Servicio `OdooProvisioningService` en NestJS para desplegar contenedores Docker + SSL en Traefik v3.4.
+   - ⏳ Pendiente: Wizard de Despliegue OrderFlow + Odoo en la consola del Super Administrador (`orderflow.pesallaccia.com`).
+5. **Planes SaaS & Billing:**
    - Integración de pasarela de pago para cobro recurrente de planes (Stripe / Mercado Pago).
-5. **Observabilidad Avanzada:**
+6. **Observabilidad Avanzada:**
    - Tableros dedicados en Grafana para métricas de latencia Redis y sockets activos de KDS.
    
 ---

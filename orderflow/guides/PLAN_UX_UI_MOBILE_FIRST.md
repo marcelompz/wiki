@@ -1,9 +1,9 @@
 # Plan de Diseño y Optimización UX/UI Mobile-First para OrderFlow
 
 > **Documento de Arquitectura de Experiencia de Usuario y Diseño de Interfaz (UX/UI)**  
-> **Fecha:** 2026-08-01  
-> **Estado:** Aprobado / Parcialmente Implementado (v1.5.1)  
-> **Objetivo:** Transformar OrderFlow en una plataforma con UX/UI intuitiva, sencilla y 100% Mobile-First tanto para el Backoffice/SuperAdmin como para los Endpoints de Clientes (Storefront, Checkout, Turnos y Catálogos).
+> **Fecha:** 2026-08-04  
+> **Estado:** Aprobado / Parcialmente Implementado (v1.12.1)  
+> **Objetivo:** Transformar OrderFlow en una plataforma con UX/UI intuitiva, sencilla y **Desktop-First para Backoffice/SuperAdmin** y **Mobile-First para Endpoints de Clientes** (Storefront, Checkout, Turnos y Catálogos).
 
 ---
 
@@ -25,6 +25,8 @@
 - **Tablas responsive:** scroll horizontal en mobile para mantener datos legibles
 - **Contactos unificados:** página `/admin/contacts` con stats cards y filtros
 - **Modal responsive:** width adaptativo y body con scroll en mobile
+- **Bottom navigation mobile admin:** `MobileBottomNav` implementada con navegación inferior fija y safe-area
+- **Build frontend limpio:** reparados errores preexistentes en `bookings.tsx`, `super-admin-dashboard.tsx`, `whatsapp-checkout.tsx` y `MobileBottomNav.tsx`
 
 ### En progreso
 - **Tablas admin restantes:** aplicar scroll horizontal y touch targets en todas las páginas
@@ -55,10 +57,11 @@
 ---
 
 ## 🏢 3. Administración de Tenants (Backoffice Admin & SuperAdmin)
+> **Estrategia: Desktop-First.** La experiencia de administración se diseña primero para desktop y se adapta a mobile.
 
 ### 3.1 Navegación Adaptativa
-* **Desktop:** Sidebar vertical retráctil con accesos directos por módulos activos del tenant.
-* **Mobile (< 768px):** Bar de navegación inferior fija (`Bottom Navigation Bar`) con los 4 módulos de alta frecuencia:
+* **Desktop (>= 768px):** Sidebar vertical retráctil + header con selector de tenant prominente.
+* **Mobile (< 768px):** Navegación inferior fija (`Bottom Navigation Bar`) con los módulos de alta frecuencia.
   1. 📦 **Pedidos / POS activo** (Gestión en tiempo real).
   2. 🏷️ **Productos & Stock** (Actualización rápida).
   3. 📅 **Turnos / Agendas** (Visión diaria).
@@ -71,7 +74,8 @@
   * Acciones directas mediante botones de un toque (Cambiar Estado, Ver Detalle, Llamar/WhatsApp al cliente).
 
 ### 3.3 Dashboard SuperAdmin & Tenant Switcher
-* **Selector de Tenant Flotante:** Cambio instantáneo de tenant con búsqueda en tiempo real, mostrando icono/logo del tenant y badge distintivo de Tier (`👥 Shared` vs `💎 Dedicated`).
+* **Selector de Tenant en Header (Desktop-First):** Selector prominente en el header del dashboard para cambio instantáneo de tenant.
+* **FAB Flotante (Mobile-Only):** Botón flotante inferior derecho como acceso rápido en mobile.
 * **Acciones Rápidas:** Habilitar/Deshabilitar, Ver Métricas, Provisionar DB o Cambiar Tier a 1 toque con confirmaciones de seguridad integradas.
 
 ---

@@ -19,6 +19,7 @@ El **Catálogo Express por WhatsApp** es una herramienta omnicanal diseñada par
    - **Mensaje de Anuncio:** Configura la frase flotante (ej: *"¡Envíos gratis en compras mayores a 100.000 ₲!"*).
    - **Ajustes de Logo:** Elige entre ajuste `contain` o `cover` y padding.
 4. **Mensaje Pre-formateado:** Personaliza el texto con el que el cliente saludará al WhatsApp del negocio al enviar su pedido.
+5. **Íconos Sociales Oficiales:** Los accesos directos a redes sociales (WhatsApp, Instagram, Facebook, Telegram, Google Maps) se sirven con íconos vectoriales oficiales en alta resolución con compatibilidad offline y fallback en tiempo real.
 
 ---
 

@@ -1,0 +1,21 @@
+// =============================================================================
+// DEPRECATED — Giveaways
+// =============================================================================
+// Estos modelos viven temporalmente aquí hasta completar el cut-over a
+// services/giveaways-standalone/prisma/schema.prisma
+//
+// Tras migración de datos + tráfico estable:
+//   1. Eliminar este archivo
+//   2. Generar migración que deje de mapear las tablas en public
+//      (las tablas reales quedan en schema PostgreSQL "giveaways")
+//
+// Ver: docs/GIVEAWAYS_SCHEMA_EXTRACTION.md
+// =============================================================================
+
+// TODO: mover aquí temporalmente:
+//   enum GiveawayStatus
+//   model Giveaway
+//   model GiveawayRegistration
+//   model GiveawayWinner
+//
+// (copiar desde schema.prisma.monolith.bak)

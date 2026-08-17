@@ -281,7 +281,7 @@ flowchart TD
 
 ---
 
-## 10. Diagramas del Módulo OrderFlow Bio-Links (Linktree Transaccional)
+## 10. Diagramas del Módulo OrderFlow Bio-Links (directorio transaccional)
 
 ### A. Diagrama de Clases UML del Módulo Bio-Links
 

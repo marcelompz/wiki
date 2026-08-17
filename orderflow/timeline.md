@@ -1,7 +1,7 @@
 # Línea de Tiempo y Evolución de OmniFlow
 
 **Última actualización:** 2026-08-13  
-**Versión actual:** `v1.20.5`  
+**Versión actual:** `v1.1.5`  
 **Documento fuente:** `CHANGELOG.md`, `ROADMAP.md`, `featurelist.json`
 
 ---
@@ -10,7 +10,7 @@
 
 ```mermaid
 timeline
-    title Evolución de OmniFlow / OrderFlow (v0.1.0 → v1.20.5)
+    title Evolución de OmniFlow / OrderFlow (v0.1.0 → v1.20.6)
     2026-06-15 : v0.1.0 MVP inicial
                   : Multi-tenant API key, Giveaways, WhatsApp catalog
                   : NestJS + Prisma + React + Docker

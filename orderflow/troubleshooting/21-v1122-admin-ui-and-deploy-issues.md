@@ -1,4 +1,4 @@
-# Troubleshooting — v1.12.2 Admin UI & Deploy Issues
+# Troubleshooting — v1.16.0 Admin UI & Deploy Issues
 
 **Fecha:** 2026-08-05  
 **Alcance:** errores runtime en admin, despliegue en Hetzner/Provechio y fixes aplicados

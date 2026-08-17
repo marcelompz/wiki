@@ -81,7 +81,7 @@ Módulos core: `auth`, `tenants`, `products`, `orders`, `customers`, `bookings`,
 - **Módulos nuevos/experimentales:** versión semántica independiente (ej: `biolinks 0.1.0-alpha.1`).
 - **Módulos opcionales:** versión semántica propia (ej: `quotations 0.1.0`).
 - **Campo obligatorio en manifiestos:** `coreCompatibility` (ej: `"0.5.x"`), para documentar compatibilidad con el Core.
-- **Regla:** después de hacer bump de versión del Core, sincronizar los manifiestos de módulos core y actualizar `backend/package.json`, `frontend/package.json` y el archivo `VERSION`.
+- **Regla:** después de hacer bump de versión del Core, sincronizar los manifiestos de módulos core y actualizar `backend/package.json`, `frontend/package.json`, el archivo `VERSION` y `featurelist.json`.
 
 En la versión **v0.4.0**, el módulo `orders` se extendió para dar soporte al POS y KDS en tiempo real mediante **WebSockets** (`OrdersGateway` en el namespace `/orders` con aislamiento de salas por tenant `tenant:<tenantId>`). Además se añadió un endpoint de transición de estado `PATCH /api/v1/orders/:id/status` para el control de cocina.
 

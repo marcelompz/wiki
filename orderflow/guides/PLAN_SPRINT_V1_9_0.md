@@ -8,7 +8,7 @@
 
 ## 1. Resumen Ejecutivo
 
-Basado en el [Informe de Madurez v1.8.0](INFORME_MADUREZ_ORDERFLOW.md), este sprint se enfoca en tres pilares estratégicos para preparar a OrderFlow para la fase v2.0.0 (Kubernetes). Abordaremos las áreas con mayor deuda técnica y potencial de crecimiento.
+Basado en el [Informe de Madurez v1.8.0](INFORME_MADUREZ_ORDERFLOW.md), este sprint se enfoca en tres pilares estratégicos para preparar a OrderFlow para la fase v3.0.0 (Kubernetes). Abordaremos las áreas con mayor deuda técnica y potencial de crecimiento.
 
 ---
 

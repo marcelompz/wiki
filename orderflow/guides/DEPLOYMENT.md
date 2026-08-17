@@ -245,7 +245,7 @@ ssh hetzner-orderflow "cd /srv/orderflow/backend && docker compose -f ../docker-
 - **POS:** Punto de venta
 - **KDS:** Cocina (Kitchen Display)
 - **Giveaways:** Sorteos
-- **BioLinks:** Linktree-style
+- **BioLinks:** Bio-Link directory style
 - **Homepage Builder:** Constructor visual de landing
 
 ---

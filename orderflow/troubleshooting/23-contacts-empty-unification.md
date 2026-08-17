@@ -1,7 +1,7 @@
 # Troubleshooting — Contactos no aparecen en la lista (Unificación Usuarios + Clientes)
 
 **Fecha:** 2026-08-05  
-**Versión:** v1.12.2  
+**Versión:** v1.16.0  
 **Alcance:** módulo de Contactos vacío en producción; usuarios asignados a tenants no visibles
 
 ---
