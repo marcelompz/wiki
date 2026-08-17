@@ -288,9 +288,30 @@ Registrar:
 
 ---
 
+## ERP Integrations Pre-processor (Odoo 18/19 CE, Tango ERP, FacturaSend)
+
+Pre-procesar e ingestar información operativa y contable sincronizada desde ERPs:
+
+- **Costos Reales y Valorización PMP:** Ingesta de `standard_price` y movimientos de stock (`stock.move`) de Odoo 18/19 para calcular la ganancia bruta real y el margen financiero neto.
+- **Ventas B2B & Facturación Directa ERP:** Consolidar facturas contables (`account.move`) y ventas directas emitidas en Odoo o Tango ERP para una visión unificada de ventas B2B + minoristas.
+- **Lead Time de Proveedores & Compras:** Registrar tiempos de reposición de proveedores (`purchase.order` / `stock.picking`) para alimentar alertas predictivas de quiebre de stock.
+- **Reconciliación Operativa vs. Fiscal:** Comparativa de ventas en vivo en OrderFlow vs. documentos electrónicos autorizados (`FacturaSend` / `SIFEN`).
+
+---
+
 # 6. Contrato de Datos
 
 Cada módulo deberá exponer datos mínimos obligatorios.
+
+## ERP Integration Data Contract (Odoo 18/19 CE / Tango)
+
+| Dato ERP | Requerido | Descripción / Mapeo |
+|----------|-----------|--------------------|
+| `cost_price_pmp` | Sí | Costo promedio ponderado real de Odoo 18/19 |
+| `account_move_id` | Opcional | ID de factura emitida contablemente en Odoo / Tango |
+| `b2b_sales_amount` | Opcional | Importe de ventas corporativas directas en ERP |
+| `supplier_lead_time` | Opcional | Días promedio de entrega del proveedor |
+| `sifen_fiscal_status` | Sí | Estado del Documento Electrónico (`APPROVED`, `PENDING`) |
 
 ## POS
 
