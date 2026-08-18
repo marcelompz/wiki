@@ -23,7 +23,7 @@
 | FEAT-068 | Multi-Tenant User Management: Asignación Masiva de Tenants & Roles | `completed` |
 | FEAT-069 | Personalización de UX/UI Multi-Nivel: Defaults de Tenant & Perfil de Usuario | `completed` |
 | FEAT-070 | Sistema Híbrido de Íconos Sociales: Sincronización CDN, Almacenamiento Local Offline & Componentes React | `completed` |
-| FEAT-071 | Módulo OmniFlow BI (Analytics & Decision Intelligence) | `in_progress` |
+| FEAT-071 | Módulo OmniFlow BI (Analytics Hub: Ingesta Histórica Odoo 14 Provecchio - Caballo de Troya) | `in_progress` (Primera tarea mañana) |
 
 ### 📅 Próximo hito
 - `v1.20.10` — Backups SFTP (FEAT-067) + Usuarios Multi-Tenant (FEAT-068) + UX/UI Multi-Nivel (FEAT-069) + Íconos Sociales Offline/CDN (FEAT-070).
