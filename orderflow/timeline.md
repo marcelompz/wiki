@@ -1,7 +1,7 @@
 # Línea de Tiempo y Evolución de OmniFlow
 
 **Última actualización:** 2026-08-13  
-**Versión actual:** `v1.1.5`  
+**Versión actual:** `v1.2.0`  
 **Documento fuente:** `CHANGELOG.md`, `ROADMAP.md`, `featurelist.json`
 
 ---
