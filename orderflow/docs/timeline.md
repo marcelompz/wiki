@@ -1,7 +1,7 @@
 # Línea de Tiempo y Evolución de OmniFlow
 
 **Última actualización:** 2026-08-13  
-**Versión actual:** `v1.20.7`  
+**Versión actual:** `v1.20.10`  
 **Documento fuente:** `CHANGELOG.md`, `ROADMAP.md`, `featurelist.json`
 
 ---
@@ -60,7 +60,7 @@ timeline
     2026-08-10 : v1.19.0 ♻️ Rebranding Parcial OmniFlow
                   : Marca pública OmniFlow, capa técnica OrderFlow
                   : Hito histórico de identidad corporativa
-    2026-08-11 : v1.20.0
+    2026-08-15 : v1.20.0
                   : Infrastructure Deploy Manager
     2026-08-12 : v1.20.1
                   : Deploy-manager multi-sistema + Manuales Playwright

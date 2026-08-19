@@ -39,3 +39,9 @@ Bienvenidos al Centro de Documentación Operativa de **OrderFlow**. Los siguient
 7. 🚀 **[07. Guía Técnica & Protocolo E2E del Flujo Comercial](07-flujo-comercial-end-to-end.md)**
    - Caso de uso completo: Prospecto Landing → Registro FREE → BioLinks → Social Catalog → Venta WhatsApp.
    - Arquitectura de componentes, eventos de invalidación en Redis y script de prueba Playwright.
+
+8. 🛠️ **[08. Manual de Deploy Manager & Provisioning Zero-Touch de Odoo 18](08-manual-deploy-manager-odoo.md)**
+   - Orquestación de servidores VPS y Docker Odoo 18 (CE/EE).
+   - Escáner dinámico SSH de módulos en `/srv/odoo-addons/` y sincronización Git automática.
+   - Ingesta guiada de CSVs: Categorías (FIFO/PPP), Categorías POS, Productos, Recetas y Mesas.
+   - Monitoreo en tiempo real de logs y llaves SSH.

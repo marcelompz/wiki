@@ -37,6 +37,10 @@ Ordená por problema y área. Cada entrada incluye síntomas, causa raíz y solu
 | [34](34-mobile-admin-drawer-navigation.md) | Mobile Admin: Drawer Navigation + Topbar Compacto | Frontend / Admin UX / Mobile | En mobile, la sidebar se muestra como acordeón inline empujando el contenido; el drawer no abre correctamente | ✅ Resuelto |
 | [35](35-homepage-builder-config-persistence.md) | Persistencia en Diseñador Web & Merge de Config JSON | Frontend / Backend / Web Builder | Al guardar cambios en el Diseñador Web (`/admin/homepage-builder`), no persistían tras cambiar de módulo | ✅ Resuelto |
 | [36](36-root-domain-ecommerce-vs-landing-bug.md) | Bug de Ruta Raíz (`/`) Renderizando E-Commerce en vez de Landing | Frontend / App Router / Landing | Al ingresar a la raíz `/` con sesión iniciada, cargaba el catálogo e-commerce en vez de la portada comercial | ✅ Resuelto |
+| [37](37-tenant-resolution-and-sidebar-modules-visibility.md) | Conmutación Multi-Tenant, Cabezal `X-Tenant-Id` & Visibilidad de Módulos | Frontend / Backend / Multi-Tenant | Al conmutar de tenant, no se refrescaban los datos del backend ni la lista de módulos en el Sidebar | ✅ Resuelto |
+| [38](38-disaster-recovery-sftp-backups-explorer.md) | Disaster Recovery: Explorador SFTP & Consola de Restauración | Backend / Frontend / Disaster Recovery | Falta de consolas de restauración, borrado y consulta remota de respaldos por tenant | ✅ Resuelto |
+| [39](39-mobile-drawer-submenus-expansion-bug.md) | Submenús del Drawer Inaccesibles en Móviles | Frontend / Admin UX / Mobile | En dispositivos móviles el Drawer no descolapsa los submenús de las categorías principales | ✅ Resuelto |
+| [40](40-containerd-leases-unimplemented-fix.md) | Error containerd leases al iniciar contenedores | DevOps / Docker / containerd | `Unimplemented: unknown service containerd.services.leases.v1.Leases` al arrancar contenedores | 🛠️ Documentado |
 
 ---
 

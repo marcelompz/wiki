@@ -76,30 +76,30 @@ Ejecutar el **deploy.sh real de Provecchio** desde el wizard `/admin/deploy` de 
 └── 18/                              # Localización Paraguay
 ```
 
-### 4.2 Flujo
+### 4.2 Flujo Integrado Nativo (Cero Ejecución Manual de `deploy.sh`)
 ```
 Super Admin /admin/deploy
     ↓
 Crear/Seleccionar instancia Odoo 18 Provecchio
     ↓
-Backend valida: servidor, dominio, puerto
+Backend valida: servidor SSH, dominio en Traefik, puerto libre
     ↓
-Backend ejecuta deploy.sh REAL por SSH (no template)
+Backend ejecuta aprovisionamiento autónomo por SSH (Docker Compose + Init DB)
     ↓
-deploy.sh: docker compose down/up + init_prod_db.sh + migración
+Backend configura rutas dinámicas Traefik en /srv/traefik/dynamic/
     ↓
-Backend instala orderflow_connect vía SSH
+Backend instala orderflow_connect autónomamente en Odoo
     ↓
-Backend guarda odooConnection en Tenant
+Backend guarda odooConnection en el Tenant de OmniFlow
     ↓
-Frontend muestra informe con passwords generados
+Frontend muestra Informe de Deploy con credenciales y estado en tiempo real
 ```
 
 ### 4.3 Principios
+- **Reemplazo total de scripts manuales:** El panel `/admin/deploy` asume el control completo del ciclo de vida del contenedor Odoo.
 - **No condicionar lógica** por `ORDERFLOW_MODE`
 - **`tenantId` sagrado:** siempre presente en queries
 - **Traefik exclusivo:** rutas managed por `/opt/traefik-orderflow`
-- **Script respetado:** usar `deploy.sh` real del servidor sin reescribirlo
 - **Estructura canónica:** respetar directorios `/srv/odoo-deploy/<version>/<tenant>/`, `/srv/odoo-addons/<version>/`, `/srv/odoo-l10n-py/<version>/`
 
 ## 5. Cambios Específicos

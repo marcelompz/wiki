@@ -2,6 +2,9 @@
 
 > Guía de contexto técnico vivo del proyecto **OmniFlow** (plataforma SaaS multi-tenant de alta velocidad). Lee esto antes de modificar código para entender la arquitectura, las convenciones y el estado actual.
 
+> 📌 **TAREA PRIORITARIA MAÑANA A PRIMERA HORA:**  
+> Probar e implementar en el laboratorio de producción Provecchio la ingesta histórica de Odoo 14 (puerto 8081) en **OmniBI Analytics Hub (`/admin/bi`)** (FEAT-071) para comparativo de ventas YoY (Year-over-Year), clientes e insumos sin afectar la operación en vivo con Odoo 18 CE.
+
 ---
 
 ## 1. Qué es OmniFlow / OrderFlow
@@ -23,7 +26,7 @@ Ambos modos comparten el mismo schema Prisma y el mismo código de services. La 
 - Glosario Oficial de Términos & Infraestructura: [docs/GLOSARIO_TERMINOS_Y_ECOSISTEMA.md](docs/GLOSARIO_TERMINOS_Y_ECOSISTEMA.md)
 - Repo Traefik Gateway Subsystem: `https://github.com/marcelompz/traefik-orderflow.git` (servidor: `/srv/traefik`, local: `/opt/traefik-orderflow/`)
 - Servidor Hetzner VPS (Producción): `hetzner-orderflow:/srv/orderflow` (alias SSH configurado)
-  - Versión actual: **v1.18.2** (staging + production operativos).
+  - Versión actual: **v1.20.10** (staging + production operativos).
 - Lenguaje: TypeScript en todo el stack.
 
 ---
@@ -81,7 +84,7 @@ Módulos core: `auth`, `tenants`, `products`, `orders`, `customers`, `bookings`,
 - **Módulos nuevos/experimentales:** versión semántica independiente (ej: `biolinks 0.1.0-alpha.1`).
 - **Módulos opcionales:** versión semántica propia (ej: `quotations 0.1.0`).
 - **Campo obligatorio en manifiestos:** `coreCompatibility` (ej: `"0.5.x"`), para documentar compatibilidad con el Core.
-- **Regla:** después de hacer bump de versión del Core, sincronizar los manifiestos de módulos core y actualizar `backend/package.json`, `frontend/package.json` y el archivo `VERSION`.
+- **Regla:** después de hacer bump de versión del Core, sincronizar los manifiestos de módulos core y actualizar `backend/package.json`, `frontend/package.json`, el archivo `VERSION` y `featurelist.json`.
 
 En la versión **v0.4.0**, el módulo `orders` se extendió para dar soporte al POS y KDS en tiempo real mediante **WebSockets** (`OrdersGateway` en el namespace `/orders` con aislamiento de salas por tenant `tenant:<tenantId>`). Además se añadió un endpoint de transición de estado `PATCH /api/v1/orders/:id/status` para el control de cocina.
 
@@ -265,7 +268,7 @@ docker compose up -d     # levantar stack dev
 
 ### 8.4 Microservicios Standalone — **Completado (v1.1.3 / v1.1.9)**
 - Módulos con bajo acoplamiento se extraen como microservicios vendibles de forma independiente.
-- **Roadmap Dedicado Vivo:** [docs/ROADMAP_MICROSERVICES.md](docs/ROADMAP_MICROSERVICES.md) (y sincronizado en la Wiki en `/opt/wiki/orderflow/docs/ROADMAP_MICROSERVICES.md`).
+- **Roadmap Dedicado Vivo:** [docs/guides/ROADMAP_MICROSERVICES.md](docs/guides/ROADMAP_MICROSERVICES.md) (y sincronizado en la Wiki en `/opt/wiki/orderflow/docs/guides/ROADMAP_MICROSERVICES.md`).
 - **Estado Actual:**
   - ✅ **6 Microservicios Standalone production-ready** (orquestados en `docker-compose.standalone.yml`):
     - `giveaways-standalone` (`:3020`, `sorteos.*`) — Sorteos, Google OAuth.

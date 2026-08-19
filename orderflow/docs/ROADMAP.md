@@ -2,7 +2,7 @@
 
 > **Mantenimiento:** este archivo refleja el plan vivo de producto. Cada Feature ID viene de `featurelist.json`.
 
-## Versión actual: 1.20.6 (en curso)
+## Versión Actual: v1.20.10 (en curso)
 
 ### 🎯 Objetivo
 - Fix root domain landing: root `/` renders `LandingBioLinksCatalog` instead of e-commerce catalog when logged in.
@@ -18,10 +18,17 @@
 | FEAT-063 | Orders Debug: create channel validation, /me endpoint, findOne 404, dbClient multi-tier | `completed` |
 | FEAT-064 | Schema Decoupling: Fase 0 multi-file layout + Fase 1 Giveaways standalone | `completed` |
 | FEAT-065 | Schema Decoupling: Social Catalog + Bio-Links standalone extraction | `completed` |
+| FEAT-066 | Rebranding OmniFlow: Mapeo de Nombres & Microservicios Standalone | `completed` |
+| FEAT-067 | Backups & Disaster Recovery: SFTP Explorer, Restauración & Purga | `completed` |
+| FEAT-068 | Multi-Tenant User Management: Asignación Masiva de Tenants & Roles | `completed` |
+| FEAT-069 | Personalización de UX/UI Multi-Nivel: Defaults de Tenant & Perfil de Usuario | `completed` |
+| FEAT-070 | Sistema Híbrido de Íconos Sociales: Sincronización CDN, Almacenamiento Local Offline & Componentes React | `completed` |
+| FEAT-071 | Módulo OmniFlow BI (Analytics & Decision Intelligence) | `in_progress` |
+| FEAT-072 | Módulo OmniPulse (Field Intel & Strategic Ops) | `in_progress` |
 
 ### 📅 Próximo hito
-- `v1.20.6` — Root domain landing fix + troubleshooting entry.
-- `v1.21.0` — Extender manuales a otros flujos (Productos, POS, Catálogo Social).
+- `v1.20.11` — Deploy Manager Multicapa + Ingesta Masiva de Contactos y PDV (FEAT-059/068) + Liberación de Parches de Traefik (#33).
+- `v1.21.0` — Módulo OmniBI Analytics Hub (FEAT-071) + Módulo OmniPulse (Field Intel & Strategic Ops) (FEAT-072).
 
 ## Versiones anteriores
 
