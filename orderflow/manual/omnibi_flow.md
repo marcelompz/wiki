@@ -1,27 +1,27 @@
-# Módulo de Inteligencia de Negocios (OmniBI)
+# Módulo de Inteligencia de Negocios (OmniBI) & Visor Collabora
 
-Generado automáticamente: 2026-08-17T21:49:28.915837
+Generado automáticamente: 2026-08-22T18:39:29.883384
 
-## 01_dashboard_principal
+## 01_omnibi_dashboard_hub
 
-Dashboard principal con la vista de KPIs en tiempo real (Ventas, Ticket Promedio, Pedidos).
+Dashboard principal OmniBI Analytics Hub con métricas consolidadas en tiempo real y comparativo YoY.
 
-![01_dashboard_principal](docs/manual/screenshots/omnibi_flow/01_dashboard_principal.png)
+![01_omnibi_dashboard_hub](docs/manual/screenshots/omnibi_flow/01_omnibi_dashboard_hub.png)
 
-## 02_analitica_productos
+## 02_boton_visor_collabora
 
-Reportes y listados del desempeño del catálogo, cruzados con márgenes e inventario.
+Botón 'Ver Reporte KPI' habilitado dinámicamente mediante el chequeo de disponibilidad /analytics/viewer/status.
 
-![02_analitica_productos](docs/manual/screenshots/omnibi_flow/02_analitica_productos.png)
+![02_boton_visor_collabora](docs/manual/screenshots/omnibi_flow/02_boton_visor_collabora.png)
 
-## 03_analitica_clientes
+## 03_visor_collabora_modal
 
-Inteligencia de clientes y segmentación (Matriz RFM).
+Modal de pantalla completa con el visor Collabora Online (WOPI solo lectura) renderizando la hoja de cálculo XLSX.
 
-![03_analitica_clientes](docs/manual/screenshots/omnibi_flow/03_analitica_clientes.png)
+![03_visor_collabora_modal](docs/manual/screenshots/omnibi_flow/03_visor_collabora_modal.png)
 
-## 04_analitica_ordenes
+## 04_analitica_productos_matriz
 
-Flujo de transacciones y embudo de e-commerce operativo.
+Matriz de desempeño del catálogo de productos con filtros de rentabilidad y stock.
 
-![04_analitica_ordenes](docs/manual/screenshots/omnibi_flow/04_analitica_ordenes.png)
+![04_analitica_productos_matriz](docs/manual/screenshots/omnibi_flow/04_analitica_productos_matriz.png)

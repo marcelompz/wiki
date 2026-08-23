@@ -45,3 +45,30 @@ Bienvenidos al Centro de Documentación Operativa de **OrderFlow**. Los siguient
    - Escáner dinámico SSH de módulos en `/srv/odoo-addons/` y sincronización Git automática.
    - Ingesta guiada de CSVs: Categorías (FIFO/PPP), Categorías POS, Productos, Recetas y Mesas.
    - Monitoreo en tiempo real de logs y llaves SSH.
+
+9. 📱 **[09. Manual del Generador de Códigos QR](09-manual-generador-qr.md)**
+   - Generación de QRs para URL, Productos, Catálogos, Biolinks, vCard, WiFi, Archivos, Contacto.
+   - Personalización: color, logo central, tamaño, corrección de error, margen.
+   - Historial por tenant, modal embebible, integración en Productos/Catálogo/Biolinks.
+   - Permisos RBAC: `qr:generate`, `qr:read`, `qr:manage`.
+
+---
+
+## 📦 Acceso Rápido por Rol
+
+| Rol | Manuales Recomendados |
+|-----|----------------------|
+| **Admin / Owner** | Todos |
+| **Cajero / POS** | 02 (POS/KDS), 05 (Fidelización) |
+| **Mozo / Vendedor** | 02 (POS), 03 (Turnos), 04 (Catálogo WhatsApp) |
+| **Gestor de Marketing** | 01 (Portada), 04 (Catálogo), 05 (Sorteos), 09 (QR Generator) |
+| **Especialista / Spa** | 03 (Turnos), 02 (Comandas) |
+| **DevOps / Técnico** | 07 (Flujo E2E), 08 (Deploy Manager) |
+
+---
+
+## 🔄 Actualizaciones
+
+Este índice se actualiza con cada nueva feature. La numeración sigue el orden de implementación (FEAT-XXX).
+
+**Última actualización**: 2026-08-19 — Agregado manual 09 (FEAT-075 QR Generator v1.20.13)
