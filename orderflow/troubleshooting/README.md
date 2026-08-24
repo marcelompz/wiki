@@ -54,6 +54,7 @@ Ordená por problema y área. Cada entrada incluye síntomas, causa raíz y solu
 | [53](53-nest-dependency-resolution-analytics-export-service.md) | Nest NestJS ExceptionHandler: AnalyticsExportService | Backend / NestJS / Analytics / Documents | 502 Bad Gateway por error de resolución de dependencias de AnalyticsExportService en DocumentsModule | ✅ Resuelto |
 | [54](54-react-minified-error-310-async-subdomain-store-swap.md) | Minified React Error #310 (Hook Mismatch) | Frontend / App.tsx / React Hooks | Excepción React #310 en consola por intercambio asíncrono post-render del árbol de componentes en `App.tsx` | ✅ Resuelto |
 | [55](55-social-catalog-tsx-jsx-syntax-corruption.md) | Errores de Sintaxis TSX/JSX y Cierres en Social-Catalog | Frontend / Backend / Social-Catalog | 16 errores de sintaxis en `social-catalog.tsx` y error TS1005 en `products.service.ts` | ✅ Resuelto |
+| [56](56-docker-no-space-left-on-device-build-cache.md) | Error `no space left on device` en Docker Build | DevOps / Docker / BuildKit | Error por saturación de almacenamiento en `/var/lib/docker` durante compilación | ✅ Resuelto |
 
 ---
 
