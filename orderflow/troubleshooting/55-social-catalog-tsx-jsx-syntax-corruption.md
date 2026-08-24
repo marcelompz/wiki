@@ -56,16 +56,11 @@ src/products/products.service.ts:348:1 - error TS1005: '}' expected.
 
 ---
 
-## 4. Verificación
+## 5. Mapeo Multi-Instancia y Pulido UX (v1.20.18)
 
-1. **Compilación Frontend:**
-   ```bash
-   cd frontend && npm run build
-   ```
-   *Resultado:* `✓ 3845 modules transformed.` (Build de producción limpio en `dist/assets/social-catalog-DARjr4yK.js`).
-
-2. **Pruebas Unitarias Backend:**
-   ```bash
-   cd backend && npm run test -- src/social-catalog
-   ```
-   *Resultado:* 2 Test Suites / 4 Tests pasados.
+- **Causa Raíz de Switches Desmarcados:** Al guardar desde el Admin en instancias secundarias (`menudigital`), `handleSave` no enviaba `instanceKey: selectedInstanceKey`, por lo que el Backend persistía la configuración siempre en la instancia `'default'`.
+- **Solución:**
+  1. Se incluyó `instanceKey` en el payload de `handleSave` (`admin/social-catalog.tsx`).
+  2. Se actualizó el endpoint `PUT /api/v1/social-catalog/config` (`social-catalog-admin.controller.ts`) para procesar `instanceKey`.
+  3. Se aisló la caché en `localStorage` con la clave `social-catalog-config:${subdomain}:${instanceKey}`.
+  4. Se redujo el espacio entre categorías en el acordeón a `gap: 6px` y `borderRadius: 12px` para una presentación de menú digital compacta.
