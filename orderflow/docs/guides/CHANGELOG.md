@@ -2,6 +2,15 @@
 
 Todos los cambios notables en este proyecto se documentarán en este archivo.
 
+## [1.20.21] - 2026-08-25
+
+### ✨ Visualización de Fecha de Nacimiento en Contactos y Participantes (FEAT-086)
+- **Admin App Contactos (`/admin/contacts`):**
+  - Añadida columna "Fecha Nacimiento" en la tabla de contactos (modo individual y agrupado por email).
+  - Añadido selector de fecha `DatePicker` en el modal de creación y edición de contacto con persistencia en `metadata.birthDate`.
+- **Admin App Sorteos (`/admin/giveaways`):**
+  - Añadida columna "Fecha Nacimiento" en la tabla de participantes del modal de detalles del sorteo.
+
 ## [1.20.10] - 2026-08-18
 
 ### 🚀 Sincronización Global de Versiones & Audit Backfill (FEAT-071)
