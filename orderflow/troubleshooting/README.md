@@ -56,6 +56,7 @@ Ordená por problema y área. Cada entrada incluye síntomas, causa raíz y solu
 | [54](54-react-minified-error-310-async-subdomain-store-swap.md) | Minified React Error #310 (Hook Mismatch) | Frontend / App.tsx / React Hooks | Excepción React #310 en consola por intercambio asíncrono post-render del árbol de componentes en `App.tsx` | ✅ Resuelto |
 | [55](55-social-catalog-tsx-jsx-syntax-corruption.md) | Errores de Sintaxis TSX/JSX y Cierres en Social-Catalog | Frontend / Backend / Social-Catalog | 16 errores de sintaxis en `social-catalog.tsx` y error TS1005 en `products.service.ts` | ✅ Resuelto |
 | [56](56-docker-no-space-left-on-device-build-cache.md) | Error `no space left on device` en Docker Build | DevOps / Docker / BuildKit | Error por saturación de almacenamiento en `/var/lib/docker` durante compilación | ✅ Resuelto |
+| [59](59-social-catalog-featured-banner-init-order.md) | Social Catalog público: banner featured carga con `config` undefined / `featuredBannerEnabled` no evaluado | Frontend / Social-Catalog / Data-fetch | El fetch de `/featured` se disparaba antes de que `config` estuviera disponible, provocando `config.featuredBannerEnabled` === `undefined` y featured vacío; el orden de fetch quedó: 1) config → 2) featured (if enabled) → 3) products | ✅ Resuelto |
 
 ---
 
@@ -107,6 +108,7 @@ Ordená por problema y área. Cada entrada incluye síntomas, causa raíz y solu
 - **`migrate dev` Falla en Shadow DB (P3006/P1014):** ver [#43](43-prisma-shadow-db-migration-failure.md) — Shadow DB sin historial completo; usar `db push` en emergencia.
 - **Tabla `social_catalogs` Faltante (OmniCatalog):** ver [#44](44-social-catalog-table-missing.md) — Tablas del módulo social catalog no existen; `db push` crea todas.
 - **QR Generate 500 con Master Key:** ver [#45](45-qr-master-key-fk-violation.md) — Master key no tiene tenant; usar API key de tenant real.
+- **Social Catalog público: fetch de featured con `config` undefined — orden de requests:** ver [#59](59-social-catalog-featured-banner-init-order.md) — `featured` requiere la config; se reordena fetch (config → featured → products) y se cachea `featuredBannerEnabled`.
 
 ---
 
