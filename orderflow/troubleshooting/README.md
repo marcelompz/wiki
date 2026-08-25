@@ -1,3 +1,4 @@
+
 # 🛠️ Troubleshooting — Índice de Guías
 
 Ordená por problema y área. Cada entrada incluye síntomas, causa raíz y solución aplicada.
