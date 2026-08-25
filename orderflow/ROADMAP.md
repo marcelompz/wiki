@@ -1,9 +1,9 @@
 # 🗺️ ROADMAP DE ORDERFLOW - v1.20.10 → v2.0.0
-**Última Actualización:** 2026-08-24 ART (Release v1.20.18 — Social Catalog v5 UX/UI)
+**Última Actualización:** 2026-08-25 ART (Release v1.20.20 — OmniBio Mejoras: Rutas, Precio Server-Side, Moneda, Theme, Stock)
 
-**Versión Actual:** **`v1.20.18`** 🔄 **PRODUCTION READY** | Marca pública: OmniFlow. Capa técnica interna: OrderFlow.
+**Versión Actual:** **`v1.20.20`** 🔄 **PRODUCTION READY** | Marca pública: OmniFlow. Capa técnica interna: OrderFlow.
 **Próximo Release:** **v1.21.0 (En progreso — Ingesta Histórica Odoo 14 OmniBI)**
-**Estado:** ✅ **STAGING & PRODUCTION OPERATIVE** | 🏆 **COMMERCIAL RELEASE v1.20.18 STABLE** | QA E2E Suite Integrada | 597 tests unitarios pasados
+**Estado:** ✅ **STAGING & PRODUCTION OPERATIVE** | 🏆 **COMMERCIAL RELEASE v1.20.20 STABLE** | QA E2E Suite Integrada | 597+ tests unitarios pasados
 **Visión Estratégica:** Plataforma SaaS omnicanal de alta velocidad con aislamiento multi-tier, marketplace de plugins de terceros, facturación automática Stripe/Mercado Pago y escalado horizontal a Kubernetes.
 
 > 📦 **Estrategia de Microservicios Standalone:** Ver el roadmap dedicado de la suite de productos independientes en [docs/guides/ROADMAP_MICROSERVICES.md](docs/guides/ROADMAP_MICROSERVICES.md).

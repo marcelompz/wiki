@@ -5,6 +5,40 @@ Todos los cambios notables a este proyecto serán documentados en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 y este proyecto se adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.20.20] - 2026-08-25
+
+### 🐛 Fixed (OmniBio / Bio-Links — BL-01, BL-02, BL-06)
+- **Rutas públicas rotas en Fast Checkout (BL-01):**
+  - Corregido doble error en `public-biolink.tsx`: faltaba el prefijo `/api/v1/bio/public/` en las llamadas a `/click` y `/order`.
+  - Backend `@Controller('api/v1/bio')` ya exponía `@Post('public/:slug/click')` y `@Post('public/:slug/order')`; el frontend estaba llamando `/v1/bio/${slug}/...`.
+  - Documentado en troubleshooting #61: `docs/troubleshooting/61-omnibio-public-routes-click-order-missing-prefix.md`
+- **Precio manipulado por cliente en Fast Checkout (BL-02):**
+  - Eliminado `price` del payload del frontend hacia `/order`.
+  - Backend `createOrderFromBioLink` ahora resuelve el precio server-side:
+    - Si el bloque es `product` y existe `productId`, delega a `OrdersService.create()` que valida contra `Product.price` real.
+    - Si el bloque es `booking` o no tiene `productId`, usa el precio configurado en el `BioLink.blocks` (precio de lista del admin), ignorando cualquier valor del body.
+  - Documentado en troubleshooting #62: `docs/troubleshooting/62-omnibio-checkout-client-price-injection.md`
+- **Enriquecimiento de bloques tipo producto (BL-06):**
+  - `getPublicBySlug` ahora incluye `stockStatus`, `imagesUrls`, `ribbon` y `tags` del `Product` referenciado en bloques `product`.
+  - Extraído helper `getStockStatus` a `backend/src/utils/stock-utils.ts` para reusar en social-catalog.
+  - Frontend público renderiza badge de stock (AGOTADO / ¡Última unidad! / Pocas unidades) y deshabilita el bloque si está agotado.
+
+### 🎨 Enhanced (OmniBio UX/UI — BL-03, BL-04, BL-05)
+- **Consistencia de moneda (BL-03):**
+  - Reemplazado símbolo `$` hardcodeado por helper `formatCurrency(amount, tenant.currency)` en `public-biolink.tsx`.
+  - Símbolos soportados: `PYG` → `₲`, `USD` → `$`, `ARS` → `$`, `BRL` → `R$`, etc.
+- **Theme del checkout (BL-04):**
+  - Botón "Confirmar Pedido" y botón "Volver a la Bio" ahora usan `themeColor` del `BioLink` cargado.
+  - Eliminado hardcode `#3D2235` en checkout público.
+- **Validación de contraste en admin (BL-05):**
+  - Agregado display en vivo de ratio de contraste entre `themeColor` y `textColor` en `biolinks.tsx`.
+  - Muestra warning si ratio < 4.5:1 y sugiere color de texto alternativo.
+
+### 🔧 Refactor
+- **Standalone同步:**
+  - `services/biolinks-standalone/src/bio-links.controller.ts` y `omni-bio.controller.ts` sincronizados con misma lógica de resolución de precio server-side.
+  - Rutas standalone ya exponían `@Post('public/:slug/click')` y `@Post('public/:slug/order')` correctamente; solo se alineó la lógica de negocio.
+
 ## [1.20.19] - 2026-08-24
 
 ### 🐛 Fixed (Social-Catalog Public Toggling Visibility Bug)

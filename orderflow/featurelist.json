@@ -1,7 +1,7 @@
 {
   "project": "OrderFlow SaaS Omnicanal",
-  "version": "1.20.4",
-  "last_updated": "2026-08-11",
+  "version": "1.20.18",
+  "last_updated": "2026-08-24",
   "features": [
     {
       "id": "FEAT-001",
@@ -75,7 +75,9 @@
       "title": "Refactorización WhatsApp Catalog → Social Catalog Hub (Catálogo Omnicanal)",
       "status": "completed",
       "assigned_module": "backend/src/social-catalog/, frontend/src/pages/social-*, prisma/schema.prisma",
-      "depends_on": ["FEAT-008"]
+      "depends_on": [
+        "FEAT-008"
+      ]
     },
     {
       "id": "FEAT-049",
@@ -130,18 +132,21 @@
       "id": "FEAT-011",
       "category": "Infraestructura & Alta Disponibilidad",
       "title": "Ampliación a Servidor Secundario (Clúster Staging/Production Aislado con Replica Read-Only)",
-      "status": "in_progress",
-      "assigned_module": "docker-compose.prod.yml, docker-compose.provecchio.yml, scripts/deploy-*.sh, docs/ROADMAP.md",
+      "status": "completed",
+      "assigned_module": "docker-compose.prod.yml, docker-compose.provecchio.yml, docker-compose.replica.yml, scripts/deploy-*.sh, scripts/replica-*.sh, docs/backups.md, docs/REPLICA_STANDBY.md, docs/operations/ha-failover-runbook.md",
       "blocking": [
         "FEAT-001 (multi-tier infra)"
-      ]
+      ],
+      "qa_validation": "Réplica standby operativa en Provecchio | Scripts replica-start/stop/promote/status validados | Failover manual documentado en docs/operations/ha-failover-runbook.md | Procedimiento reversa/rollback documentado | init.sh OK"
     },
     {
       "id": "FEAT-012",
       "category": "Mobile / React Native Expo",
       "title": "App Móvil Client-First & Terminal POS Native para iOS/Android (@orderflow/mobile)",
       "status": "in_progress",
-      "assigned_module": "mobile/src/screens/*.tsx"
+      "assigned_module": "mobile/package.json, mobile/app.json, mobile/src/screens/POSScreen.tsx, mobile/src/services/api.ts, mobile/src/store/*",
+      "blocking": [],
+      "qa_validation": "Versión mobile alineada a 1.20.9 (OmniFlow branding) | app.json actualizado a OmniFlow | Rutas API centralizadas en /api/v1 | POSScreen mantiene modo offline y multi-session | Pantallas agregadas: orders y customer-select | Validación móvil pendiente en build/Expo Go"
     },
     {
       "id": "FEAT-041",
@@ -462,7 +467,10 @@
       "status": "completed",
       "assigned_module": "backend/src/follow-up/, backend/src/queues/follow-up-queue.*, backend/src/social-catalog/adapters/*.adapter.ts, prisma/schema.prisma",
       "roadmap_milestone": "v1.18.0",
-      "depends_on": ["FEAT-048", "FEAT-043"]
+      "depends_on": [
+        "FEAT-048",
+        "FEAT-043"
+      ]
     },
     {
       "id": "FEAT-057",
@@ -471,7 +479,9 @@
       "status": "completed",
       "assigned_module": "backend/prisma/schema.prisma, backend/src/orders/orders.service.ts, backend/src/orders/dto/create-order.dto.ts, backend/src/orders/orders-export.controller.ts, frontend/src/pages/social-*.tsx, frontend/src/pages/admin/pos.tsx",
       "roadmap_milestone": "v1.18.0",
-      "depends_on": ["FEAT-056"]
+      "depends_on": [
+        "FEAT-056"
+      ]
     },
     {
       "id": "FEAT-058",
@@ -488,7 +498,10 @@
       "title": "Infrastructure Deploy Manager: despliegue y ciclo de vida multi-sistema desde Super Admin (Odoo, OmniFlow, Axon, AIEER, VitaLog, LeadQualifierCRM)",
       "status": "completed",
       "assigned_module": "backend/src/deploy-manager/, frontend/src/pages/admin/deploy/, docs/guides/odoo-deploy-standardization.md",
-      "depends_on": ["FEAT-011", "FEAT-016"],
+      "depends_on": [
+        "FEAT-011",
+        "FEAT-016"
+      ],
       "blocking": [],
       "qa_validation": "init.sh passed: 74 suites / 570 tests | Backend build clean | Frontend build clean | E2E QA: provecchio.com + admin routes all HTTP 200, no JS errors"
     },
@@ -498,7 +511,9 @@
       "title": "Manuales de usuario automáticos con capturas de pantalla generadas por Playwright",
       "status": "completed",
       "assigned_module": "scripts/generate_user_manual.py, scripts/manual_flows/, docs/manual/",
-      "depends_on": ["FEAT-059"],
+      "depends_on": [
+        "FEAT-059"
+      ],
       "blocking": [],
       "qa_validation": "Generador ejecutable: python3 scripts/generate_user_manual.py --flow deploy --markdown --html"
     },
@@ -528,7 +543,9 @@
       "title": "Orders Debug: create channel validation, /me endpoint, findOne 404, dbClient multi-tier",
       "status": "completed",
       "assigned_module": "backend/src/orders/orders.service.ts, backend/src/orders/orders.controller.ts, backend/src/orders/dto/create-order.dto.ts, backend/src/orders/orders.service.spec.ts, backend/src/orders/orders.controller.spec.ts, backend/src/orders/orders.seller-attribution.integration.spec.ts",
-      "depends_on": ["FEAT-062"],
+      "depends_on": [
+        "FEAT-062"
+      ],
       "blocking": [],
       "qa_validation": "init.sh passed: 74 suites / 580 tests | Backend build clean | E2E QA: provecchio.com + admin routes all HTTP 200, no JS errors"
     },
@@ -548,11 +565,239 @@
       "title": "Schema Decoupling: Social Catalog + Bio-Links standalone extraction",
       "status": "completed",
       "assigned_module": "services/social-catalog-standalone/, services/biolinks-standalone/, backend/prisma/schema.prisma, docs/planes/SCHEMA_DECOUPLING_PLAN.md",
-      "depends_on": ["FEAT-064"],
+      "depends_on": [
+        "FEAT-064"
+      ],
       "blocking": [],
-      "qa_validation": "prisma validate OK | prisma generate OK | init.sh passed: 74 suites / 580 tests | E2E QA: provecchio.com + admin routes all HTTP 200, no JS errors | Social Catalog standalone extracted with own Prisma schema"
+      "qa_validation": "prisma validate OK | prisma generate OK | nest build OK (biolinks-standalone + social-catalog-standalone) | init.sh passed: 74 suites / 580 tests | E2E QA: provecchio.com + admin routes all HTTP 200, no JS errors | Social Catalog + Bio-Links standalone extracted with own Prisma schema"
+    },
+    {
+      "id": "FEAT-066",
+      "category": "Core / Rebranding & Standalone Architecture",
+      "title": "Rebranding OmniFlow: Transición progresiva de nomenclatura y paths standalone (OmniCore, OmniCatalog, OmniBio, OmniBookings, OmniPOS, OmniSync)",
+      "status": "completed",
+      "assigned_module": "services/*-standalone/, frontend/src/components/, docs/brand/manual/brand-guidelines.md, docs/planes/SCHEMA_DECOUPLING_PLAN.md",
+      "depends_on": [
+        "FEAT-064",
+        "FEAT-065"
+      ],
+      "blocking": [],
+      "qa_validation": "OmniBio estandarizado (biolinks-standalone -> omni-bio.service/controller/module, DTO limpio create-omni-bio.dto, alias /api/v1/bio) | OmniCatalog estandarizado (social-catalog-standalone -> omni-catalog.service/controller, alias /api/v1/standalone/social-catalog) | OmniBookings estandarizado (bookings-standalone -> omni-bookings.service/controller, alias /api/v1/bookings) | Retrocompatibilidad mantenida | init.sh OK"
+    },
+    {
+      "id": "FEAT-067",
+      "category": "Infraestructura & Disaster Recovery",
+      "title": "Backups & Disaster Recovery: SFTP Explorer, Restauración & Purga",
+      "status": "completed",
+      "assigned_module": "backend/src/backups/, docs/backups.md"
+    },
+    {
+      "id": "FEAT-068",
+      "category": "Multi-Tenant / User Management",
+      "title": "Multi-Tenant User Management: Asignación Masiva de Tenants & Roles",
+      "status": "completed",
+      "assigned_module": "backend/src/users/, frontend/src/pages/admin/users.tsx"
+    },
+    {
+      "id": "FEAT-069",
+      "category": "Frontend / UX-UI Personalización",
+      "title": "Personalización de UX/UI Multi-Nivel: Defaults de Tenant & Perfil de Usuario",
+      "status": "completed",
+      "assigned_module": "frontend/src/components/tenant/, frontend/src/theme/"
+    },
+    {
+      "id": "FEAT-070",
+      "category": "Frontend / Asset Management",
+      "title": "Sistema Híbrido de Íconos Sociales: Sincronización CDN, Almacenamiento Local Offline & Componentes React",
+      "status": "completed",
+      "assigned_module": "frontend/src/components/icons/"
+    },
+    {
+      "id": "FEAT-071",
+      "category": "Analytics & Decision Intelligence",
+      "title": "Módulo OmniFlow BI Analytics Hub (OmniBI) — Ingesta Histórica Odoo 14 Provecchio",
+      "description": "Implementación del microservicio standalone omnibi-standalone con extractor XML-RPC Odoo 14 (puerto 8081), persistencia PostgreSQL aislada con Prisma, comparativo YoY (Year-over-Year), pipeline status, y panel admin UI (/admin/bi) con sincronización bajo demanda.",
+      "status": "completed",
+      "assigned_module": "services/omnibi-standalone/, backend/src/analytics/, frontend/src/pages/admin/bi.tsx, docs/planes/omnibi/OMNIBI_HISTORICAL_INGESTION_PLAN.md",
+      "qa_validation": "init.sh passed: 100% unit tests passed | backend build clean | frontend build clean | omnibi-standalone unit tests pass | E2E: /admin/bi YoY comparison + sync Odoo 14 on-demand"
+    },
+    {
+      "id": "FEAT-072",
+      "category": "Analytics & Strategic Operations",
+      "title": "Módulo OmniPulse (Field Intel, Scoring de Fuentes & Strategic Ops)",
+      "description": "Inteligencia de campo, evaluación de veracidad y reputación de fuentes (Source Reliability Engine), correlación con datos duros transaccionales del ERP/POS y trazabilidad defensiva de fugas (Strategic Probes / Canary Trapping).",
+      "status": "completed",
+      "assigned_module": "backend/src/modules/omnipulse/, frontend/src/pages/admin/omnipulse/, docs/planes/omnibi/OmniPulse/",
+      "depends_on": [
+        "FEAT-071"
+      ],
+      "blocking": []
+    },
+    {
+      "id": "FEAT-073",
+      "category": "Frontend / OmniBio Admin",
+      "title": "OmniBio Admin: selector de red social en bloques y badge en preview",
+      "status": "pending",
+      "assigned_module": "frontend/src/pages/admin/biolinks.tsx",
+      "depends_on": [
+        "FEAT-066"
+      ],
+      "blocking": [],
+      "qa_validation": "Pendiente: aplicar parche admin-biolinks-nets.patch (selector de red + badge en preview)"
+    },
+    {
+      "id": "FEAT-074",
+      "category": "Core / Products",
+      "title": "Carga masiva de productos con auto-creación de categorías (CSV/Excel)",
+      "description": "Bulk upload de productos para módulos Products y Social-Catalog (OmniCatalog) con parsing CSV/Excel, auto-creación de categorías por tenant, descarga de plantilla XLSX con hoja de instrucciones, y modal reutilizable en frontend.",
+      "status": "completed",
+      "assigned_module": "backend/src/products/, backend/src/social-catalog/, frontend/src/pages/admin/products.tsx, frontend/src/pages/admin/social-catalog.tsx, frontend/src/components/admin/BulkUploadModal.tsx, backend/prisma/schema.prisma",
+      "depends_on": [],
+      "blocking": [],
+      "qa_validation": "init.sh passed: backend build clean | frontend build clean | unit tests pass | E2E: carga masiva products + social-catalog + descarga plantilla funcionando"
+    },
+    {
+      "id": "FEAT-075",
+      "category": "Core / QR Generator",
+      "title": "Generador de Códigos QR Multi-Proposito (Standalone + Integración Modular)",
+      "description": "Servicio QR standalone con API REST + componente embeddable. Soporta: URL personalizada, endpoints internos (producto, catálogo, biolink, contacto), archivos, vCard. Personalización: color, logo central, tamaño, corrección error. Multi-tenant con aislamiento por tenantId. RBAC configurable por admin. Almacena historial por tenant.",
+      "status": "completed",
+      "assigned_module": "backend/src/qr/, frontend/src/pages/admin/qr-generator.tsx, frontend/src/components/admin/QrGeneratorModal.tsx",
+      "depends_on": [
+        "FEAT-066"
+      ],
+      "blocking": [],
+      "qa_validation": "init.sh passed: backend build clean | frontend build clean | unit tests pass | E2E: QR generation + download + embed en products/catalog/biolinks + RBAC permissions"
+    },
+    {
+      "id": "FEAT-077",
+      "category": "Core / OmniCatalog",
+      "title": "OmniCatalog Jerárquico con Acordeón + Sync Odoo POS/Product Categories",
+      "description": "Catálogo jerárquico de 3 niveles (Categoría → Subcategoría → Nivel 3) con efecto acordeón colapsado. Modelo ProductCategory extendido con parentId, level, order, odooProductCategoryId, odooPosCategoryId. Importación CSV masiva (Categoria;Sub-categoria;Nivel 3). Sincronización bidireccional con Odoo: pos.category (POS) + product.category (Inventario/Costeo). Componente CategoryAccordion recursivo con todas las categorías colapsadas, click expande, productos se cargan al expandir subcategoría. Script importación CSV para Provecchio (192 productos, 3 categorías, 30 subcategorías).",
+      "status": "completed",
+      "assigned_module": "backend/prisma/schema.prisma, backend/src/catalog/, backend/src/deploy-manager/handlers/odoo/odoo-provisioning.service.ts, frontend/src/components/admin/CategoryAccordion.tsx, frontend/src/pages/admin/social-catalog.tsx",
+      "depends_on": [
+        "FEAT-075"
+      ],
+      "blocking": [],
+      "qa_validation": "init.sh passed: backend build clean | frontend build clean | unit tests pass | E2E: CategoryAccordion render | CSV import 192 products | Odoo sync pos.category + product.category"
+    },
+    {
+      "id": "FEAT-078",
+      "category": "Core / POS-KDS",
+      "title": "OmniPOS: Terminal POS Offline-First + KDS Nativo WebSockets + Motor BoM Atómico",
+      "description": "Terminal POS Offline-First (IndexedDB + Outbox Pattern + Dexie.js) con arquitectura resiliente. KDS Nativo Multi-Estación con WebSockets + Redis Pub/Sub (latencia <50ms), enrutamiento automático por PreparationStation, semáforo SLA visual (Verde→Amarillo→Rojo), soporte Bump Bars físicas y Recall de tickets. Motor BoM Atómico (Live Escandallo Engine) con deducción de insumos en tiempo real, modificadores dinámicos (replacesVariantId, qtyDelta), factor de merma (wastePercentage), snapshot costAtSale para BI de rentabilidad. Sincronización incremental por deltas. Ventaja competitiva vs Odoo: descuento de stock en tiempo real vs diferido, KDS WebSockets vs polling, offline nativo, modificadores reactivos a insumos, costeo unitario en venta.",
+      "status": "planned",
+      "priority": "HIGH",
+      "assigned_module": "backend/src/pos/, backend/src/kds/, backend/src/bom/, frontend/src/pages/admin/pos.tsx, frontend/src/pages/admin/kds.tsx, mobile/src/screens/POSScreen.tsx, docs/planes/pos-kds/",
+      "depends_on": [
+        "FEAT-077",
+        "FEAT-064"
+      ],
+      "blocking": [],
+      "qa_validation": "POS apertura <1s | KDS WebSocket latency <50ms | BoM processing <100ms | Offline sync >99.9% | Stock error rate <0.1% | Margen por plato calculado <1s",
+      "roadmap_milestone": "v1.21.0",
+      "source": "docs/planes/pos-kds/OmniFlow - Analisis Tecnico-Estrategico y Recomendaciones (POS, KDS y BoM).md, docs/planes/pos-kds/OmniFlow vs Odoo - Informe Comparativo y Decisiones Estrategicas (POS, KDS y Escandallos).md"
+    },
+    {
+      "id": "FEAT-079",
+      "category": "Core / Productos / Variantes",
+      "title": "Sistema de Productos con Variantes e Importación Masiva (Patrón Odoo product.template / product.product)",
+      "description": "Sistema completo de gestión de productos con variantes siguiendo el estándar Odoo (product.template / product.product). Ficha enriquecida por producto (product.template) con metadatos, specs JSON, galería de fotos con fallback automático (variant.photo || template.photo[0]). Atributos globales reutilizables (Attribute → AttributeValue) para Talla, Color, Material, etc. Motor de generación combinatoria cartesiana de variantes con materialización selectiva. Modelo de precio desacoplado: Precio Base (Template) + PriceDelta (Variant). Importación/Exportación masiva CSV/XLSX asíncrona con BullMQ (Dry-run validación, procesamiento por handle, cálculo automático priceDelta, transaccionalidad por producto). Jobs BullMQ: import-products-process, regenerate-variant-matrix, recalculate-template-aggregates. Frontend: Gestor de atributos dinámico, ficha de producto con matriz hoja de cálculo, wizard de importación con mapeo columnas y preview errores. Integración Odoo: product.template ↔ Product, product.product ↔ ProductVariant, ajuste POS/Inventario para consumo de variantes.",
+      "status": "planned",
+      "priority": "HIGH",
+      "assigned_module": "backend/prisma/schema.prisma, backend/src/products/, backend/src/attributes/, backend/src/variants/, backend/src/catalog/, backend/src/queues/import-products-queue.*, frontend/src/pages/admin/products.tsx, frontend/src/components/admin/VariantMatrix.tsx, frontend/src/components/admin/ImportWizard.tsx, docs/planes/productos/",
+      "depends_on": [
+        "FEAT-064",
+        "FEAT-077"
+      ],
+      "blocking": [],
+      "qa_validation": "Prisma validate OK | prisma generate OK | Variantes cartesianas generadas correctamente | Import CSV/XLSX dry-run + ejecución | Precio base + delta correcto | Fallback fotos variant→template | Jobs BullMQ procesan importaciones | E2E: matriz variantes + importación masiva",
+      "roadmap_milestone": "v1.22.0",
+      "source": "docs/planes/productos/PLAN_productos-variantes-con-importacion-masiva.md, docs/planes/productos/OmniFlow_PLANdeProductosconVarianteseImportacionMasiva(v2).md"
+    },
+    {
+      "id": "FEAT-080",
+      "category": "Core / Producción / Fixes",
+      "title": "Sprint Fixes Producción Provecchio: QR, Social-Catalog, CSP y Deploy 502",
+      "description": "Correcciones urgentes para habilitar operación en producción Provecchio: fix código duplicado/corrupto en social-catalog.service.ts (240 errores TS), reemplazo de referencias rotas isOutOfStock por stockStatus en frontend social-catalog, fix URL del QR generator para usar dominio base del request sin subdominio hardcodeado, actualización CSP Traefik para permitir img-src blob:, fix schema drift/deploy 502 por migración instance_key no aplicada, y documentación troubleshooting correspondiente.",
+      "status": "completed",
+      "assigned_module": "backend/src/qr/qr.controller.ts, backend/src/social-catalog/social-catalog.controller.ts, backend/src/social-catalog/social-catalog.service.ts, frontend/src/pages/social-catalog.tsx, /srv/traefik/dynamic/headers.yml, docs/troubleshooting/50-deploy-502-module-installation-schema-drift.md",
+      "depends_on": [
+        "FEAT-075",
+        "FEAT-048"
+      ],
+      "blocking": [],
+      "qa_validation": "Backend build clean | Frontend build clean | Deploy Provecchio exitoso | Login HTTP 200 | QR genera https://provecchio.com/social-catalog | CSP incluye blob: | E2E QA: admin routes HTTP 200, sin errores JS"
+    },
+    {
+      "id": "FEAT-081",
+      "category": "Core / Social-Catalog / UX",
+      "title": "Mejoras Social-Catalog: Alertas de inventario, etiquetas editables y ordenamiento de productos",
+      "description": "Implementación de 3 mejoras en el catálogo social: (1) Alertas de inventario con badges AGOTADO/Última unidad/Pocas unidades en admin y público, helper getStockStatus() y filtros por stockStatus; (2) Etiquetas editables reutilizables por tenant usando metadata del producto (sin schema nuevo), con CRUD de etiquetas y selector múltiple en admin, badges en esquina superior izquierda del público; (3) Ordenamiento de productos por criterios (manual, precio, nombre, stock) en catálogo público y drag&drop en admin para reordenamiento manual.",
+      "status": "completed",
+      "assigned_module": "backend/src/social-catalog/social-catalog.service.ts, backend/src/social-catalog/social-catalog-admin.controller.ts, frontend/src/pages/admin/social-catalog.tsx, frontend/src/pages/social-catalog.tsx, docs/planes/PLAN_SOCIAL_CATALOG_MEJORAS.md",
+      "depends_on": [
+        "FEAT-080",
+        "FEAT-077"
+      ],
+      "blocking": [],
+      "qa_validation": "Backend build clean | Frontend build clean | getStockStatus() cubre 4 estados | Filtros stockStatus funcionan | Etiquetas CRUD endpoints operativos | Drag&drop productos actualiza orden | Selector ordenamiento público envía sortBy | E2E: badges stock + etiquetas visibles en catálogo público"
+    },
+    {
+      "id": "FEAT-082",
+      "category": "Analytics & Decision Intelligence / BI",
+      "title": "Visor Collabora Online (WOPI solo lectura) para Reportes OmniBI",
+      "description": "Integración del visor Collabora Online (CODE) vía WOPI host stateless (solo lectura) para visualización embebida de reportes XLSX (Resumen KPI y Matriz de Productos) en el dashboard OmniBI. Chequeo proactivo de disponibilidad (/analytics/viewer/status), firma de WopiFileToken efímero con JwtService y degradación elegante a descarga directa en frontend.",
+      "status": "completed",
+      "assigned_module": "backend/src/analytics/wopi/, frontend/src/pages/admin/bi.tsx, docs/planes/omnibi/collabora/PROMPT_BI_FASE_4_5_COLLABORA_VIEWER.md",
+      "depends_on": [
+        "FEAT-071"
+      ],
+      "blocking": [],
+      "qa_validation": "Backend build clean | Frontend build clean | Unit tests wopi.service.spec.ts pass | CheckFileInfo ReadOnly: true | GetFile regenera XLSX transitorio | Aislamiento multi-tenant validado por token JWT"
+    },
+    {
+      "id": "FEAT-083",
+      "category": "Core / Documentos & Workspace",
+      "title": "OmniFlow Documentos: Workspace propio con Collabora Online (WOPI, edición & locking)",
+      "description": "Módulo de gestión documental multi-tenant con espacio de trabajo propio por tenant (carpeta raíz auto-provisionada), modelos Prisma Document, DocumentFolder y DocumentPermission, capa de almacenamiento abstracta DocumentStorageAdapter, WOPI host extendido con PutFile para persistencia y protocolo de locking concurrente con Redis (LOCK, UNLOCK, REFRESH_LOCK).",
+      "status": "planned",
+      "assigned_module": "backend/src/documents/, frontend/src/pages/admin/documents.tsx, docs/planes/omnibi/collabora/PROMPT_DOCUMENTOS_WORKSPACE_ETAPA1.md",
+      "depends_on": [
+        "FEAT-082"
+      ],
+      "blocking": []
+    },
+    {
+      "id": "FEAT-084",
+      "category": "Core / Social-Catalog / TS Fix & v5 Plan Alignment",
+      "title": "Evaluación del Estado del Arte, Limpieza JSX/TS y Alineación v5 de Social-Catalog",
+      "description": "Resolución total de errores de sintaxis TypeScript/JSX en frontend social-catalog.tsx y backend products.service.ts. Alineación con el plan v5: SC-02 Toolbar móvil responsiva de 2 filas, SC-03 badges de stock ¡Última unidad! (===1) y SC-05 ordenamiento admin unificado sortBy=admin con adminSortLabel configurable.",
+      "status": "completed",
+      "assigned_module": "backend/src/social-catalog/, backend/src/products/, frontend/src/pages/social-catalog.tsx, docs/planes/omni-catalog/mejora/PLAN_SOCIAL_CATALOG_MEJORAS_v5.md",
+      "depends_on": [
+        "FEAT-081"
+      ],
+      "blocking": [],
+      "qa_validation": "Backend build clean | Frontend build clean (3845 modules transformed) | Unit tests passed: 2 suites / 4 tests | Toolbar móvil SC-02 responsiva OK | SC-03 last_unit badge OK | SC-05 sortBy=admin OK"
+    },
+    {
+      "id": "FEAT-085",
+      "category": "Core / Social-Catalog / Multi-Instance Config & UX Polish",
+      "title": "Corrección de Mapeo por instanceKey, Aislamiento de Caché Local y Pulido UX Modo Oscuro/Logo",
+      "description": "Inclusión de instanceKey en handleSave del panel de administración para evitar sobreescritura de la instancia default al guardar menudigital u otras instancias. Mapeo de instanceKey en el controlador PUT backend. Aislamiento de caché local por subdomain e instanceKey. Adaptación de fondo bodyBg en modo oscuro a cssVars.bgApp, borde dinámico del logo circular y ocultación del paginador inferior en modo acordeón.",
+      "status": "completed",
+      "assigned_module": "backend/src/social-catalog/social-catalog-admin.controller.ts, frontend/src/pages/admin/social-catalog.tsx, frontend/src/pages/social-catalog.tsx",
+      "depends_on": [
+        "FEAT-084"
+      ],
+      "blocking": [],
+      "qa_validation": "instanceKey mapping OK | Local storage cache key isolated OK | Dark mode background fallback OK | Logo circular cover & dynamic border OK | Pagination hidden in accordion mode OK"
     }
   ],
-  "lastUpdated": "2026-08-13",
-  "last_id": "FEAT-065"
+  "lastUpdated": "2026-08-25",
+  "last_id": "FEAT-085",
+  "next_pending_sc": "SC-08"
 }
+
