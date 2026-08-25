@@ -5,6 +5,128 @@ Todos los cambios notables a este proyecto serán documentados en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 y este proyecto se adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.20.19] - 2026-08-24
+
+### 🐛 Fixed (Social-Catalog Public Toggling Visibility Bug)
+- **Persistencia de toggles de visibilidad `false` en Social-Catalog Público:**
+  - Corregido bug crítico donde los toggles de visibilidad de elementos en el catálogo público (mostrar/ocultar) no persistían el estado `false`.
+  - Causa raíz: switches que se desmárcan en admin volvían visibles los elementos por el flag `show*` no se guardaba como `false` explícito (se omitía del payload).
+  - Solución: agregados `initialValues` basados en `configInstance.show*` y coerción explícita con `?? false` antes de enviar el payload `PUT`.
+  - Documentado en troubleshooting #57: `docs/troubleshooting/57-social-catalog-admin-visibility-toggles-not-persisting-false.md`
+
+### 🔧 Alineado con v5 Plan (SC-02, SC-03, SC-05)
+- **SC-02 - Toolbar Móvil Responsiva de 2 Filas:** implementado layout flex-wrap en `.toolbar-filters-mobile` para envolver botones cuando el ancho de pantalla es < 768px.
+- **SC-03 - Badges de Stock "¡Última unidad!":** renderización de badge cuando `stock === 1` (exacto) en los tiles de producto.
+- **SC-05 - Ordenamiento Admin Unificado:** integrado `sortBy: 'admin'` con fallback a `adminSortLabel` configurable desde el panel de administración.
+
+## [1.20.18] - 2026-08-24
+
+### 🐛 Fixed (Social-Catalog / Multi-Instance Config & UX)
+- **Persistencia por `instanceKey` en Panel de Administración:**
+  - Corregido bug crítico en el envío de configuración donde `handleSave` en `/admin/social-catalog` no incluía `instanceKey: selectedInstanceKey` en el payload `PUT`, provocando que las modificaciones de visibilidad (Razón Social, Filtros, Buscador, Dirección, etc.) sobreescritas en instancias como `menudigital` se guardaran siempre en la instancia `default`.
+  - Actualizado el endpoint backend `PUT /api/v1/social-catalog/config` (`social-catalog-admin.controller.ts`) para procesar `instanceKey` y actualizar la instancia seleccionada correctamente.
+- **Aislamiento de Caché Local:**
+  - Parametrizadas las funciones `readCachedConfig` y `writeCachedConfig` con una clave compuesta `social-catalog-config:${subdomain}:${instanceKey}` para evitar colisiones de caché entre instancias o tenants en `localStorage`.
+- **UX/UI & Dark Mode Adjustments:**
+  - **Fondo de Página en Modo Oscuro:** `bodyBg` ahora utiliza los tokens de superficie oscura del tema (`cssVars.bgApp`, `#0f172a`) cuando el visitante activa el tema oscuro, manteniendo el color personalizado del admin en modo claro.
+  - **Avatar Circular del Logo:** Actualizado a `objectFit: 'cover'` por defecto y sustituido el borde estático `#fff` por `border: 4px solid ${cssVars.bgSurface}`, logrando un recorte limpio y centrado del logo.
+  - **Paginador Inferior:** Oculto automáticamente cuando la tienda está configurada en modo acordeón desplegable (`categoryLayoutMode === 'accordion'`).
+
+### 🚀 Added / Enhanced (Social-Catalog v5)
+- **SC-02 - Toolbar Móvil Responsiva:** Layout de 2 filas para `< 768px` (Fila 1: Buscador full-width; Fila 2: Categorías, Filtros, Orden). Desktop: layout original de una fila. Toggle cliente vista lista/tarjeta con persistencia `localStorage`.
+- **SC-03 - Alertas de Inventario:** Badge "¡Última unidad!" (stock === 1) ahora se muestra correctamente en todos los modos (card, list, detail). Integración con `stockStatus` del backend (`last_unit`, `low_stock`, `out_of_stock`). Reemplazado icono emoji `📢` por `InfoCircleOutlined`.
+- **SC-05 - Orden Admin Unificado:** Criterio `sortBy=admin` fusiona Carta física y Manual. Alias `carta_fisica`/`manual` → `admin` para compatibilidad. Configurable `adminSortLabel` en admin. Orden de categorías configurable (`categoryOrder`).
+- **Bugfix - Visibility Toggles Persistence:** Switches `show*` desmarcados en admin ahora persisten `false` correctamente. Documentado en troubleshooting #57.
+- **Dark Theme Contrast Improvement:** Tokens dark mode ajustados (`text.primary: #F1F5F9`, `text.secondary: #CBD5E1`, `text.muted: #94A3B8`) para mejor contraste ≥ 4.5:1.
+- **Client-Side View Mode Toggle:** Estado `clientViewMode` con persistencia en `localStorage` (`social-catalog-view-mode`). UI con iconos `BarsOutlined` (lista) y `AppstoreOutlined` (tarjetas).
+
+## [1.20.17] - 2026-08-24
+
+### 🚀 Added / Enhanced (Core / Social-Catalog / OmniCatalog)
+- **Evaluación del Estado del Arte & Alineación v5:**
+  - Implementada la Toolbar Móvil responsiva de 2 filas para pantallas `< 768px` (Fila 1: Buscador full width; Fila 2: Categorías, Filtros, Orden).
+  - Badges de inventario extendidos (SC-03): badge `AGOTADO` (`<=0`), `¡Última unidad!` (`===1`) y `Pocas unidades` (`1<stock<=5`).
+  - Consolidado el criterio `sortBy=admin` (SC-05) fusionando Carta física y Manual con soporte para la etiqueta configurable `adminSortLabel`.
+
+### 🐛 Fixed
+- **Frontend TSX Syntax Repair:** Eliminadas 85 líneas de código JSX huérfano y duplicado en `frontend/src/pages/social-catalog.tsx`. Resueltos cierres desbalanceados de tags y colisión de variable `showFilters`. Compilación `npm run build` 100% limpia.
+- **Backend ProductsService & SocialCatalogService:** Corregida falta de llave de cierre en `ProductsService` (`products.service.ts`), eliminada propiedad `active` en `Tag.create` y tipado explícito `(c: string)` en `social-catalog.service.ts`.
+
+## [1.20.11] - 2026-08-18
+
+### 🚀 Added / Enhanced (Infraestructura / Deploy Manager & Odoo Provisioning)
+- **Visualización Instantánea y Estado del Deploy:**
+  - El Wizard `/admin/deploy` ahora crea la estructura de la instancia en DB (estado `pending`) y cierra el modal al instante para dar visibilidad inmediata en la lista de instancias.
+  - Habilitada la consulta y stream de logs en vivo mientras Odoo ejecuta su aprovisionamiento en background.
+- **Soporte Diferenciado para Recetas & Listas de Materiales (BoM):**
+  - Separación entre **MRP BoM (`mrp.bom`)** para recetas de cocina y fabricación, y **POS BoM (`pos.combo`)** para combos y recetas comerciales del Punto de Venta.
+  - Añadidas tarjetas de subida independientes en el Wizard: `4a. LdM Fabricación (MRP BoM)` y `4b. Recetas Combos (POS BoM)`.
+- **Carga Masiva de Usuarios, Empleados, PIN POS & Contactos Categorizados:**
+  - Ingesta de **Usuarios Odoo (`res.users`)** con rol y contraseña.
+  - Auto-creación de **Ficha de Empleado (`hr.employee`)** con PIN de seguridad para cajeros/meseros en el POS.
+  - Ingesta de **Contactos Categorizados (`res.partner`)** distinguiendo Clientes (`customer_rank`), Proveedores (`supplier_rank`) y Empleados.
+  - **Configuración de PDVs (`pos.config`)** activando el modo `module_pos_hr` y vinculando automáticamente la lista de empleados autorizados.
+- **Grilla de Plantillas CSV de Ingesta:**
+  - Añadidos botones de descarga en un clic para las 8 plantillas CSV oficiales de aprovisionamiento zero-touch.
+
+### 🐛 Fixed
+- **Troubleshooting #33 (Traefik Write Failure):**
+  - Inyectada la creación recursiva automatizada (`fs.mkdir(..., { recursive: true })`) para el directorio `/opt/traefik-orderflow/dynamic/deploy-manager` evitando errores de permisos / ENOENT al generar rutas YAML.
+- **Sincronización JSON a CSV:**
+  - Conversión del mapa de salón y mesas `pos_floors.json` a `pos_floors.csv` homologado.
+
+---
+
+## [1.20.8] - 2026-08-14
+
+### 🚀 Added / Changed (FEAT-065 + FEAT-066)
+- **Schema Decoupling (Fase 3 - Bio-Links):**
+  - Schema standalone propio en `services/biolinks-standalone/prisma/schema.prisma` (`BioLink`, `BioLinkClick`).
+  - Cliente Prisma aislado generado (`biolinks-client`).
+  - Refactor de `biolinks-standalone` a `PrismaService` + `CoreHttpService` propio, sin dependencias del schema monolítico.
+- **Rebranding OmniFlow (FEAT-066):**
+  - Estandarización de nombres comerciales: OmniBio (`biolinks-standalone`), OmniCatalog (`social-catalog-standalone`), OmniBookings (`bookings-standalone`).
+  - Retrocompatibilidad total en rutas legacy (`/api/v1/bio`, `/api/v1/standalone/social-catalog`, `/api/v1/bookings`).
+  - Labels UI actualizadas en `frontend/src/components/Sidebar.tsx` manteniendo rutas legacy.
+  - Documentación de brand y mapeo de rebranding actualizada en `docs/brand/` y `docs/planes/SCHEMA_DECOUPLING_PLAN.md`.
+
+### 🐛 Fixed
+- Imports legacy `../common/...` corregidos a `./common/...` en `biolinks-standalone` para resolver correctamente módulos locales.
+- Specs legacy obsoletas eliminadas de `biolinks-standalone` para evitar errores de compilación en `nest build`.
+
+### ✅ QA / Validación
+- `./scripts/init.sh` OK: 74 suites / 580 tests passed.
+- Backend + Frontend builds limpios.
+- E2E QA (Playwright): 0 JS errors, 0 HTTP 502/404.
+
+---
+
+## [1.20.9] - 2026-08-14
+
+### 🚀 Added / Changed (FEAT-011 + FEAT-012)
+- **Réplica Standby Mejorada (FEAT-011):**
+  - Script `replica-prom
+  ote.sh` mejorado con verificación de conexión post-promoción.
+  - Procedimiento de failover actualizado en `docs/backups.md`.
+- **Mobile Alignment (FEAT-012):**
+  - `mobile/package.json` y `mobile/app.json` alineados a **OmniFlow**.
+  - Cliente móvil centralizado bajo `/api/v1` en `mobile/src/services/api.ts`.
+
+### ✅ QA / Validación
+- `./scripts/init.sh` OK: 74 suites / 580 tests passed.
+- Backend + Frontend builds limpios.
+- E2E QA (Playwright): 0 JS errors, 0 HTTP 502/404.
+
+---
+
+## [1.20.10] - 2026-08-14 (En desarrollo)
+
+### 🚀 Added / Changed (Deploy Manager Odoo)
+- **Deploy Manager Odoo:** despliegue y ciclo de vida multi-sistema desde Super Admin (FEAT-060/actualización).
+- Esta versión incluye el deploy-manager de Odoo en curso.
+
+---
+
 ## [1.20.7] - 2026-08-13
 
 ### 🚀 Added
