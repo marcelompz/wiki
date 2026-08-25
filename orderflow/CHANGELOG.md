@@ -5,6 +5,38 @@ Todos los cambios notables a este proyecto serán documentados en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 y este proyecto se adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.20.22] - 2026-08-25
+
+### 🚀 Product Variants & Batch Import
+- Backend: servicios `variants.service.ts`, `attributes.service.ts`, `batch-product-import.service.ts` para variantes estilo Odoo y carga masiva.
+- Schema Prisma extendido con tablas de variantes y atributos.
+- Frontend: modales `VariantMatrixModal.tsx`, `AttributeManagerModal.tsx`, `ImportWizardModal.tsx` integrados en admin de productos.
+
+### 🎨 Enhanced (OmniCatalog UX/UI — SC-09..SC-13)
+- **SC-09 — Inserción de variables en plantillas:** confirmado funcional; `TemplateVariablePicker` inserta `{{clientName}}`, etc. en el caret del textarea activo.
+- **SC-10 — Autoasignación de imagen de categoría:** al subir/archivar imagen con `target === 'category'`, se asigna automáticamente a `categoryBackgrounds[selectedCategoryForBg]`.
+- **SC-11 — Live Preview:** agregado componente `CatalogLivePreview` que refleja en tiempo real config, productos, categorías, banner y logo sin recargar.
+- **SC-12 — Acordeón admin:** reorganizado formulario de OmniCatalog en 8 secciones colapsables (`Collapse.Panel`): contacto, redes, envíos, venta, personalización, banner destacado, visibilidad, categorías.
+- **SC-13 — Sentence case:** corregidos labels/títulos en admin (`social-catalog.tsx`, `biolinks.tsx`) a mayúscula inicial.
+
+### 🔧 Refactor / Fixes Varios
+- **Social Catalog sortBy default:** cambiado default a `sortBy='admin'` y envío siempre de `sortBy` al backend para respetar orden admin (carta física).
+- **Eliminación de categorías:** `DELETE /api/v1/social-catalog/categories/:id` ahora desvincula productos (`category: null`, `categoryId: null`) y elimina la categoría. Documentado en troubleshooting #63.
+- **Refactor naming:** renombrados archivos de páginas frontend a `kebab-case` (`omni-catalog.tsx`, `api-key-config.tsx`, etc.) y eliminados backups residuales.
+
+## [1.20.21] - 2026-08-25
+
+### 🎨 Enhanced (OmniCatalog UX/UI — SC-09..SC-13)
+- **SC-09 — Inserción de variables en plantillas:** confirmado funcional; `TemplateVariablePicker` inserta `{{clientName}}`, etc. en el caret del textarea activo.
+- **SC-10 — Autoasignación de imagen de categoría:** al subir/archivar imagen con `target === 'category'`, se asigna automáticamente a `categoryBackgrounds[selectedCategoryForBg]`.
+- **SC-11 — Live Preview:** agregado componente `CatalogLivePreview` que refleja en tiempo real config, productos, categorías, banner y logo sin recargar.
+- **SC-12 — Acordeón admin:** reorganizado formulario de OmniCatalog en 8 secciones colapsables (`Collapse.Panel`): contacto, redes, envíos, venta, personalización, banner destacado, visibilidad, categorías.
+- **SC-13 — Sentence case:** corregidos labels/títulos en admin (`social-catalog.tsx`, `biolinks.tsx`) a mayúscula inicial.
+
+### 🔧 Refactor / Fixes Varios
+- **Social Catalog sortBy default:** cambiado default a `sortBy='admin'` y envío siempre de `sortBy` al backend para respetar orden admin (carta física).
+- **Eliminación de categorías:** `DELETE /api/v1/social-catalog/categories/:id` ahora desvincula productos (`category: null`, `categoryId: null`) y elimina la categoría. Documentado en troubleshooting #63.
+
 ## [1.20.20] - 2026-08-25
 
 ### 🐛 Fixed (OmniBio / Bio-Links — BL-01, BL-02, BL-06)

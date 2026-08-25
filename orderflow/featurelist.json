@@ -1,6 +1,6 @@
 {
   "project": "OrderFlow SaaS Omnicanal",
-  "version": "1.20.18",
+  "version": "1.20.21",
   "last_updated": "2026-08-24",
   "features": [
     {
@@ -704,7 +704,7 @@
       "category": "Core / Productos / Variantes",
       "title": "Sistema de Productos con Variantes e Importación Masiva (Patrón Odoo product.template / product.product)",
       "description": "Sistema completo de gestión de productos con variantes siguiendo el estándar Odoo (product.template / product.product). Ficha enriquecida por producto (product.template) con metadatos, specs JSON, galería de fotos con fallback automático (variant.photo || template.photo[0]). Atributos globales reutilizables (Attribute → AttributeValue) para Talla, Color, Material, etc. Motor de generación combinatoria cartesiana de variantes con materialización selectiva. Modelo de precio desacoplado: Precio Base (Template) + PriceDelta (Variant). Importación/Exportación masiva CSV/XLSX asíncrona con BullMQ (Dry-run validación, procesamiento por handle, cálculo automático priceDelta, transaccionalidad por producto). Jobs BullMQ: import-products-process, regenerate-variant-matrix, recalculate-template-aggregates. Frontend: Gestor de atributos dinámico, ficha de producto con matriz hoja de cálculo, wizard de importación con mapeo columnas y preview errores. Integración Odoo: product.template ↔ Product, product.product ↔ ProductVariant, ajuste POS/Inventario para consumo de variantes.",
-      "status": "planned",
+      "status": "completed",
       "priority": "HIGH",
       "assigned_module": "backend/prisma/schema.prisma, backend/src/products/, backend/src/attributes/, backend/src/variants/, backend/src/catalog/, backend/src/queues/import-products-queue.*, frontend/src/pages/admin/products.tsx, frontend/src/components/admin/VariantMatrix.tsx, frontend/src/components/admin/ImportWizard.tsx, docs/planes/productos/",
       "depends_on": [
@@ -722,7 +722,7 @@
       "title": "Sprint Fixes Producción Provecchio: QR, Social-Catalog, CSP y Deploy 502",
       "description": "Correcciones urgentes para habilitar operación en producción Provecchio: fix código duplicado/corrupto en social-catalog.service.ts (240 errores TS), reemplazo de referencias rotas isOutOfStock por stockStatus en frontend social-catalog, fix URL del QR generator para usar dominio base del request sin subdominio hardcodeado, actualización CSP Traefik para permitir img-src blob:, fix schema drift/deploy 502 por migración instance_key no aplicada, y documentación troubleshooting correspondiente.",
       "status": "completed",
-      "assigned_module": "backend/src/qr/qr.controller.ts, backend/src/social-catalog/social-catalog.controller.ts, backend/src/social-catalog/social-catalog.service.ts, frontend/src/pages/social-catalog.tsx, /srv/traefik/dynamic/headers.yml, docs/troubleshooting/50-deploy-502-module-installation-schema-drift.md",
+      "assigned_module": "backend/src/qr/qr.controller.ts, backend/src/social-catalog/social-catalog.controller.ts, backend/src/social-catalog/social-catalog.service.ts, frontend/src/pages/omni-catalog.tsx, /srv/traefik/dynamic/headers.yml, docs/troubleshooting/50-deploy-502-module-installation-schema-drift.md",
       "depends_on": [
         "FEAT-075",
         "FEAT-048"
@@ -736,7 +736,7 @@
       "title": "Mejoras Social-Catalog: Alertas de inventario, etiquetas editables y ordenamiento de productos",
       "description": "Implementación de 3 mejoras en el catálogo social: (1) Alertas de inventario con badges AGOTADO/Última unidad/Pocas unidades en admin y público, helper getStockStatus() y filtros por stockStatus; (2) Etiquetas editables reutilizables por tenant usando metadata del producto (sin schema nuevo), con CRUD de etiquetas y selector múltiple en admin, badges en esquina superior izquierda del público; (3) Ordenamiento de productos por criterios (manual, precio, nombre, stock) en catálogo público y drag&drop en admin para reordenamiento manual.",
       "status": "completed",
-      "assigned_module": "backend/src/social-catalog/social-catalog.service.ts, backend/src/social-catalog/social-catalog-admin.controller.ts, frontend/src/pages/admin/social-catalog.tsx, frontend/src/pages/social-catalog.tsx, docs/planes/PLAN_SOCIAL_CATALOG_MEJORAS.md",
+      "assigned_module": "backend/src/social-catalog/social-catalog.service.ts, backend/src/social-catalog/social-catalog-admin.controller.ts, frontend/src/pages/admin/social-catalog.tsx, frontend/src/pages/omni-catalog.tsx, docs/planes/PLAN_SOCIAL_CATALOG_MEJORAS.md",
       "depends_on": [
         "FEAT-080",
         "FEAT-077"
@@ -773,9 +773,9 @@
       "id": "FEAT-084",
       "category": "Core / Social-Catalog / TS Fix & v5 Plan Alignment",
       "title": "Evaluación del Estado del Arte, Limpieza JSX/TS y Alineación v5 de Social-Catalog",
-      "description": "Resolución total de errores de sintaxis TypeScript/JSX en frontend social-catalog.tsx y backend products.service.ts. Alineación con el plan v5: SC-02 Toolbar móvil responsiva de 2 filas, SC-03 badges de stock ¡Última unidad! (===1) y SC-05 ordenamiento admin unificado sortBy=admin con adminSortLabel configurable.",
+      "description": "Resolución total de errores de sintaxis TypeScript/JSX en frontend omni-catalog.tsx y backend products.service.ts. Alineación con el plan v5: SC-02 Toolbar móvil responsiva de 2 filas, SC-03 badges de stock ¡Última unidad! (===1) y SC-05 ordenamiento admin unificado sortBy=admin con adminSortLabel configurable.",
       "status": "completed",
-      "assigned_module": "backend/src/social-catalog/, backend/src/products/, frontend/src/pages/social-catalog.tsx, docs/planes/omni-catalog/mejora/PLAN_SOCIAL_CATALOG_MEJORAS_v5.md",
+      "assigned_module": "backend/src/social-catalog/, backend/src/products/, frontend/src/pages/omni-catalog.tsx, docs/planes/omni-catalog/mejora/PLAN_SOCIAL_CATALOG_MEJORAS_v5.md",
       "depends_on": [
         "FEAT-081"
       ],
@@ -788,16 +788,40 @@
       "title": "Corrección de Mapeo por instanceKey, Aislamiento de Caché Local y Pulido UX Modo Oscuro/Logo",
       "description": "Inclusión de instanceKey en handleSave del panel de administración para evitar sobreescritura de la instancia default al guardar menudigital u otras instancias. Mapeo de instanceKey en el controlador PUT backend. Aislamiento de caché local por subdomain e instanceKey. Adaptación de fondo bodyBg en modo oscuro a cssVars.bgApp, borde dinámico del logo circular y ocultación del paginador inferior en modo acordeón.",
       "status": "completed",
-      "assigned_module": "backend/src/social-catalog/social-catalog-admin.controller.ts, frontend/src/pages/admin/social-catalog.tsx, frontend/src/pages/social-catalog.tsx",
+      "assigned_module": "backend/src/social-catalog/social-catalog-admin.controller.ts, frontend/src/pages/admin/social-catalog.tsx, frontend/src/pages/omni-catalog.tsx",
       "depends_on": [
         "FEAT-084"
       ],
       "blocking": [],
       "qa_validation": "instanceKey mapping OK | Local storage cache key isolated OK | Dark mode background fallback OK | Logo circular cover & dynamic border OK | Pagination hidden in accordion mode OK"
+    },
+    {
+      "id": "FEAT-086",
+      "category": "Admin App / Contactos & Sorteos",
+      "title": "Visualización de Fecha de Nacimiento en Contactos y Participantes de Sorteos",
+      "description": "Visualización y edición del campo metadata.birthDate en la tabla y modal de /admin/contacts y en la tabla de participantes de /admin/giveaways.",
+      "status": "completed",
+      "assigned_module": "frontend/src/pages/admin/contacts.tsx, frontend/src/pages/admin/giveaways.tsx",
+      "depends_on": [],
+      "blocking": [],
+      "qa_validation": "Frontend build clean | contacts.tsx birthDate column & form field OK | giveaways.tsx participants table birthDate column OK"
+    },
+    {
+      "id": "FEAT-087",
+      "category": "Core / Social-Catalog / UX",
+      "title": "OmniCatalog UX Mejoras: Live Preview, Acordeón Admin, Sentence Case (SC-09..SC-13)",
+      "description": "Implementación de mejoras UX/UI para el panel admin de OmniCatalog: (1) Live Preview en tiempo real del catálogo público (CatalogLivePreview); (2) Reorganización del formulario en 8 secciones colapsables con Collapse.Panel; (3) Corrección de copy a Sentence case en labels y títulos de admin/social-catalog y admin/biolinks; (4) Verificación de inserción de variables en templates (SC-09 ya funcionaba); (5) Auto-asignación de imagen de categoría (SC-10 ya funcionaba).",
+      "status": "completed",
+      "assigned_module": "frontend/src/pages/admin/social-catalog.tsx, frontend/src/components/admin/CatalogLivePreview.tsx",
+      "depends_on": [
+        "FEAT-085"
+      ],
+      "blocking": [],
+      "qa_validation": "Frontend build clean | TypeScript noEmit clean | CatalogLivePreview renders config/products/categories/banner/logo | Collapse panels 8 sections OK | Sentence case labels corrected | TemplateVariablePicker inserts at caret | Category image auto-assignment on upload/select"
     }
   ],
   "lastUpdated": "2026-08-25",
-  "last_id": "FEAT-085",
-  "next_pending_sc": "SC-08"
+  "last_id": "FEAT-087",
+  "next_pending_sc": null
 }
 
