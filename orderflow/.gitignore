@@ -141,7 +141,8 @@ tmp/
 temp/
 
 ## Planes
-docs/Planes
+docs/planes/
+.kilo/plans/
 
 # Prisma
 # prisma/migrations/  <-- removed: migrations must be tracked for deploy

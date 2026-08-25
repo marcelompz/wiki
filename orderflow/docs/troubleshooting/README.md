@@ -1,3 +1,4 @@
+
 # 🛠️ Troubleshooting — Índice de Guías
 
 Ordená por problema y área. Cada entrada incluye síntomas, causa raíz y solución aplicada.
@@ -31,8 +32,9 @@ Ordená por problema y área. Cada entrada incluye síntomas, causa raíz y solu
 | [27](27-nest-dependency-resolution-scope-audit-service.md) | Nest can't resolve AuditService in BullMQ | Backend / NestJS / Queues | Error de dependencia al inyectar Scope.REQUEST en processor | ✅ Resuelto |
 | [28](28-postgresql-fatal-too-many-clients.md) | FATAL: sorry, too many clients already | DevOps / PostgreSQL / Docker | Saturación de conexiones por contenedores efímeros de migraciones | ✅ Resuelto |
 | [29](29-production-stale-frontend-image.md) | Imagen Docker Stale + Fallbacks de Versión | DevOps / Frontend / Docker | `pesallaccia.com` muestra `1.16.0` y contraste dark perdido tras deploy `v1.16.1` | ✅ Resuelto |
+| [57](57-social-catalog-admin-visibility-toggles-not-persisting-false.md) | Social Catalog Admin: toggles de visibilidad no persisten `false` | Frontend / Admin App / Social Catalog | Switches `show*` desmarcados en admin siguen visibles en público | ✅ Resuelto |
 | [31](31-nest-invalid-controller-facturasend-gateway.md) | NestJS Invalid Controller: FacturasendGateway | Backend / NestJS / Deploy | 502 Bad Gateway tras deploy por `UnknownRequestMappingException` (Gateway en `controllers`) | ✅ Resuelto |
-| [32](32-production-schema-drift-missing-migrations.md) | Schema Drift: Columnas Faltantes en Producción | Backend / Prisma / Deploy | 500 en login y `/api/v1/orders` tras deploy por columnas nuevas sin migración (`tenants.odooConnection`, `orders.seller_id`, `orders.traffic_source`) | ✅ Resuelto |
+| [32](32-production-schema-drift-missing-migrations.md) | Schema Drift: Columnas Faltantes en Producción | Backend / Prisma / Deploy | 500 en login y `/api/v1/orders` tras deploy por columnas nuevas sin migración | ✅ Resuelto |
 | [33](33-traefik-dynamic-config-write-failure.md) | No se pudo escribir la configuración de Traefik | DevOps / Traefik / Deploy Manager | Error al crear instancia en `/admin/deploy`: `No se pudo escribir la configuración de Traefik para <domain>` | ✅ Resuelto |
 | [34](34-mobile-admin-drawer-navigation.md) | Mobile Admin: Drawer Navigation + Topbar Compacto | Frontend / Admin UX / Mobile | En mobile, la sidebar se muestra como acordeón inline empujando el contenido; el drawer no abre correctamente | ✅ Resuelto |
 | [35](35-homepage-builder-config-persistence.md) | Persistencia en Diseñador Web & Merge de Config JSON | Frontend / Backend / Web Builder | Al guardar cambios en el Diseñador Web (`/admin/homepage-builder`), no persistían tras cambiar de módulo | ✅ Resuelto |
@@ -41,6 +43,21 @@ Ordená por problema y área. Cada entrada incluye síntomas, causa raíz y solu
 | [38](38-disaster-recovery-sftp-backups-explorer.md) | Disaster Recovery: Explorador SFTP & Consola de Restauración | Backend / Frontend / Disaster Recovery | Falta de consolas de restauración, borrado y consulta remota de respaldos por tenant | ✅ Resuelto |
 | [39](39-mobile-drawer-submenus-expansion-bug.md) | Submenús del Drawer Inaccesibles en Móviles | Frontend / Admin UX / Mobile | En dispositivos móviles el Drawer no descolapsa los submenús de las categorías principales | ✅ Resuelto |
 | [40](40-containerd-leases-unimplemented-fix.md) | Error containerd leases al iniciar contenedores | DevOps / Docker / containerd | `Unimplemented: unknown service containerd.services.leases.v1.Leases` al arrancar contenedores | 🛠️ Documentado |
+| [41](41-sharp-alpine-crash-on-startup.md) | NestJS Crash Loop por `sharp` en Alpine | Backend / Docker / Alpine | Backend en crash loop silencioso; health check falla; `sharp` sin `libvips` en Alpine | ✅ Resuelto |
+| [42](42-prisma-migration-gap-productcategory.md) | Tabla `product_categories` Faltante | Backend / Prisma / Migraciones | 500 en `/catalog/categories/tree`; tabla no existe aunque modelo existe en schema | ✅ Resuelto |
+| [43](43-prisma-shadow-db-migration-failure.md) | `migrate dev` Falla en Shadow DB | Backend / Prisma / Migraciones | P3006/P1014: shadow DB sin tablas previas; migración antigua falla en test | ✅ Resuelto |
+| [44](44-social-catalog-table-missing.md) | Tabla `social_catalogs` Faltante | Backend / Prisma / Migraciones | OmniCatalog vacío; tablas `social_catalogs` no existen; `db push` sincroniza | ✅ Resuelto |
+| [45](45-qr-master-key-fk-violation.md) | QR Generate 500 con Master Key | Backend / Auth / QR | 500 al generar QR con master key; FK `tenantId` violada en historial | ✅ Resuelto |
+| [46](46-qr-generator-ux-gaps.md) | QR Generator UX Gaps: Selector Faltante, Sin Galería, Sin Preview | Frontend / QR / UX | Modal QR sin selector sección; campo catalogSlug inexistente; sin botón galería; ImagePicker sin preview | ✅ Resuelto |
+| [47](47-qr-generator-targets-loop.md) | QR Generator: Bucle Infinito de `/api/v1/qr/targets` y 403 por Saturación | Frontend / QR / API | Decenas de llamadas a `/api/v1/qr/targets` en segundos; 403 final; modal queda vacío | ✅ Resuelto |
+| [48](48-shared-tenant-gallery.md) | Galería Unificada de Imágenes del Tenant | Frontend / Backend / Arquitectura | social-catalog con galería vacía/aislada; imágenes no compartidas entre módulos del mismo tenant | ✅ Resuelto |
+| [49](49-qr-generator-413-and-gallery-preview.md) | QR Generator: 413 Request Entity Too Large y Galería sin Preview | Frontend / Backend / QR | QR con imagen devuelve 413; galería unificada no alimenta vista previa del logo | ✅ Resuelto |
+| [51](51-analytics-cache-service-redis-connection-failure.md) | AnalyticsCacheService Redis Connection Failure | Backend / Analytics / Redis | Bucle `Redis connection error` + `AggregateError`; log muestra `localhost:6379` en vez de `redis:6379` | ✅ Resuelto |
+| [53](53-nest-dependency-resolution-analytics-export-service.md) | Nest NestJS ExceptionHandler: AnalyticsExportService | Backend / NestJS / Analytics / Documents | 502 Bad Gateway por error de resolución de dependencias de AnalyticsExportService en DocumentsModule | ✅ Resuelto |
+| [54](54-react-minified-error-310-async-subdomain-store-swap.md) | Minified React Error #310 (Hook Mismatch) | Frontend / App.tsx / React Hooks | Excepción React #310 en consola por intercambio asíncrono post-render del árbol de componentes en `App.tsx` | ✅ Resuelto |
+| [55](55-social-catalog-tsx-jsx-syntax-corruption.md) | Errores de Sintaxis TSX/JSX y Cierres en Social-Catalog | Frontend / Backend / Social-Catalog | 16 errores de sintaxis en `social-catalog.tsx` y error TS1005 en `products.service.ts` | ✅ Resuelto |
+| [56](56-docker-no-space-left-on-device-build-cache.md) | Error `no space left on device` en Docker Build | DevOps / Docker / BuildKit | Error por saturación de almacenamiento en `/var/lib/docker` durante compilación | ✅ Resuelto |
+| [59](59-social-catalog-featured-banner-init-order.md) | Social Catalog público: banner featured carga con `config` undefined / `featuredBannerEnabled` no evaluado | Frontend / Social-Catalog / Data-fetch | El fetch de `/featured` se disparaba antes de que `config` estuviera disponible, provocando `config.featuredBannerEnabled` === `undefined` y featured vacío; el orden de fetch quedó: 1) config → 2) featured (if enabled) → 3) products | ✅ Resuelto |
 
 ---
 
@@ -49,6 +66,9 @@ Ordená por problema y área. Cada entrada incluye síntomas, causa raíz y solu
 ### Acceso y Auth
 - **403 en endpoints de catálogo con API key:** ver [#05](05-whatsapp-catalog-install-and-api-key-auth.md) — `PermissionsGuard` requiere `user` pero `ApiKeyGuard` solo setea `tenant`.
 - **401 sin JWT ni API key:** ver [#03](03-odoo-user-sync-and-tenant-modules-management.md) — fallback a endpoint público `/api/v1/tenants/public/list`.
+- **QR Generate 500 con Master API Key:** ver [#45](45-qr-master-key-fk-violation.md) — Master key no tiene `tenantId`; FK `qr_code_history_tenantId_fkey` violada.
+- **QR Generator UX Gaps (selector, galería, preview):** ver [#46](46-qr-generator-ux-gaps.md) — Modal QR sin selector; sin botón galería; ImagePicker sin preview.
+- **QR Generator 413 con logo y galería sin preview:** ver [#49](49-qr-generator-413-and-gallery-preview.md) — `logoBase64` se enviaba al backend; galería unificada no convertía URLs a base64.
 
 ### Enrutamiento y Edge
 - **SPA carga ruta incorrecta / assets viejos:** ver [#01](01-traefik-routing-and-spa-cache.md) — colisión de routers Traefik y fallback de `serve`.
@@ -58,6 +78,7 @@ Ordená por problema y área. Cada entrada incluye síntomas, causa raíz y solu
 
 ### Base de Datos
 - **P1000 / auth PostgreSQL:** ver [#04](04-prisma-p1000-db-auth-and-redis-fallback.md) — rotación de credenciales y volumen persistente.
+- **AnalyticsCacheService Redis Connection Failure:** ver [#51](51-analytics-cache-service-redis-connection-failure.md) — `AnalyticsCacheService` usa `localhost:6379` hardcodeado + `REDIS_URL` sin expandir; fix parseando `REDIS_URL` y compose sin password.
 - **Errores de columnas en SQL manual:** ver [#06](06-postgresql-camelcase-column-names.md) — Prisma usa camelCase; usar comillas dobles.
 - **Módulos no instalados para un tenant:** ver [#05](05-whatsapp-catalog-install-and-api-key-auth.md) — insertar registro en `module_installations`.
 
@@ -82,6 +103,13 @@ Ordená por problema y área. Cada entrada incluye síntomas, causa raíz y solu
 - **`init.sh` cuelga el SO por alta carga:** ver [#25](25-init-sh-hangs-os.md) — el script es una barrera de CI que ejecuta tests, builds y E2E, saturando los recursos locales; se agregaron flags para ejecución selectiva.
 - **`JavaScript heap out of memory` al ejecutar Jest:** ver [#26](26-jest-memory-leak-out-of-memory.md) — desbordamiento del heap de Node.js en tests NestJS; resuelto con `NODE_OPTIONS=--max-old-space-size=4096`, `--maxWorkers=50%`, `--runInBand` en CI y `moduleRef.close()` en `afterAll`.
 - **Imagen Docker stale en producción + versión hardcodeada:** ver [#29](29-production-stale-frontend-image.md) — `pesallaccia.com` muestra `1.16.0` y contraste dark perdido; forzar rebuild `--no-cache frontend` y eliminar fallbacks `1.16.0` en UI.
+- **Social Catalog Admin: toggles de visibilidad no persisten `false`:** ver [#57](57-social-catalog-admin-visibility-toggles-not-persisting-false.md) — Switches `show*` desmarcados en admin siguen visibles en público por form no inicializado y payload que omite `false`.
+- **Backend Crash Loop por `sharp` en Alpine:** ver [#41](41-sharp-alpine-crash-on-startup.md) — `sharp` requiere `libvips` en Alpine; sin él, Node se cuelga en bootstrap.
+- **Tabla `product_categories` Faltante (Migración Gap):** ver [#42](42-prisma-migration-gap-productcategory.md) — Modelo existe en schema pero migración nunca generada; `db push` sincroniza.
+- **`migrate dev` Falla en Shadow DB (P3006/P1014):** ver [#43](43-prisma-shadow-db-migration-failure.md) — Shadow DB sin historial completo; usar `db push` en emergencia.
+- **Tabla `social_catalogs` Faltante (OmniCatalog):** ver [#44](44-social-catalog-table-missing.md) — Tablas del módulo social catalog no existen; `db push` crea todas.
+- **QR Generate 500 con Master Key:** ver [#45](45-qr-master-key-fk-violation.md) — Master key no tiene tenant; usar API key de tenant real.
+- **Social Catalog público: fetch de featured con `config` undefined — orden de requests:** ver [#59](59-social-catalog-featured-banner-init-order.md) — `featured` requiere la config; se reordena fetch (config → featured → products) y se cachea `featuredBannerEnabled`.
 
 ---
 
