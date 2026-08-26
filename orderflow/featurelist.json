@@ -1011,10 +1011,23 @@
       ],
       "blocking": [],
       "qa_validation": "Backend build clean | 100% Jest tests passing (5/5 tests) | CurrencyService & CurrencyRateCronService implement real-time exchange rate caching and cron refresh"
+    },
+    {
+      "id": "FEAT-104",
+      "category": "Core / Compras & Finanzas",
+      "title": "Compras (Purchases) y Finanzas Operativas Multi-Moneda (Cuentas por Pagar AP & Flujo de Caja)",
+      "description": "Ciclo completo de aprovisionamiento y tesorería: creación y recepción de Órdenes de Compra con impacto atómico en el Kardex (executeStockMove), generación automática de Facturas de Proveedor (SupplierBill), cuentas por pagar (AP) y flujo de caja consolidado (CashFlow).",
+      "status": "completed",
+      "assigned_module": "backend/src/purchases/, backend/src/finances/, backend/prisma/schema.prisma",
+      "depends_on": [
+        "FEAT-103"
+      ],
+      "blocking": [],
+      "qa_validation": "Backend build clean | 100% Jest tests passing (8/8 tests en Purchases & Finances) | Implementados PurchasesService y FinancesService con integración atómica al Kardex y CurrencyService"
     }
   ],
   "lastUpdated": "2026-08-26",
-  "last_id": "FEAT-103",
+  "last_id": "FEAT-104",
   "next_pending_sc": null,
   "active_plan": "docs/planes/inventario/plan-estandarizacion-inventario-omniflow.md",
     "plan_progress": {
