@@ -19,8 +19,9 @@ Antes de examinar código o ejecutar cualquier acción en la base del proyecto, 
 3. **Prohibido Instanciar `PrismaClient` Directamente:** Usar `this.prisma` (singleton) o `@TenantPrisma()` (dinámico multi-tier). Nunca hacer `new PrismaClient()`.
 4. **Infraestructura Proxy Exclusive Traefik v3.4:** Prohibido sugerir o configurar Nginx. Traefik administra SSL y subdominios dinámicos. La configuración de Traefik se gestiona desde `/opt/traefik-orderflow` y debe sincronizarse a `/srv/traefik` en el servidor de producción después de cada cambio mayor. Traefik sirve a múltiples servicios (OrderFlow, Aieer, Axon y otros) en los servidores de producción; los cambios de ruteo o configuración deben respetar los servicios existentes y no romper el enrutamiento de servicios ajenos a OrderFlow. La documentación de Traefik (`README.md`, `ROADMAP.md`, `POS_KDS_ARCHITECTURE.md` y archivos en `dynamic/`) debe mantenerse sincronizada con la Wiki oficial (`/opt/wiki/orderflow/`) cuando haya cambios de ruteo o arquitectura.
 5. **Formato y Coexistencia de Módulos:** Verificar acoplamiento cross-module. Si un nuevo módulo posee acoplamiento 0, califica como candidato para la suite de Microservicios Standalone.
-6. **Mantenimiento del Roadmap Standalone:** Cualquier cambio en la suite independiente debe sincronizarse en [docs/ROADMAP_MICROSERVICES.md](docs/ROADMAP_MICROSERVICES.md).
-7. **Sincronización de Documentación con Wiki:** Toda actualización de documentación en `docs/` del proyecto debe reflejarse en la Wiki oficial (`/opt/wiki/orderflow/`). Cuando se actualiza `VERSION`, `CHANGELOG.md`, `ROADMAP.md` o cualquier `.md` en `docs/`, la Wiki debe actualizarse en el mismo paso y hacer push a su repositorio remoto.
+6. **Mantenimiento del Roadmap Standalone:** Cualquier cambio en la suite independiente debe sincronizarse en [docs/guides/ROADMAP_MICROSERVICES.md](docs/guides/ROADMAP_MICROSERVICES.md).
+7. **Sincronización de Documentación con Wiki:** Toda actualización de documentación en `docs/` del proyecto debe reflejarse en la Wiki oficial (`/opt/wiki/orderflow/`). Es **OBLIGATORIO** actualizar e incluir el `ROADMAP.md` junto con `VERSION`, `CHANGELOG.md`, `README.md`, `package.json` y cualquier `.md` en `docs/` en cada release o entrega de características, haciendo push a sus repositorios remotos.
+8. **Subdominios Exclusivos por Tenant:** Todo microservicio, módulo público o ruta expuesta debe usar el subdominio del tenant (`<tenant.subdomain>.<ROOT_DOMAIN>`). Está prohibido crear subdominios por servicio, categoría o módulo. El core OrderFlow es el único autorizado para crear/validar subdominios vía `CloudflareDnsService`. Ver estándar completo: `docs/architecture/tenant-subdomain-standard.md`.
 
 ---
 
@@ -41,9 +42,29 @@ Antes de investigar un bug o error de build/despliegue, **consultar SIEMPRE** el
 
 ---
 
+## 🏷️ 2.2 Convención de Nombres de Archivos y Enrutamiento
+
+Esta sección es **vinculante** para todo el proyecto.
+
+1. **Páginas, componentes, utilidades y servicios (`.tsx`, `.ts`, `.jsx`, `.js`):** Uso estricto de `kebab-case` para todos los nombres de archivos.  
+   Ejemplos válidos: `omni-catalog.tsx`, `api-key-config.tsx`, `messaging-deep-links.ts`, `product-variants.service.ts`.
+
+2. **Exportación de componentes:** Los nombres de componentes internos deben definirse en `PascalCase` dentro de sus respectivos archivos `kebab-case`.  
+   Ejemplo: `export const OmniCatalog = () => ...` dentro de `omni-catalog.tsx`.
+
+3. **Archivos residuales y temporales:** Prohibido dejar backups (`.bkup`, `.bak`), logs (`.log`) o duplicados dentro de los directorios de código fuente (`src/`). Deben ser ignorados vía `.gitignore` o eliminados.
+
+4. **Rutas y consistencia de despliegue:** El uso de `kebab-case` es mandatorio para garantizar compatibilidad con sistemas Linux/Docker (case-sensitive) y consistencia con las URLs públicas. Cualquier cambio de ruta debe actualizar también referencias en Traefik, React Router y `import` estáticos/dinámicos.
+
+---
+
 ## ⚙️ 3. Barrera de Validación Automatizada (`scripts/init.sh`)
 
-La IA tiene **terminantemente prohibido** entregar una tarea como completada, o realizar modificaciones en la **Base de Datos (Prisma/PostgreSQL)**, **Configuración de Red/DNS/Traefik** o **Lógica de Desarrollo**, sin ejecutar previamente la barrera automatizada:
+> ⚠️ **REGLA DE CONFIRMACIÓN DE RECURSOS DEL HOST:**  
+> Debido a que `./scripts/init.sh` compila backend, frontend y ejecuta la suite completa de unit tests (Jest) y E2E (Playwright), este script consume un alto porcentaje de CPU y RAM.  
+> **La IA TIENE PROHIBIDO ejecutar `./scripts/init.sh` de forma automática o desatendida sin antes pedir confirmación explícita al usuario**, informándole que liberará o cerrará aplicaciones en su equipo de oficina antes de la ejecución.
+
+La IA debe solicitar autorización previa antes de invocar la barrera automatizada:
 
 ```bash
 ./scripts/init.sh
@@ -75,7 +96,7 @@ Toda tarea o refactorización debe leerse y gestionarse desde la lista estructur
 
 ### Ciclo de Actualización:
 - Al tomar una tarea: cambiar estado a `"in_progress"`.
-- Al finalizar y pasar `./scripts/init.sh`: cambiar estado a `"completed"` e incrementar la versión en `VERSION`, manifiestos y documentaciones vinculadas.
+- Al finalizar y pasar `./scripts/init.sh`: cambiar estado a `"completed"` e incrementar la versión en `VERSION`, manifiestos y documentaciones vinculadas (`ROADMAP.md`, `CHANGELOG.md`, `README.md`).
 
 ---
 
@@ -88,11 +109,11 @@ Para evitar la saturación de contexto, toda tarea compleja debe ejecutarse divi
    - Traza el plan sin modificar código de negocio.
 
 2. 🛠️ **Implementador:**
-   - Modifica código respetando las 6 Reglas Inviolables.
+   - Modifica código respetando las 8 Reglas Inviolables.
    - Si extrae un microservicio standalone, aplica `@orderflow/auth-shared` y su propio `schema.prisma`.
 
 3. 🔍 **Revisor / Auditor:**
    - Ejecuta `./scripts/init.sh`.
-    - Verifica la sincronización de versión en `VERSION`, `CHANGELOG.md`, `ROADMAP.md`, `docs/timeline.md`, `README.md`, `backend/src/main.ts` (Swagger version), `package.json` y manifiestos `*.manifest.json`.
+   - **Verificación de Documentación Obligatoria:** Actualiza y verifica la sincronización de versión en `VERSION`, `CHANGELOG.md`, `ROADMAP.md` (OBLIGATORIO), `docs/timeline.md`, `README.md`, `backend/src/main.ts` (Swagger version), `package.json` y manifiestos `*.manifest.json`.
    - Crea y sube el tag de la nueva versión: `git tag vX.Y.Z && git push --tags`.
-   - Sincroniza la documentación actualizada con la Wiki oficial (`/opt/wiki/orderflow/`) y la documentación de Traefik (`/opt/traefik-orderflow/`), haciendo push a sus respectivos repositorios.
+   - Sincroniza toda la documentación actualizada (`ROADMAP.md`, `CHANGELOG.md`, `README.md`, `docs/`) con la Wiki oficial (`/opt/wiki/orderflow/`) y la documentación de Traefik (`/opt/traefik-orderflow/`), haciendo push a sus respectivos repositorios.
