@@ -998,10 +998,23 @@
       ],
       "blocking": [],
       "qa_validation": "Standalone build clean | 100% Jest tests passing (5/5 tests) | OmniBIService implements Odoo 14 XML-RPC historical ingestion, tenantId checkpoint isolation and YoY comparative analytics"
+    },
+    {
+      "id": "FEAT-103",
+      "category": "Core / Finanzas & Monedas",
+      "title": "OmniFlow Dynamic Multi-Currency (Motor Multimoneda Dinámico PYG, USD, BRL, ARS con Cotizaciones al Día)",
+      "description": "Motor multimoneda empresarial: conversión de divisas en tiempo real (PYG, USD, BRL, ARS), cron job automatizado de sincronización con BCP / Cambios Chaco / DolarApi en horario bancario (07:00 - 18:00), caché LRU con TTL de 5 minutos y fallback resiliente.",
+      "status": "completed",
+      "assigned_module": "backend/src/currency/, backend/src/common/services/currency.service.ts",
+      "depends_on": [
+        "FEAT-100"
+      ],
+      "blocking": [],
+      "qa_validation": "Backend build clean | 100% Jest tests passing (5/5 tests) | CurrencyService & CurrencyRateCronService implement real-time exchange rate caching and cron refresh"
     }
   ],
   "lastUpdated": "2026-08-26",
-  "last_id": "FEAT-100",
+  "last_id": "FEAT-103",
   "next_pending_sc": null,
   "active_plan": "docs/planes/inventario/plan-estandarizacion-inventario-omniflow.md",
     "plan_progress": {

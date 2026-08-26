@@ -103,19 +103,23 @@ Bienvenidos al Centro de Documentación Operativa de **OrderFlow**. Los siguient
      - Ingesta histórica read-only de Odoo 14 CE vía XML-RPC y persistencia aislada multi-tenant.
      - Consolidación analítica comparativa Año contra Año (YoY), crecimiento porcentual y ticket promedio omnicanal (`FEAT-100`).
 
+22. 💱 **[22. Manual de OmniFlow Dynamic Multi-Currency — Motor Multimoneda Dinámico](22-manual-motor-multimoneda-dinamico.md)**
+     - Conversión de divisas en tiempo real (PYG, USD, BRL, ARS) con cotizaciones automáticas (BCP, Cambios Chaco, DolarApi).
+     - Cron automatizado en horario bursátil (07:00 - 18:00 hs Asunción), caché LRU con TTL de 5 minutos y resiliencia en base de datos (`FEAT-103`).
+
 ---
 
 ## 📦 Acceso Rápido por Rol
 
 | Rol | Manuales Recomendados |
 |-----|----------------------|
-| **Admin / Owner / C-Level** | Todos (01 a 21) |
-| **Cajero / POS** | 02 (POS/KDS), 05 (Fidelización), 12 (Crédito), 14 (Cierre Caja), 18 (POS BoM) |
-| **Mozo / Vendedor B2B** | 02 (POS), 03 (Turnos), 04 (Catálogo WA), 13 (KUDE WA), 19 (Presupuestos B2B) |
+| **Admin / Owner / C-Level** | Todos (01 a 22) |
+| **Cajero / POS** | 02 (POS/KDS), 05 (Fidelización), 12 (Crédito), 14 (Cierre Caja), 18 (POS BoM), 22 (Multimoneda) |
+| **Mozo / Vendedor B2B** | 02 (POS), 03 (Turnos), 04 (Catálogo WA), 13 (KUDE WA), 19 (Presupuestos B2B), 22 (Cotización Divisas) |
 | **Chef / Personal de Cocina** | 02 (KDS), 18 (KDS Multi-Estación & SLA) |
 | **Gestor de Marketing / Diseñador** | 01 (Portada), 04 (Catálogo), 05 (Sorteos), 09 (QR Generator), 20 (Storefront Builder) |
 | **Especialista / Spa** | 03 (Turnos), 02 (Comandas) |
-| **DevOps / Analista BI / CFO** | 07 (Flujo E2E), 08 (Deploy Manager), 11 (Odoo Webhooks), 15 (Multibodega), 16 (SSO), 17 (MRP Manufactura), 18 (KDS WebSockets), 19 (Fuerza de Ventas B2B), 20 (Storefront Builder Standalone), 21 (OmniBI Analytics) |
+| **DevOps / Analista BI / CFO** | 07 (Flujo E2E), 08 (Deploy Manager), 11 (Odoo Webhooks), 15 (Multibodega), 16 (SSO), 17 (MRP Manufactura), 18 (KDS WebSockets), 19 (Fuerza de Ventas B2B), 20 (Storefront Builder Standalone), 21 (OmniBI Analytics), 22 (Engine Multimoneda) |
 
 ---
 
@@ -123,4 +127,4 @@ Bienvenidos al Centro de Documentación Operativa de **OrderFlow**. Los siguient
 
 Este índice se actualiza con cada nueva feature. La numeración sigue el orden de implementación (FEAT-XXX).
 
-**Última actualización**: 2026-08-26 — Agregado manual 21 (FEAT-100 OmniBI Analytics Standalone v1.20.35)
+**Última actualización**: 2026-08-26 — Agregado manual 22 (FEAT-103 Engine Multimoneda Dinámico v1.20.37)
