@@ -115,20 +115,24 @@ Bienvenidos al Centro de Documentación Operativa de **OrderFlow**. Los siguient
      - Gestión de documentos y carpetas multi-tenant con auto-provisionamiento de raíz.
      - Sesiones de edición interactiva WOPI en tiempo real y previsualización de hojas de cálculo con Collabora Online (`FEAT-083`).
 
+25. 📊 **[25. Manual de OmniFlow DataView Suite — Gestión Estándar de Vistas & Selección Global](25-manual-gestion-vistas-dataview-suite.md)**
+     - Motor de consulta `DynamicQueryBuilder`, selección global `mode: all` sin límite de páginas y filtros dinámicos.
+     - Presets `SavedViews` en base de datos con visibilidad Privada/Pública y DataView UI Kit (`v1.20.39`).
+
 ---
 
 ## 📦 Acceso Rápido por Rol
 
 | Rol | Manuales Recomendados |
 |-----|----------------------|
-| **Admin / Owner / C-Level** | Todos (01 a 24) |
-| **Cajero / POS** | 02 (POS/KDS), 05 (Fidelización), 12 (Crédito), 14 (Cierre Caja), 18 (POS BoM), 22 (Multimoneda), 23 (Tesoreria POS) |
-| **Mozo / Vendedor B2B** | 02 (POS), 03 (Turnos), 04 (Catálogo WA), 13 (KUDE WA), 19 (Presupuestos B2B), 22 (Cotización Divisas) |
-| **Encargado de Compras / Depósito** | 15 (Multibodega), 17 (MRP Manufactura), 23 (Órdenes de Compra & Proveedores), 24 (Workspace Documental) |
+| **Admin / Owner / C-Level** | Todos (01 a 25) |
+| **Cajero / POS** | 02 (POS/KDS), 05 (Fidelización), 12 (Crédito), 14 (Cierre Caja), 18 (POS BoM), 22 (Multimoneda), 23 (Tesoreria POS), 25 (DataView Suite) |
+| **Mozo / Vendedor B2B** | 02 (POS), 03 (Turnos), 04 (Catálogo WA), 13 (KUDE WA), 19 (Presupuestos B2B), 22 (Cotización Divisas), 25 (DataView Suite) |
+| **Encargado de Compras / Depósito** | 15 (Multibodega), 17 (MRP Manufactura), 23 (Órdenes de Compra & Proveedores), 24 (Workspace Documental), 25 (DataView Suite) |
 | **Chef / Personal de Cocina** | 02 (KDS), 18 (KDS Multi-Estación & SLA) |
 | **Gestor de Marketing / Diseñador** | 01 (Portada), 04 (Catálogo), 05 (Sorteos), 09 (QR Generator), 20 (Storefront Builder) |
 | **Especialista / Spa** | 03 (Turnos), 02 (Comandas) |
-| **DevOps / Analista BI / CFO** | 07 (Flujo E2E), 08 (Deploy Manager), 11 (Odoo Webhooks), 15 (Multibodega), 16 (SSO), 17 (MRP Manufactura), 18 (KDS WebSockets), 19 (Fuerza de Ventas B2B), 20 (Storefront Builder Standalone), 21 (OmniBI Analytics), 22 (Engine Multimoneda), 23 (Compras & Finanzas Multi-Moneda), 24 (Collabora Workspace) |
+| **DevOps / Analista BI / CFO** | 07 (Flujo E2E), 08 (Deploy Manager), 11 (Odoo Webhooks), 15 (Multibodega), 16 (SSO), 17 (MRP Manufactura), 18 (KDS WebSockets), 19 (Fuerza de Ventas B2B), 20 (Storefront Builder Standalone), 21 (OmniBI Analytics), 22 (Engine Multimoneda), 23 (Compras & Finanzas Multi-Moneda), 24 (Collabora Workspace), 25 (DataView Suite) |
 
 ---
 
@@ -136,4 +140,4 @@ Bienvenidos al Centro de Documentación Operativa de **OrderFlow**. Los siguient
 
 Este índice se actualiza con cada nueva feature. La numeración sigue el orden de implementación (FEAT-XXX).
 
-**Última actualización**: 2026-08-26 — Agregado manual 24 (FEAT-083 Workspace Documental Collabora Online v1.20.38)
+**Última actualización**: 2026-08-26 — Agregado manual 25 (OmniFlow DataView Suite v1.20.39)
