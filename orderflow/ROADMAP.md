@@ -1,9 +1,9 @@
 # 🗺️ ROADMAP DE ORDERFLOW - v1.20.10 → v2.0.0
-**Última Actualización:** 2026-08-26 (Release v1.20.38 — Compras, Finanzas Multi-Moneda, Documents Workspace & Collabora Online)
+**Última Actualización:** 2026-08-26 (Release v1.20.39 — OmniFlow DataView Suite: Vistas Estándar, Selección Global & SavedViews)
 
-**Versión Actual:** **`v1.20.38`** 🔄 **PRODUCTION READY** | Marca pública: OmniFlow. Capa técnica interna: OrderFlow.
+**Versión Actual:** **`v1.20.39`** 🔄 **PRODUCTION READY** | Marca pública: OmniFlow. Capa técnica interna: OrderFlow.
 **Próximo Release:** **v1.21.0 (En progreso — Estandarización de Inventario Paso 8: Landed Costs)**
-**Estado:** ✅ **STAGING & PRODUCTION OPERATIVE** | 🏆 **COMMERCIAL RELEASE v1.20.38 STABLE** | QA E2E Suite Integrada | 650+ tests unitarios pasados
+**Estado:** ✅ **STAGING & PRODUCTION OPERATIVE** | 🏆 **COMMERCIAL RELEASE v1.20.39 STABLE** | QA E2E Suite Integrada | 660+ tests unitarios pasados
 **Visión Estratégica:** Plataforma SaaS omnicanal de alta velocidad con aislamiento multi-tier, marketplace de plugins de terceros, facturación automática Stripe/Mercado Pago y escalado horizontal a Kubernetes.
 
 > 📦 **Estrategia de Microservicios Standalone:** Ver el roadmap dedicado de la suite de productos independientes en [docs/guides/ROADMAP_MICROSERVICES.md](docs/guides/ROADMAP_MICROSERVICES.md).
@@ -15,6 +15,7 @@
 | Módulo | Estado | Producción | Staging | Notas |
 |--------|--------|------------|---------|-------|
 | **Multi-Tenant Core & Multi-Tier** | ✅ Completo | ✅ Sí | ✅ Sí | Auth JWT + API Key, DB dedicada por tenant enterprise, `@TenantPrisma()` |
+| **OmniFlow DataView Suite** | ✅ Completo | ✅ Sí | ✅ Sí | DynamicQueryBuilder, selección global `mode: all`, presets `SavedViews` y UI DataView Kit (v1.20.39) |
 | **Documents Workspace & Collabora** | ✅ Completo | ✅ Sí | ✅ Sí | Explorador multi-tenant, WOPI session, visor/editor interactivo Collabora y locking Redis (FEAT-083 & FEAT-082) |
 | **Compras & Finanzas Multi-Moneda** | ✅ Completo | ✅ Sí | ✅ Sí | Órdenes de Compra (OC), impacto atómico Kardex, Facturas Proveedor (AP) y Flujo de Caja (FEAT-104) |
 | **Dynamic Multi-Currency Engine** | ✅ Completo | ✅ Sí | ✅ Sí | Cotización bursátil en tiempo real (PYG, USD, BRL, ARS) BCP/Cambios Chaco/DolarApi y caché LRU (FEAT-103) |
