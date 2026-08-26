@@ -10,6 +10,8 @@
 
 ## 1. INTRODUCCIÓN Y PROPÓSITO
 
+![Notificación de Factura Electrónica SIFEN por WhatsApp](/home/marcelompz/.gemini/antigravity-cli/brain/81248e19-f485-437b-aa12-83861e977a30/sifen_whatsapp_invoice_1787705773910.jpg)
+
 Este manual detalla el proceso de **sincronización asíncrona de comprobantes fiscales legales (`account.move`)** desde Odoo CE / Facturasend y el **envío automático del comprobante electrónico (KUDE PDF)** al teléfono WhatsApp del cliente (`FEAT-092`).
 
 Al emitirse o confirmarse una factura en Odoo CE o Facturasend:

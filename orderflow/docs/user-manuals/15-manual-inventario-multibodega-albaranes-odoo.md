@@ -10,6 +10,8 @@
 
 ## 1. INTRODUCCIÓN Y PROPÓSITO
 
+![Panel de Gestión de Inventario Multibodega y Albaranes de Despacho](/home/marcelompz/.gemini/antigravity-cli/brain/81248e19-f485-437b-aa12-83861e977a30/multiwarehouse_stock_screen_1787705892597.jpg)
+
 Este manual describe el funcionamiento de la **Sincronización Multibodega y Albaranes de Entrega (`stock.quant` / `stock.picking`)** entre Odoo CE y OrderFlow (`FEAT-094`).
 
 Permite mantener el stock físico actualizado por depósito/ubicación en tiempo real y registrar los albaranes de salida/despacho cuando se confirman entregas en la plataforma commercial.

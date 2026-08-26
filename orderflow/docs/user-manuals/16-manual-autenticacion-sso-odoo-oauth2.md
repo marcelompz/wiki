@@ -10,6 +10,8 @@
 
 ## 1. INTRODUCCIÓN Y PROPÓSITO
 
+![Pantalla de Login con Autenticación Unificada Odoo SSO](/home/marcelompz/.gemini/antigravity-cli/brain/81248e19-f485-437b-aa12-83861e977a30/odoo_sso_login_screen_1787705934418.jpg)
+
 Este manual instruye sobre la **Autenticación Unificada (Single Sign-On / SSO)** mediante credenciales o sesiones de **Odoo CE / OAuth2** y el mapeo automático de roles y permisos RBAC en el backend de OrderFlow (`FEAT-095`).
 
 Permite que cajeros, vendedores y administradores ingresen a la suite de OrderFlow utilizando sus mismas credenciales de Odoo, resolviendo automáticamente su contexto de `tenantId` y nivel de acceso.

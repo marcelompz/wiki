@@ -10,6 +10,8 @@
 
 ## 1. INTRODUCCIÓN Y PROPÓSITO
 
+![Resumen de Cierre de Caja y Rendición de Turno en POS](/home/marcelompz/.gemini/antigravity-cli/brain/81248e19-f485-437b-aa12-83861e977a30/pos_cash_closure_summary_1787705844658.jpg)
+
 Este manual explica el proceso de **arqueo de caja de turno y rendición de ventas** desde la aplicación POS de OrderFlow hacia los diarios contables y sesiones de caja de Odoo CE (`pos.session` / `account.journal`) (`FEAT-093`).
 
 El cierre de turno consolida el volumen de ventas por medio de pago (Efectivo, Tarjeta, Transferencia, Venta a Crédito) y calcula el efectivo neto esperado en el cajón de la registradora.

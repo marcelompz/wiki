@@ -10,6 +10,8 @@
 
 ## 1. INTRODUCCIÓN Y PROPÓSITO
 
+![Estado Crediticio y Validación de Crédito en POS](/home/marcelompz/.gemini/antigravity-cli/brain/81248e19-f485-437b-aa12-83861e977a30/customer_credit_modal_1787705729200.jpg)
+
 Este manual instruye sobre la consulta y control en tiempo real de la **cartera de clientes, saldos pendientes y límites de crédito** asignados en **Odoo CE (`res.partner.credit_limit`)** desde la app POS y el checkout de OrderFlow (`FEAT-091`).
 
 Con esta funcionalidad, el operador de caja o la tienda web puede validar instantáneamente antes de otorgar una venta a crédito:
