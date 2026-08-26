@@ -87,18 +87,23 @@ Bienvenidos al Centro de Documentación Operativa de **OrderFlow**. Los siguient
      - Formulación de recetas/escandallos con mermas ($scrap$) y cálculo de costo unitario real.
      - Conversión de Unidades de Medida ($g \leftrightarrow kg \leftrightarrow ml$) y ejecución de Órdenes de Fabricación (`FEAT-096`).
 
+18. 🖥️ **[18. Manual de OmniPOS & KDS Multi-Estación con Explosión Atómica de Recetas](18-manual-omnipos-kds-recetas-bom.md)**
+     - Despacho visual de comandas en cocina por estaciones (`KITCHEN`, `GRILL`, `BAR`, `PASTRY`).
+     - Semáforo SLA de tiempos (`GREEN`, `YELLOW`, `RED`) y descuento atómico de ingredientes al enviar el pedido (`FEAT-097`).
+
 ---
 
 ## 📦 Acceso Rápido por Rol
 
 | Rol | Manuales Recomendados |
 |-----|----------------------|
-| **Admin / Owner** | Todos (01 a 17) |
-| **Cajero / POS** | 02 (POS/KDS), 05 (Fidelización), 12 (Crédito), 14 (Cierre Caja) |
-| **Mozo / Vendedor** | 02 (POS), 03 (Turnos), 04 (Catálogo WhatsApp), 13 (KUDE WA) |
+| **Admin / Owner** | Todos (01 a 18) |
+| **Cajero / POS** | 02 (POS/KDS), 05 (Fidelización), 12 (Crédito), 14 (Cierre Caja), 18 (POS BoM) |
+| **Mozo / Vendedor** | 02 (POS), 03 (Turnos), 04 (Catálogo WhatsApp), 13 (KUDE WA), 18 (KDS Ticket) |
+| **Chef / Personal de Cocina** | 02 (KDS), 18 (KDS Multi-Estación & SLA) |
 | **Gestor de Marketing** | 01 (Portada), 04 (Catálogo), 05 (Sorteos), 09 (QR Generator) |
 | **Especialista / Spa** | 03 (Turnos), 02 (Comandas) |
-| **DevOps / Técnico / Jefe de Producción** | 07 (Flujo E2E), 08 (Deploy Manager), 11 (Odoo Webhooks), 15 (Multibodega), 16 (SSO), 17 (MRP Manufactura) |
+| **DevOps / Técnico / Jefe de Producción** | 07 (Flujo E2E), 08 (Deploy Manager), 11 (Odoo Webhooks), 15 (Multibodega), 16 (SSO), 17 (MRP Manufactura), 18 (KDS WebSockets) |
 
 ---
 
@@ -106,4 +111,4 @@ Bienvenidos al Centro de Documentación Operativa de **OrderFlow**. Los siguient
 
 Este índice se actualiza con cada nueva feature. La numeración sigue el orden de implementación (FEAT-XXX).
 
-**Última actualización**: 2026-08-25 — Agregado manual 17 (FEAT-096 OmniManufacturing MRP v1.20.31)
+**Última actualización**: 2026-08-25 — Agregado manual 18 (FEAT-097 OmniPOS & KDS v1.20.32)
