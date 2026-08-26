@@ -637,13 +637,13 @@
       "id": "FEAT-073",
       "category": "Frontend / OmniBio Admin",
       "title": "OmniBio Admin: selector de red social en bloques y badge en preview",
-      "status": "pending",
+      "status": "completed",
       "assigned_module": "frontend/src/pages/admin/biolinks.tsx",
       "depends_on": [
         "FEAT-066"
       ],
       "blocking": [],
-      "qa_validation": "Pendiente: aplicar parche admin-biolinks-nets.patch (selector de red + badge en preview)"
+      "qa_validation": "Frontend build clean | BioLinks Admin features social network block selector (WhatsApp, Instagram, TikTok, Facebook, Spotify, etc.) and live preview badge rendering"
     },
     {
       "id": "FEAT-074",
