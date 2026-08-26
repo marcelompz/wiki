@@ -99,19 +99,23 @@ Bienvenidos al Centro de Documentación Operativa de **OrderFlow**. Los siguient
      - Diseñador visual Drag & Drop desacoplado (`:3026` / `diseno.<domain>`) para Landing Pages, Catálogo WhatsApp y Bio-Links.
      - Bloques componibles (`HERO`, `CATALOG_GRID`, `PROMO_BANNER`), personalizador de temas y exportación de plantillas JSON (`FEAT-099`).
 
+21. 📊 **[21. Manual de OmniBI Analytics Standalone — Ingesta YoY y BI de Rentabilidad](21-manual-omnibi-analytics-yoy.md)**
+     - Ingesta histórica read-only de Odoo 14 CE vía XML-RPC y persistencia aislada multi-tenant.
+     - Consolidación analítica comparativa Año contra Año (YoY), crecimiento porcentual y ticket promedio omnicanal (`FEAT-100`).
+
 ---
 
 ## 📦 Acceso Rápido por Rol
 
 | Rol | Manuales Recomendados |
 |-----|----------------------|
-| **Admin / Owner** | Todos (01 a 20) |
+| **Admin / Owner / C-Level** | Todos (01 a 21) |
 | **Cajero / POS** | 02 (POS/KDS), 05 (Fidelización), 12 (Crédito), 14 (Cierre Caja), 18 (POS BoM) |
 | **Mozo / Vendedor B2B** | 02 (POS), 03 (Turnos), 04 (Catálogo WA), 13 (KUDE WA), 19 (Presupuestos B2B) |
 | **Chef / Personal de Cocina** | 02 (KDS), 18 (KDS Multi-Estación & SLA) |
 | **Gestor de Marketing / Diseñador** | 01 (Portada), 04 (Catálogo), 05 (Sorteos), 09 (QR Generator), 20 (Storefront Builder) |
 | **Especialista / Spa** | 03 (Turnos), 02 (Comandas) |
-| **DevOps / Técnico / Jefe de Producción** | 07 (Flujo E2E), 08 (Deploy Manager), 11 (Odoo Webhooks), 15 (Multibodega), 16 (SSO), 17 (MRP Manufactura), 18 (KDS WebSockets), 19 (Fuerza de Ventas B2B), 20 (Storefront Builder Standalone) |
+| **DevOps / Analista BI / CFO** | 07 (Flujo E2E), 08 (Deploy Manager), 11 (Odoo Webhooks), 15 (Multibodega), 16 (SSO), 17 (MRP Manufactura), 18 (KDS WebSockets), 19 (Fuerza de Ventas B2B), 20 (Storefront Builder Standalone), 21 (OmniBI Analytics) |
 
 ---
 
@@ -119,4 +123,4 @@ Bienvenidos al Centro de Documentación Operativa de **OrderFlow**. Los siguient
 
 Este índice se actualiza con cada nueva feature. La numeración sigue el orden de implementación (FEAT-XXX).
 
-**Última actualización**: 2026-08-26 — Agregado manual 20 (FEAT-099 Storefront Builder Standalone v1.20.34)
+**Última actualización**: 2026-08-26 — Agregado manual 21 (FEAT-100 OmniBI Analytics Standalone v1.20.35)

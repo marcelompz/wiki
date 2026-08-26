@@ -985,10 +985,23 @@
       ],
       "blocking": [],
       "qa_validation": "Standalone build clean | 100% Jest tests passing (4/4 tests) | StorefrontBuilderService implements Drag & Drop template builder, themes, JSON export and Traefik routing"
+    },
+    {
+      "id": "FEAT-100",
+      "category": "Microservicios / Standalone / OmniBI Analytics",
+      "title": "OmniBI Analytics Standalone (Ingesta YoY, BI de Rentabilidad y Comparativas Odoo)",
+      "description": "Microservicio desacoplado (:3027 / bi.<domain>): ingesta de datos históricos XML-RPC (Odoo 14) + Odoo 19, tableros de rentabilidad omnicanal, comparación de ventas YoY (Year-over-Year) y analítica predictiva de demanda por canal.",
+      "status": "completed",
+      "assigned_module": "services/omnibi-standalone/, backend/src/analytics/, docs/guides/ROADMAP_MICROSERVICES.md",
+      "depends_on": [
+        "FEAT-099"
+      ],
+      "blocking": [],
+      "qa_validation": "Standalone build clean | 100% Jest tests passing (5/5 tests) | OmniBIService implements Odoo 14 XML-RPC historical ingestion, tenantId checkpoint isolation and YoY comparative analytics"
     }
   ],
   "lastUpdated": "2026-08-26",
-  "last_id": "FEAT-099",
+  "last_id": "FEAT-100",
   "next_pending_sc": null,
   "active_plan": "docs/planes/inventario/plan-estandarizacion-inventario-omniflow.md",
     "plan_progress": {
