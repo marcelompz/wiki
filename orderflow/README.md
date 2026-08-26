@@ -1,11 +1,11 @@
 # OmniFlow SaaS Omnicanal
 
-![Version](https://img.shields.io/badge/version-1.20.38-blue)
+![Version](https://img.shields.io/badge/version-1.20.40-blue)
 ![License](https://img.shields.io/badge/license-Proprietary-red)
 ![NestJS](https://img.shields.io/badge/backend-NestJS-green)
 ![React](https://img.shields.io/badge/frontend-React-blue)
 
-**OmniFlow** es una plataforma SaaS omnicanal para gestión empresarial integral con arquitectura multi-tenant, facturación electrónica SISET, integraciones nativas con Odoo ERP (v14, v18, v19), catálogo social omnicanal, punto de venta (POS), pantallas de cocina (KDS), manufactura (MRP), compras, tesorería multi-moneda, fuerza de ventas B2B, analítica de negocios (BI) y workspace documental colaborativo con Collabora Online.
+**OmniFlow** es una plataforma SaaS omnicanal para gestión empresarial integral con arquitectura multi-tenant, facturación electrónica SISET, integraciones nativas con Odoo ERP (v14, v18, v19), catálogo social omnicanal, punto de venta (POS), pantallas de cocina (KDS), manufactura (MRP), compras, tesorería multi-moneda, fuerza de ventas B2B, analítica de negocios (BI), workspace documental colaborativo con Collabora Online y motor de Inteligencia Artificial con LLM Local (Ollama / vLLM).
 
 ---
 
@@ -35,16 +35,25 @@
 | **Base de Datos** | PostgreSQL (multi-tenant por schema / RLS) |
 | **Proxy** | Traefik v3.4 (SSL automático, subdominios dinámicos por tenant) |
 | **Infraestructura** | Docker Compose en Hetzner VPS |
-| **Integraciones** | Odoo (v14/v18/v19 CE), Tango ERP, FacturaSend (SIFEN), BCP, Cambios Chaco, DolarApi, Collabora CODE |
+| **Integraciones** | Odoo (v14/v18/v19 CE), Tango ERP, FacturaSend (SIFEN), BCP, Cambios Chaco, DolarApi, Collabora CODE, Ollama / Local LLM (`ai.provecchio.com`) |
 
 ---
 
-## 🚀 Características Principales (v1.20.38)
+## 🚀 Características Principales (v1.20.40)
+
+### Motor de Inteligencia Artificial & LLM Local (FEAT-105)
+- **Conexión Local Inviolable (`OmniAI`):** Integración con modelos locales (Ollama / vLLM en `ai.provecchio.com` o proxy Traefik SSL) sin enviar información privada a servidores de terceros.
+- **Inferencia en Tiempo Real:** Endpoints `/api/v1/integrations/llm/status` y `/chat/completions` con soporte para `llama3`, `mistral` y `gemma`.
+
+### Onboarding Zero-Touch Odoo (FEAT-106)
+- **Aprovisionamiento en 1-Click (`tenant_manifest.json`):** Endpoint `POST /api/v1/public/webhooks/odoo/onboard-manifest` para auto-configurar datos de empresa, RUC, categorías, depósitos y credenciales Odoo.
 
 ### Workspace Documental & Collabora Online (FEAT-083 & FEAT-082)
-- **Visualización & Edición WOPI:** Previsualización y edición en tiempo real de archivos de oficina (`.xlsx`, `.docx`, `.pptx`, `.ods`, `.odt`) con Collabora Online.
-- **Locking Concurrente en Redis:** Control de bloqueos WOPI (`X-WOPI-Lock`) para evitar sobrescrituras entre múltiples usuarios.
-- **Explorador Multi-Tenant:** Carpetas y archivos organizados con auto-provisionamiento de la carpeta raíz por tenant.
+- **Visualización & Edición WOPI:** Previsualización y edición en tiempo real de archivos de oficina con Collabora Online (`office.provecchio.com`).
+- **Locking Concurrente en Redis:** Control de bloqueos WOPI (`X-WOPI-Lock`) para evitar sobrescrituras entre usuarios.
+
+### OmniFlow DataView Suite (FEAT-VIEW)
+- **Filtros Dinámicos & Selección Global:** `DynamicQueryBuilder`, selección global `mode: all` sin límite de páginas y presets `SavedViews` en base de datos.
 
 ### Compras & Finanzas Operativas Multi-Moneda (FEAT-104)
 - **Órdenes de Compra (OC):** Emisión y congelamiento de tasas de cambio multi-divisa (PYG, USD, BRL, ARS).

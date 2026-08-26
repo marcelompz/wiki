@@ -119,20 +119,24 @@ Bienvenidos al Centro de Documentación Operativa de **OrderFlow**. Los siguient
      - Motor de consulta `DynamicQueryBuilder`, selección global `mode: all` sin límite de páginas y filtros dinámicos.
      - Presets `SavedViews` en base de datos con visibilidad Privada/Pública y DataView UI Kit (`v1.20.39`).
 
+26. 🤖 **[26. Manual de Motor LLM Local (OmniAI) & Onboarding Zero-Touch Odoo](26-manual-integracion-llm-local-y-onboarding-odoo.md)**
+     - Conexión con LLM local (`Ollama / vLLM`) vía Traefik SSL (`ai.provecchio.com`) para inferencia e Inteligencia Artificial.
+     - Onboarding Zero-Touch de tenants Odoo en 1-Click mediante manifest JSON (`tenant_manifest.json`) (`v1.20.40`).
+
 ---
 
 ## 📦 Acceso Rápido por Rol
 
 | Rol | Manuales Recomendados |
 |-----|----------------------|
-| **Admin / Owner / C-Level** | Todos (01 a 25) |
+| **Admin / Owner / C-Level** | Todos (01 a 26) |
 | **Cajero / POS** | 02 (POS/KDS), 05 (Fidelización), 12 (Crédito), 14 (Cierre Caja), 18 (POS BoM), 22 (Multimoneda), 23 (Tesoreria POS), 25 (DataView Suite) |
 | **Mozo / Vendedor B2B** | 02 (POS), 03 (Turnos), 04 (Catálogo WA), 13 (KUDE WA), 19 (Presupuestos B2B), 22 (Cotización Divisas), 25 (DataView Suite) |
 | **Encargado de Compras / Depósito** | 15 (Multibodega), 17 (MRP Manufactura), 23 (Órdenes de Compra & Proveedores), 24 (Workspace Documental), 25 (DataView Suite) |
 | **Chef / Personal de Cocina** | 02 (KDS), 18 (KDS Multi-Estación & SLA) |
 | **Gestor de Marketing / Diseñador** | 01 (Portada), 04 (Catálogo), 05 (Sorteos), 09 (QR Generator), 20 (Storefront Builder) |
 | **Especialista / Spa** | 03 (Turnos), 02 (Comandas) |
-| **DevOps / Analista BI / CFO** | 07 (Flujo E2E), 08 (Deploy Manager), 11 (Odoo Webhooks), 15 (Multibodega), 16 (SSO), 17 (MRP Manufactura), 18 (KDS WebSockets), 19 (Fuerza de Ventas B2B), 20 (Storefront Builder Standalone), 21 (OmniBI Analytics), 22 (Engine Multimoneda), 23 (Compras & Finanzas Multi-Moneda), 24 (Collabora Workspace), 25 (DataView Suite) |
+| **DevOps / Analista BI / CFO** | 07 (Flujo E2E), 08 (Deploy Manager), 11 (Odoo Webhooks), 15 (Multibodega), 16 (SSO), 17 (MRP Manufactura), 18 (KDS WebSockets), 19 (Fuerza de Ventas B2B), 20 (Storefront Builder Standalone), 21 (OmniBI Analytics), 22 (Engine Multimoneda), 23 (Compras & Finanzas Multi-Moneda), 24 (Collabora Workspace), 25 (DataView Suite), 26 (OmniAI LLM Local & Zero-Touch Odoo) |
 
 ---
 
@@ -140,4 +144,4 @@ Bienvenidos al Centro de Documentación Operativa de **OrderFlow**. Los siguient
 
 Este índice se actualiza con cada nueva feature. La numeración sigue el orden de implementación (FEAT-XXX).
 
-**Última actualización**: 2026-08-26 — Agregado manual 25 (OmniFlow DataView Suite v1.20.39)
+**Última actualización**: 2026-08-26 — Agregado manual 26 (Motor LLM Local & Zero-Touch Odoo Onboarding v1.20.40)

@@ -5,6 +5,13 @@ Todos los cambios notables a este proyecto serán documentados en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 y este proyecto se adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.20.40] - 2026-08-26
+
+### 🤖 Motor de Integración LLM Local (OmniAI) & Onboarding Zero-Touch Odoo
+- **Motor LLM Local (`LlmModule`):** Módulo NestJS inyectable (`LlmService`, `LlmController`) con conexión a servicios de Inteligencia Artificial locales (Ollama / vLLM en `ai.provecchio.com` o proxy Traefik SSL) sin enviar datos sensibles a servicios de terceros.
+- **Endpoints de Inferencia:** `/api/v1/integrations/llm/status` (chequeo de salud) y `/api/v1/integrations/llm/chat/completions` (generación de respuestas con modelos `llama3`, `mistral`, `gemma`).
+- **Onboarding Zero-Touch Odoo (`tenant_manifest.json`):** Endpoint `POST /api/v1/public/webhooks/odoo/onboard-manifest` y método `onboardTenantFromManifest` para aprovisionar datos de empresa, categorías, depósitos e integración Odoo en 1-Click.
+
 ## [1.20.39] - 2026-08-26
 
 ### 📊 OmniFlow DataView Suite (Gestión Estándar de Vistas & Selección Global)
