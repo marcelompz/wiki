@@ -91,19 +91,23 @@ Bienvenidos al Centro de Documentación Operativa de **OrderFlow**. Los siguient
      - Despacho visual de comandas en cocina por estaciones (`KITCHEN`, `GRILL`, `BAR`, `PASTRY`).
      - Semáforo SLA de tiempos (`GREEN`, `YELLOW`, `RED`) y descuento atómico de ingredientes al enviar el pedido (`FEAT-097`).
 
+19. 💼 **[19. Manual de Fuerza de Ventas B2B, Presupuestos & Descuentos por Volumen](19-manual-fuerza-de-ventas-b2b-presupuestos.md)**
+     - Formulación de cotizaciones B2B vinculadas a listas de precios mayoristas de Odoo (`product.pricelist`).
+     - Cálculo automático de escalas por volumen y conversión de presupuesto a pedido confirmado (`FEAT-098`).
+
 ---
 
 ## 📦 Acceso Rápido por Rol
 
 | Rol | Manuales Recomendados |
 |-----|----------------------|
-| **Admin / Owner** | Todos (01 a 18) |
+| **Admin / Owner** | Todos (01 a 19) |
 | **Cajero / POS** | 02 (POS/KDS), 05 (Fidelización), 12 (Crédito), 14 (Cierre Caja), 18 (POS BoM) |
-| **Mozo / Vendedor** | 02 (POS), 03 (Turnos), 04 (Catálogo WhatsApp), 13 (KUDE WA), 18 (KDS Ticket) |
+| **Mozo / Vendedor B2B** | 02 (POS), 03 (Turnos), 04 (Catálogo WA), 13 (KUDE WA), 19 (Presupuestos B2B) |
 | **Chef / Personal de Cocina** | 02 (KDS), 18 (KDS Multi-Estación & SLA) |
 | **Gestor de Marketing** | 01 (Portada), 04 (Catálogo), 05 (Sorteos), 09 (QR Generator) |
 | **Especialista / Spa** | 03 (Turnos), 02 (Comandas) |
-| **DevOps / Técnico / Jefe de Producción** | 07 (Flujo E2E), 08 (Deploy Manager), 11 (Odoo Webhooks), 15 (Multibodega), 16 (SSO), 17 (MRP Manufactura), 18 (KDS WebSockets) |
+| **DevOps / Técnico / Jefe de Producción** | 07 (Flujo E2E), 08 (Deploy Manager), 11 (Odoo Webhooks), 15 (Multibodega), 16 (SSO), 17 (MRP Manufactura), 18 (KDS WebSockets), 19 (Fuerza de Ventas B2B) |
 
 ---
 
@@ -111,4 +115,4 @@ Bienvenidos al Centro de Documentación Operativa de **OrderFlow**. Los siguient
 
 Este índice se actualiza con cada nueva feature. La numeración sigue el orden de implementación (FEAT-XXX).
 
-**Última actualización**: 2026-08-25 — Agregado manual 18 (FEAT-097 OmniPOS & KDS v1.20.32)
+**Última actualización**: 2026-08-26 — Agregado manual 19 (FEAT-098 Fuerza de Ventas B2B v1.20.33)
