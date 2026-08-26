@@ -5,7 +5,7 @@
 ![NestJS](https://img.shields.io/badge/backend-NestJS-green)
 ![React](https://img.shields.io/badge/frontend-React-blue)
 
-**OmniFlow** es una plataforma SaaS omnicanal para gestión empresarial integral con arquitectura multi-tenant, facturación electrónica SISET, integraciones nativas con Odoo ERP (v14, v18, v19), catálogo social omnicanal, punto de venta (POS), pantallas de cocina (KDS), manufactura (MRP), compras, tesorería multi-moneda, fuerza de ventas B2B y analítica de negocios (BI).
+**OmniFlow** es una plataforma SaaS omnicanal para gestión empresarial integral con arquitectura multi-tenant, facturación electrónica SISET, integraciones nativas con Odoo ERP (v14, v18, v19), catálogo social omnicanal, punto de venta (POS), pantallas de cocina (KDS), manufactura (MRP), compras, tesorería multi-moneda, fuerza de ventas B2B, analítica de negocios (BI) y workspace documental colaborativo con Collabora Online.
 
 ---
 
@@ -35,11 +35,16 @@
 | **Base de Datos** | PostgreSQL (multi-tenant por schema / RLS) |
 | **Proxy** | Traefik v3.4 (SSL automático, subdominios dinámicos por tenant) |
 | **Infraestructura** | Docker Compose en Hetzner VPS |
-| **Integraciones** | Odoo (v14/v18/v19 CE), Tango ERP, FacturaSend (SIFEN), BCP, Cambios Chaco, DolarApi |
+| **Integraciones** | Odoo (v14/v18/v19 CE), Tango ERP, FacturaSend (SIFEN), BCP, Cambios Chaco, DolarApi, Collabora CODE |
 
 ---
 
 ## 🚀 Características Principales (v1.20.38)
+
+### Workspace Documental & Collabora Online (FEAT-083 & FEAT-082)
+- **Visualización & Edición WOPI:** Previsualización y edición en tiempo real de archivos de oficina (`.xlsx`, `.docx`, `.pptx`, `.ods`, `.odt`) con Collabora Online.
+- **Locking Concurrente en Redis:** Control de bloqueos WOPI (`X-WOPI-Lock`) para evitar sobrescrituras entre múltiples usuarios.
+- **Explorador Multi-Tenant:** Carpetas y archivos organizados con auto-provisionamiento de la carpeta raíz por tenant.
 
 ### Compras & Finanzas Operativas Multi-Moneda (FEAT-104)
 - **Órdenes de Compra (OC):** Emisión y congelamiento de tasas de cambio multi-divisa (PYG, USD, BRL, ARS).
@@ -50,11 +55,9 @@
 ### Dynamic Multi-Currency Engine (FEAT-103)
 - **Conversión de Divisas en Tiempo Real:** Cotizaciones dinámicas para PYG, USD, BRL, ARS.
 - **Cron Bursátil Automatizado:** Sincronización continua de 07:00 a 18:00 hs (Asunción) con BCP, Cambios Chaco y DolarApi.
-- **Caché LRU con TTL de 5 min:** Máximo rendimiento con fallback resiliente en base de datos.
 
 ### OmniBI Analytics YoY Standalone (FEAT-100)
 - **Analítica Comparativa Año a Año (YoY):** Ingesta histórica vía XML-RPC desde Odoo 14 y consolidación omnicanal.
-- **Rentabilidad Omnicanal:** Ingesta de métricas de ventas y margen bruto por tenant.
 
 ### Fuerza de Ventas B2B & Presupuestos (FEAT-098)
 - **Cotizaciones B2B:** Emisión de presupuestos con validez y conversión directa a pedido.

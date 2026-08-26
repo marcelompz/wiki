@@ -1,9 +1,9 @@
 # 🗺️ ROADMAP DE ORDERFLOW - v1.20.10 → v2.0.0
-**Última Actualización:** 2026-08-25 ART (Release v1.20.22 — Product Variants + Batch Import + Kebab-case Refactor)
+**Última Actualización:** 2026-08-26 (Release v1.20.38 — Compras, Finanzas Multi-Moneda, Documents Workspace & Collabora Online)
 
-**Versión Actual:** **`v1.20.22`** 🔄 **PRODUCTION READY** | Marca pública: OmniFlow. Capa técnica interna: OrderFlow.
-**Próximo Release:** **v1.21.0 (En progreso — Ingesta Histórica Odoo 14 OmniBI)**
-**Estado:** ✅ **STAGING & PRODUCTION OPERATIVE** | 🏆 **COMMERCIAL RELEASE v1.20.20 STABLE** | QA E2E Suite Integrada | 597+ tests unitarios pasados
+**Versión Actual:** **`v1.20.38`** 🔄 **PRODUCTION READY** | Marca pública: OmniFlow. Capa técnica interna: OrderFlow.
+**Próximo Release:** **v1.21.0 (En progreso — Estandarización de Inventario Paso 8: Landed Costs)**
+**Estado:** ✅ **STAGING & PRODUCTION OPERATIVE** | 🏆 **COMMERCIAL RELEASE v1.20.38 STABLE** | QA E2E Suite Integrada | 650+ tests unitarios pasados
 **Visión Estratégica:** Plataforma SaaS omnicanal de alta velocidad con aislamiento multi-tier, marketplace de plugins de terceros, facturación automática Stripe/Mercado Pago y escalado horizontal a Kubernetes.
 
 > 📦 **Estrategia de Microservicios Standalone:** Ver el roadmap dedicado de la suite de productos independientes en [docs/guides/ROADMAP_MICROSERVICES.md](docs/guides/ROADMAP_MICROSERVICES.md).
@@ -15,23 +15,54 @@
 | Módulo | Estado | Producción | Staging | Notas |
 |--------|--------|------------|---------|-------|
 | **Multi-Tenant Core & Multi-Tier** | ✅ Completo | ✅ Sí | ✅ Sí | Auth JWT + API Key, DB dedicada por tenant enterprise, `@TenantPrisma()` |
-| **Giveaway Module & Standalone** | ✅ Completo | ✅ Sí | ✅ Sí | CRUD, landing, sorteos, Google OAuth, standalone microservice |
-| **WhatsApp Catalog & Standalone** | ✅ Completo | ✅ Sí | ✅ Sí | Catálogo, carrito, checkout y standalone microservice. Modo Free: pre-venta manual por WhatsApp. Modo Premium: gestión completa con pasarela de pagos. |
-| **Social Commerce Hub (Catálogo Omnicanal)** | ✅ Completo | ✅ Sí | ✅ Sí | Evolución de WhatsApp Catalog a catálogo omnicanal. Soporta WhatsApp, Telegram, Instagram, Messenger y Custom Webhook. Pattern Strategy con IMessagingAdapter. Modelo CatalogChannelConfig para gestión de canales. |
-| **Admin UI/UX Overhaul** | ✅ Completo | ✅ Sí | ✅ Sí | Tema oscuro con toggle y persistencia, sidebar agrupada por dominios, topbar mejorada, dashboard KPIs con sparklines, preview por canal en Catálogo Social admin. |
-| **Bio-Links & Standalone** | ✅ Completo | ✅ Sí | ✅ Sí | API + Redis + Admin Drag&Drop + Public SPA + Fast Checkout, standalone microservice |
+| **Documents Workspace & Collabora** | ✅ Completo | ✅ Sí | ✅ Sí | Explorador multi-tenant, WOPI session, visor/editor interactivo Collabora y locking Redis (FEAT-083 & FEAT-082) |
+| **Compras & Finanzas Multi-Moneda** | ✅ Completo | ✅ Sí | ✅ Sí | Órdenes de Compra (OC), impacto atómico Kardex, Facturas Proveedor (AP) y Flujo de Caja (FEAT-104) |
+| **Dynamic Multi-Currency Engine** | ✅ Completo | ✅ Sí | ✅ Sí | Cotización bursátil en tiempo real (PYG, USD, BRL, ARS) BCP/Cambios Chaco/DolarApi y caché LRU (FEAT-103) |
+| **OmniBI Analytics Standalone** | ✅ Completo | ✅ Sí | ✅ Sí | Ingesta histórica Odoo 14 XML-RPC, comparativo YoY y microservicio `:3027` (FEAT-100) |
+| **Storefront Builder Standalone** | ✅ Completo | ✅ Sí | ✅ Sí | Diseñador visual Drag & Drop desacoplado `:3026` (FEAT-099) |
+| **Fuerza de Ventas B2B** | ✅ Completo | ✅ Sí | ✅ Sí | Presupuestos B2B, listas de precios mayoristas Odoo y descuentos por volumen (FEAT-098) |
+| **OmniPOS & KDS Multi-Estación** | ✅ Completo | ✅ Sí | ✅ Sí | Cobro rápido, semáforo SLA comanda y explosión atómica de recetas BoM (FEAT-097) |
+| **OmniManufacturing MRP Engine** | ✅ Completo | ✅ Sí | ✅ Sí | Órdenes de Fabricación, insumos, mermas scrap y conversión UoM ($g \leftrightarrow kg$) (FEAT-096) |
+| **WhatsApp Catalog & Standalone** | ✅ Completo | ✅ Sí | ✅ Sí | Catálogo, carrito, checkout y standalone microservice `:3021` |
+| **Social Commerce Hub** | ✅ Completo | ✅ Sí | ✅ Sí | Soporta WhatsApp, Telegram, Instagram, Messenger y Custom Webhook |
+| **Bio-Links & Standalone** | ✅ Completo | ✅ Sí | ✅ Sí | API + Redis + Admin Drag&Drop + Public SPA, standalone microservice `:3022` |
 | **Super Admin** | ✅ Completo | ✅ Sí | ✅ Sí | Usuarios, tenants, roles, disable/enable/delete tenant, DB tier toggle |
-| **Bookings (Spa)** | ✅ Completo | ✅ Sí | ✅ Sí | Turnos, comisiones, atomicidad y tests unitarios 100% |
-| **Quotations** | ✅ Completo | ✅ Sí | ✅ Sí | Presupuestos, integración DNIT y tests unitarios 100% |
-| **POS Web** | ✅ Completo | ✅ Sí | ✅ Sí | Offline-first (Dexie.js + Zustand), Modo Mozo + Cajero, WebSockets |
-| **KDS (Cocina)** | ✅ Completo | ✅ Sí | ✅ Sí | Pantalla tiempo real, semáforo por tiempos, WebSocket rooms por tenant |
-| **Loyalty / Fidelización** | ✅ Completo | ✅ Sí | ✅ Sí | Tarjetas, reglas, redención, tiers BRONZE→PLATINUM, integración POS |
-| **Tauri Desktop Wrapper** | ✅ Completo | ✅ Sí | ✅ Sí | POS nativo + impresión ESC/POS + shortcuts Rust |
-| **Observabilidad & CI/CD Load** | ✅ Completo | ✅ Sí | ✅ Sí | Sentry + Prometheus + k6 load tests continuos en GitHub Actions |
+| **Bookings (Spa) & Standalone** | ✅ Completo | ✅ Sí | ✅ Sí | Turnos, comisiones, atomicidad y standalone microservice `:3023` |
+| **Quotations & Standalone** | ✅ Completo | ✅ Sí | ✅ Sí | Presupuestos, integración DNIT y standalone microservice `:3024` |
+| **Loyalty & Standalone** | ✅ Completo | ✅ Sí | ✅ Sí | Tarjetas, reglas, redención, tiers BRONZE→PLATINUM y standalone microservice `:3025` |
+| **Giveaway & Standalone** | ✅ Completo | ✅ Sí | ✅ Sí | Sorteos virales y standalone microservice `:3020` |
 | **Cloudflare / DNS & Traefik** | ✅ Completo | ✅ Sí | ✅ Sí | Subdominios automáticos + Traefik v3.4 routing por microservicio |
-| **Integrations (Odoo)** | ✅ Completo | ✅ Sí | ✅ Sí | OrderFlow ↔ Odoo: webhooks push + wizard pull + addon nativo Odoo 19 CE |
+| **Integrations (Odoo)** | ✅ Completo | ✅ Sí | ✅ Sí | OrderFlow ↔ Odoo: webhooks push + wizard pull + addons nativos Odoo 14, 18 y 19 CE |
 | **Alta Disponibilidad / Réplica Standby** | 🔄 En progreso | 🔄 Parcial | 🔄 Parcial | Réplica read-only en Provecchio con failover documentado (FEAT-011) |
-| **App Móvil Client-First & POS Native** | 🔄 En progreso | 🔄 Parcial | 🔄 Parcial | `@orderflow/mobile` Expo, catálogo, carrito, POS offline-first y multi-sesión (FEAT-012) |
+| **App Móvil Client-First & POS Native** | 🔄 En progreso | 🔄 Parcial | 🔄 Parcial | `@orderflow/mobile` Expo, catálogo, carrito, POS offline-first (FEAT-012) |
+
+
+### 🏭 Estandarización de Inventario (v1.20.38)
+
+| Paso | Objetivo | Estado |
+|------|----------|--------|
+| **Paso 1** | Auditoría de lectores/escritores de `stockAvailable` | ✅ Completado |
+| **Paso 2** | Extender `executeStockMove()` para mantener cache `Product.stockAvailable` | ✅ Completado |
+| **Paso 3** | Migrar `orders.service.ts` a motor de doble entrada | ✅ Completado (detrás de Feature Flag `USE_DOUBLE_ENTRY_STOCK`) |
+| **Paso 4** | Migrar escritores restantes (products, sync, variants, batch import, admin) | ✅ Completado |
+| **Paso 5** | Limpiar lecturas y documentar `stockAvailable` como cache | ✅ Completado |
+| **Paso 6** | Reservas de stock (`stockReserved`) | ✅ Completado (`reserveStock` / `releaseStockReservation`) |
+| **Paso 8** | Landed cost + impuestos (PurchaseReceipt, CostAdjustment, unitCost en StockQuant) | ⏳ Pendiente |
+
+> 📄 Plan detallado: `docs/planes/inventario/plan-estandarizacion-inventario-omniflow.md`
+
+#### ⚠️ Estrategia Segura — Paso 3 (Migración de `orders.service.ts`)
+
+**NO se implementará en el mismo release que Pasos 1-2.**
+
+Motivo: `orders.service.ts` es el flujo de ventas productivo. Cualquier cambio aquí debe:
+1. Desarrollarse en una rama feature separada.
+2. Testearse exhaustivamente en staging con datos reales.
+3. Implementarse detrás de un feature flag (`USE_DOUBLE_ENTRY_STOCK`) para permitir rollback instantáneo.
+4. Solo entonces mergearse a `main` y etiquetarse como release `v1.21.0`.
+
+Mientras tanto, `Product.stockAvailable` se mantiene sincronizado como cache por `executeStockMove()` (Paso 2).
+
 
 ---
 
