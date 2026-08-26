@@ -1,11 +1,11 @@
 # OmniFlow SaaS Omnicanal
 
-![Version](https://img.shields.io/badge/version-1.20.24-blue)
+![Version](https://img.shields.io/badge/version-1.20.38-blue)
 ![License](https://img.shields.io/badge/license-Proprietary-red)
 ![NestJS](https://img.shields.io/badge/backend-NestJS-green)
 ![React](https://img.shields.io/badge/frontend-React-blue)
 
-**OmniFlow** es una plataforma SaaS omnicanal para gestión de negocios, con multi-tenancy, facturación electrónica, integraciones ERP, catálogo social omnicanal, punto de venta y fidelización.
+**OmniFlow** es una plataforma SaaS omnicanal para gestión empresarial integral con arquitectura multi-tenant, facturación electrónica SISET, integraciones nativas con Odoo ERP (v14, v18, v19), catálogo social omnicanal, punto de venta (POS), pantallas de cocina (KDS), manufactura (MRP), compras, tesorería multi-moneda, fuerza de ventas B2B y analítica de negocios (BI).
 
 ---
 
@@ -14,14 +14,14 @@
 ```
 ┌─────────────────────────────────────────────────────────────┐
 │              Hetzner VPS / Cloudflare (SSL/TLS)              │
-│                    Traefik v3.3 Reverse Proxy                │
+│                    Traefik v3.4 Reverse Proxy                │
 └──────┬──────────────────────────────────────┬────────────────┘
        │                                      │
        ▼                                      ▼
 ┌──────────────────┐               ┌──────────────────┐
-│   OmniFlow       │               │   Odoo Adapter   │
-│   Frontend:3011  │               │   Port:3005      │
-│   Backend:3010   │               │                  │
+│   OmniFlow Core  │               │ 8 Microservicios │
+│   Frontend:3011  │               │ Standalone Suite │
+│   Backend:3010   │               │ :3020 a :3027    │
 │   DB:5432        │               │                  │
 └──────────────────┘               └──────────────────┘
 ```
@@ -32,32 +32,42 @@
 |------------|------------|
 | **Backend** | NestJS + TypeScript + Prisma ORM |
 | **Frontend** | React + Vite + Ant Design + Refine |
-| **Base de Datos** | PostgreSQL (multi-tenant por schema) |
-| **Proxy** | Traefik v3.4 (SSL automático, DNS dinámico) |
+| **Base de Datos** | PostgreSQL (multi-tenant por schema / RLS) |
+| **Proxy** | Traefik v3.4 (SSL automático, subdominios dinámicos por tenant) |
 | **Infraestructura** | Docker Compose en Hetzner VPS |
-| **Integraciones** | Odoo, Tango ERP, FacturaSend (SIFEN), Stripe, Mercado Pago |
+| **Integraciones** | Odoo (v14/v18/v19 CE), Tango ERP, FacturaSend (SIFEN), BCP, Cambios Chaco, DolarApi |
 
 ---
 
-## 🚀 Características Principales
+## 🚀 Características Principales (v1.20.38)
 
-### Contactos Unificados (v1.5.1)
-- **Menú único** "Contactos" reemplaza "Usuarios" y "Clientes"
-- **Roles múltiples:** Cliente, Proveedor, Usuario, Empleado, Lead
-- **Persona o Empresa:** `isCompany` flag con `parentId` para contactos vinculados
-- **Campos de empleado:** `jobTitle`, `department`, `employeeNumber`, `hireDate`
-- **API unificada:** `/api/v1/contacts` con filtrado por tipo y rol
-- **Compatibilidad legacy:** Endpoints `/api/v1/customers` y `/api/v1/users` mantenidos
+### Compras & Finanzas Operativas Multi-Moneda (FEAT-104)
+- **Órdenes de Compra (OC):** Emisión y congelamiento de tasas de cambio multi-divisa (PYG, USD, BRL, ARS).
+- **Recepción Atómica en Kardex:** Recepción de OC con impacto inmediato en el inventario de doble entrada (`executeStockMove`).
+- **Cuentas por Pagar (AP):** Generación automática de Facturas de Proveedor (`SupplierBill`) y gestión de pagos parciales/totales.
+- **Tesorería & Flujo de Caja:** Movimientos de caja por egresos/ingresos y reporte consolidado (`CashFlow`).
 
-### Modelo de Suscripción SaaS
-- **Planes:** `basic`, `professional`, `enterprise`
-- **Suscripciones** por tenant con fecha de inicio/fin
-- **Facturas** generadas automáticamente
-- **Addons** opcionales por suscripción
-- **Webhooks** para Stripe/Mercado Pago
+### Dynamic Multi-Currency Engine (FEAT-103)
+- **Conversión de Divisas en Tiempo Real:** Cotizaciones dinámicas para PYG, USD, BRL, ARS.
+- **Cron Bursátil Automatizado:** Sincronización continua de 07:00 a 18:00 hs (Asunción) con BCP, Cambios Chaco y DolarApi.
+- **Caché LRU con TTL de 5 min:** Máximo rendimiento con fallback resiliente en base de datos.
 
-### Multi-Tenancy
-- **Shared DB:** Mismo esquema, aislamiento por `tenantId`
+### OmniBI Analytics YoY Standalone (FEAT-100)
+- **Analítica Comparativa Año a Año (YoY):** Ingesta histórica vía XML-RPC desde Odoo 14 y consolidación omnicanal.
+- **Rentabilidad Omnicanal:** Ingesta de métricas de ventas y margen bruto por tenant.
+
+### Fuerza de Ventas B2B & Presupuestos (FEAT-098)
+- **Cotizaciones B2B:** Emisión de presupuestos con validez y conversión directa a pedido.
+- **Descuentos por Volumen:** Escalas de precios mayoristas Odoo pricelist aplicadas automáticamente.
+
+### OmniPOS & KDS Multi-Estación con BoM (FEAT-097)
+- **Punto de Venta POS:** Cobro ultra-rápido, aperturas y arqueos de caja por turno.
+- **KDS Multi-Estación con SLA:** Ruteo por comanda a pantallas de Cocina/Bar con tiempos semaforizados (Verde, Amarillo, Rojo).
+- **Explosión Atómica de Recetas BoM:** Descuento instantáneo de insumos de cocina al vender platos en el POS.
+
+### OmniManufacturing MRP Engine (FEAT-096)
+- **Órdenes de Fabricación (ManufacturingOrder):** Consumo de materias primas y generación de productos terminados.
+- **Conversión UoM & Mermas:** Conversión de unidades de medida ($g \leftrightarrow kg$) y cálculo de scrap.
 - **Dedicated DB:** Tenant `orderflow-company` con BD propia
 - **Aislamiento:** Row-level security + connection pooling
 
