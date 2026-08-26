@@ -5,6 +5,22 @@ Todos los cambios notables a este proyecto serán documentados en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 y este proyecto se adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.20.39] - 2026-08-26
+
+### 📊 OmniFlow DataView Suite (Gestión Estándar de Vistas & Selección Global)
+- **Backend Core DataView (`backend/src/common/data-view/`):** DTOs `FilterQueryDto`, `SelectionPayloadDto`, `BulkActionDto`, decorador `@DataViewQuery()` y servicio universal `DynamicQueryBuilder` para parsing de operadores dinámicos (`eq`, `ne`, `like`, `ilike`, `gt`, `gte`, `between`, `in`) y soporte de selección global de registros en base de datos (`mode: 'all'`, `selected`, `none`).
+- **SavedViews & Presets (`SavedViewsModule`):** Modelo `SavedView` en Prisma con visibilidad `PRIVATE`/`PUBLIC`, auto-gestión de vista por defecto y endpoints REST CRUD (`/api/v1/saved-views`).
+- **DataView UI Kit (Frontend):** Suite de componentes React/AntDesign (`DataTableContainer.tsx`, `SelectionBanner.tsx`, `FilterBuilder.tsx`, `ColumnVisibility.tsx`) y hook declarativo `useDataTable`.
+- **Instanciación en Módulos:** Configuraciones declarativas `ProductListConfig.tsx`, `ContactListConfig.tsx`, `OrderListConfig.tsx`, e `InventoryListConfig.tsx` para habilitar vistas avanzadas, filtros combinables y acciones masivas en la UI admin.
+
+## [1.20.24] - 2026-08-25
+
+### 🏭 Inventory Standardization (Paso 3 — Stock Reservation)
+- **Reserva de stock en pedidos:** `OrdersService.create()` y `OrdersService.confirm()` ahora usan `InventoryService.reserveStock()` y `confirmReservationAsMove()` cuando `USE_DOUBLE_ENTRY_STOCK=true`.
+- **Liberación en cancelación:** `OrdersService.cancel()` libera reservas con `InventoryService.releaseStockReservation()` en lugar de decrementar directamente `Product.stockAvailable`.
+- **Feature flag:** comportamiento controlado por `USE_DOUBLE_ENTRY_STOCK`; sin flag, se mantiene la lógica original de `stockAvailable` para no afectar pedidos admin existentes.
+- **Nuevos métodos en `InventoryService`:** `reserveStock`, `releaseStockReservation`, `confirmReservationAsMove` para manejo explícito de `StockQuant.reservedQuantity`.
+
 ## [1.20.22] - 2026-08-25
 
 ### 🚀 Product Variants & Batch Import
