@@ -83,18 +83,22 @@ Bienvenidos al Centro de Documentación Operativa de **OrderFlow**. Los siguient
      - Inicio de sesión unificado (SSO via Odoo CE / Keycloak) y emisión de JWT tokens.
      - Resolución automática de `tenantId` y mapeo de permisos RBAC (`FEAT-095`).
 
+17. 🏭 **[17. Manual de OmniManufacturing MRP, Escandallos BoM & Conversión UoM](17-manual-manufactura-mrp-escandallos-uom.md)**
+     - Formulación de recetas/escandallos con mermas ($scrap$) y cálculo de costo unitario real.
+     - Conversión de Unidades de Medida ($g \leftrightarrow kg \leftrightarrow ml$) y ejecución de Órdenes de Fabricación (`FEAT-096`).
+
 ---
 
 ## 📦 Acceso Rápido por Rol
 
 | Rol | Manuales Recomendados |
 |-----|----------------------|
-| **Admin / Owner** | Todos (01 a 16) |
+| **Admin / Owner** | Todos (01 a 17) |
 | **Cajero / POS** | 02 (POS/KDS), 05 (Fidelización), 12 (Crédito), 14 (Cierre Caja) |
 | **Mozo / Vendedor** | 02 (POS), 03 (Turnos), 04 (Catálogo WhatsApp), 13 (KUDE WA) |
 | **Gestor de Marketing** | 01 (Portada), 04 (Catálogo), 05 (Sorteos), 09 (QR Generator) |
 | **Especialista / Spa** | 03 (Turnos), 02 (Comandas) |
-| **DevOps / Técnico** | 07 (Flujo E2E), 08 (Deploy Manager), 11 (Odoo Webhooks), 15 (Multibodega), 16 (SSO) |
+| **DevOps / Técnico / Jefe de Producción** | 07 (Flujo E2E), 08 (Deploy Manager), 11 (Odoo Webhooks), 15 (Multibodega), 16 (SSO), 17 (MRP Manufactura) |
 
 ---
 
@@ -102,4 +106,4 @@ Bienvenidos al Centro de Documentación Operativa de **OrderFlow**. Los siguient
 
 Este índice se actualiza con cada nueva feature. La numeración sigue el orden de implementación (FEAT-XXX).
 
-**Última actualización**: 2026-08-25 — Agregados manuales 12 a 16 (FEAT-091 a FEAT-095 v1.20.30)
+**Última actualización**: 2026-08-25 — Agregado manual 17 (FEAT-096 OmniManufacturing MRP v1.20.31)
