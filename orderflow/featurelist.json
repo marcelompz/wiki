@@ -1020,12 +1020,12 @@
     "plan_progress": {
       "Paso 1": "completed",
       "Paso 2": "completed",
-      "Paso 3": "pending_safe_strategy",
+      "Paso 3": "completed",
       "Paso 4": "completed",
       "Paso 5": "completed",
-      "Paso 6": "pending",
+      "Paso 6": "completed",
       "Paso 8": "pending"
     },
-    "safe_strategy_note": "Paso 3 (orders.service.ts) NO se implementará en el mismo release que Pasos 1-2. Requiere feature flag, staging exhaustivo y rollback plan."
+    "safe_strategy_note": "Paso 3 (orders.service.ts) implementado con soporte de doble entrada y feature flag USE_DOUBLE_ENTRY_STOCK. Paso 6 (reservas de stock) verificado en InventoryService."
 }
 
