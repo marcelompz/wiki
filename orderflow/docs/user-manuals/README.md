@@ -95,19 +95,23 @@ Bienvenidos al Centro de Documentación Operativa de **OrderFlow**. Los siguient
      - Formulación de cotizaciones B2B vinculadas a listas de precios mayoristas de Odoo (`product.pricelist`).
      - Cálculo automático de escalas por volumen y conversión de presupuesto a pedido confirmado (`FEAT-098`).
 
+20. 🎨 **[20. Manual de Storefront & Web Builder Standalone](20-manual-storefront-builder-standalone.md)**
+     - Diseñador visual Drag & Drop desacoplado (`:3026` / `diseno.<domain>`) para Landing Pages, Catálogo WhatsApp y Bio-Links.
+     - Bloques componibles (`HERO`, `CATALOG_GRID`, `PROMO_BANNER`), personalizador de temas y exportación de plantillas JSON (`FEAT-099`).
+
 ---
 
 ## 📦 Acceso Rápido por Rol
 
 | Rol | Manuales Recomendados |
 |-----|----------------------|
-| **Admin / Owner** | Todos (01 a 19) |
+| **Admin / Owner** | Todos (01 a 20) |
 | **Cajero / POS** | 02 (POS/KDS), 05 (Fidelización), 12 (Crédito), 14 (Cierre Caja), 18 (POS BoM) |
 | **Mozo / Vendedor B2B** | 02 (POS), 03 (Turnos), 04 (Catálogo WA), 13 (KUDE WA), 19 (Presupuestos B2B) |
 | **Chef / Personal de Cocina** | 02 (KDS), 18 (KDS Multi-Estación & SLA) |
-| **Gestor de Marketing** | 01 (Portada), 04 (Catálogo), 05 (Sorteos), 09 (QR Generator) |
+| **Gestor de Marketing / Diseñador** | 01 (Portada), 04 (Catálogo), 05 (Sorteos), 09 (QR Generator), 20 (Storefront Builder) |
 | **Especialista / Spa** | 03 (Turnos), 02 (Comandas) |
-| **DevOps / Técnico / Jefe de Producción** | 07 (Flujo E2E), 08 (Deploy Manager), 11 (Odoo Webhooks), 15 (Multibodega), 16 (SSO), 17 (MRP Manufactura), 18 (KDS WebSockets), 19 (Fuerza de Ventas B2B) |
+| **DevOps / Técnico / Jefe de Producción** | 07 (Flujo E2E), 08 (Deploy Manager), 11 (Odoo Webhooks), 15 (Multibodega), 16 (SSO), 17 (MRP Manufactura), 18 (KDS WebSockets), 19 (Fuerza de Ventas B2B), 20 (Storefront Builder Standalone) |
 
 ---
 
@@ -115,4 +119,4 @@ Bienvenidos al Centro de Documentación Operativa de **OrderFlow**. Los siguient
 
 Este índice se actualiza con cada nueva feature. La numeración sigue el orden de implementación (FEAT-XXX).
 
-**Última actualización**: 2026-08-26 — Agregado manual 19 (FEAT-098 Fuerza de Ventas B2B v1.20.33)
+**Última actualización**: 2026-08-26 — Agregado manual 20 (FEAT-099 Storefront Builder Standalone v1.20.34)
