@@ -1,6 +1,6 @@
 {
   "project": "OrderFlow SaaS Omnicanal",
-  "version": "1.20.21",
+  "version": "1.20.24",
   "last_updated": "2026-08-24",
   "features": [
     {
@@ -818,10 +818,133 @@
       ],
       "blocking": [],
       "qa_validation": "Frontend build clean | TypeScript noEmit clean | CatalogLivePreview renders config/products/categories/banner/logo | Collapse panels 8 sections OK | Sentence case labels corrected | TemplateVariablePicker inserts at caret | Category image auto-assignment on upload/select"
+    },
+    {
+      "id": "FEAT-088",
+      "category": "Core / Social-Catalog / Jerarquía POS",
+      "title": "OmniCatalog: Categorías POS (pos.category) con Jerarquía Anidada N-Niveles",
+      "description": "Soporte de jerarquía anidada N-niveles para pos.category en Social Catalog (OmniCatalog). Asociación posCategoryId en modelo Product, nuevo endpoint /categories/tree para exponer árbol de categorías con subcategorías, selector categorySource en configuración admin y renderizado recursivo de acordeones anidados en omni-catalog.tsx.",
+      "status": "completed",
+      "assigned_module": "backend/prisma/schema.prisma, backend/src/social-catalog/, frontend/src/pages/omni-catalog.tsx, frontend/src/pages/admin/social-catalog.tsx, docs/info/INFORME_ESTADO_DEL_ARTE_SOCIAL_CATALOG_POS_CATEGORIES.md",
+      "depends_on": [
+        "FEAT-077",
+        "FEAT-085"
+      ],
+      "blocking": [],
+      "qa_validation": "Backend build clean | Frontend build clean | getCategoryTree() returns tree N-levels | omni-catalog.tsx renders recursive nested category accordions"
+    },
+    {
+      "id": "FEAT-089",
+      "category": "Core / Media / WebP Optimization",
+      "title": "Estandarización y Procesamiento Automático de Imágenes a Formato WebP (Sharp & BullMQ)",
+      "description": "Implementación del plan de conversión a WebP para OmniFlow. Servicio de procesamiento de imágenes con Sharp (SharpImageProcessingService), generación automática de miniaturas (thumb.webp) y versión completa (full.webp) en calidad 80/85, conversión al vuelo en uploads e importación masiva CSV/XLSX, y limpieza de activos heredados.",
+      "status": "completed",
+      "assigned_module": "backend/src/media/, backend/src/common/image-processing.service.ts, backend/src/products/, backend/src/social-catalog/, docs/planes/Plan_Implementacion_WebP_OmniFlow.md",
+      "depends_on": [
+        "FEAT-074",
+        "FEAT-088"
+      ],
+      "blocking": [],
+      "qa_validation": "Backend build clean with Sharp | ImageProcessingService generates full.webp and thumb.webp | ProductsController & SocialCatalogAdminController convert uploads to WebP"
+    },
+    {
+      "id": "FEAT-090",
+      "category": "Core / Integraciones / Odoo Sync",
+      "title": "Sincronización Bidireccional de Webhooks Odoo -> OrderFlow en Tiempo Real",
+      "description": "Recepción y procesamiento de eventos webhook desde Odoo CE (product.template, product.category, res.partner) hacia OrderFlow para actualización instantánea de catálogo social, inventario y cartera de clientes sin polling manual.",
+      "status": "completed",
+      "assigned_module": "backend/src/integrations/odoo/, docs/planes/ROADMAP_ODOO_BACKEND_ADOPTION.md",
+      "depends_on": [
+        "FEAT-088",
+        "FEAT-089"
+      ],
+      "blocking": [],
+      "qa_validation": "Backend build clean | 100% Jest tests passing (90/90 suites, 637/637 tests) | OdooWebhooksService & OdooWebhooksController process product.template, product.category, res.partner in real time"
+    },
+    {
+      "id": "FEAT-091",
+      "category": "Core / Clientes / Odoo Sync",
+      "title": "Cartera de Clientes, Cuentas por Cobrar y Límite de Crédito Odoo (res.partner / credit_limit)",
+      "description": "Sincronización y consulta en tiempo real del saldo pendiente de cuentas por cobrar, estado de facturas y límite de crédito del cliente desde Odoo CE (res.partner) hacia la app POS y checkout omnicanal de OrderFlow.",
+      "status": "completed",
+      "assigned_module": "backend/src/customers/, backend/src/integrations/odoo/, docs/planes/ROADMAP_ODOO_BACKEND_ADOPTION.md",
+      "depends_on": [
+        "FEAT-090"
+      ],
+      "blocking": [],
+      "qa_validation": "Backend build clean | 100% Jest tests passing (90/90 suites, 639/639 tests) | CustomersController endpoints GET /:id/credit-status and POST /:id/validate-credit process Odoo receivables in real time"
+    },
+    {
+      "id": "FEAT-092",
+      "category": "Core / Facturación / Odoo Sync",
+      "title": "Sincronización Asíncrona de Facturación Legal (account.move) y Notificación SIFEN/DNIT por WhatsApp",
+      "description": "Vinculación de comprobantes de venta desde OrderFlow hacia Odoo (account.move) y Facturasend, almacenando el estado de aprobación tributaria SIFEN/DNIT, enlace al KUDE/XML y envío automático del comprobante fiscal al cliente por WhatsApp.",
+      "status": "completed",
+      "assigned_module": "backend/src/orders/, backend/src/integrations/facturasend/, backend/src/integrations/odoo/, docs/planes/ROADMAP_ODOO_BACKEND_ADOPTION.md",
+      "depends_on": [
+        "FEAT-090",
+        "FEAT-091"
+      ],
+      "blocking": [],
+      "qa_validation": "Backend build clean | 100% Jest tests passing (90/90 suites, 640/640 tests) | OdooWebhooksService handles account.move posted state and triggers WhatsappNotificationsService.sendInvoiceNotification"
+    },
+    {
+      "id": "FEAT-093",
+      "category": "Core / POS / Odoo Sync",
+      "title": "Cierre de Caja Híbrido y Rendición POS <-> Odoo (pos.session / account.journal)",
+      "description": "Generación de resumen de arqueo de caja y sincronización del asiento de rendición de turno (pos.session / account.journal) desde el POS de OrderFlow hacia Odoo CE con desglose multi-medio de pago (Efectivo, Tarjeta, Transferencia, Crédito).",
+      "status": "completed",
+      "assigned_module": "backend/src/orders/, backend/src/integrations/odoo/, docs/planes/ROADMAP_ODOO_BACKEND_ADOPTION.md",
+      "depends_on": [
+        "FEAT-090",
+        "FEAT-091",
+        "FEAT-092"
+      ],
+      "blocking": [],
+      "qa_validation": "Backend build clean | 100% Jest tests passing (90/90 suites, 641/641 tests) | OrdersService.closePosSession calculates payment breakdown and emits pos.session_closed event for Odoo journal sync"
+    },
+    {
+      "id": "FEAT-094",
+      "category": "Core / Inventario / Odoo Sync",
+      "title": "Sincronización Multibodega y Albaranes de Entrega Odoo (stock.quant / stock.picking)",
+      "description": "Sincronización bidireccional de movimientos de stock entre depósitos/ubicaciones (StockQuant, StockLocation, StockMove) y generación automática de albaranes de despacho (stock.picking) en Odoo CE.",
+      "status": "completed",
+      "assigned_module": "backend/src/inventory/, backend/src/integrations/odoo/, docs/planes/ROADMAP_ODOO_BACKEND_ADOPTION.md",
+      "depends_on": [
+        "FEAT-090",
+        "FEAT-093"
+      ],
+      "blocking": [],
+      "qa_validation": "Backend build clean | 100% Jest tests passing (90/90 suites, 643/643 tests) | OdooWebhooksService processes stock.quant & stock.picking webhooks in real time with automated stock adjustment"
+    },
+    {
+      "id": "FEAT-095",
+      "category": "Core / Autenticación / Odoo Sync",
+      "title": "Autenticación Unificada SSO y Mapeo de Roles Odoo <-> OrderFlow (OAuth2 / Keycloak)",
+      "description": "Autenticación integrada de usuarios (Cajeros, Vendedores, Admins) vía OAuth2/Odoo SSO con resolución automática de tenantId y sincronización de roles y permisos RBAC en el backend de OrderFlow.",
+      "status": "completed",
+      "assigned_module": "backend/src/users/, backend/src/common/, docs/planes/ROADMAP_ODOO_BACKEND_ADOPTION.md",
+      "depends_on": [
+        "FEAT-090",
+        "FEAT-094"
+      ],
+      "blocking": [],
+      "qa_validation": "Backend build clean | 100% Jest tests passing (90/90 suites, 644/644 tests) | AuthService.loginWithOdooSso authenticates via Odoo OAuth2, resolves tenantId and maps RBAC roles"
     }
   ],
   "lastUpdated": "2026-08-25",
-  "last_id": "FEAT-087",
-  "next_pending_sc": null
+  "last_id": "FEAT-095",
+  "next_pending_sc": null,
+  "active_plan": "docs/planes/inventario/plan-estandarizacion-inventario-omniflow.md",
+    "plan_progress": {
+      "Paso 1": "completed",
+      "Paso 2": "completed",
+      "Paso 3": "pending_safe_strategy",
+      "Paso 4": "completed",
+      "Paso 5": "completed",
+      "Paso 6": "pending",
+      "Paso 8": "pending"
+    },
+    "safe_strategy_note": "Paso 3 (orders.service.ts) NO se implementará en el mismo release que Pasos 1-2. Requiere feature flag, staging exhaustivo y rollback plan."
 }
 
