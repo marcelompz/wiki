@@ -5,6 +5,12 @@ Todos los cambios notables a este proyecto serán documentados en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 y este proyecto se adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.20.41] - 2026-08-26
+
+### 🚢 Estandarización de Inventario (Paso 8: Landed Costs) & Wizard Onboarding Odoo 1-Click
+- **Landed Costs en Recepción de Órdenes de Compra (`PurchasesService`):** Prorrateo proporcional de costes de destino (flete, aranceles, seguro) sobre los productos de una OC al recibirla, recalculando atómicamente el Precio Medio Ponderado (PMP) (`costPricePmp` y `costPrice`) e impactando el Kardex.
+- **Wizard Visual de Onboarding Odoo 1-Click (`<OdooOnboardingWizardModal>`):** Asistente modal en 4 pasos en el Dashboard SuperAdmin (`/admin/deploy`) para auto-configurar datos de empresa, categorías, depósitos y credenciales Odoo con descarga o envío directo del manifiesto `tenant_manifest.json`.
+
 ## [1.20.40] - 2026-08-26
 
 ### 🤖 Motor de Integración LLM Local (OmniAI) & Onboarding Zero-Touch Odoo

@@ -1,6 +1,6 @@
 # OmniFlow SaaS Omnicanal
 
-![Version](https://img.shields.io/badge/version-1.20.40-blue)
+![Version](https://img.shields.io/badge/version-1.20.41-blue)
 ![License](https://img.shields.io/badge/license-Proprietary-red)
 ![NestJS](https://img.shields.io/badge/backend-NestJS-green)
 ![React](https://img.shields.io/badge/frontend-React-blue)
@@ -39,7 +39,13 @@
 
 ---
 
-## 🚀 Características Principales (v1.20.40)
+## 🚀 Características Principales (v1.20.41)
+
+### Estandarización de Inventario (Paso 8: Landed Costs)
+- **Recálculo PMP por Costes en Destino:** Prorrateo de gastos de importación, aranceles y fletes locales al recibir Órdenes de Compra, actualizando automáticamente el Precio Medio Ponderado (`costPricePmp`) en base de datos.
+
+### Wizard Visual de Onboarding Odoo 1-Click
+- **Asistente Guiado en 4 Pasos (`<OdooOnboardingWizardModal>`):** Disponible en el Dashboard SuperAdmin (`/admin/deploy`) para auto-configurar datos de empresa, categorías, depósitos e integración Odoo.
 
 ### Motor de Inteligencia Artificial & LLM Local (FEAT-105)
 - **Conexión Local Inviolable (`OmniAI`):** Integración con modelos locales (Ollama / vLLM en `ai.provecchio.com` o proxy Traefik SSL) sin enviar información privada a servidores de terceros.

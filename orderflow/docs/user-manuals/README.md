@@ -123,20 +123,24 @@ Bienvenidos al Centro de Documentación Operativa de **OrderFlow**. Los siguient
      - Conexión con LLM local (`Ollama / vLLM`) vía Traefik SSL (`ai.provecchio.com`) para inferencia e Inteligencia Artificial.
      - Onboarding Zero-Touch de tenants Odoo en 1-Click mediante manifest JSON (`tenant_manifest.json`) (`v1.20.40`).
 
+27. 🚢 **[27. Manual de Landed Costs en Compras & Wizard de Onboarding Odoo 1-Click](27-manual-landed-costs-y-wizard-onboarding-odoo.md)**
+     - Landed Costs / Costes en Destino en recepción de Órdenes de Compra (Paso 8 de Inventario) con recálculo de PMP (`costPricePmp`).
+     - Wizard visual de onboarding Odoo 1-Click (`<OdooOnboardingWizardModal>`) en el Dashboard SuperAdmin (`v1.20.41`).
+
 ---
 
 ## 📦 Acceso Rápido por Rol
 
 | Rol | Manuales Recomendados |
 |-----|----------------------|
-| **Admin / Owner / C-Level** | Todos (01 a 26) |
+| **Admin / Owner / C-Level** | Todos (01 a 27) |
 | **Cajero / POS** | 02 (POS/KDS), 05 (Fidelización), 12 (Crédito), 14 (Cierre Caja), 18 (POS BoM), 22 (Multimoneda), 23 (Tesoreria POS), 25 (DataView Suite) |
 | **Mozo / Vendedor B2B** | 02 (POS), 03 (Turnos), 04 (Catálogo WA), 13 (KUDE WA), 19 (Presupuestos B2B), 22 (Cotización Divisas), 25 (DataView Suite) |
-| **Encargado de Compras / Depósito** | 15 (Multibodega), 17 (MRP Manufactura), 23 (Órdenes de Compra & Proveedores), 24 (Workspace Documental), 25 (DataView Suite) |
+| **Encargado de Compras / Depósito** | 15 (Multibodega), 17 (MRP Manufactura), 23 (Órdenes de Compra & Proveedores), 24 (Workspace Documental), 25 (DataView Suite), 27 (Landed Costs) |
 | **Chef / Personal de Cocina** | 02 (KDS), 18 (KDS Multi-Estación & SLA) |
 | **Gestor de Marketing / Diseñador** | 01 (Portada), 04 (Catálogo), 05 (Sorteos), 09 (QR Generator), 20 (Storefront Builder) |
 | **Especialista / Spa** | 03 (Turnos), 02 (Comandas) |
-| **DevOps / Analista BI / CFO** | 07 (Flujo E2E), 08 (Deploy Manager), 11 (Odoo Webhooks), 15 (Multibodega), 16 (SSO), 17 (MRP Manufactura), 18 (KDS WebSockets), 19 (Fuerza de Ventas B2B), 20 (Storefront Builder Standalone), 21 (OmniBI Analytics), 22 (Engine Multimoneda), 23 (Compras & Finanzas Multi-Moneda), 24 (Collabora Workspace), 25 (DataView Suite), 26 (OmniAI LLM Local & Zero-Touch Odoo) |
+| **DevOps / Analista BI / CFO** | 07 (Flujo E2E), 08 (Deploy Manager), 11 (Odoo Webhooks), 15 (Multibodega), 16 (SSO), 17 (MRP Manufactura), 18 (KDS WebSockets), 19 (Fuerza de Ventas B2B), 20 (Storefront Builder Standalone), 21 (OmniBI Analytics), 22 (Engine Multimoneda), 23 (Compras & Finanzas Multi-Moneda), 24 (Collabora Workspace), 25 (DataView Suite), 26 (OmniAI LLM Local & Zero-Touch Odoo), 27 (Landed Costs & Onboarding Wizard) |
 
 ---
 
@@ -144,4 +148,4 @@ Bienvenidos al Centro de Documentación Operativa de **OrderFlow**. Los siguient
 
 Este índice se actualiza con cada nueva feature. La numeración sigue el orden de implementación (FEAT-XXX).
 
-**Última actualización**: 2026-08-26 — Agregado manual 26 (Motor LLM Local & Zero-Touch Odoo Onboarding v1.20.40)
+**Última actualización**: 2026-08-26 — Agregado manual 27 (Landed Costs & Odoo Onboarding Wizard v1.20.41)
