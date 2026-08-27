@@ -118,6 +118,8 @@ Ordená por problema y área. Cada entrada incluye síntomas, causa raíz y solu
 - **Tabla `social_catalogs` Faltante (OmniCatalog):** ver [#44](44-social-catalog-table-missing.md) — Tablas del módulo social catalog no existen; `db push` crea todas.
 - **QR Generate 500 con Master Key:** ver [#45](45-qr-master-key-fk-violation.md) — Master key no tiene tenant; usar API key de tenant real.
 - **Social Catalog público: fetch de featured con `config` undefined — orden de requests:** ver [#59](59-social-catalog-featured-banner-init-order.md) — `featured` requiere la config; se reordena fetch (config → featured → products) y se cachea `featuredBannerEnabled`.
+- **Integración de OmniFlow DataView Suite & Double Checkbox:** ver [#72](72-dataview-suite-frontend-pages-integration-gap.md) — Integración de `DataTableContainer`, `SavedViews` y `FilterBuilder` en vistas admin y eliminación de checkbox duplicado en productos.
+- **Desincronización de Migraciones Prisma & Recuperación de Disco:** ver [#73](73-prisma-migration-drift-and-disk-space-recovery.md) — Solución a errores 500 por tablas/columnas faltantes (`saved_views`, `isVisible`, `handle`), creación de migración SQL, purga de BuildKit y `pg_resetwal` en PostgreSQL.
 
 ---
 
