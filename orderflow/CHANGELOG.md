@@ -5,7 +5,13 @@ Todos los cambios notables a este proyecto serán documentados en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 y este proyecto se adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [1.20.41] - 2026-08-26
+## [1.20.41] - 2026-08-27
+
+### 📊 OmniFlow DataView Suite — Integración Total en Pantallas Admin & Presets
+- **Integración Total en Pantallas Admin (`frontend/src/pages/admin/`):** Sustitución de tablas estáticas por `<DataTableContainer>` en `/admin/products` (`products.tsx`), `/admin/contacts` (`contacts.tsx`) y `/admin/orders` (`orders.tsx`), exponiendo el Toolbar de Filtros Avanzados, Visibilidad de Columnas y Banner de Selección Global.
+- **Componente `SavedViews` (Frontend UI):** Nuevo componente [SavedViews.tsx](file:///opt/orderflow/frontend/src/components/data-view/SavedViews.tsx) integrado en la barra de herramientas para guardar, cargar y gestionar presets de filtros/columnas persistidos en PostgreSQL.
+- **Corrección de Checkbox Duplicado:** Eliminación de la columna manual de checkbox en `products.tsx`, unificando el control de selección a través del `rowSelection` nativo de `DataTableContainer`.
+- **Troubleshooting #72:** Documentación de la guía de resolución para el desacople de DataView Suite y la duplicación de casillas de verificación.
 
 ### 🚢 Estandarización de Inventario (Paso 8: Landed Costs) & Wizard Onboarding Odoo 1-Click
 - **Landed Costs en Recepción de Órdenes de Compra (`PurchasesService`):** Prorrateo proporcional de costes de destino (flete, aranceles, seguro) sobre los productos de una OC al recibirla, recalculando atómicamente el Precio Medio Ponderado (PMP) (`costPricePmp` y `costPrice`) e impactando el Kardex.

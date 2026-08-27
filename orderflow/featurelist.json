@@ -1024,21 +1024,43 @@
       ],
       "blocking": [],
       "qa_validation": "Backend build clean | 100% Jest tests passing (8/8 tests en Purchases & Finances) | Implementados PurchasesService y FinancesService con integración atómica al Kardex y CurrencyService"
+    },
+    {
+      "id": "FEAT-105",
+      "category": "Microservicios / Standalone / Contabilidad",
+      "title": "OmniLedger — Microservicio Standalone de Contabilidad y Libro Mayor (Reemplazo Odoo CE Backend Contable)",
+      "description": "Servicio standalone de contabilidad de partida doble que reemplaza progresivamente a Odoo CE como backend contable. Incluye plan de cuentas jerárquico, diarios, asientos contables con validación atómica, reversiones, estado de cuenta de partners, reglas de impuestos y reportes fiscales DNIT (Libro Ventas/Libro Compras). Arquitectura FastAPI + SQLAlchemy 2.0 Async + PostgreSQL RLS por tenant. Integración dinámica con OrderFlow mediante tabla integrations (IntegrationType.OMNILEDGER) y fan-out desde Integration Worker (BullMQ). Puertos: :3027 / subdominio ledger.*.",
+      "status": "in_progress",
+      "assigned_module": "/opt/omniledger/, backend/src/events/listeners/webhook-event.listener.ts, backend/prisma/schema.prisma, docker-compose.standalone.yml, docs/integration-guide.md, /opt/wiki/orderflow/OmniLedger.md",
+      "depends_on": [
+        "FEAT-064",
+        "FEAT-090"
+      ],
+      "blocking": [],
+      "qa_validation": "FastAPI /health OK | Prisma client regenerated with OMNILEDGER enum | WebhookEventListener dispatchToOmniLedger implemented | docker-compose.standalone.yml includes omniledger_standalone on :3027 | Integration guide updated | Wiki page created | Migration 20260827_add_omniledger_integration_type ready"
+    },
+    {
+      "id": "FEAT-106",
+      "category": "Frontend / DataView Suite",
+      "title": "OmniFlow DataView Suite — Integración Total en Pantallas Admin & Presets SavedViews",
+      "description": "Integración completa de DataTableContainer, FilterBuilder, SavedViews (presets en DB), ColumnVisibility y SelectionBanner en las pantallas /admin/products, /admin/contacts y /admin/orders. Corrección de doble checkbox en la grilla de productos.",
+      "status": "completed",
+      "assigned_module": "frontend/src/components/data-view/, frontend/src/pages/admin/products.tsx, contacts.tsx, orders.tsx",
+      "depends_on": [],
+      "blocking": [],
+      "qa_validation": "100% Vite build clean | DataTableContainer con SavedViews, FilterBuilder y SelectionBanner integrado en productos, contactos y pedidos | Troubleshooting #72 documentado"
     }
   ],
-  "lastUpdated": "2026-08-26",
-  "last_id": "FEAT-104",
+  "lastUpdated": "2026-08-27",
+  "last_id": "FEAT-106",
   "next_pending_sc": null,
-  "active_plan": "docs/planes/inventario/plan-estandarizacion-inventario-omniflow.md",
-    "plan_progress": {
-      "Paso 1": "completed",
-      "Paso 2": "completed",
-      "Paso 3": "completed",
-      "Paso 4": "completed",
-      "Paso 5": "completed",
-      "Paso 6": "completed",
-      "Paso 8": "pending"
-    },
-    "safe_strategy_note": "Paso 3 (orders.service.ts) implementado con soporte de doble entrada y feature flag USE_DOUBLE_ENTRY_STOCK. Paso 6 (reservas de stock) verificado en InventoryService."
+  "active_plan": "docs/planes/views/00_PLAN_MAESTRO_GESTION_VISTAS_OMNIFLOW.md",
+  "plan_progress": {
+    "Paso 1": "completed",
+    "Paso 2": "completed",
+    "Paso 3": "completed",
+    "Paso 4": "completed",
+    "Paso 5": "completed"
+  }
 }
 
