@@ -63,6 +63,7 @@ Ordená por problema y área. Cada entrada incluye síntomas, causa raíz y solu
 | [68](68-sharp-sigill-pre-avx-cpu.md) | Backend Crash Loop por `sharp` en CPU sin AVX (SIGILL) | Backend / Docker / Alpine / CPU | Crash loop silencioso en Provecchio (AMD G-T56N); health check falla; exit code 132 (SIGILL) al cargar binding nativo de sharp | ✅ Resuelto |
 | [69](69-nest-di-inventoryservice-queuesmodule.md) | NestJS DI: `InventoryService` no disponible en `QueuesModule` | Backend / NestJS / BullMQ / DI | Backend crash en bootstrap: `Nest can't resolve dependencies of BatchProductImportService`; `InventoryModule` no importado en `QueuesModule` | ✅ Resuelto |
 | [70](70-docker-disk-space-buildkit-cleanup.md) | Purga Automática de BuildKit & `/var/lib/docker` | DevOps / Docker / BuildKit / Discos | Partición `/var` al 89% por acumulación de Build Cache (9.2 GB); automatizada purga post-deploy | ✅ Resuelto |
+| [71](71-nest-throttler-circular-dependency.md) | Dependencia Circular en `THROTTLER:MODULE_OPTIONS` | Backend / NestJS / Throttler / Bootstrap | Error `circular dependency inside THROTTLER:MODULE_OPTIONS` al arrancar NestJS | ✅ Resuelto |
 
 ---
 
