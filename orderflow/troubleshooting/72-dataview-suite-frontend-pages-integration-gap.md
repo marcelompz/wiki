@@ -16,6 +16,9 @@
 2. **Doble Checkbox en la Tabla de Productos:**  
    El componente `products.tsx` tenía una columna manual hardcodeada que renderizaba un componente `<Checkbox>` propio en la primera celda, además de tener activada la propiedad `rowSelection` nativa de la `<Table>` de Ant Design. Esto provocaba la duplicación visual de dos checkboxes por cada fila de la grilla.
 
+3. **Deserialización de Parámetros de Filtrado:**  
+   En `products.service.ts`, el método `findAll` leía directamente `filters.category` y `filters.search` sin una salvaguarda defensiva contra `undefined`, lo que podía desencadenar un error HTTP 500 si la llamada HTTP enviaba parámetros vacíos o no tipados.
+
 ---
 
 ## 🛠️ Solución Aplicada
@@ -31,9 +34,13 @@
    - `frontend/src/pages/admin/orders.tsx`: Conectado a `<DataTableContainer>` con `resource="orders"`.
    - `frontend/src/pages/admin/contacts.tsx`: Conectado a `<DataTableContainer>` con `resource="contacts"`.
 
+4. **Defensiva de Parámetros Nulos (`products.service.ts`):**  
+   Se incorporó la inicialización segura `const f = filters || {}` en `ProductsService.findAll` y se ajustó `fetchProducts` en `products.tsx` para no adjuntar el parámetro `filters` cuando `activeFilters` esté vacío.
+
 ---
 
 ## 🧪 Validación de la Solución
 
 - **Verificación de Compilación:** Compilación limpia con TypeScript (`tsc && vite build`) sin errores.
 - **Validación Visual:** Un solo checkbox de selección por fila gobernado por `DataTableContainer` con soporte para selección masiva de página y selección global en base de datos (`mode: 'all'`).
+- **Pruebas de Despliegue:** Verificación exitosa en pipeline de deploy a producción con paso de suite E2E de Playwright.
