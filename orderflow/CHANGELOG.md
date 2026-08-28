@@ -5,6 +5,14 @@ Todos los cambios notables a este proyecto serán documentados en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 y este proyecto se adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.20.60] - 2026-08-28
+
+### 🛡️ Resolución Multi-Instancia y Enrutamiento Dinámico de Catálogos por Slug
+- **Desenvolvimiento de Configuración Multi-Instancia (`social-catalog.controller.ts`)**: Se corrigió el endpoint público `/api/v1/public/social-catalog/config` para que invoque `socialCatalogService.getTenantConfig(tenant.id, instanceKey)`, des-anidando las configuraciones de catálogos multicanal (`doterra`, `wellness`, `default`) en lugar de devolver la estructura contenedora `instances`.
+- **Priorización de Slug/InstanceKey en Guard de Autenticación (`api-key.guard.ts`)**: Se actualizó `ApiKeyGuard` para que reconozca parámetros explicitos de consulta o ruta (`instanceKey`, `subdomain`, `tenant`), dándoles prioridad absoluta sobre cabeceras obsoletas de `x-api-key` almacenadas en `localStorage`.
+- **Extracción Inteligente de Slugs en Branding (`BrandingProvider.tsx`)**: Se configuró `BrandingProvider` para que parsee rutas públicas tipo `/social-catalog/:slug` o `/tienda/:slug`, resolviendo dinámicamente el tenant e impidiendo fallbacks falsos al tenant por defecto.
+- **Resolución Bivalente en Backend (`tenants.controller.ts`)**: Se actualizó `getTenantBySubdomain` para consultar tanto la tabla de tenants por subdominio/id/customDomain como la configuración `instanceKey` de `moduleInstallation`, restringiendo el fallback al tenant por defecto a solicitudes de dominio raíz puro.
+
 ## [1.20.59] - 2026-08-28
 
 ### 🛡️ Eliminación de Excepción React #310 y Orden Estricto de Hooks
