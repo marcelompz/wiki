@@ -5,6 +5,13 @@ Todos los cambios notables a este proyecto serán documentados en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 y este proyecto se adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.20.49] - 2026-08-28
+
+### 🚫 Opción "Omitir Campo", Mapeo de Precio de Costo & Adaptación de Tema Oscuro en Modales
+- **Opción de Omitir Campo (`__SKIP__`)**: Incorporación de la opción explícita `🚫 Omitir (No importar campo)` en todos los selectores de mapeo de columnas en `ImportWizardModal.tsx` y `BulkUploadModal.tsx`, permitiendo ignorar columnas sin sobreescribir datos en backend.
+- **Mapeo de Precio de Costo Separado**: Desacoplamiento de alias en `detectColumnMapping`, aislando `costPrice` (`['precio costo', 'costo', 'cost']`) de `price` (Precio de Venta) para evitar colisiones.
+- **Estilos Adaptables a Tema Oscuro (Dark Theme Tokens)**: Reemplazo de fondos estáticos claros por `token.colorBgContainer` y `token.colorBgElevated` de Ant Design, garantizando contraste elevado en tema oscuro.
+
 ## [1.20.48] - 2026-08-28
 
 ### 🎯 Selección & Mapeo de Columnas de Categorías en Wizard & Carga Masiva
