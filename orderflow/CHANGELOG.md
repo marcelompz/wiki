@@ -5,6 +5,13 @@ Todos los cambios notables a este proyecto serán documentados en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 y este proyecto se adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.20.51] - 2026-08-28
+
+### 🔤 Selector de Codificación de Caracteres (`fileEncoding`) & Detección Completa de Categorías en Catálogo Público
+- **Selección de Codificación (Encoding/Nomenclatura)**: Agregado selector de codificación (`fileEncoding`) en `BulkUploadModal` y `ImportWizardModal`, con **UTF-8** por defecto e integración de `Windows-1252` / `ISO-8859-1` / `ISO-8859-15` / `ASCII` mediante `TextDecoder` y SheetJS codepages.
+- **Resolución de Categorías en Catálogo (`social-catalog.service.ts`)**: Se removió el filtro restrictivo de `odooPosCategoryId`, permitiendo que categorías creadas localmente o por CSV se incluyan en `getCategoryTree`.
+- **Detección Dinámica & Nodos Virtuales**: Creación dinámica de nodos de categoría en `getCategoryTree` para asegurar que ningún producto quede sin categoría asignada en la vista pública.
+
 ## [1.20.50] - 2026-08-28
 
 ### 🐛 Fix en Mapeo & Procesamiento de Campos en Carga Masiva (`bulkUpload`)
