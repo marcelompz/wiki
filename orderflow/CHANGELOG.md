@@ -5,6 +5,14 @@ Todos los cambios notables a este proyecto serán documentados en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 y este proyecto se adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.20.55] - 2026-08-28
+
+### 🛍️ Visualización de Categorías PDV, ID de Sistema Copiable & Mapeo Completo en Catálogo Social
+- **Resolución de Categorías PDV & Cadenas de Texto**: Se actualizó `mapProduct` en `social-catalog.service.ts` para capturar `posCategory` y `posCategoryName` directamente desde campos textuales de productos y relaciones POS.
+- **Inclusión de Categorías Vacías en Árbol Admin**: Se agregó el parámetro `includeEmpty` a `getCategoryTree` para garantizar que la administración muestre el árbol completo sin ocultar nodos.
+- **Visualización de ID Sistema y Categoría PDV**: Se agregaron las columnas `ID Sistema` (con copiado al portapapeles en 1 clic) y `Categoría PDV` en las tablas de `/admin/products` y `/admin/social-catalog`.
+- **Selectores de Categoría en Modal de Producto**: Se reemplazó la entrada de texto plano por selectores emergentes de categorías de productos y PDV en el modal de edición de productos del Catálogo Social.
+
 ## [1.20.54] - 2026-08-28
 
 ### 🛡️ Visibilidad Total de Categorías en Panel de Administración & Acordeón Público Plegado
