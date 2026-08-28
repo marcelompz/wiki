@@ -5,6 +5,12 @@ Todos los cambios notables a este proyecto serán documentados en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 y este proyecto se adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.20.56] - 2026-08-28
+
+### 🛡️ Mapeo Seguro de Categorías y Prevención de Excepciones HTTP 500
+- **Protección Defensiva en `autoSyncCategoriesFromProducts`**: Se trasladó y encapsuló la auto-sincronización dentro de `CatalogService` con bloques try/catch y validación estricta de clientes Prisma pasados desde el controlador.
+- **Prevención de Excepciones TypeError**: Corregido el acceso a `autoSyncCategoriesFromProducts` en `catalog.controller.ts` resolviendo la excepción `Cannot read properties of undefined (reading 'product')` de forma definitiva.
+
 ## [1.20.55] - 2026-08-28
 
 ### 🛍️ Visualización de Categorías PDV, ID de Sistema Copiable & Mapeo Completo en Catálogo Social
