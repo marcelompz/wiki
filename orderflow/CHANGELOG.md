@@ -5,6 +5,12 @@ Todos los cambios notables a este proyecto serán documentados en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 y este proyecto se adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.20.59] - 2026-08-28
+
+### 🛡️ Eliminación de Excepción React #310 y Orden Estricto de Hooks
+- **Reordenamiento Incondicional de Hooks en Catálogo (`omni-catalog.tsx`)**: Se reestructuraron todos los hooks (`useState`, `useEffect`, `useMemo`) en `SocialCatalogPage` para que se invoquen incondicionalmente en la parte superior del componente antes de la evaluación de carga (`if (loading || configLoading)`), eliminando definitivamente la excepción `Minified React error #310`.
+- **Limpieza de Precargas de Navegador**: Se removió el elemento de precarga no estándar con `as="document"` que generaba advertencias de consola en navegadores modernos.
+
 ## [1.20.58] - 2026-08-28
 
 ### 🛠️ Corrección de Validación de Mapeo de Columnas y UX en Importación Masiva
