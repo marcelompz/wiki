@@ -5,6 +5,11 @@ Todos los cambios notables a este proyecto serán documentados en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 y este proyecto se adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.20.52] - 2026-08-28
+
+### 🐛 Fix de Sintaxis en Controller & Despliegue de Producción Estable
+- **Cierre de Método `bulkDelete`**: Corrección de llave de cierre faltante en `products.controller.ts` para posibilitar la compilación Docker de backend en servidor de producción.
+
 ## [1.20.51] - 2026-08-28
 
 ### 🔤 Selector de Codificación de Caracteres (`fileEncoding`) & Detección Completa de Categorías en Catálogo Público

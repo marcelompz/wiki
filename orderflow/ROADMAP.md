@@ -1,9 +1,9 @@
 # 🗺️ ROADMAP DE ORDERFLOW - v1.20.10 → v2.0.0
-**Última Actualización:** 2026-08-28 (Release v1.20.50 — Fix Mapeo & Procesamiento de Categorías y Precio Costo en Carga Masiva)
+**Última Actualización:** 2026-08-28 (Release v1.20.52 — Selector de Codificación fileEncoding UTF-8 y Resolución de Categorías en Catálogo Público)
 
-**Versión Actual:** **`v1.20.50`** 🔄 **PRODUCTION READY** | Marca pública: OmniFlow. Capa técnica interna: OrderFlow.
+**Versión Actual:** **`v1.20.52`** 🔄 **PRODUCTION READY** | Marca pública: OmniFlow. Capa técnica interna: OrderFlow.
 **Próximo Release:** **v1.21.0 (En progreso — Marketplace de Plugins & Facturación Stripe/Mercado Pago)**
-**Estado:** ✅ **STAGING & PRODUCTION OPERATIVE** | 🏆 **COMMERCIAL RELEASE v1.20.50 STABLE** | QA E2E Suite Integrada | 670+ tests unitarios pasados
+**Estado:** ✅ **STAGING & PRODUCTION OPERATIVE** | 🏆 **COMMERCIAL RELEASE v1.20.52 STABLE** | QA E2E Suite Integrada | 670+ tests unitarios pasados
 **Visión Estratégica:** Plataforma SaaS omnicanal de alta velocidad con aislamiento multi-tier, marketplace de plugins de terceros, facturación automática Stripe/Mercado Pago y escalado horizontal a Kubernetes.
 
 > 📦 **Estrategia de Microservicios Standalone:** Ver el roadmap dedicado de la suite de productos independientes en [docs/guides/ROADMAP_MICROSERVICES.md](docs/guides/ROADMAP_MICROSERVICES.md).
