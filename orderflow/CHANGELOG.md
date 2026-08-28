@@ -5,6 +5,12 @@ Todos los cambios notables a este proyecto serán documentados en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 y este proyecto se adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.20.63] - 2026-08-28
+
+### 🎨 Integración Completa de Temas y Placeholder Configurable en Checkout Público (`/social-checkout`)
+- **Adaptación a Sistema de Temas (`social-checkout.tsx`)**: Se integró `getThemeConfig(mode)`, `applyCssVars(mode)` y `<ConfigProvider theme={themeConfig}>` en la vista de confirmación de pedido (`/social-checkout`), permitiendo heredar de forma impecable el modo claro/oscuro/sistema del catálogo y eliminando estilos hardcodeados (#fff, #f8fafc, #000).
+- **Placeholder Configurable por Admin (`social-catalog.tsx` & `social-catalog.service.ts`)**: Se añadió la propiedad `commentsPlaceholder` en la configuración del catálogo y un nuevo campo editable en la administración bajo **"📱 Datos de contacto"**, permitiendo personalizar el placeholder de aclaraciones de pedido por cada catálogo (ej: SPA/Wellness, Restaurante, Retail).
+
 ## [1.20.62] - 2026-08-28
 
 ### 🎨 Personalización de Nombre Comercial / Marca en Catálogos Públicos y Admin
