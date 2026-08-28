@@ -5,6 +5,12 @@ Todos los cambios notables a este proyecto serán documentados en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 y este proyecto se adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.20.45] - 2026-08-28
+
+### 📱 Registro de Módulos POS y KDS en App Store (`modules.registry.ts`)
+- **Manifiestos de Módulos (`pos.manifest.json` y `kds.manifest.json`)**: Creación de los archivos de manifiesto para los módulos Punto de Venta (POS) y Pantalla de Cocina (KDS).
+- **Registro en Backend (`ModulesRegistry`)**: Incorporación de `pos` y `kds` en el array de escaneo del backend (`modules.registry.ts`), exponiendo ambos módulos en el App Store (`/admin/modules`).
+
 ## [1.20.44] - 2026-08-28
 
 ### 📂 Jerarquía de Categorías de Izquierda a Derecha & Selector en Social Catalog (OmniCatalog)
