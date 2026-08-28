@@ -5,6 +5,13 @@ Todos los cambios notables a este proyecto serán documentados en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 y este proyecto se adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.20.61] - 2026-08-28
+
+### 🛡️ Corrección de Enrutamiento de Instancias de Catálogo por Tenant
+- **Desacoplamiento de Slug e Identificador de Tenant (`BrandingProvider.tsx`)**: Se removió la extracción automática de slug de ruta para resolución de tenant, permitiendo que la resolución de tenant por dominio (`pesallaccia.com` -> `provecchio-dimora-001` / API key `0bb60656b9fbfcc27e38ae444e9e376f`) prevalezca en lugar de intentar buscar un tenant inexistente llamado `doterra`.
+- **Delimitación de Responsabilidad en `ApiKeyGuard` (`api-key.guard.ts`)**: Se separó la búsqueda de tenant (`subdomain`/`tenantId`) de la clave de instancia (`instanceKey`), permitiendo que el backend asocie correctamente la petición al tenant correspondiente y use `instanceKey` para filtrar la instancia del catálogo.
+- **Paso Limpio de Parámetros en `SocialCatalogPage` (`omni-catalog.tsx`)**: Se corrigió el envío de `requestParams` para incluir la API Key / Subdomain del tenant junto con `instanceKey=doterra`.
+
 ## [1.20.60] - 2026-08-28
 
 ### 🛡️ Resolución Multi-Instancia y Enrutamiento Dinámico de Catálogos por Slug
