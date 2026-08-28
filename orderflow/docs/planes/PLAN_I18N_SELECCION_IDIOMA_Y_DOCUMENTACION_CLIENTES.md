@@ -1,118 +1,77 @@
-# 🌐 Plan de Implementación: Internacionalización (i18n), Persistencia de Idioma de Usuario y Documentación de Clientes
+# 🌐 Plan de Implementación: Persistencia de Idioma de Usuario (Corregido)
 
-> **Código de Referencia:** `PLAN-I18N-CUST-2026`  
-> **Estado:** 📝 Planificado / En Progreso  
-> **Fecha de Creación:** 2026-08-21  
-> **Autor:** Antigravity AI — Pair Programming Protocol  
-> **Objetivo:** Formalizar la arquitectura de traducción (i18n), persistir la preferencia de idioma del usuario en la base de datos y estandarizar la documentación de los endpoints de clientes (`/api/v1/customers`) e integración DNIT.
-
----
-
-## 📌 1. Diagnóstico Actual
-
-Actualmente en OmniFlow / OrderFlow:
-1. **Traducción y Selección de Idioma (`i18n`):**
-   - Implementado en frontend mediante `i18next` y `react-i18next` en [`frontend/src/i18n.ts`](file:///opt/orderflow/frontend/src/i18n.ts).
-   - Soporta 3 idiomas: Español (`es`, default), Inglés (`en`) y Portugués (`pt`).
-   - La selección de idioma se almacena localmente en el navegador (`localStorage.getItem('i18nextLng')`).
-   - **Brecha:** No existe un campo en el modelo `User` de la base de datos que guarde la preferencia de idioma del usuario para que persista entre diferentes dispositivos o sesiones.
-2. **Endpoints de Clientes (`/api/v1/customers`):**
-   - El backend cuenta con un controlador completo [`backend/src/customers/customers.controller.ts`](file:///opt/orderflow/backend/src/customers/customers.controller.ts).
-   - Soporta listado, búsqueda, sincronización masiva (`/sync`), consulta en el Directorio Global (`/lookup/:taxId`) y validación en vivo con la **DNIT** (`/dnit/:documento`).
-   - Existe una entrada en troubleshooting [`docs/troubleshooting/15-sync-customers-404.md`](file:///opt/orderflow/docs/troubleshooting/15-sync-customers-404.md) y un README conciso en [`backend/src/customers/README.md`](file:///opt/orderflow/backend/src/customers/README.md).
-   - **Brecha:** Falta una guía dedicada de integración de la API de Clientes & DNIT en `docs/guides/` sincronizada con la Wiki.
+> **Código de Referencia:** `PLAN-I18N-CUST-2026` (v2 — corregido contra código real)
+> **Estado:** 📝 Planificado
+> **Fecha de Corrección:** 2026-08-21
+> **Autor:** Revisión contra `orderflow_1_20_16_tar.gz`
+> **Objetivo:** Persistir la preferencia de idioma del usuario en la base de datos usando el mecanismo ya existente (`uiPreferences`), y conectar el selector de idioma ya construido pero no montado en la UI.
 
 ---
 
-## 🎯 2. Objetivos del Plan
+## 📌 0. Correcciones respecto al plan original
 
-1. **Documentación Formal de Arquitectura i18n:**
-   - Crear `docs/architecture/i18n-and-localization-standard.md` especificando la arquitectura de traducción, manejo de diccionarios, namespaces y fallback.
-2. **Documentación Oficial de API de Clientes & DNIT:**
-   - Crear `docs/guides/CUSTOMERS_AND_DNIT_API.md` con ejemplos de requests/responses, códigos de error y el flujo de crowdsourcing con el `GlobalDirectory`.
-3. **Persistencia de Idioma de Usuario en DB (Backend & Frontend):**
-   - Extender el modelo `User` en `prisma/schema.prisma` agregando el campo `preferredLanguage` (`'es' | 'en' | 'pt'`).
-   - Exponer/actualizar el endpoint `PATCH /api/v1/users/profile` para permitir guardar la preferencia de idioma.
-   - Sincronizar el frontend tras el login: cargar el idioma preferido del usuario desde el JWT / objeto `user` e invocar `i18n.changeLanguage()`.
-4. **Sincronización con Wiki de Producción:**
-   - Replicar la documentación creada en `/opt/wiki/orderflow/` y pushear cambios según la Regla 7 de `AGENTS.md`.
+El plan original (`PLAN-I18N-CUST-2026` v1) asumía un estado del repo que no coincide con el código real. Antes de ejecutar nada, se dejan registradas las correcciones:
+
+| # | Plan original decía | Estado real verificado en el código | Corrección |
+|---|---|---|---|
+| 1 | Crear `docs/architecture/i18n-and-localization-standard.md` | **Ya existe** (71 líneas) | Revisar y corregir, no crear desde cero |
+| 2 | Crear `docs/guides/CUSTOMERS_AND_DNIT_API.md` | **Ya existe** (139 líneas) | Marcar como completado en el checklist; fuera de alcance de este plan de idioma |
+| 3 | Rutas `frontend/src/i18n.ts` y `backend/src/customers/...` | El repo **no tiene carpeta `src/`** en ninguno de los dos casos: es `backend/customers/customers.controller.ts` | Corregir rutas en la documentación de arquitectura ya creada |
+| 4 | Agregar columna `preferredLanguage String @default("es")` al modelo `User` (migración Prisma nueva) | El modelo `User` ya tiene `uiPreferences Json?` con un endpoint funcional de persistencia (`PATCH /api/v1/users/me/ui-preferences`) que ya guarda `{ theme, sidebarBehavior, denseTables }` | **No crear columna nueva.** Usar `uiPreferences.preferredLanguage` — evita migración, reutiliza el patrón ya establecido |
+| 5 | Exponer `PATCH /api/v1/users/profile` | Esa ruta **no existe**. Las rutas reales son `PATCH /api/v1/users/:id` y `PATCH /api/v1/users/me/ui-preferences` | Usar `PATCH /api/v1/users/me/ui-preferences` (ya implementada) |
+| 6 | "Incluir `preferredLanguage` en la respuesta de `POST /api/v1/auth/login`" | `AuthService.login()` **ya devuelve** `user.uiPreferences` completo en el payload de login (`backend/auth/auth.service.ts`) | **Cero cambios en `auth.service.ts` necesarios** — al guardar el idioma dentro de `uiPreferences`, ya viaja en el login automáticamente |
+| 7 | "Añadir un selector de idioma en el perfil de usuario" | `frontend/components/LanguageSelector.tsx` **ya existe y funciona** (cambia `i18n.language` + guarda en `localStorage`), pero **no está importado en ningún componente** — está huérfano | No crear un selector nuevo: montar el existente en `UserProfileMenu.tsx` y conectarlo al backend |
+| 8 | (no contemplado) | `PATCH /api/v1/users/me/ui-preferences` hace **overwrite completo** del JSON (`usersService.update(id, { uiPreferences: preferences })`), no merge. Si el frontend manda solo `{ preferredLanguage }`, borraría `theme`, `sidebarBehavior`, `denseTables` guardados previamente | Agregar merge server-side en el controller antes de guardar |
+
+Con estas correcciones, el trabajo real de backend se reduce a **un merge en un endpoint existente** (sin migración, sin nuevo endpoint, sin tocar `auth.service.ts`), y el de frontend a **montar y conectar un componente que ya existe**.
 
 ---
 
-## 🚀 3. Fases de Ejecución
+## 🎯 1. Objetivos del Plan (v2)
 
-### 📍 Fase 1: Documentación Estandarizada
-- [x] Crear el presente plan en `docs/planes/PLAN_I18N_SELECCION_IDIOMA_Y_DOCUMENTACION_CLIENTES.md`.
-- [ ] Crear la norma de arquitectura de i18n: `docs/architecture/i18n-and-localization-standard.md`.
-- [ ] Crear la guía de integración API de Clientes & DNIT: `docs/guides/CUSTOMERS_AND_DNIT_API.md`.
-- [ ] Sincronizar los nuevos archivos `.md` con `/opt/wiki/orderflow/`.
+1. **Persistencia de idioma sin migración de schema:** usar `uiPreferences.preferredLanguage` (`'es' | 'en' | 'pt'`, default implícito `'es'` cuando el campo no existe).
+2. **Merge seguro en `PATCH /api/v1/users/me/ui-preferences`:** evitar que actualizar el idioma borre otras preferencias de UI ya guardadas.
+3. **Montar `LanguageSelector.tsx` en `UserProfileMenu.tsx`** (hoy no se renderiza en ningún lado) y conectarlo al endpoint de persistencia además de `localStorage`.
+4. **Sincronizar idioma al iniciar sesión:** leer `response.user.uiPreferences?.preferredLanguage` tras `POST /api/v1/auth/login` e invocar `i18n.changeLanguage()` si difiere del idioma activo en el navegador.
+5. **Corregir rutas de archivo** en `docs/architecture/i18n-and-localization-standard.md` (quitar `src/` inexistente).
+6. **Sincronizar con Wiki de producción** según Regla 7 de `AGENTS.md` (`/opt/wiki/orderflow/`), en el mismo paso que se actualice cualquier `.md` de `docs/`.
 
-### 📍 Fase 2: Persistencia del Idioma en la Base de Datos (Backend)
-- [ ] **Schema Prisma:** Agregar campo `preferredLanguage String @default("es")` al modelo `User`.
-- [ ] Regenerar Prisma Client (`npx prisma generate`).
-- [ ] **Users Module:** Actualizar DTOs y `UsersService` para permitir leer y modificar `preferredLanguage`.
-- [ ] **Auth Module:** Incluir `preferredLanguage` en la respuesta de `POST /api/v1/auth/login` y `GET /api/v1/users/me`.
+Fuera de alcance de este plan (ya completado, no se toca): `docs/guides/CUSTOMERS_AND_DNIT_API.md`.
 
-### 📍 Fase 3: Integración Frontend & UX de Idioma
-- [ ] **Auth / Branding Provider:** Al autenticarse el usuario, invocar `i18n.changeLanguage(user.preferredLanguage)` si difiere del idioma activo.
-- [ ] **User Profile Menu:** Añadir un selector de idioma en el perfil de usuario que dispare una petición `PATCH /api/v1/users/me` para guardar la preferencia en el backend.
-- [ ] **Estructura de Archivos JSON para Traducciones:** Extraer los recursos embebidos de `frontend/src/i18n.ts` a archivos modulares JSON (`frontend/public/locales/{es,en,pt}/translation.json`).
+---
+
+## 🚀 2. Fases de Ejecución
+
+### 📍 Fase 1: Corrección de Documentación Existente
+- [ ] Corregir en `docs/architecture/i18n-and-localization-standard.md` toda referencia a `frontend/src/i18n.ts` → `frontend/i18n.ts` (verificar la ruta exacta real del archivo de configuración antes de guardar, ya que no vino incluido en este export del repo).
+- [ ] Corregir en el mismo documento cualquier referencia a `backend/src/customers/...` → `backend/customers/...`.
+- [ ] Dar por completado en el checklist maestro `docs/guides/CUSTOMERS_AND_DNIT_API.md` (ya existe, no requiere trabajo de este plan).
+
+### 📍 Fase 2: Backend — Merge de `uiPreferences` (sin migración)
+- [ ] Modificar `UsersController.updateUiPreferences()` (`backend/users/users.controller.ts`) para leer las preferencias actuales del usuario y mergearlas con el body recibido antes de persistir (ver `PROMPT_PERSISTENCIA_IDIOMA_USUARIO.md`, sección 1).
+- [ ] Verificar manualmente que `AuthService.login()` sigue devolviendo `uiPreferences` sin cambios (ya lo hace — no tocar `auth.service.ts`).
+
+### 📍 Fase 3: Frontend — Montar y Conectar `LanguageSelector`
+- [ ] Importar `LanguageSelector` en `UserProfileMenu.tsx` y agregarlo como ítem del menú de perfil (ver `PROMPT_PERSISTENCIA_IDIOMA_USUARIO.md`, sección 2).
+- [ ] Modificar `handleLanguageChange` en `LanguageSelector.tsx` para, además de `i18n.changeLanguage()` y `localStorage`, disparar `PATCH /api/v1/users/me/ui-preferences` con `{ preferredLanguage: lng }`.
+- [ ] En el flujo de login (donde se procesa la respuesta de `POST /api/v1/auth/login`), leer `response.user.uiPreferences?.preferredLanguage` y llamar `i18n.changeLanguage()` si difiere del idioma activo.
 
 ### 📍 Fase 4: Validación y Calidad (Harness Engineering)
-- [ ] Ejecutar tests unitarios backend (`npm --prefix backend run test`).
+- [ ] Ejecutar tests unitarios backend (`npm --prefix backend run test`), en particular los específicos de `users.controller.spec.ts`.
 - [ ] Ejecutar build de frontend (`npm --prefix frontend run build`).
-- [ ] Validar barrera automatizada `./scripts/init.sh` (con previa confirmación de recursos al usuario).
+- [ ] Prueba manual: cambiar idioma en un dispositivo, cerrar sesión, iniciar sesión en otro navegador/dispositivo y confirmar que el idioma persiste.
+- [ ] Prueba manual: cambiar `theme` (ya soportado) y luego `preferredLanguage`, confirmar que `theme` no se pierde tras el merge.
+
+### 📍 Fase 5: Sincronización con Wiki
+- [ ] Sincronizar `docs/architecture/i18n-and-localization-standard.md` corregido con `/opt/wiki/orderflow/` (Regla 7 de `AGENTS.md`) y hacer push al repo remoto de la wiki en el mismo paso.
 
 ---
 
-## 🛠️ 4. Estructura de Endpoints de Clientes & DNIT (Referencia)
+## 📋 3. Criterios de Aprobación & Lista de Control
 
-```http
-### Listar Clientes del Tenant
-GET /api/v1/customers?search=Juan&limit=50
-Authorization: Bearer <JWT>
-x-api-key: <API_KEY>
-
-### Obtener Cliente por ID
-GET /api/v1/customers/:id
-Authorization: Bearer <JWT>
-x-api-key: <API_KEY>
-
-### Sync / Upsert Masivo de Clientes
-POST /api/v1/customers/sync
-Content-Type: application/json
-Authorization: Bearer <JWT>
-x-api-key: <API_KEY>
-
-{
-  "customers": [
-    {
-      "tax_id": "80012345-6",
-      "name": "Empresa Ejemplo S.A.",
-      "phone": "+595981123456",
-      "email": "contacto@ejemplo.com",
-      "city": "Asunción",
-      "street": "Av. Mariscal López 1234"
-    }
-  ]
-}
-
-### Consulta en Directorio Global (Crowdsourcing)
-GET /api/v1/customers/lookup/80012345-6
-Authorization: Bearer <JWT>
-x-api-key: <API_KEY>
-
-### Consulta DNIT (RUC / Documento Oficial)
-GET /api/v1/customers/dnit/80012345
-Authorization: Bearer <JWT>
-x-api-key: <API_KEY>
-```
-
----
-
-## 📋 5. Criterios de Aprobación & Lista de Control
-
-- [ ] `docs/planes/PLAN_I18N_SELECCION_IDIOMA_Y_DOCUMENTACION_CLIENTES.md` creado y registrado.
-- [ ] Documentos de arquitectura y guías sincronizados en `/opt/wiki/orderflow/`.
-- [ ] Compilación backend y frontend limpia sin advertencias de TypeScript.
-- [ ] Persistencia de idioma funcionando en entorno de desarrollo.
+- [ ] `uiPreferences.preferredLanguage` persiste entre sesiones y dispositivos, sin columna nueva en Prisma.
+- [ ] `PATCH /api/v1/users/me/ui-preferences` mergea en vez de sobrescribir.
+- [ ] `LanguageSelector.tsx` visible y funcional en `UserProfileMenu.tsx`.
+- [ ] Login sincroniza automáticamente el idioma del navegador con el guardado en backend.
+- [ ] Documentación de arquitectura sin rutas `src/` inexistentes.
+- [ ] Wiki de producción sincronizada.

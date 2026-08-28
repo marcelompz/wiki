@@ -26,7 +26,7 @@ Ambos modos comparten el mismo schema Prisma y el mismo código de services. La 
 - Glosario Oficial de Términos & Infraestructura: [docs/GLOSARIO_TERMINOS_Y_ECOSISTEMA.md](docs/GLOSARIO_TERMINOS_Y_ECOSISTEMA.md)
 - Repo Traefik Gateway Subsystem: `https://github.com/marcelompz/traefik-orderflow.git` (servidor: `/srv/traefik`, local: `/opt/traefik-orderflow/`)
 - Servidor Hetzner VPS (Producción): `hetzner-orderflow:/srv/orderflow` (alias SSH configurado)
-  - Versión actual: **v1.20.10** (staging + production operativos).
+  - Versión actual: **v1.20.24** (staging + production operativos).
 - Lenguaje: TypeScript en todo el stack.
 
 ---
@@ -279,7 +279,7 @@ docker compose up -d     # levantar stack dev
     - `loyalty-standalone` (`:3025`, `fidelizacion.*`) — Tarjetas, tiers BRONZE→PLATINUM.
   - 🚧 **Storefront Builder** (`storefront-builder-standalone`, `:3026`) — en planning.
 - Auth compartida vía `packages/auth-shared` (JWT/API Key validation sin acoplamiento a DB monolítica).
-- Routing vía Traefik v3.4: cada standalone tiene su propio subdominio (`sorteos.*`, `catalogo.*`, `bio.*`, `turnos.*`).
+ - Routing vía Traefik v3.4: los microservicios standalone reutilizan el subdominio del tenant (`<tenant.subdomain>.<ROOT_DOMAIN>`) y se exponen bajo paths. No se crean subdominios por servicio.
 
 ### 8.5 Visión a largo plazo — **v3.0.0+**
 - Migración Docker Compose → Kubernetes.
@@ -301,7 +301,8 @@ docker compose up -d     # levantar stack dev
   - Los datos de paths (`/srv/odoo-deploy`, `/srv/odoo-addons`, `/srv/odoo-l10n-py`, `/srv/orderflow-deploy`, etc.) se conservan como configuración de referencia en la base de datos de OrderFlow, pero no se instancian desde el compose de producción de OrderFlow.
   - El módulo `deploy-manager` es la **única vía autorizada** para crear, desplegar y gestionar instancias de Odoo, Axon, AIEER, VitaLog, LeadQualifierCRM y otros sistemas.
 - **Despliegue e Inicialización de Odoo 19 CE (`odoo19CE`):** En la infraestructura de Odoo 19 (`git@github.com:marcelompz/odoo19CE.git`, `/srv/odoo/odoo19CE`), el script `init_prod_db.sh` preserva la integridad de los datos existentes en la base de datos `prod`. Si la tabla `res_users` ya existe en PostgreSQL, los scripts de `migracion/` NO se vuelven a ejecutar. La importación de migración solo corre automáticamente en inicializaciones desde cero (`./deploy.sh --clean`) o si se pasa explícitamente `FORCE_MIGRATION=true`.
-- **Microservicios standalone:** al extraer un módulo como standalone, mover el código a `services/<nombre>-standalone/`, crear su propio `schema.prisma` (solo los modelos necesarios), y usar `packages/auth-shared` para validación JWT. El módulo original sigue existiendo en el monolito para clientes que usan OrderFlow completo.
+ - **Subdominios Exclusivos por Tenant (OBLIGATORIO):** Todo microservicio, módulo público o ruta expuesta debe usar el subdominio del tenant (`<tenant.subdomain>.<ROOT_DOMAIN>`). Está prohibido crear subdominios por servicio, categoría o módulo. El core OrderFlow es el único autorizado para crear/validar subdominios vía `CloudflareDnsService`. Ver estándar completo: `docs/architecture/tenant-subdomain-standard.md`.
+ - **Microservicios standalone:** al extraer un módulo como standalone, mover el código a `services/<nombre>-standalone/`, crear su propio `schema.prisma` (solo los modelos necesarios), y usar `packages/auth-shared` para validación JWT. El módulo original sigue existiendo en el monolito para clientes que usan OrderFlow completo.
 - **No comentar código** salvo que se pida explícitamente.
 - El `lint` del frontend está bypassed a propósito; no romper ese comportamiento.
 - `prisma/schema.prisma` usa `onDelete: Cascade` en las relaciones hijas de Tenant → borrar un tenant elimina sus datos. Considerá impacto antes de un hard-delete.

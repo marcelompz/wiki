@@ -64,6 +64,8 @@ Ordená por problema y área. Cada entrada incluye síntomas, causa raíz y solu
 | [69](69-nest-di-inventoryservice-queuesmodule.md) | NestJS DI: `InventoryService` no disponible en `QueuesModule` | Backend / NestJS / BullMQ / DI | Backend crash en bootstrap: `Nest can't resolve dependencies of BatchProductImportService`; `InventoryModule` no importado en `QueuesModule` | ✅ Resuelto |
 | [70](70-docker-disk-space-buildkit-cleanup.md) | Purga Automática de BuildKit & `/var/lib/docker` | DevOps / Docker / BuildKit / Discos | Partición `/var` al 89% por acumulación de Build Cache (9.2 GB); automatizada purga post-deploy | ✅ Resuelto |
 | [71](71-nest-throttler-circular-dependency.md) | Dependencia Circular en `THROTTLER:MODULE_OPTIONS` | Backend / NestJS / Throttler / Bootstrap | Error `circular dependency inside THROTTLER:MODULE_OPTIONS` al arrancar NestJS | ✅ Resuelto |
+| [72](72-dataview-suite-frontend-pages-integration-gap.md) | Integración DataView Suite & Checkbox Duplicado | Frontend / Admin App / DataView | DataView Suite no integrada en vistas admin (`/admin/products`); doble checkbox en grilla de productos | ✅ Resuelto |
+| [75](75-social-catalog-multi-instance-overwrite-fix.md) | Sobreescritura de Catálogos al Crear Instancias Nuevas | Backend / Frontend / Social Catalog | Al crear una nueva instancia de catálogo (`POST /instances`), se sobreescribía la configuración del catálogo existente (`default`) | ✅ Resuelto |
 
 ---
 
@@ -117,6 +119,9 @@ Ordená por problema y área. Cada entrada incluye síntomas, causa raíz y solu
 - **Tabla `social_catalogs` Faltante (OmniCatalog):** ver [#44](44-social-catalog-table-missing.md) — Tablas del módulo social catalog no existen; `db push` crea todas.
 - **QR Generate 500 con Master Key:** ver [#45](45-qr-master-key-fk-violation.md) — Master key no tiene tenant; usar API key de tenant real.
 - **Social Catalog público: fetch de featured con `config` undefined — orden de requests:** ver [#59](59-social-catalog-featured-banner-init-order.md) — `featured` requiere la config; se reordena fetch (config → featured → products) y se cachea `featuredBannerEnabled`.
+- **Integración de OmniFlow DataView Suite & Double Checkbox:** ver [#72](72-dataview-suite-frontend-pages-integration-gap.md) — Integración de `DataTableContainer`, `SavedViews` y `FilterBuilder` en vistas admin y eliminación de checkbox duplicado en productos.
+- **Desincronización de Migraciones Prisma & Recuperación de Disco:** ver [#73](73-prisma-migration-drift-and-disk-space-recovery.md) — Solución a errores 500 por tablas/columnas faltantes (`saved_views`, `isVisible`, `handle`), creación de migración SQL, purga de BuildKit y `pg_resetwal` en PostgreSQL.
+- **Parsing de CSV en Carga Masiva y Eliminación Masiva Atómica:** ver [#74](74-bulk-upload-csv-parsing-and-atomic-bulk-delete.md) — Solución a errores `Invalid Record Length` en CSV por comas internas con SheetJS, selector de formato de precios (`Regional / PYG` vs `USD`), y creación de endpoints de eliminación masiva atómica (`POST /bulk-delete`) para superar límites de conexiones paralelas del navegador.
 
 ---
 

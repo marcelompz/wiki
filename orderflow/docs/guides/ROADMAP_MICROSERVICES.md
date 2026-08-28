@@ -25,7 +25,7 @@ OrderFlow opera con un modelo híbrido:
 | **5. Quotations Standalone** | `services/quotations-standalone` | `:3024` | `presupuestos.pesallaccia.com` | ✅ **LISTO (v1.0.0)** | Presupuestos y cotizaciones B2B con validez DNIT/SET. |
 | **6. Loyalty Standalone** | `services/loyalty-standalone` | `:3025` | `fidelizacion.pesallaccia.com` | ✅ **LISTO (v1.0.0)** | Tarjetas de puntos, recompensas y niveles BRONZE→PLATINUM. |
 | **7. OmniBI Standalone** | `services/omnibi-standalone` | `:3027` | `bi.pesallaccia.com` | ✅ **LISTO (v1.20.15)** | Ingesta histórica read-only XML-RPC (Odoo 14) + Analytics YoY unificado + persistencia aislada Prisma. |
-| **8. Storefront & Web Builder Standalone** | `services/storefront-builder-standalone` | `:3026` | `diseno.pesallaccia.com` | 🚧 **PLANNING (v1.2.0)** | Diseñador web desacoplado y personalizador omnicanal (Portada, Catálogo WA y Bio-Links). |
+| **8. Storefront & Web Builder Standalone** | `services/storefront-builder-standalone` | `:3026` | `diseno.pesallaccia.com` | ✅ **LISTO (v1.20.34)** | Diseñador web desacoplado y personalizador omnicanal Drag & Drop (Portada, Catálogo WA y Bio-Links). |
 
 ---
 

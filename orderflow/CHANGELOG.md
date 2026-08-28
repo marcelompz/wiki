@@ -5,6 +5,14 @@ Todos los cambios notables a este proyecto serán documentados en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 y este proyecto se adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.20.42] - 2026-08-28
+
+### 🛍️ Soporte Multi-Instancia Simultánea en Social Catalog & Catálogos Reducidos (Coffee Party)
+- **Estructura Multi-Instancia (`config.instances`):** Migración del almacenamiento de configuraciones de catálogo en `ModuleInstallation.config.instances[instanceKey]` en [social-catalog.service.ts](file:///opt/orderflow/backend/src/social-catalog/social-catalog.service.ts), resolviendo la sobreescritura del catálogo predeterminado producida por la restricción `@@unique([tenantId, moduleId])` de Prisma.
+- **Eliminación y Gestión de Instancias:** Endpoint `DELETE /api/v1/admin/social-catalog/instances/:instanceKey` en [social-catalog-admin.controller.ts](file:///opt/orderflow/backend/src/social-catalog/social-catalog-admin.controller.ts) y control visual con `Popconfirm` en el selector superior de [social-catalog.tsx](file:///opt/orderflow/frontend/src/pages/admin/social-catalog.tsx).
+- **Catálogos Reducidos por Evento (Coffee Party):** Soporte para `includedCategoryIds` e `includedTagIds` en `SocialCatalogConfig`, permitiendo filtrar categorías y productos permitidos en el catálogo público (`getCatalogProducts`, `getCategoryTree`).
+- **Troubleshooting #75:** Documentación de la resolución en [75-social-catalog-multi-instance-overwrite-fix.md](file:///opt/orderflow/docs/troubleshooting/75-social-catalog-multi-instance-overwrite-fix.md).
+
 ## [1.20.41] - 2026-08-27
 
 ### 📊 OmniFlow DataView Suite — Integración Total en Pantallas Admin & Presets

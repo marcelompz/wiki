@@ -1,7 +1,7 @@
 # Línea de Tiempo y Evolución de OmniFlow
 
 **Última actualización:** 2026-08-25  
-**Versión actual:** `v1.20.20`  
+**Versión actual:** `v1.20.24`  
 **Documento fuente:** `CHANGELOG.md`, `ROADMAP.md`, `featurelist.json`
 
 ---
@@ -179,7 +179,8 @@ timeline
 | Jul 2026 (inicio) | v0.3.0 → v0.5.0 | 7 → 298 | 5 → 12 | Nginx → Traefik v3.3 |
 | Jul 2026 (mitad) | v0.5.1 → v1.1.0 | 298 → 349 | 12 → 18 | Traefik v3.3, Cloudflare DNS |
 | Jul-Ago 2026 | v1.1.1 → v1.5.2 | 349 → 498 | 18 → 22 | Traefik v3.4, backups |
-| Ago 2026 | v1.6.0 → v1.20.18 | 498 → 523+ | 22 → 28 | Deploy Manager, Social Catalog v5 UX
+| Ago 2026 | v1.6.0 → v1.20.18 | 498 → 523+ | 22 → 28 | Deploy Manager, Social Catalog v5 UX |
+| Ago 2026 | v1.20.19 → v1.20.24 | 523+ → 597+ | 28 → 28 | Inventory Standardization, Variants, Batch Import, Sync ERP |
 
 ---
 
@@ -197,6 +198,8 @@ timeline
 | | **Rebranding OmniFlow** | **2026-08-18** | **v1.20.17** | ♻️ Hito histórico de identidad corporativa |
 || **Deploy Manager** (plan) | 2026-08-11 | v1.10.0 | OmniFlow como plataforma de infraestructura |
 || **Social Catalog v5 UX/UI** | **2026-08-24** | **v1.20.18** | 📱 SC-01..SC-05: theme dark, toolbar móvil 2 filas, stock badges "¡Última unidad!", ribbon/tags, orden admin unificado + adminSortLabel |
+| | **Product Variants + Batch Import** | **2026-08-25** | **v1.20.22** | 🚀 Variantes Odoo-style, importación masiva Excel, kebab-case refactor |
+| | **Inventory Standardization + Sync ERP** | **2026-08-25** | **v1.20.24** | 🏭 Reservas de stock en OrdersService, sync-products migrado a InventoryService, manual de inventario |
 
 ---
 
