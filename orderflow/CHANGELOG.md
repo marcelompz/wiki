@@ -5,6 +5,12 @@ Todos los cambios notables a este proyecto serán documentados en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 y este proyecto se adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.20.64] - 2026-08-28
+
+### 🖼️ Selección de Fondos y Colores por Categoría & Agrupación Estricta por Categoría de Producto
+- **Agrupación Estricta por Categoría de Producto (`omni-catalog.tsx` & `social-catalog.service.ts`)**: Se ajustó la resolución de nombres de categorías para que al seleccionar `categorySource: 'product'`, la agrupación del backend y frontend priorice estrictamente la categoría de producto (`product.categoryName` / `product.categoryRel.name`), evitando forzar la agrupación por categoría PDV.
+- **Panel Admin "🖼️ Fondos y Colores por Categoría" (`admin/social-catalog.tsx`)**: Se agregó un nuevo panel interactivo en el Admin para configurar individualmente la imagen de fondo (con selector de almacén/dispositivo) y el color del encabezado de cada categoría del catálogo.
+
 ## [1.20.63] - 2026-08-28
 
 ### 🎨 Integración Completa de Temas y Placeholder Configurable en Checkout Público (`/social-checkout`)
