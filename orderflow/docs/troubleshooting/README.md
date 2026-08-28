@@ -66,6 +66,7 @@ Ordená por problema y área. Cada entrada incluye síntomas, causa raíz y solu
 | [71](71-nest-throttler-circular-dependency.md) | Dependencia Circular en `THROTTLER:MODULE_OPTIONS` | Backend / NestJS / Throttler / Bootstrap | Error `circular dependency inside THROTTLER:MODULE_OPTIONS` al arrancar NestJS | ✅ Resuelto |
 | [72](72-dataview-suite-frontend-pages-integration-gap.md) | Integración DataView Suite & Checkbox Duplicado | Frontend / Admin App / DataView | DataView Suite no integrada en vistas admin (`/admin/products`); doble checkbox en grilla de productos | ✅ Resuelto |
 | [75](75-social-catalog-multi-instance-overwrite-fix.md) | Sobreescritura de Catálogos al Crear Instancias Nuevas | Backend / Frontend / Social Catalog | Al crear una nueva instancia de catálogo (`POST /instances`), se sobreescribía la configuración del catálogo existente (`default`) | ✅ Resuelto |
+| [76](76-bulk-delete-category-mismatch-and-csv-price-format.md) | Eliminación Masiva por Categoría & Formato de Precios CSV | Backend / DynamicQueryBuilder / CSV / DataView | Eliminación masiva requería múltiples clics por descalce de filtros; precios CSV truncados (`15.000` $\rightarrow$ `15`) | ✅ Resuelto |
 
 ---
 
