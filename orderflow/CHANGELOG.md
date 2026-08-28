@@ -5,6 +5,12 @@ Todos los cambios notables a este proyecto serán documentados en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 y este proyecto se adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.20.46] - 2026-08-28
+
+### 🗑️ Fix de Eliminación Masiva por Selección Explícita y Categoría (`DynamicQueryBuilder`)
+- **Garantía de Eliminación Inmediata por IDs**: Cuando se selecciona un conjunto explícito de filas (`mode === 'selected'`), la consulta SQL/Prisma prioriza los `ids` directos eliminando cualquier descalce con el nombre o ID de categoría.
+- **Búsqueda Robusta por Categoría**: Cuando se utiliza eliminación global (`mode === 'all'`), la cláusula de categoría matchea mediante `OR` la propiedad `category` (texto), `categoryId` (relación producto) y `posCategoryId` (relación PDV).
+
 ## [1.20.45] - 2026-08-28
 
 ### 📱 Registro de Módulos POS y KDS en App Store (`modules.registry.ts`)
