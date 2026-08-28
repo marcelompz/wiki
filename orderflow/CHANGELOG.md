@@ -5,6 +5,12 @@ Todos los cambios notables a este proyecto serán documentados en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 y este proyecto se adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.20.65] - 2026-08-28
+
+### 🌿 Resolución Dinámica de Instancias Multitenant y Catálogos Especiales (`/social-catalog/:instanceKey`)
+- **Resolución Inteligente de Tenants por Instancia (`api-key.guard.ts`)**: Se extendió la resolución de tenants en el guard público de API Keys para que si una URL pública incluye una clave de instancia (ej: `/social-catalog/doterra` o `/social-catalog/wellness`), el backend consulte automáticamente qué tenant posee configurada dicha instancia en sus instalaciones de módulo.
+- **Vincular Instancia `doterra` a Gaia Wellness (`spa-wellness-001`)**: Se registró y habilitó la instancia `doterra` bajo el tenant Gaia Wellness (`spa-wellness-001`), permitiendo abrir el catálogo de aceites esenciales y bienestar directamente sin depender exclusivamente del subdominio.
+
 ## [1.20.64] - 2026-08-28
 
 ### 🖼️ Selección de Fondos y Colores por Categoría & Agrupación Estricta por Categoría de Producto
