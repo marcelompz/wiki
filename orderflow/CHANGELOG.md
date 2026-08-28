@@ -5,6 +5,14 @@ Todos los cambios notables a este proyecto serán documentados en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 y este proyecto se adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.20.47] - 2026-08-28
+
+### 📂 Doble Jerarquía de Categorías Independientes, Preservación de Texto CSV & Enriquecimiento DataView
+- **Independencia de Cadenas de Categorías (Producto vs PDV)**: Separación estricta de `productChain` (`Categoría de Producto` $\rightarrow$ `Subcategoría`) y `posChain` (`Categoría de PDV` $\rightarrow$ `Subcategoría PDV`) vinculando ambas cadenas atómicamente a la base de datos tanto en `BulkUploadModal` como en `ImportWizardModal`.
+- **Preservación de Texto en Lectura CSV (`SheetJS`)**: Inyección de `{ raw: true, rawNumbers: false }` en `XLSX.read` impidiendo la corrupción automática de números formateados como `15.000` o `18.000` en importaciones CSV.
+- **DataView de Productos Enriquecido (`products.tsx`)**: Incorporación de columnas visualizables y filtrables para `skuInterno`, `barcode`, `description`, `posCategory`, `costPrice` y estado `active`.
+- **Formulario de Edición Ampliado**: Enriquecimiento del modal de edición de productos para editar todos los atributos clave (`posCategoryId`, `skuInterno`, `barcode`, `costPrice`, `active`).
+
 ## [1.20.46] - 2026-08-28
 
 ### 🗑️ Fix de Eliminación Masiva por Selección Explícita y Categoría (`DynamicQueryBuilder`)
