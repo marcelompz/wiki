@@ -5,6 +5,13 @@ Todos los cambios notables a este proyecto serán documentados en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 y este proyecto se adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.20.44] - 2026-08-28
+
+### 📂 Jerarquía de Categorías de Izquierda a Derecha & Selector en Social Catalog (OmniCatalog)
+- **Importación Jerárquica de Categorías**: Implementación de `findOrCreateCategoryHierarchy(tenantId, chain)` en `products.service.ts` y `batch-product-import.service.ts`, procesando la prelación de izquierda a derecha (`Categoría de Producto` $\rightarrow$ `Categoría de PDV` $\rightarrow$ `Subcategoría de PDV`) en `BulkUploadModal` y `ImportWizardModal`.
+- **Selector de Estructura de Categorías en Admin**: Agregada la opción `categorySource` en `social-catalog.tsx` permitiendo alternar entre `Categorías de PDV`, `Categoría de Producto ➔ Categorías de PDV Anidadas` y `Categoría de Producto Únicamente`.
+- **Soporte de Columnas Duplicadas en CSV**: Detección inteligente de múltiples columnas con el mismo nombre en la cabecera del archivo (ej. `Categoria de PDV` en Col J y Col K).
+
 ## [1.20.43] - 2026-08-28
 
 ### 📊 DataView Suite: Selección Global, Fix de Agrupaciones y Paginación Ampliada
