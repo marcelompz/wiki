@@ -5,6 +5,14 @@ Todos los cambios notables a este proyecto serán documentados en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 y este proyecto se adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.20.54] - 2026-08-28
+
+### 🛡️ Visibilidad Total de Categorías en Panel de Administración & Acordeón Público Plegado
+- **Sincronización Automática de Categorías (`autoSyncCategoriesFromProducts`)**: Se agregó sincronización automática en `catalog.controller.ts` y `social-catalog-admin.controller.ts` que convierte automáticamente cualquier categoría textual de productos importados por CSV/Excel/POS en registros de `ProductCategory`.
+- **Soporte de Autenticación Admin en Endpoints de Categoría**: Configurado fallback en `social-catalog.controller.ts` para resolver `tenantId` desde `user.tenantId` cuando los endpoints se consultan con token JWT de administración.
+- **Visualización en Panel Admin**: `admin/social-catalog.tsx` consulta de forma segura el endpoint administrativo de categorías `/api/v1/admin/social-catalog/categories/tree` con fallbacks resilientes.
+- **Acordeón Plegado en Vista Pública Cliente**: Revertido `defaultActiveKey` a `[]` en `omni-catalog.tsx` manteniendo los paneles de acordeón colapsados por defecto en el catálogo público del cliente según pedido específico.
+
 ## [1.20.53] - 2026-08-28
 
 ### 🗂️ Barra de Navegación por Pestañas/Pills de Categorías & Mapeo Completo en Catálogo Público
