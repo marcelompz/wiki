@@ -123,6 +123,7 @@ Ordená por problema y área. Cada entrada incluye síntomas, causa raíz y solu
 - **Integración de OmniFlow DataView Suite & Double Checkbox:** ver [#72](72-dataview-suite-frontend-pages-integration-gap.md) — Integración de `DataTableContainer`, `SavedViews` y `FilterBuilder` en vistas admin y eliminación de checkbox duplicado en productos.
 - **Desincronización de Migraciones Prisma & Recuperación de Disco:** ver [#73](73-prisma-migration-drift-and-disk-space-recovery.md) — Solución a errores 500 por tablas/columnas faltantes (`saved_views`, `isVisible`, `handle`), creación de migración SQL, purga de BuildKit y `pg_resetwal` en PostgreSQL.
 - **Parsing de CSV en Carga Masiva y Eliminación Masiva Atómica:** ver [#74](74-bulk-upload-csv-parsing-and-atomic-bulk-delete.md) — Solución a errores `Invalid Record Length` en CSV por comas internas con SheetJS, selector de formato de precios (`Regional / PYG` vs `USD`), y creación de endpoints de eliminación masiva atómica (`POST /bulk-delete`) para superar límites de conexiones paralelas del navegador.
+- **Mapeo de Columnas, Omitir Campo (`__SKIP__`) y Persistencia de Precio de Costo / Categorías PDV en Importación:** ver [#77](77-product-import-field-mapping-and-costprice-persistence.md) — Inclusión de la opción `__SKIP__` en selectores, desacoplamiento de alias `costPrice`/`price`, persistencia completa de 11 propiedades en `bulkUpload` (`products.controller.ts`), soporte de `costPrice` en Prisma (`products.service.ts`) y temas oscuros adaptables.
 
 ---
 
