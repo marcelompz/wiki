@@ -5,6 +5,12 @@ Todos los cambios notables a este proyecto serán documentados en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 y este proyecto se adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.20.57] - 2026-08-28
+
+### 🛡️ DTOs para Parámetros de Importación y Prevención de Excepciones de Validación NestJS
+- **Soporte de `fileEncoding` y `encoding` en DTOs de Importación**: Se incluyeron `@IsOptional()` y `@IsString()` para `fileEncoding` y `encoding` en `BulkUploadProductDto` e `ImportFileOptionsDto` (`bulk-upload-product.dto.ts`).
+- **Resolución de Error `property fileEncoding should not exist`**: Se actualizaron los endpoints `bulkUploadPreview`, `bulkUpload`, `validateImportFile` y `executeImportFile` en `products.controller.ts` para usar los DTOs oficiales, eliminando el rechazo de `ValidationPipe` al enviar codificaciones de archivo personalizadas.
+
 ## [1.20.56] - 2026-08-28
 
 ### 🛡️ Mapeo Seguro de Categorías y Prevención de Excepciones HTTP 500
