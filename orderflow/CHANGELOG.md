@@ -5,6 +5,13 @@ Todos los cambios notables a este proyecto serán documentados en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 y este proyecto se adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.20.48] - 2026-08-28
+
+### 🎯 Selección & Mapeo de Columnas de Categorías en Wizard & Carga Masiva
+- **Mapeo de Columnas en Wizard (`ImportWizardModal.tsx`)**: Integración de autodetección de cabeceras de archivo y tarjeta interactiva de selección de mapeo para definir explícitamente qué columna del archivo corresponde a: Nombre, Categoría de Producto (Nivel 1), Subcategoría de Producto (Nivel 2), Categoría de PDV (Nivel 1), Subcategoría de PDV (Nivel 2), Precio Venta, Precio Costo, Stock, SKU, Código de Barras, Descripción y Handle.
+- **Campos Ampliados en Carga Masiva (`BulkUploadModal.tsx`)**: Incorporación de selectores para `productSubcategory`, `posCategory` y `posSubcategory` en la grilla de mapeo de Carga Masiva.
+- **Soporte `columnMapping` en Backend (`products.controller.ts` & `batch-product-import.service.ts`)**: Procesamiento del parámetro `columnMapping` en endpoints `POST /import/validate` y `POST /import/execute`, priorizando la columna elegida por el usuario para cada campo sobre los alias automáticos en parseos Excel y CSV.
+
 ## [1.20.47] - 2026-08-28
 
 ### 📂 Doble Jerarquía de Categorías Independientes, Preservación de Texto CSV & Enriquecimiento DataView
