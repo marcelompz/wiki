@@ -5,6 +5,12 @@ Todos los cambios notables a este proyecto serán documentados en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 y este proyecto se adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.20.62] - 2026-08-28
+
+### 🎨 Personalización de Nombre Comercial / Marca en Catálogos Públicos y Admin
+- **Campo `businessName` en Admin Social Catalog (`social-catalog.tsx`)**: Se agregó el campo editable `Form.Item name="businessName"` en el panel de administración bajo la sección **"📱 Datos de contacto"**, permitiendo configurar el nombre de la marca o tienda por cada catálogo (ej: `doTERRA Paraguay`, `PROVECCHIO`).
+- **Priorización de Nombre Comercial en Catálogo Público (`omni-catalog.tsx` & `social-catalog.service.ts`)**: Se actualizó la jerarquía del nombre en el encabezado y pie de página para priorizar `whatsappConfig.businessName` -> `tenantConfig.name` ("PROVECCHIO" / marca comercial) sobre la Razón Social jurídica ("DIMORA S.R.L.").
+
 ## [1.20.61] - 2026-08-28
 
 ### 🛡️ Corrección de Enrutamiento de Instancias de Catálogo por Tenant
