@@ -5,6 +5,12 @@ Todos los cambios notables a este proyecto serán documentados en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 y este proyecto se adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.20.50] - 2026-08-28
+
+### 🐛 Fix en Mapeo & Procesamiento de Campos en Carga Masiva (`bulkUpload`)
+- **Persistencia de Campos en `bulkUpload` (`products.controller.ts`)**: Se solucionó la omisión de `costPrice`, `productSubcategory`, `posCategory` y `posSubcategory` en la función de parseo de la Carga Masiva, permitiendo que la importación procese y cree la estructura de categorías y precios de costo.
+- **Soporte `costPrice` en `products.service.ts`**: Actualización de los métodos `create` y `update` en `bulkUploadProducts` para guardar y actualizar el precio de costo de los productos.
+
 ## [1.20.49] - 2026-08-28
 
 ### 🚫 Opción "Omitir Campo", Mapeo de Precio de Costo & Adaptación de Tema Oscuro en Modales
