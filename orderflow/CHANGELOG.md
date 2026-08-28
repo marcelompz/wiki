@@ -5,6 +5,14 @@ Todos los cambios notables a este proyecto serán documentados en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 y este proyecto se adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.20.43] - 2026-08-28
+
+### 📊 DataView Suite: Selección Global, Fix de Agrupaciones y Paginación Ampliada
+- **Aislamiento en Selección por Agrupación**: Corrección de `handleSelectGroupPage` y `selectedRowKeys` en `DataTableContainer.tsx` para que al seleccionar items en el encabezado de un grupo, solo afecte a ese grupo.
+- **Selección Global (`mode: 'all'`) & Banner**: Integración de selección de la totalidad de registros filtrados (incluso los no visibles) con los endpoints masivos atómicos (`bulk-delete`).
+- **Paginación Ampliada**: Opciones `[10, 20, 50, 100, 150, 200, 250, 300, 500]` configuradas en `DataTableContainer.tsx`.
+- **Parsing de Precios en CSV & Wizard**: Integración de `parseCurrencyNumber(val, format)` en `products.controller.ts`, `social-catalog-admin.controller.ts`, y `batch-product-import.service.ts` con `{ raw: true }` en SheetJS, resolviendo el recorte de miles en CSV y garantizando la importación síncrona en el Wizard.
+
 ## [1.20.42] - 2026-08-28
 
 ### 🛍️ Soporte Multi-Instancia Simultánea en Social Catalog & Catálogos Reducidos (Coffee Party)
