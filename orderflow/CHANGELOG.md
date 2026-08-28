@@ -5,6 +5,14 @@ Todos los cambios notables a este proyecto serán documentados en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 y este proyecto se adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.20.53] - 2026-08-28
+
+### 🗂️ Barra de Navegación por Pestañas/Pills de Categorías & Mapeo Completo en Catálogo Público
+- **Barra de Navegación de Categorías (Pills / Tabs)**: Agregada barra horizontal deslizable de pestañas de categorías (`[🌟 Todas] [🏷️ Categoría 1] [🏷️ Categoría 2]...`) con contadores dinámicos de productos y filtrado instantáneo en `omni-catalog.tsx`.
+- **Apertura Predeterminada de Secciones**: Configurado `defaultActiveKey` para abrir todas las categorías por defecto en el modo acordeón/collapse.
+- **Resolución Resiliente en `getCategoryTree`**: Si el `targetCatId` del producto no se encuentra en el mapa o el ID no coincide, se resuelve por coincidencia de nombre (insensible a mayúsculas) o se asigna a un nodo de categoría virtual sin descartar ningún producto ni categoría.
+- **Matching de Categorías en Frontend**: Búsqueda insensible a mayúsculas y espacios sobre `product.category`, `product.posCategoryName`, `product.categoryRel.name` y `product.posCategoryRel.name`.
+
 ## [1.20.52] - 2026-08-28
 
 ### 🐛 Fix de Sintaxis en Controller & Despliegue de Producción Estable
