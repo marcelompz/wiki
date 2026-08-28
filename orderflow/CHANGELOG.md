@@ -5,6 +5,13 @@ Todos los cambios notables a este proyecto serán documentados en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 y este proyecto se adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.20.58] - 2026-08-28
+
+### 🛠️ Corrección de Validación de Mapeo de Columnas y UX en Importación Masiva
+- **Resolución de Error Falso Positivo de Mapeo**: Se corrigió la lógica en `BulkUploadModal.tsx` donde se intentaba comparar el nombre arbitrario de la columna del Excel contra una lista fija de alias en lugar de verificar la clave del campo destino (`isFieldMapped('name')` y `isFieldMapped('price')`), eliminando el bloqueo que indicaba *"Falta mapear la columna requerida: name / price"* cuando ya estaban asignados.
+- **Detección Ampliada de Columnas**: Se agregaron variaciones de cabeceras en español e inglés (`descripcion nombre`, `detalle`, `articulo`, `p.venta`, `pvp`, `monto`, `rubro`, `familia`, `cod.barras`, etc.) en `ImportWizardModal.tsx` y `BulkUploadModal.tsx`.
+- **Acceso Permanente al Selector de Codificación**: Se hizo visible la tarjeta de configuración de codificación de archivos y separadores en el paso 0 de `ImportWizardModal.tsx` desde la apertura del modal.
+
 ## [1.20.57] - 2026-08-28
 
 ### 🛡️ DTOs para Parámetros de Importación y Prevención de Excepciones de Validación NestJS
