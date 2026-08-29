@@ -1,0 +1,78 @@
+# ─────────────────────────────────────────────────────────────
+# eventops-standalone
+# Puerto: 3027 (siguiente libre tras storefront-builder-standalone :3026)
+# Subdominio dev:  eventos.pesallaccia.com
+# Subdominio prod: eventos.provecchio.com
+#
+# Agregar este bloque a docker-compose.standalone.yml, junto al
+# resto de giveaways-standalone / bookings-standalone / etc.
+# ─────────────────────────────────────────────────────────────
+
+services:
+  eventops-standalone:
+    build:
+      context: ./services/eventops-standalone
+      dockerfile: Dockerfile
+    container_name: eventops-standalone
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+
+      # Modo de operación — mismo switch que el resto del ecosistema.
+      # enterprise: single-tenant fijo (Vivento / Provecchio Di Mora).
+      # Si más adelante EventOps sirve a más de un tenant, se cambia
+      # a "community" sin tocar schema ni código de negocio.
+      ORDERFLOW_MODE: enterprise
+      ORDERFLOW_TENANT_ID: provecchio-dimora-001
+
+      # Base de datos propia — desacoplamiento fuerte, no comparte
+      # schema con el monolito.
+      DATABASE_URL: postgresql://eventops:${EVENTOPS_DB_PASSWORD}@eventops-db:5432/eventops
+
+      # Redis compartido con el core — mismo Redis que ya usa
+      # OmniFlow para BullMQ, solo colas nuevas.
+      REDIS_URL: redis://redis:6379
+
+      # Auth: JWT del Identity Provider del monolito (sin mTLS).
+      JWT_AUDIENCE: eventops-standalone
+      JWT_ISSUER: https://api.provecchio.com
+      JWT_PUBLIC_KEY_URL: https://api.provecchio.com/.well-known/jwks.json
+
+      # Cliente Axios hacia el core para llamadas síncronas puntuales
+      # (ej. GET /events/{id}/summary desde OmniFlow).
+      OMNIFLOW_INTERNAL_API_URL: http://core:3000
+
+    depends_on:
+      - eventops-db
+      - redis
+
+    networks:
+      - orderflow-net
+
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.eventops.rule=Host(`eventos.provecchio.com`)"
+      - "traefik.http.routers.eventops.entrypoints=websecure"
+      - "traefik.http.routers.eventops.tls.certresolver=letsencrypt"
+      - "traefik.http.services.eventops.loadbalancer.server.port=3027"
+      # En dev, duplicar el router con Host(`eventos.pesallaccia.com`)
+      # y sin certresolver, como el resto de los standalone.
+
+  eventops-db:
+    image: postgres:16-alpine
+    container_name: eventops-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: eventops
+      POSTGRES_USER: eventops
+      POSTGRES_PASSWORD: ${EVENTOPS_DB_PASSWORD}
+    volumes:
+      - eventops_db_data:/var/lib/postgresql/data
+    networks:
+      - orderflow-net
+
+volumes:
+  eventops_db_data:
+
+# Nota: "redis" y "orderflow-net" ya deben existir como servicio/red
+# definidos en el docker-compose principal (no se redeclaran acá).

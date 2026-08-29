@@ -59,6 +59,7 @@ Para sincronizar la estrategia de desinstalación/desacoplamiento de schemas con
 | Bio-Links | **OmniBio** | `services/omnilinks-standalone/` *(antes biolinks-standalone)* | `/api/v1/omnilinks/*` -> `/api/v1/bio/*` | `https://<domain>/admin/biolinks` |
 | Bookings | **OmniBookings** | `services/omnibookings-standalone/` | `/api/v1/omnibookings/*` -> `/api/v1/bookings/*` | `https://<domain>/admin/bookings` |
 | POS Drawer | **OmniPOS** | `services/omnipos-standalone/` | `/api/v1/omnipos/*` -> `/api/v1/pos/*` | `https://<domain>/admin/pos` |
+| Analytics Hub | **OmniBI** | `services/omnibi-standalone/` | `/api/v1/omnibi/*` -> `/api/v1/bi/*` | `https://<domain>/admin/bi` |
 | Integraciones / Odoo Adapter | **OmniSync** | `services/omnisync-standalone/` *(antes odoo-adapter)* | `/api/v1/omnisync/*` | `https://<domain>/admin/integrations` |
 
 **Nota sobre coexistencia con FEAT-065:**  
@@ -76,6 +77,7 @@ Desde el panel admin o Traefik, se puede acceder directamente a cada módulo sin
 | OmniCatalog | `/admin/social-catalog` | `/api/v1/standalone/social-catalog` | `3021` |
 | OmniBookings | `/admin/bookings` | `/api/v1/bookings` | `3023` |
 | OmniPOS | `/admin/pos` | `/api/v1/pos` | `3010` (core proxy) |
+| OmniBI | `/admin/bi` | `/api/v1/bi` | `3025` |
 | OmniSync | `/admin/integrations` | `/api/v1/omnisync` | segun config |
 
 **Implementación:**

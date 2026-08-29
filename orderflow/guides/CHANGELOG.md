@@ -2,6 +2,57 @@
 
 Todos los cambios notables en este proyecto se documentarán en este archivo.
 
+## [1.20.21] - 2026-08-25
+
+### ✨ Visualización de Fecha de Nacimiento en Contactos y Participantes (FEAT-086)
+- **Admin App Contactos (`/admin/contacts`):**
+  - Añadida columna "Fecha Nacimiento" en la tabla de contactos (modo individual y agrupado por email).
+  - Añadido selector de fecha `DatePicker` en el modal de creación y edición de contacto con persistencia en `metadata.birthDate`.
+- **Admin App Sorteos (`/admin/giveaways`):**
+  - Añadida columna "Fecha Nacimiento" en la tabla de participantes del modal de detalles del sorteo.
+
+## [1.20.10] - 2026-08-18
+
+### 🚀 Sincronización Global de Versiones & Audit Backfill (FEAT-071)
+- **Harness & Gobernanza:**
+  - Creado el script de verificación automatizada `scripts/check-version-sync.sh` para auditar la paridad de versiones entre `VERSION`, `package.json` (backend/frontend/mobile), Swagger, `featurelist.json`, `README.md` y `ROADMAP.md`.
+  - Reordenamiento cronológico de las versiones desubicadas `0.2.2` y `0.2.3` en `CHANGELOG.md`.
+  - Backfill histórico completo en `CHANGELOG.md` desde `v1.6.0` hasta `v1.20.10` alineando el historial con las 67 features documentadas en `featurelist.json`.
+
+## [1.20.0] - 2026-08-15
+
+### 🏗️ Schema Decoupling, Rebranding OmniFlow & Analytics Hub (FEAT-064 - FEAT-070)
+- **OmniFlow Rebranding & Standalone Architecture (FEAT-064, FEAT-065, FEAT-066):**
+  - Desacoplamiento de schemas Prisma por microservicio standalone (`giveaways-standalone`, `social-catalog-standalone`, `biolinks-standalone`, `bookings-standalone`).
+  - Transición progresiva de nomenclatura y rutas API hacia la suite `OmniFlow` (`OmniBio`, `OmniCatalog`, `OmniBookings`, `OmniPOS`).
+- **Infraestructura & Operaciones (FEAT-059, FEAT-067, FEAT-068):**
+  - Módulo Infrastructure Deploy Manager para la orquestación y ciclo de vida de Odoo, OmniFlow y microservicios.
+  - SFTP Explorer & Purga/Restauración automatizada de backups.
+  - Multi-Tenant User Management para asignación masiva de tenants y roles.
+- **Calidad & UX (FEAT-060, FEAT-061, FEAT-062, FEAT-063, FEAT-069, FEAT-070):**
+  - Generación de manuales de usuario automatizados con Playwright.
+  - Mobile Admin UX con Drawer Navigation y Bottom Nav optimizado.
+  - Fortalecimiento de la máquina de estados de pedidos (Orders Debug) y soporte multi-tier de base de datos.
+
+## [1.18.0] - 2026-08-08
+
+### 📈 Motor de Retención Omnicanal & Seller Attribution Engine (FEAT-056, FEAT-057, FEAT-058)
+- **Engine de Retención (FEAT-056):** Mapeo de reglas de retención omnicanal (`RetentionRule`) con ejecuciones asíncronas vía BullMQ.
+- **Atribución de Ventas (FEAT-057):** Captura de `sellerId` y `trafficSource` en pedidos y exportación CSV de métricas de desempeño de vendedores.
+- **Estabilidad Frontend (FEAT-058):** Corrección de 404 en `/admin/orders` y resolución de chunks JS corruptos.
+
+## [1.17.0] - 2026-08-05
+
+### ⚡ Odoo 19 CE Integration & Refactorización Estética Design Tokens (FEAT-054, FEAT-055)
+- **Integración Odoo (FEAT-054):** Sincronización de facturación `account.move` y webhook `invoice-posted` en `odoo-adapter`.
+- **UI/UX Refactor (FEAT-055):** Introducción del sistema unificado de Design Tokens y estandarización de etiquetas semánticas en el panel administrativo.
+
+## [1.16.0] - 2026-08-03
+
+### 🔄 Arquitectura de Eventos & Inventario Multidepósito (FEAT-043 - FEAT-047)
+- Integración de cola durable de eventos (BullMQ + Redis) para el procesamiento de webhooks y desacoplamiento vía `EventBus`.
+- Módulo de control de inventario multidepósito de doble entrada.
+
 ## [1.5.1] - 2026-08-02
 
 ### 🎨 **Responsive UX/UI Backoffice + Traefik v3.4 (QA-001)**
@@ -241,6 +292,121 @@ Todos los cambios notables en este proyecto se documentarán en este archivo.
 - **Google Sign-In** - Integrado para autocompletado de formulario
 - **Tenant Asset Structure** - Convención: `/tenants/{tenant}/isotipo.svg`
 
+## [0.2.3] - 2026-07-04 - Tenant Switcher + Gestión de Sesiones (Estilo Odoo)
+
+### 🎯 Added
+
+#### Tenant Switcher (Selector de Tenants)
+- **Componente `TenantSwitcher.tsx`** - Selector de tenants similar a Odoo
+  - Muestra todos los tenants disponibles para el usuario
+  - Cambio de tenant sin re-login (solo recarga de página)
+  - Indicador visual del tenant activo con check verde
+  - Dropdown con lista de tenants accesibles
+
+#### Gestión de Sesiones Multi-Tenant
+- **Lógica Single-Tenant** - Usuarios con 1 tenant ven automáticamente su tenant
+  - Sin selector visible (auto-select al login)
+  - Acceso directo a su administración
+  - No puede acceder a otros tenants
+
+- **Lógica Multi-Tenant** - Usuarios con N tenants ven selector
+  - Selector visible en el header
+  - Puede cambiar entre tenants fácilmente
+  - Cada tenant mantiene su API key independiente
+
+#### UI/UX Enhancements
+- **Indicador de Tenant Activo** - Building icon + nombre del tenant
+- **Menú de Usuario/Perfil** - Reemplaza botón "Cerrar sesión"
+  - Gestión de sesión activa
+  - Información del usuario
+  - Cambio de tenant desde el mismo menú
+  - Cerrar sesión como opción secundaria
+
+### 🔧 Technical
+
+#### Backend
+- **Endpoint `/api/v1/tenants/my-tenants`** - Retorna lista de tenants del usuario
+  - Filtra por `user_tenant_access`
+  - Incluye `apiKey` para cada tenant
+  - Usado por TenantSwitcher para populate
+
+#### Frontend
+- **Auth Service Actualizado** - Maneja cambio de tenant sin re-login
+  - Guarda `tenantId` y `apiKey` en localStorage
+  - Recarga página para aplicar nuevo contexto
+  - Mantiene token JWT válido entre tenants
+
+- **BrandingProvider** - Soporta cambio dinámico de tenant
+  - Limpia cache al cambiar
+  - Recarga configuración del nuevo tenant
+
+### 📊 Database
+
+#### User Roles por Tenant
+```sql
+-- Usuarios multi-tenant pueden tener roles diferentes por tenant
+marcelo@pesallaccia.com → ADMIN en Provecchio
+soporte@crossnexion.com → ADMIN en Provecchio
+admin@spa-demo.com → ADMIN en SPA Wellness
+```
+
+#### Tenant Access Control
+- Tabla `user_tenant_access` con:
+  - `userId` - Usuario
+  - `tenantId` - Tenant
+  - `role` - Rol específico (ADMIN, MANAGER, VIEWER, SELLER)
+  - `active` - Estado del acceso
+
+### 🐛 Bug Fixes
+
+#### Giveaways Module
+- **Foreign Key Error** - Corregido `giveaways_tenantId_fkey`
+  - Verifica tenant existe antes de crear sorteo
+  - Mensaje de error claro si tenant inválido
+
+#### JWT Authentication
+- **JWT_SECRET Configuration** - Agregado al `.env` backend
+  - Token se valida correctamente
+  - Roles se incluyen en payload del JWT
+
+#### Database Connection
+- **Database Name** - Corregido de `orderflow_prod_db` a `orderflow_db`
+  - Scripts SQL ahora usan la DB correcta
+
+### 🚀 Deployment
+
+#### Tenants Configurados
+| Tenant | API Key | Estado |
+|--------|---------|--------|
+| Provecchio Di Mora | `0bb60656b9fbfcc27e38ae444e9e376f` | ✅ Activo |
+| SPA Wellness | `067059e2d6ae48d8a5f7c81b85fbf522` | ✅ Activo |
+| Auto Repuestos | `d077a104c7924eec846588af8b0138cc` | ✅ Activo |
+
+---
+
+## [0.2.2] - 2026-07-03 - Single-Tenant + Super Admin
+
+### Added
+- **Single-Tenant Mode** - Variables `DEFAULT_TENANT_ID` y `DEFAULT_API_KEY`
+  - Permite desplegar OrderFlow para un tenant específico
+  - Los usuarios ven directamente SU tienda/administración
+  - Sin pasar por selección de tenant
+  - Ideal para despliegues dedicados (ej: Provecchio)
+
+- **Super Admin Role** - Campo `isSuperAdmin` en User
+  - Owner de OrderFlow tiene acceso total a TODOS los tenants
+  - Puede administrar configuración global
+  - Tenant Admins solo ven SU empresa
+
+- **Multi-Tenant Access** - Tabla `user_tenant_access`
+  - Usuarios pueden estar en múltiples tenants
+  - Roles por tenant (ADMIN, USER, VIEWER)
+  - Un usuario, múltiples empresas
+
+### Changed
+- **Backend .env.example** - Documentación completa de variables
+- **Server .env.prod** - Configurado para Provecchio Di Mora
+
 ---
 
 ## [0.1.0-alpha.6] - 2026-06-28
@@ -398,183 +564,3 @@ Todos los cambios notables en este proyecto se documentarán en este archivo.
 - Primer tenant: SPA Wellness
 - Integración con Odoo 19 (webhook-based)
 
----
-
-## [0.2.3] - 2026-07-04 - Tenant Switcher + Gestión de Sesiones (Estilo Odoo)
-
-### 🎯 Added
-
-#### Tenant Switcher (Selector de Tenants)
-- **Componente `TenantSwitcher.tsx`** - Selector de tenants similar a Odoo
-  - Muestra todos los tenants disponibles para el usuario
-  - Cambio de tenant sin re-login (solo recarga de página)
-  - Indicador visual del tenant activo con check verde
-  - Dropdown con lista de tenants accesibles
-
-#### Gestión de Sesiones Multi-Tenant
-- **Lógica Single-Tenant** - Usuarios con 1 tenant ven automáticamente su tenant
-  - Sin selector visible (auto-select al login)
-  - Acceso directo a su administración
-  - No puede acceder a otros tenants
-
-- **Lógica Multi-Tenant** - Usuarios con N tenants ven selector
-  - Selector visible en el header
-  - Puede cambiar entre tenants fácilmente
-  - Cada tenant mantiene su API key independiente
-
-#### UI/UX Enhancements
-- **Indicador de Tenant Activo** - Building icon + nombre del tenant
-- **Menú de Usuario/Perfil** - Reemplaza botón "Cerrar sesión"
-  - Gestión de sesión activa
-  - Información del usuario
-  - Cambio de tenant desde el mismo menú
-  - Cerrar sesión como opción secundaria
-
-### 🔧 Technical
-
-#### Backend
-- **Endpoint `/api/v1/tenants/my-tenants`** - Retorna lista de tenants del usuario
-  - Filtra por `user_tenant_access`
-  - Incluye `apiKey` para cada tenant
-  - Usado por TenantSwitcher para populate
-
-#### Frontend
-- **Auth Service Actualizado** - Maneja cambio de tenant sin re-login
-  - Guarda `tenantId` y `apiKey` en localStorage
-  - Recarga página para aplicar nuevo contexto
-  - Mantiene token JWT válido entre tenants
-
-- **BrandingProvider** - Soporta cambio dinámico de tenant
-  - Limpia cache al cambiar
-  - Recarga configuración del nuevo tenant
-
-### 📊 Database
-
-#### User Roles por Tenant
-```sql
--- Usuarios multi-tenant pueden tener roles diferentes por tenant
-marcelo@pesallaccia.com → ADMIN en Provecchio
-soporte@crossnexion.com → ADMIN en Provecchio
-admin@spa-demo.com → ADMIN en SPA Wellness
-```
-
-#### Tenant Access Control
-- Tabla `user_tenant_access` con:
-  - `userId` - Usuario
-  - `tenantId` - Tenant
-  - `role` - Rol específico (ADMIN, MANAGER, VIEWER, SELLER)
-  - `active` - Estado del acceso
-
-### 🐛 Bug Fixes
-
-#### Giveaways Module
-- **Foreign Key Error** - Corregido `giveaways_tenantId_fkey`
-  - Verifica tenant existe antes de crear sorteo
-  - Mensaje de error claro si tenant inválido
-
-#### JWT Authentication
-- **JWT_SECRET Configuration** - Agregado al `.env` backend
-  - Token se valida correctamente
-  - Roles se incluyen en payload del JWT
-
-#### Database Connection
-- **Database Name** - Corregido de `orderflow_prod_db` a `orderflow_db`
-  - Scripts SQL ahora usan la DB correcta
-
-### 📝 Documentation
-
-#### CHANGELOG
-- Actualizado con todas las features de 0.2.2 y 0.2.3
-- Sección de Deployment para servidor
-- Lista de tenants demo con API keys
-
-#### Environment Variables
-- `.env.example` actualizado con JWT configuration
-- `.env.prod` configurado para Provecchio
-
-### 🚀 Deployment
-
-#### Local Development
-```bash
-cd /opt/orderflow
-docker compose up -d
-
-# Login con usuario multi-tenant
-marcelo@pesallaccia.com / <tu-password>
-
-# Selector de tenants visible en header
-```
-
-#### Production Server (dimoraserverlocal)
-```bash
-ssh dimoraserverlocal
-cd /srv/orderflow
-git pull origin staging
-docker compose --env-file .env.prod -f docker-compose.prod.yml up -d
-
-# Acceso
-http://dimora.provecchio.com:8083
-```
-
-#### Tenants Configurados
-| Tenant | API Key | Estado |
-|--------|---------|--------|
-| Provecchio Di Mora | `0bb60656b9fbfcc27e38ae444e9e376f` | ✅ Activo |
-| SPA Wellness | `067059e2d6ae48d8a5f7c81b85fbf522` | ✅ Activo |
-| Auto Repuestos | `d077a104c7924eec846588af8b0138cc` | ✅ Activo |
-
-### 🔐 Security
-
-#### JWT Configuration
-```env
-JWT_SECRET=orderflow-secret-key-change-in-production
-JWT_EXPIRES_IN=15m
-JWT_REFRESH_SECRET=<secure-random>
-```
-
-#### Tenant Isolation
-- Cada tenant tiene su propia API key
-- Usuarios solo ven sus tenants asignados
-- Roles validados por tenant en cada request
-
----
-
-## [0.2.2] - 2026-07-03 - Single-Tenant + Super Admin
-
-### Added
-- **Single-Tenant Mode** - Variables `DEFAULT_TENANT_ID` y `DEFAULT_API_KEY`
-  - Permite desplegar OrderFlow para un tenant específico
-  - Los usuarios ven directamente SU tienda/administración
-  - Sin pasar por selección de tenant
-  - Ideal para despliegues dedicados (ej: Provecchio)
-
-- **Super Admin Role** - Campo `isSuperAdmin` en User
-  - Owner de OrderFlow tiene acceso total a TODOS los tenants
-  - Puede administrar configuración global
-  - Tenant Admins solo ven SU empresa
-
-- **Multi-Tenant Access** - Tabla `user_tenant_access`
-  - Usuarios pueden estar en múltiples tenants
-  - Roles por tenant (ADMIN, USER, VIEWER)
-  - Un usuario, múltiples empresas
-
-### Changed
-- **Backend .env.example** - Documentación completa de variables
-- **Server .env.prod** - Configurado para Provecchio Di Mora
-- **Tenants Demo** - 3 tenants precargados:
-  - SPA Wellness (Spa) - `067059e2d6ae48d8a5f7c81b85fbf522`
-  - Auto Repuestos (Automotriz) - `d077a104c7924eec846588af8b0138cc`
-  - Provecchio Di Mora (Restaurant) - `0bb60656b9fbfcc27e38ae444e9e376f`
-
-### Security
-- **SingleTenantMiddleware** - Inyecta tenant automáticamente si está configurado
-- **ApiKeyGuard** - Valida API key por tenant
-- **JWT Guards** - Protección de endpoints con roles
-
-### Deployment
-- **Server**: dimoraserverlocal:/srv/orderflow/
-- **Git**: GitHub staging branch
-- **SSL**: Cloudflare (provecchio.com, dimora.provecchio.com)
-- **Puertos**: 8080 (HTTP), 443 (HTTPS via Cloudflare)
-
----

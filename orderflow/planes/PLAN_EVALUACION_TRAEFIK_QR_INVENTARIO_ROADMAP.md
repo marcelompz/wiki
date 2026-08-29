@@ -11,7 +11,7 @@
 
 ### 1.1 Estándar Unificado de Subdominio por Tenant
 * **Formato Único Obligatorio:** `https://<tenant.subdomain>.<ROOT_DOMAIN>` (ej: `https://dimora.pesallaccia.com`).
-* **Enrutamiento por Path:** Todos los módulos públicos se sirven bajo paths en ese mismo subdominio (`/social-catalog`, `/bio/:slug`, `/tienda`, `/checkout`). Queda strictly prohibida la creación de subdominios por servicio o categoría.
+* **Enrutamiento por Path:** Todos los módulos públicos se sirven bajo paths en ese mismo subdominio (`/social-catalog`, `/bio/:slug`, `/tienda`, `/checkout`). Queda estrictamente prohibida la creación de subdominios por servicio o categoría.
 
 ### 1.2 Traefik v3.4 como Gateway Único
 * Reemplazó totalmente a Nginx. Opera con proveedor dinámico por archivos `file` (`/srv/traefik/dynamic/` en prod).
@@ -46,7 +46,7 @@ graph TD
     A --> E[FEAT-075/080: Generador QR Dinámico]
 ```
 
-1. **Catálogo Jerárquico de 3 Niveles (FEAT-077):** `ProductCategory` extendido con `parentId`, `level` y `order`, integrado bidireccional de Odoo (`pos.category` e inventario `product.category`).
+1. **Catálogo Jerárquico de 3 Niveles (FEAT-077):** `ProductCategory` extendido con `parentId`, `level` y `order`, integrado bidireccionalmente con Odoo (`pos.category` e inventario `product.category`).
 2. **Importación Masiva (FEAT-074):** Carga masiva con parsing CSV/Excel, descarga de plantillas XLSX y modal reutilizable en el panel admin.
 3. **Alertas de Inventario y Etiquetas Editables (FEAT-081):** Helper `getStockStatus()` (`AGOTADO`, `Pocas unidades`, `Última unidad`), etiquetas dinámicas reutilizables por tenant sin alterar schema y ordenamiento manual drag & drop.
 

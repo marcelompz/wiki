@@ -40,4 +40,4 @@ Adaptar el módulo `Social Commerce Omnichannel Hub` de OrderFlow para que sopor
 ## 🔄 Lógica del Motor de Colas (BullMQ + Redis)
 - El motor de tareas diferidas debe mantenerse agnóstico al canal seleccionado.
 - Al vencer el temporizador de inactividad, la tarea evalúa el tipo de adaptador configurado para el `tenantId` y despacha el mensaje a través del conector correspondiente.
-- Si el evento de pago o confirmación de cita se recibe antes de que expire el temporizador, la tarea en Redis se destruye de forma automática.C
+- Si el evento de pago o confirmación de cita se recibe antes de que expire el temporizador, la tarea en Redis se destruye de forma automática.

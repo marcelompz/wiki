@@ -5,7 +5,17 @@ Todos los cambios notables a este proyecto serán documentados en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 y este proyecto se adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.20.70] - 2026-08-29
+
+### 📂 OmniFlow Documentos & Workspace (FEAT-083) y Categorías Anidadas `product_pos`
+- **OmniFlow Documentos (FEAT-083)**: Modelado de carpetas y archivos con permisos granulares por usuario y herencia automática. Implementación del almacenamiento local (`LocalDocumentStorageService`) y endpoints REST `/api/v1/documents`.
+- **Integración WOPI & Collabora Online**: Controlador nativo WOPI (`wopi-documents.controller.ts`) con soporte completo de `CheckFileInfo`, `GetFile`, `PutFile`, bloqueo atómico de archivos (`LOCK`, `UNLOCK`, `REFRESH_LOCK`) con prevención de conflictos HTTP 409.
+- **Frontend Workspace Explorer (`/admin/documents`)**: Interfaz de navegación de archivos tipo Google Drive / Nextcloud con migas de pan, explorador de subcarpetas, tabla de documentos, modal de permisos y visor interactivo Collabora.
+- **Jerarquía Multinivel `product_pos` ("Categoría de Producto ➔ Categorías de PDV Anidadas")**: Soporte en el motor backend (`social-catalog.service.ts`) para estructurar la clasificación de productos en 2 niveles (Categoría de Producto Padre ➔ Categoría PDV Subcategoría) cuando los tenants configuran `categorySource: 'product_pos'`.
+- **Fondos y Colores por Categoría (`omni-catalog.tsx` & `admin/social-catalog.tsx`)**: Corrección de la tabla de estilos por categoría para listar todas las categorías activas (independiente de la paginación), auto-selección de imágenes subidas en `ImagePicker` y prioridad visual de `customCatColor` e imágenes de fondo en los acordeones públicos.
+
 ## [1.20.65] - 2026-08-28
+
 
 ### 🌿 Resolución Dinámica de Instancias Multitenant y Catálogos Especiales (`/social-catalog/:instanceKey`)
 - **Resolución Inteligente de Tenants por Instancia (`api-key.guard.ts`)**: Se extendió la resolución de tenants en el guard público de API Keys para que si una URL pública incluye una clave de instancia (ej: `/social-catalog/doterra` o `/social-catalog/wellness`), el backend consulte automáticamente qué tenant posee configurada dicha instancia en sus instalaciones de módulo.
