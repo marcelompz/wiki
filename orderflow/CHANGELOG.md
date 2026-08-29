@@ -5,7 +5,15 @@ Todos los cambios notables a este proyecto serán documentados en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 y este proyecto se adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.20.71] - 2026-08-29
+
+### 🎨 Unificación de Gestión de Categorías y Convención Tipográfica Sentence Case (UI/UX)
+- **Unificación de Opciones de Categoría (`CategoryManagement.tsx` & `admin/social-catalog.tsx`)**: Eliminación del panel duplicado "Fondos y Colores por Categoría" y de la selección duplicada en la pestaña "Página y configuración". Todas las configuraciones (nombre, padre, orden, visibilidad, color de encabezado e imagen de fondo) se unificaron en la pestaña "Categorías".
+- **Migración Automática de Estilos por Renombrado (`CategoryManagement.tsx`)**: Al modificar el nombre de una categoría (ej: `tostadas` -> `Tostadas`), los colores e imágenes de fondo asociados se re-mapean y persisten automáticamente, evitando desincronizaciones entre la categoría y sus atributos visuales.
+- **Convención Tipográfica y Microcopy UI/UX (Sentence Case)**: Aplicación estricta de mayúscula inicial en primera palabra únicamente (Sentence Case) en todos los títulos, subtítulos, paneles colapsables, pestañas, etiquetas de formulario, opciones y botones del Admin de Catálogos.
+
 ## [1.20.70] - 2026-08-29
+
 
 ### 📂 OmniFlow Documentos & Workspace (FEAT-083) y Categorías Anidadas `product_pos`
 - **OmniFlow Documentos (FEAT-083)**: Modelado de carpetas y archivos con permisos granulares por usuario y herencia automática. Implementación del almacenamiento local (`LocalDocumentStorageService`) y endpoints REST `/api/v1/documents`.
