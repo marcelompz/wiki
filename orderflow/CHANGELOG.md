@@ -5,6 +5,12 @@ Todos los cambios notables a este proyecto serán documentados en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 y este proyecto se adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.21.00] - 2026-08-30
+
+### 🌳 Visualización de 2 Niveles de PDV y Corrección de Jerarquía en Social-Catalog
+- **Nivel Padre > Subcategoría en DataView de Productos**: La columna de Categoría de PDV en `/admin/products` ahora renderiza ambos niveles jerárquicos (*Padre > Subcategoría*, ej. *Platos fuertes > Caliente*) mediante consulta del ancestro `parentId`.
+- **Corrección de Jerarquía de 3 Niveles en Social Catalog (`product_pos`)**: Se corrigió `social-catalog.service.ts` para conservar la raíz de Categoría de Producto (*Para comer*, *Para beber*) en Level 0 y anidar dentro las Categorías de PDV en Level 1 y Subcategorías de PDV en Level 2.
+
 ## [1.20.99] - 2026-08-30
 
 ### 🔎 Detección Inteligente y Unificación de Categorías Similares/Duplicadas
