@@ -15,11 +15,14 @@ Como Administrador de **OmniFlow**, tienes acceso al control total y centralizad
 
 ## 🛠️ 2. MÓDULOS DE ADMINISTRACIÓN Y GUÍAS DE OPERACIÓN
 
-### 1. 🛍️ Gestión de Catálogo y Productos (Carga Masiva)
+### 1. 🛍️ Gestión de Catálogo, Menú Digital y Productos (Carga Masiva)
 - **Creación y Edición de Productos:** Configuración de precios, imágenes, código de barras, SKU y variantes.
+- **Modos de Venta (Free, Premium, Static):** Selección de modalidad operativa (pre-venta WhatsApp, pasarela de pago online o Menú Digital Informativo con checkout deshabilitado).
+- **Selector Dinámico de Cantidad:** Selección interactiva `[ - ] count [ + ]` directamente desde las tarjetas del catálogo sin requerir apertura del carrito.
+- **Control de Inventario (`showStock`):** Visualización u ocultamiento de banderas y avisos de stock sin bloqueos a la venta.
 - **Carga y Actualización Masiva por Excel:** Importación/exportación de productos por UUID e `skuInterno` sin duplicados.
 - **Recetas y Escandallos (POS BoM):** Configuración de productos compuestos que descuentan insumos atómicamente al venderse.
-- 📖 *Manuales vinculados:* [Manual 04: Catálogo Social](04-manual-catalogo-whatsapp.md), [Manual 18: POS BoM Recetas](18-manual-omnipos-kds-recetas-bom.md).
+- 📖 *Manuales vinculados:* [Manual 04: Catálogo Social & Menú Digital](04-manual-catalogo-whatsapp.md), [Manual 18: POS BoM Recetas](18-manual-omnipos-kds-recetas-bom.md).
 
 ### 2. 🖥️ Punto de Venta (POS) & Pantallas de Cocina (KDS)
 - **Apertura y Cierre de Turnos POS:** Control de fondo fijo de caja, arqueos y rendiciones de ventas.
