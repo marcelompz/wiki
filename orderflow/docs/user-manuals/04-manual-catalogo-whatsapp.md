@@ -20,10 +20,10 @@ Desde la sección **🛒 Modo de Venta** en `/admin/social-catalog`, el administ
 | :--- | :--- | :--- |
 | **Free (WhatsApp)** | Pre-venta manual con redirección a WhatsApp comercial. | El cliente arma su pedido y lo envía formateado con 1-Click al WhatsApp del negocio. |
 | **Premium (Online)** | Venta directa con checkout y pasarela de pago integrada. | Procesa pagos online (Stripe, Mercado Pago) y registra el pedido directamente en OrderFlow. |
-| **Static (Menú Digital)** | Carta digital o catálogo informativo sin recepción de pedidos. | Deshabilita el envío de pedidos. El botón en el carrito muestra `🚫 Enviar Pedido Deshabilitado` y despliega un aviso informativo. |
+| **Static (Menú Digital / Precuenta)** | Carta digital o catálogo informativo sin recepción de pedidos. | El carrito se transforma automáticamente en **🧾 PRECUENTA**, mostrando el total estimado. El botón de envío se bloquea mostrando `🚫 Enviar Pedido Deshabilitado (Solo Precuenta)`. |
 
 > [!NOTE]
-> **Modo Estático (Menú Digital):** En el modo `Static`, los clientes pueden explorar el catálogo, ver precios y simular su consumo, pero el sistema bloquea los intentos de checkout para adaptarse a restaurantes o locales físicos que utilizan el código QR exclusivamente como carta digital informativa.
+> **Modo Estático (PRECUENTA):** En el modo `Static`, la vista del carrito cambia automáticamente su encabezado a **🧾 PRECUENTA**. Los clientes pueden explorar el catálogo, simular consumos y consultar el **Total Estimado**, pero el sistema bloquea los intentos de checkout para dejar totalmente claro al cliente que la función es informativa y no transaccional.
 
 ---
 
@@ -39,6 +39,11 @@ Desde la sección **🛒 Modo de Venta** en `/admin/social-catalog`, el administ
 - En `/admin/social-catalog` $\rightarrow$ *Página y configuración*, se puede activar o desactivar la casilla **Mostrar inventario (stock)**.
 - **Cuando está activada (`showStock: true`):** El catálogo muestra las etiquetas de disponibilidad (*"Última unidad"*, *"En Stock"*) y bloquea la compra de ítems agotados con el texto *"Sin stock"*.
 - **Cuando está desactivada (`showStock: false`):** Se ocultan todas las leyendas y avisos de *"Sin stock"*, permitiendo que el cliente visualice y arme su pedido sin bloqueos por inventario cero.
+
+### 3.3 Barra Flotante Sticky de Carrito / Precuenta en Móviles y Escritorio
+- **Acceso Permanente durante la Navegación:** Tan pronto como el cliente añade 1 o más productos al carrito o precuenta, aparece automáticamente una barra flotante fija (*Sticky Floating Bar*) en la parte inferior de la pantalla.
+- **Información Relevante en Vivo:** Muestra la insignia con el conteo de ítems (`🧾 3 ítems` o `🛒 3 ítems`), el **Total Estimado** acumulado en tiempo real y la llamada a la acción `Ver Precuenta ➔` o `Ver Pedido ➔`.
+- **Experiencia Móvil de Primer Nivel:** Al desplazarse verticalmente por la carta digital o catálogo, la barra permanece anclada al alcance del pulgar en smartphones y tablets, abriendo la precuenta al tocarla en cualquier lugar.
 
 ---
 
