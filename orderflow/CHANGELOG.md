@@ -5,6 +5,25 @@ Todos los cambios notables a este proyecto serán documentados en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 y este proyecto se adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.20.87] - 2026-08-30
+
+### 🌿 Jerarquía Anidada N-Niveles para Categorías de PDV y Visibilidad por Instancia
+- **Reconstrucción Recursiva de Jerarquía POS (`social-catalog.service.ts`)**: Reconstrucción de la cadena de ancestros de `pos.category` (`getPosCatChain`) en modo combinado `product_pos`. Permite estructuras multinivel completas (`Categoría Producto` ➔ `Categoría PDV Padre` ➔ `Categoría PDV Hija`) sin omitir categorías superiores.
+- **Renderizado Recursivo N-Niveles en Admin (`CategoryManagement.tsx`)**: Reemplazo de la iteración plana de 1 nivel por `renderCategoryNodes()` recursivo con sangría dinámica (`depth * 24px`), habilitando gestión y visualización de subcategorías a cualquier nivel.
+- **Conteo Recursivo de Productos (`omni-catalog.tsx`)**: Implementación del helper `getRecursiveProductCount()` para incluir de forma precisa todos los productos situados en subcategorías anidadas dentro de los indicadores del menú digital.
+- **Independencia de Visibilidad de Categorías por Instancia (`social-catalog-admin.controller.ts`, `social-catalog.service.ts`)**: Soporte del parámetro query `instanceKey` en el reordenamiento y visibilidad de categorías, gestionando `hiddenCategoryIds` e `includedCategoryIds` por instancia en lugar de alterar `ProductCategory.isVisible` globalmente.
+
+## [1.20.86] - 2026-08-30
+
+### 🧾 Modo Precuenta, Selector de Cantidad en Tarjeta, Barra Flotante Móvil y Resolución Multidominio
+- **Resolución Flexible de Subdominios y Aislamiento Multidominio (`ApiKeyGuard.ts`)**: Implementación del helper `findTenantBySlug` que vincula de forma inteligente dominios personalizados (`provecchio.com`), prefijos de `id` (`provecchio-dimora-001`) y subdominios (`dimora`), resolviendo el tenant correcto sin fugas entre cuentas ni requerir API Key en rutas públicas.
+- **Sincronización Automática de `includedCategoryIds` (`social-catalog-admin.controller.ts`)**: Al renombrar cualquier categoría en el panel admin, los identificadores en `includedCategoryIds` se actualizan automáticamente en la configuración JSON del módulo, previniendo la desaparición de productos o categorías.
+- **Control de Inventario y Desactivación de Stock (`ProductCard.tsx`, `omni-catalog.tsx`)**: Se ajustó la evaluación de `showStock`. Al desmarcar "Mostrar inventario (stock)", el sistema oculta las etiquetas "Sin stock", desactiva bloqueos de compra y suprime avisos de agotado.
+- **Selector Dinámico de Cantidad `[ - ] N [ + ]` en Tarjeta (`ProductCard.tsx`)**: Selección interactiva directamente desde la tarjeta de producto en vista Grid y Lista.
+- **Personalización de PRECUENTA en Modo Estático (`CartDrawer.tsx`, `omni-catalog.tsx`)**: En `saleMode: 'static'`, el carrito se transforma en **🧾 PRECUENTA**, bloqueando el checkout como `🚫 Enviar Pedido Deshabilitado (Solo Precuenta)` e incorporando una alerta informativa.
+- **Barra Flotante Sticky Móvil y de Escritorio (`omni-catalog.tsx`)**: Barra flotante anclada en la parte inferior al agregar productos, mostrando íconos, conteo de ítems, Total Estimado y botón directo `Ver Precuenta ➔` / `Ver Pedido ➔`.
+- **Actualización de Documentación y Troubleshooting (#91, #92, #93, #94)**: Actualización completa del **Manual de Usuario 04**, la Guía Maestra del Administrador y 4 entradas de Troubleshooting sincronizadas con la Wiki oficial.
+
 ## [1.20.85] - 2026-08-30
 
 ### 🏷️ Propagación de Nombre de Categorías a Productos/PDV, Limpieza de Chips y Gestión Unificada en /admin/products
