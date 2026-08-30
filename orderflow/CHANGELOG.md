@@ -5,6 +5,104 @@ Todos los cambios notables a este proyecto serán documentados en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 y este proyecto se adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.20.85] - 2026-08-30
+
+### 🏷️ Propagación de Nombre de Categorías a Productos/PDV, Limpieza de Chips y Gestión Unificada en /admin/products
+- **Propagación Automática de Nombre de Categorías (`social-catalog-admin.controller.ts`, `catalog.service.ts`)**: Al renombrar una categoría en el panel admin, los cambios se actualizan en `ProductCategory` y se propagan masivamente al campo direct `category` y a las claves JSON de metadatos (`posCategory`, `posCategoryName`, `categoryName`, `productCategory`, `productSubcategory`, `posSubcategory`).
+- **Soporte de IDs Virtuales y Antiguos Nombres (`social-catalog.tsx`, `social-catalog-admin.controller.ts`)**: El frontend transmite el parámetro `oldName` al backend y la API resuelve identificadores UUID, nombres textuales e IDs virtuales (`cat-*`, `prodcat-*`), creando automáticamente la entrada en BD si era un nodo virtual.
+- **Gestión Unificada de Categorías en `/admin/products` (`products.tsx`)**: Se incorporó el botón **"Gestionar Categorías"** y el Drawer con el componente `<CategoryManagement />` en la vista principal de Productos, permitiendo crear, reordenar, renombrar y configurar estilos directamente desde la administración de inventario.
+- **Limpieza Estética de Chips en Encabezado (`omni-catalog.tsx`)**: Se removieron los emojis decorativos (`🌟`, `🏷️`) de los chips del encabezado y selectores, mostrando nombres sobrios ("Todas", "BEBIDAS", "COMIDAS", "Aceites esenciales", "Difusores") y respetando la bandera `showProductCounts`.
+
+## [1.20.84] - 2026-08-29
+
+### 👁️ Persistencia Recursiva de Visibilidad & Auto-Creación de Categorías Virtuales ("Fuera de carta")
+- **Conmutación Recursiva de Visibilidad (`CategoryManagement.tsx`)**: Implementación de `updateVisibilityRecursive` para asegurar que el interruptor de visibilidad desmarque correctamente tanto categorías principales como subcategorías anidadas.
+- **Envío Completo de Jerarquía al Guardar (`CategoryManagement.tsx`)**: `handleSaveOrder` envía a `onSave` la totalidad de nodos (raíces e hijos) vía `flattenTree()`, previniendo la omisión de categorías hijas.
+- **Persistencia por Nombre & Auto-Creación de Categorías Virtuales (`social-catalog.service.ts`)**: `reorderCategories` ahora busca categorías por `id` o por `name` (case-insensitive) y auto-crea automáticamente registros en `productCategory` para categorías virtuales como "Fuera de carta", permitiendo guardar `isVisible: false`.
+- **Integridad de Consulta (`getCategoryTree`)**: Se vinculó la visibilidad desde la BD a categorías virtuales e hijas y se eliminó la restricción rígida `isVisible: true` cuando `includeEmpty === true`.
+
+## [1.20.83] - 2026-08-29
+
+### 🌳 Corrección de Algoritmo de Visualización de Jerarquía de Categorías (`product`, `pos`, `product_pos`)
+- **Preservación Estricta del Árbol Raíz (`social-catalog.tsx`)**: Se corrigió `loadCategoryTree` eliminando el aplanado que re-insertaba categorías hijas (Nivel 1 PDV) como filas independientes en la raíz.
+- **Filtrado de Nodos Raíz en Modo Anidado (`CategoryManagement.tsx`)**: En `renderMode === 'nested'`, el componente filtra únicamente los nodos de nivel 0 (`c => !c.parentId || c.level === 0`) para renderizar los hijos exclusivamente de forma anidada/identada bajo su categoría padre correspondiente.
+- **Aplanado Deduplicado en Modo Plano (`CategoryManagement.tsx`)**: Implementación del helper `flattenTree()` para renderizar cada nodo exactamente una sola vez cuando el usuario conmuta al selector "Modo plano".
+- **Soporte para las 3 Combinaciones**: Funcionalidad verificada para `categorySource` igual a `product`, `pos` y `product_pos`.
+
+## [1.20.82] - 2026-08-29
+
+### 🌐 Enrutamiento Dinámico de Subdominios Traefik & Prevención de Fallback en Dominio Raíz
+- **Reglas Dinámicas por Entorno (`docker-compose.prod.yml`)**: Reemplazo de `provecchio.com` hardcodeado en las reglas de ruteo Traefik por `${DOMAIN_NAME:-pesallaccia.com}`, permitiendo que Hetzner escuche dinámicamente wildcard subdomains `*.pesallaccia.com` (como `spa-wellness.pesallaccia.com`).
+- **Aislamiento de Dominio Raíz (`BrandingProvider.tsx`)**: Se omitió la carga por defecto de `localStorage.getItem('apiKey')` al navegar directamente en la raíz de un dominio multi-tenant (`pesallaccia.com`), evitando que la raíz cargara indebidamente el tenant `spa-wellness-001`.
+- **Configuración de Servidor Hetzner (`.env`)**: Actualización de `DOMAIN_NAME=pesallaccia.com` y `ROOT_DOMAIN=pesallaccia.com` en `/srv/orderflow/.env`.
+
+## [1.20.81] - 2026-08-29
+
+### ⚙️ Sincronización Multi-Instancia & Herencia de Configuración Raíz (`showBusinessName`, Colors, Bgs)
+- **Persistencia de `instanceKey` en PUT Admin (`social-catalog.tsx`)**: Inclusión de `instanceKey` en la consulta `PUT /api/v1/admin/social-catalog/config?instanceKey=${selectedInstanceKey}` y en el payload del formulario, garantizando que guardar cambios, reordenar categorías, o modificar colores/fondos aplique directamente a la instancia seleccionada (`menudigital` vs `default`).
+- **Herencia de Configuración en Backend (`social-catalog.service.ts`)**: `getTenantConfig()` fusina la configuración raíz con las propiedades específicas de la instancia (`{ ...rawConfig, ...instanceSpecific }`), previniendo que toggles globales desmarcados (`showBusinessName: false`) se evalúen como `undefined` (y por ende `true`) en sub-instancias como `menudigital`.
+- **Persistencia Inmediata de Colores e Imágenes**: Actualización en vivo de `categoryColors` y `categoryBackgrounds` en `onColorChange`, `onBgChange` y `onUploadCategoryBg` con guardado automático contra PostgreSQL.
+- **Sincronización por URL (`useSearchParams`)**: El panel admin inicializa y mantiene la clave de instancia desde parámetros URL (`?instanceKey=menudigital`).
+
+## [1.20.80] - 2026-08-29
+
+### 🏷️ Corrección de Categorías Repetidas, Ocultamiento Estricto & Resoluciones de Color/Fondo
+- **Filtrado Backend de Categorías Ocultas (`social-catalog.service.ts`)**: Inclusión de `isVisible` en los selects de `categoryRel` y `posCategoryRel`, filtrando dinámicamente cualquier producto cuya categoría esté configurada como `isVisible === false` para prevenir que sigan apareciendo en catálogos como `menudigital` bajo la etiqueta "Fuera de carta".
+- **Deduplicación en Gestión de Categorías Admin (`social-catalog.tsx`)**: Eliminación del aplanado redundante en `loadCategoryTree` agrupando por nombre único (case-insensitive) e ID en `Map`, corrigiendo las repeticiones en la tabla `/admin/social-catalog` -> Categorías.
+- **Resolución Búsqueda Insensible a Mayúsculas/Espacios (`omni-catalog.tsx`)**: Implementación de los helpers `getCategoryBg()` y `getCategoryColor()` para resolver imágenes de fondo ("Veggie", "Sandwich sin TACC", "Chocolate") y colores personalizados ("Agua" `#FFFFFF`) eliminando diferencias por espacios o minúsculas.
+- **Contraste Dinámico de Texto de Encabezado (`omni-catalog.tsx`)**: Aplicación del cálculo dinámico `getHeaderTextColor()` para garantizar que colores de fondo claros (como blanco `#FFFFFF`) muestren texto oscuro legible en lugar del color primario por defecto.
+
+## [1.20.79] - 2026-08-29
+
+### 📱 Asignación Dinámica e Inteligente & Selector Manual de Íconos RR.SS. en OmniBio
+- **Detección Automática por URL/Título (`social-platform.utils.ts`)**: Implementación del helper `detectSocialPlatform()` para resolver canales de WhatsApp, Instagram, TikTok, Facebook, X, YouTube, Telegram, LinkedIn, Catálogo Social/OrderFlow, Reservas, Sorteos y enlaces Web genéricos.
+- **Componente Reutilizable `<SocialIcon />` (`social-icon.tsx`)**: Renderizado vectorial optimizado de marcas con contraste adaptable, alineación flexible y accesibilidad (`aria-hidden="true"`).
+- **Selector Manual en el Editor Admin (`biolinks.tsx`)**: Integración de la propiedad `platform?: SocialPlatformType` en el formulario modal para permitir forzar o cambiar manualmente el ícono de cualquier botón transaccional.
+- **Vista Previa en Vivo & Página Pública (`public-biolink.tsx`)**: Actualización del motor de renderizado de botones en la Vista Previa Móvil y en la página pública `/bio/[slug]`.
+
+## [1.20.78] - 2026-08-29
+
+### 🛡️ Detección Proactiva de Instrucciones CPU AVX & Prevención de SIGILL/502 Bad Gateway
+- **Inspección de CPU en `ImageProcessingService` (`image-processing.service.ts`)**: Implementación del método `hasAvxSupport()` que verifica si la CPU del servidor dispone de banderas de instrucciones vectoriales `avx` / `avx2` en `/proc/cpuinfo`.
+- **Bypass de Sharp para Procesadores Legacy (AMD G-T56N)**: En servidores con procesadores pre-AVX (como Provecchio), `ImageProcessingService` omite dinámicamente la invocación de binarios C de `sharp` antes de ejecutar cualquier llamada a libvips, evitando que el proceso Node.js reciba un `SIGILL` (Signal 4) y previniendo caídas repentinas del contenedor y errores 502 Bad Gateway en la subida de imágenes.
+
+## [1.20.77] - 2026-08-29
+
+### 📱 Resolución Jerárquica de Categorías en Instancias (`social-catalog.service.ts`)
+- **Soporte Completo para IDs Jerárquicos (`prodcat-*` / `poscat-*`) en `includedCategoryIds`**: Corregido el filtrado de productos en `getCatalogProducts` para derivar y comparar los IDs del árbol de categorías (`prodcat-comidas-pos-croissants`, etc.), resolviendo el problema por el cual instancias secundarias como `menudigital` en `provecchio.com` mostraban catálogos vacíos.
+
+## [1.20.76] - 2026-08-29
+
+### 🛡️ Blindaje de Aislamiento Multi-Tenant & Corrección de Fallback Inseguro
+- **Aislamiento en `ApiKeyGuard` (`api-key.guard.ts`)**: Carga automática del objeto `tenant` completo durante la verificación del token JWT (usando `decoded.tenantId` o `user.defaultTenantId`). Eliminación total del fallback inseguro `findFirst({ where: { active: true } })` que asignaba datos del tenant 1 cuando fallaba la resolución por subdominio.
+- **Resolución Defensiva de Tenant (`social-catalog-admin.controller.ts` & `social-catalog.controller.ts`)**: Implementación del método helper `getTenant(req)` que intenta leer `req.tenant` y `req.user.tenantId`, garantizando que ninguna consulta del catálogo social ejecute sin un tenant explícito o filtre productos/categorías de otros tenants.
+
+## [1.20.75] - 2026-08-29
+
+### 🏷️ Corrección de Visibilidad de Filtro de Categorías y Conteo (`omni-catalog.tsx`)
+- **Control Estricto de `showCategoryFilter`**: Condicionado el renderizado de la barra horizontal de pills de navegación (`🌟 Todas`, `🏷️ Categoría`) al flag de configuración `showCategoryFilter`. Si el administrador desactiva el filtro de categorías en el panel social, la barra de pills se oculta completamente.
+- **Control Estricto de `showProductCounts`**: Condicionada la visualización del número de productos entre paréntesis `(17)` en las pills de categorías al flag `showProductCounts`.
+
+## [1.20.74] - 2026-08-29
+
+### 🖼️ Conversión Automática WebP Universal & Auditoría de Uploads
+- **Restablecimiento y Aislamiento de Sharp en ImageProcessingService (`image-processing.service.ts`)**: Integración directa de `sharp` para procesar dinámicamente cualquier formato de imagen entrante (`.jpg`, `.jpeg`, `.png`, `.bmp`) a formato WebP optimizado (calidad 82), generando miniatura WebP (max 300x300) y fallback defensivo ante formatos o entornos no compatibles.
+- **Auditoría Global de Endpoints Upload**: Estandarización de conversión a WebP en `social-catalog-admin.controller.ts`, `products.controller.ts` y `biolinks.controller.ts`.
+- **Script de Migración Retroactiva WebP (`convert-existing-images-to-webp.ts`)**: Creación de script de migración para convertir imágenes pasadas en `uploads/` a `.webp` y actualizar referencias en base de datos PostgreSQL.
+
+## [1.20.73] - 2026-08-29
+
+### 🖼️ Galería de Archivos en Menú Lateral (`/admin/gallery`)
+- **Pantalla Dedicada Galería de Archivos (`gallery.tsx`)**: Creación de la página completa de administración de imágenes del almacén del tenant (`/admin/gallery`) con soporte de filtrado por categoría (`Catálogo social`, `Productos`, `Bio-links`, `Proveedores`), buscador por nombre de archivo, subida directa desde el host/equipo local, copia de URL con 1-clic y eliminación segura.
+- **Acceso en Barra Lateral (`Sidebar.tsx`)**: Inclusión del acceso 🖼️ **Galería de Archivos** en el grupo *Catálogo & Canales* de la navegación lateral.
+
+## [1.20.72] - 2026-08-29
+
+### 🎨 Categorías & Despliegue de Producción (UI/UX)
+- **Toggle de Visibilidad de Filtro de Categorías (`showCategoryFilter`)**: Inclusión del switch para mostrar u ocultar la barra/filtro de categorías (`Todas (203)`, `BEBIDAS (80)`, `COMIDAS (123)`) en la sección de visibilidad del admin (`social-catalog.tsx`), aplicando reactivamente al catálogo del cliente final (`omni-catalog.tsx`) y al visor en tiempo real (`CatalogLivePreview.tsx`).
+- **Carga Directa de Archivo de Imagen por Categoría (`CategoryManagement.tsx`)**: Integración del botón **"Subir"** con soporte multipart/form-data directo desde el dispositivo/host del usuario, permitiendo elegir entre la galería/almacén del tenant o subir una imagen local desde su máquina.
+- **Robustez en Botón Guardar Cambios (`CategoryManagement.tsx`)**: Manejo asíncrono con `try/catch/finally` e indicador de carga (`loading={savingOrder}`) con notificaciones asertivas de éxito/error.
+
 ## [1.20.71] - 2026-08-29
 
 ### 🎨 Unificación de Gestión de Categorías y Convención Tipográfica Sentence Case (UI/UX)
