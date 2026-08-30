@@ -5,6 +5,12 @@ Todos los cambios notables a este proyecto serán documentados en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 y este proyecto se adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.20.97] - 2026-08-30
+
+### 🌳 Predeterminado Combinado (`product_pos`) para Árbol Completo de Categorías
+- **Ajuste de Origen Predeterminado**: El generador de árbol de categorías (`getCategoryTree`) y la configuración por defecto en el panel de administración del catálogo social utilizan por defecto el modo **Combinado (`product_pos`)**.
+- **Despliegue Completo de Categorías de Producto y PDV**: Garantiza que las **Categorías de Producto** (Nivel 0: p. ej., *Para comer*, *Para beber*) y sus subcategorías de PDV (Nivel 1: *Platos fuertes*, *Croissants* y Nivel 2: *Caliente*, *Frío*) se rendericen y desplieguen completas tanto en el catálogo público como en la vista de administración.
+
 ## [1.20.96] - 2026-08-30
 
 ### 🔀 Separación Jerárquica entre Canónico (`/admin/products`) y Visibilidad Dinámica (`/admin/social-catalog`)
