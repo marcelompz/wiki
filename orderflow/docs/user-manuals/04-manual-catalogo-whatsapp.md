@@ -72,6 +72,10 @@ Desde la configuración del módulo (`/admin/social-catalog`), se define cómo s
   2. Actualiza los metadatos JSON (`posCategory`, `productCategory`, `posSubcategory`).
   3. Mantiene la visibilidad activa sin desconfigurar las preferencias visuales de la tienda.
 
+### 4.5 Purga Masiva de Categorías y Desduplicación por Nombre (`v1.20.90+`)
+- **Vaciado de Categorías (`⚠️ Vaciar Categorías`)**: En `/admin/social-catalog` (Pestaña *Categorías*), se dispone del botón de vaciado masivo que invoca el endpoint `DELETE /api/v1/social-catalog/admin/categories/purge`. Al ejecutar la purga, se eliminan todas las categorías del tenant y se limpian las referencias de categorías en los productos, **conservando intactos todos los productos e inventarios** para permitir una re-importación totalmente limpia.
+- **Reutilización y Desduplicación Estricta:** Durante la importación de productos (CSV/Excel o creación manual), el sistema evalúa si la categoría ya existe en la base de datos (búsqueda insensible a mayúsculas/minúsculas). Si la categoría existe, **se reutiliza el registro existente** y se ajusta su parentesco o nivel según la jerarquía, impidiendo la creación de categorías duplicadas.
+
 ---
 
 ## 5. Marca Blanca (White-Label) & Personalización SuperAdmin
