@@ -5,6 +5,51 @@ Todos los cambios notables a este proyecto serán documentados en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 y este proyecto se adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.20.94] - 2026-08-30
+
+### 🌳 Visualización de Categorías Vacías, Soporte de 3 Niveles y Corrección de Jerarquías (`social-catalog.service.ts`)
+- **Pre-poblado de Categorías de BD (`includeEmpty = true`)**: El generador de árbol de categorías pre-carga el 100% de los registros de `ProductCategory` existencias en la base de datos (incluso si tienen 0 productos asignados) permitiendo a los administradores visualizar, seleccionar y borrar categorías vacías o duplicadas obsoletas.
+- **Resolución Correcta de Padres (Caso "Platos fuertes" ➔ "Para comer")**: Corregida la búsqueda en la base de datos para priorizar registros que poseen `parentId` activo. "Platos fuertes" se anida correctamente debajo de su categoría padre "Para comer" (Nivel 0) sin forzarse debajo de cadenas secundarias o desactualizadas ("COMIDAS").
+- **Jerarquía Completa de 3 Niveles**: Preserva la estructura exacta de Nivel 0 (Padre) ➔ Nivel 1 (Hija) ➔ Nivel 2 (Nieta) tanto en el panel de administración como en el cliente del catálogo social.
+
+## [1.20.93] - 2026-08-30
+
+### 🛠️ Endpoint de Guardado y Reordenamiento de Categorías (`PUT/POST /api/v1/admin/social-catalog/categories/reorder`)
+- **Implementación del Handler `reorderCategories` (`SocialCatalogAdminController`)**: Agregado el controlador faltante para atender las peticiones de guardado, reordenamiento y visibilidad de categorías en `/api/v1/admin/social-catalog/categories/reorder`.
+- **Actualización en Transacción Prisma**: Actualiza `sortOrder`, `order`, `isVisible` y `parentId` tanto por ID como por Nombre de Categoría en una sola transacción atómica evitando errores 500 al presionar "Guardar cambios".
+
+## [1.20.92] - 2026-08-30
+
+### ☑️ Casillas de Selección Múltiple y Eliminación de Categorías Seleccionadas (`CategoryManagement.tsx`)
+- **Casillas Checkbox por Fila (`CategoryManagement.tsx`)**: Añadida casilla de verificación independiente por cada categoría en la lista/árbol para selección unitaria o múltiple.
+- **Barra de Selección "Seleccionar Todas"**: Incorporada barra superior con casilla maestre `Seleccionar Todas (N/Total)` para marcar/desmarcar de 1-Click todas las categorías.
+- **Acción "🗑️ Eliminar Seleccionadas (N)" (`POST /api/v1/social-catalog/admin/categories/bulk-delete`)**: Habilitado botón de eliminación atómica para borrar exclusivamente el conjunto de categorías seleccionadas desvinculando adecuadamente los productos.
+- **Disponible en Múltiples Secciones**: Operativo tanto en `/admin/social-catalog` (Tab *Categorías*) como en `/admin/products` (Modal *Gestión Completa de Categorías*).
+
+## [1.20.91] - 2026-08-30
+
+### 🛒 Selector Interactivo de Cantidad y Eliminación Directa en Carrito (`CartDrawer.tsx`)
+- **Controles Dinámicos Stepper `[ - ] N [ + ]`**: Reemplazado el control estándar de número por botones táctiles responsivos de incremento/decremento `[ - ]` y `[ + ]` dentro del carrito / precuenta. Si la cantidad baja de 1, el producto se elimina automáticamente.
+- **Botón de Eliminación Directa (`🗑️`)**: Añadido botón dedicado de eliminación por producto con icono de papelera visible en pantallas móviles y escritorio.
+
+## [1.20.90] - 2026-08-30
+
+### 🗑️ Purga Masiva de Categorías & Reutilización Atómica sin Duplicación
+- **Purga de Categorías (`DELETE /api/v1/social-catalog/admin/categories/purge`)**: Agregado endpoint y botón **`⚠️ Vaciar Categorías`** en el panel de administración (`CategoryManagement.tsx`) para desvincular productos y eliminar todas las categorías registradas con confirmación previa.
+- **Reutilización y Desduplicación por Nombre (`batch-product-import.service.ts`)**: Se garantiza que durante la importación masiva de productos (CSV/Excel), si una categoría ya existe (búsqueda insensible a mayúsculas/minúsculas), **se reutiliza el registro existente** y se actualiza su vinculación jerárquica en lugar de generar duplicados.
+
+## [1.20.89] - 2026-08-30
+
+### 🌳 Estructura Estricta de 3 Niveles (Padre ➔ Hija ➔ Nieta) en Catálogos
+- **Mapeo Atómico Padre-Hija-Nieta (`social-catalog.service.ts`)**: Garantiza la jerarquía de 3 niveles exigida: `Categoria del producto` (Padre - Nivel 0), primera `Categoria de PDV` (Hija - Nivel 1) y segunda `Categoria de PDV` (Nieta - Nivel 2). Filtra la duplicación del nodo raíz y ubica los productos directamente dentro del nodo terminal correspondiente.
+
+## [1.20.88] - 2026-08-30
+
+### 🏷️ Detección Automática de Nuevas Categorías y Configuración de Marca Blanca SuperAdmin
+- **Detección Dinámica de Categorías en Importaciones y Cargas (`social-catalog.service.ts`)**: Se reemplazó el filtrado restrictivo por whitelist (`includedCategoryIds`) por un filtrado defensivo basado en blacklist (`hiddenCategoryIds`). Todas las categorías y productos recién subidos o creados se detectan y muestran automáticamente sin requerir guardado manual en el panel de administración.
+- **Gestión Integral de Marca Blanca en SuperAdmin (`super-admin-dashboard.tsx`)**: Incorporación del modal `🏷️ Marca Blanca` en la tabla de tenants del SuperAdmin Dashboard, permitiendo configurar el nombre comercial (`businessName`), nombre de plataforma (`name`), URL de logotipo (`themeLogoUrl`), créditos de pie de página (`footerCredits`) y switch para ocultar la marca "Powered by OmniFlow".
+- **Fallback Automático de Categorías PDV (`social-catalog.service.ts`)**: En modo `product_pos`, si un producto importado no posee `posCategory` explícita pero cuenta con `category` de producto, el sistema asigna `prodCatName` automáticamente como fallback, evitando que quede como producto huérfano.
+
 ## [1.20.87] - 2026-08-30
 
 ### 🌿 Jerarquía Anidada N-Niveles para Categorías de PDV y Visibilidad por Instancia
