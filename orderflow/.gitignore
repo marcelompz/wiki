@@ -14,6 +14,9 @@ client_secret*.json
 *.pfx
 *.pkcs12
 
+#Troubleshooting
+docs/troubleshooting/  
+
 # Logs
 logs
 *.log
