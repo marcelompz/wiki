@@ -47,21 +47,46 @@ Desde la sección **🛒 Modo de Venta** en `/admin/social-catalog`, el administ
 
 ---
 
-## 4. Gestión de Categorías y Jerarquías de Productos
+## 4. Gestión de Categorías, Jerarquías Multinivel y Auto-Detección (`v1.20.89+`)
 
-### 4.1 Administración de Categorías (`/admin/products` / `/admin/social-catalog`)
-- **Gestión Completa de Categorías:** Permite estructurar el menú en jerarquías de nivel padre/hijo (ejemplo: *"Para comer"* $\rightarrow$ *"Bruschettas"*, *"Mixtos"*, *"Croissants"*, y *"Para beber"* $\rightarrow$ *"Café"*, *"Jugos"*, *"Cerveza artesanal"*).
-- **Iconografía y Fondos:** Cada categoría admite imágenes de fondo personalizadas y paleta de colores adaptable al tema visual del negocio.
+### 4.1 Jerarquía Estricta de 3 Niveles (Padre ➔ Hija ➔ Nieta)
+El catálogo admite una arquitectura de menú de hasta 3 niveles de profundidad para estructurar cartas extensas o catálogos complejos:
+- **Nivel 0 (Padre)**: `Categoria del producto` (ej. `BEBIDAS` o `COMIDAS`).
+- **Nivel 1 (Hija)**: Primera `Categoria de PDV` (ej. `Cafe` en BEBIDAS, o `Huevos benedictinos` en COMIDAS).
+- **Nivel 2 (Nieta)**: Segunda `Categoria de PDV` (ej. `Caliente` / `Frío` dentro de Cafe).
+- **Ubicación de Productos**: Los ítems (ej. `Espresso 45 ml`) se asignan automáticamente al nodo de nivel terminal correspondiente (Nieta si existe Nivel 2, o Hija si posee Nivel 1).
 
-### 4.2 Renombrado y Propagación Automática
+### 4.2 Modos de Origen de Categorías (`categorySource`)
+Desde la configuración del módulo (`/admin/social-catalog`), se define cómo se mapea la estructura de categorías:
+- **`product_pos` (Combinado - 3 Niveles)**: Muestra la jerarquía completa desde la Categoría del Producto (Padre Level 0) hasta las subcategorías del PDV (Hija Level 1 ➔ Nieta Level 2).
+- **`pos` (Exclusivo PDV - 2 Niveles)**: Excluye la categoría general del producto y parte directamente de la primera categoría del PDV como Padre (Level 0) y la segunda como Hija (Level 1).
+- **`product` (Exclusivo Producto - 1 Nivel)**: Agrupa los productos únicamente por la Categoría general del Producto.
+
+### 4.3 Detección Automática de Nuevas Categorías (Blacklist-First)
+- **Visualización Inmediata al Importar:** Al subir nuevos productos manualmente o mediante carga masiva CSV/Excel (como `provecchio_productos_importacion.csv`), el catálogo opera con una lista negra defensiva (`hiddenCategoryIds`).
+- **Cero Intervención Manual:** Todas las categorías y productos recién creados son **detectados y mostrados automáticamente** sin requerir que el usuario ingrese al panel a guardar o reordenar categorías.
+
+### 4.4 Renombrado y Propagación Automática
 - Al cambiar el nombre de una categoría (ej. de *"COMIDAS"* a *"Para comer"*), el sistema ejecuta una propagación masiva en segundo plano:
   1. Actualiza la columna `product.category` en todos los productos asociados del tenant.
   2. Actualiza los metadatos JSON (`posCategory`, `productCategory`, `posSubcategory`).
-  3. Sincroniza la lista de inclusión de categorías (`includedCategoryIds`) en la configuración persistida del módulo para asegurar que el catálogo mantenga el 100% de la visibilidad sin requerir reconfiguraciones manuales.
+  3. Mantiene la visibilidad activa sin desconfigurar las preferencias visuales de la tienda.
 
 ---
 
-## 5. Dominio Personalizado y Aislamiento Multi-Tenant
+## 5. Marca Blanca (White-Label) & Personalización SuperAdmin
+
+### 5.1 Panel de Marca Blanca por Tenant (`/admin/super-admin-dashboard`)
+Desde la tabla de tenants en el SuperAdmin Dashboard, el usuario con rol SuperAdmin cuenta con la opción **`🏷️ Marca Blanca`** para configurar:
+- **Nombre de la Marca/Plataforma:** Nombre público del servicio (ej. *OmniFlow*, *Provecchio*).
+- **Razón Social:** Identificación legal o comercial del negocio.
+- **Logotipo de Marca Blanca (`themeLogoUrl`):** URL de la imagen oficial del Isotipo/Logo.
+- **Créditos del Pie de Página (`footerCredits`):** Texto personalizado de derechos o créditos (ej. `⚡ OmniCatalog | Powered by OmniFlow © 2026`).
+- **Remover Marca por Defecto:** Interruptor toggle para activar o desactivar la leyenda predeterminada del sistema.
+
+---
+
+## 6. Dominio Personalizado y Aislamiento Multi-Tenant
 
 El sistema resuelve automáticamente el contexto del negocio a través de múltiples esquemas de acceso con aislamiento estricto nivel Row-Level Security (RLS):
 - **Dominio Personalizado:** `https://provecchio.com`
@@ -70,7 +95,7 @@ El sistema resuelve automáticamente el contexto del negocio a través de múlti
 
 ---
 
-## 6. Personalización Visual del Catálogo
+## 7. Personalización Visual del Catálogo
 
 1. **Banner Promocional y Encabezado:** Selección de posición (`center`, `top`, `bottom`) y modo de ajuste (`cover` / `contain`).
 2. **Paleta de Colores Dinámica:** Configuración de color primario, fondo de encabezado y fondo del cuerpo con soporte automático para tema claro y oscuro (*Dark Mode*).
