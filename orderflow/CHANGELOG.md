@@ -5,6 +5,15 @@ Todos los cambios notables a este proyecto serán documentados en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 y este proyecto se adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.20.96] - 2026-08-30
+
+### 🔀 Separación Jerárquica entre Canónico (`/admin/products`) y Visibilidad Dinámica (`/admin/social-catalog`)
+- **Gestión Canónica de BD (`/admin/products`)**: Modal/Drawer de gestión con pestañas independientes para **📁 Categorías de Producto** y **🛒 Categorías de PDV**. Es el único origen de verdad autorizado para crear, renombrar, cambiar la estructura de jerarquía padre/hijo y eliminar físicamente registros de categorías en PostgreSQL.
+- **Configuración de Visibilidad y Estilos (`/admin/social-catalog`)**:
+  - `readOnlyHierarchy = true`: Deshabilita la edición de nombres de categorías y la alteración de la jerarquía canónica de la BD en la pestaña de catálogo social para prevenir corrupción accidental de la BD.
+  - La acción de quitar/ocultar **NO elimina categorías de la base de datos**; actualiza únicamente la visibilidad de la instancia activa (`isVisible` / `hiddenCategoryIds`).
+  - **Origen Dinámico de Categorías**: Permite alternar dinámicamente el despliegue del catálogo por **Categorías de Producto**, **Categorías de PDV** o **Combinado (Producto + PDV)**.
+
 ## [1.20.95] - 2026-08-30
 
 ### 🧹 Limpieza de Categorías Huérfanas y Herramienta "⚡ Seleccionar Vacías" (`CategoryManagement.tsx`)
