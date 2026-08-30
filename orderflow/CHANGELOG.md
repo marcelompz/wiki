@@ -5,6 +5,19 @@ Todos los cambios notables a este proyecto serán documentados en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 y este proyecto se adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.20.99] - 2026-08-30
+
+### 🔎 Detección Inteligente y Unificación de Categorías Similares/Duplicadas
+- **Algoritmo de Similitud Léxica y Levenshtein**: Incorporado en `social-catalog-admin.controller.ts` para detectar variaciones tipográficas, singular/plural (*Bruschetta* vs *Bruschettas*) y tildes (*Frio* vs *Frío*).
+- **Herramienta `🔎 Detectar Similares` en UI**: Nuevo botón en `CategoryManagement.tsx` que escanea las categorías de la BD y las agrupa por variantes.
+- **Modal de Unificación de 1 Clic (`categories/merge`)**: Permite elegir la categoría canónica y re-asignar automáticamente todos los productos de las variantes en la BD, eliminando las duplicadas atómicamente.
+
+## [1.20.98] - 2026-08-30
+
+### 📁 Filtrado Estricto de Categorías de Producto (`product` mode en `social-catalog.service.ts`)
+- **Aislamiento Estricto de Categorías de Producto**: Al seleccionar **📁 Categorías de Producto** (`categorySource === 'product'`), el árbol de categorías filtra de manera estricta únicamente las Categorías de Producto principales de los productos (p. ej., *Para comer*, *Para beber*), excluyendo las 30 filas de subcategorías de PDV (como *Bruschettas*, *Caliente*, *Chocolate*).
+- **Conteo Directo y Visibilidad**: Muestra exclusivamente los nodos raíz de categorías de producto con su conteo total de productos agrupados.
+
 ## [1.20.97] - 2026-08-30
 
 ### 🌳 Predeterminado Combinado (`product_pos`) para Árbol Completo de Categorías
