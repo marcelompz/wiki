@@ -5,6 +5,15 @@ Todos los cambios notables a este proyecto serán documentados en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 y este proyecto se adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.20.95] - 2026-08-30
+
+### 🧹 Limpieza de Categorías Huérfanas y Herramienta "⚡ Seleccionar Vacías" (`CategoryManagement.tsx`)
+- **Visualización Obligatoria de Categorías Huérfanas**: `CategoryManagement.tsx` incluye categorías cuyos `parentId` no existen en la base de datos como nodos raíz en la interfaz de administración (`/admin/social-catalog` y `/admin/products`), eliminando "categorías fantasma" ocultas.
+- **Acción Rápida `⚡ Seleccionar Vacías`**: Añadido botón en la barra superior del gestor de categorías que selecciona con un clic el 100% de las categorías que tienen 0 productos asignados (`productCount === 0`) para su borrado inmediato con **`Eliminar Seleccionadas`**.
+- **Etiqueta de Conteo de Productos por Fila**: Badge en cada fila con el número exacto de productos (`N prods` / `Vacía (0 prods)`).
+- **Buscador de Categorías**: Campo de búsqueda rápida por nombre o slug en la interfaz de gestión.
+- **Limpieza BD Provecchio**: Eliminada la categoría fantasma heredada `COMIDAS` y re-vinculados los productos huérfanos a la categoría activa `Platos fuertes` (debajo de `Para comer`).
+
 ## [1.20.94] - 2026-08-30
 
 ### 🌳 Visualización de Categorías Vacías, Soporte de 3 Niveles y Corrección de Jerarquías (`social-catalog.service.ts`)
