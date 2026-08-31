@@ -5,6 +5,12 @@ Todos los cambios notables a este proyecto serán documentados en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 y este proyecto se adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.21.01] - 2026-08-30
+
+### 📄 Soporte Completo de Paginación Masiva (`per_page` hasta 300+ productos)
+- **Corrección de Límite en Backend (`products.service.ts`)**: Se corrigió el parámetro de consulta `findAll` en el backend para reconocer `per_page`, `limit` y `take` de forma intercambiable. Anteriormente, si la UI enviaba `per_page: 300`, el backend usaba un valor predeterminado duro de 100 productos por página.
+- **Paginación Exacta**: Ahora listar 150, 200 o 300 productos por página recupera y selecciona la totalidad de los registros de la página en DataView.
+
 ## [1.21.00] - 2026-08-30
 
 ### 🌳 Visualización de 2 Niveles de PDV y Corrección de Jerarquía en Social-Catalog
