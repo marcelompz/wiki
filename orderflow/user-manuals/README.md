@@ -127,20 +127,31 @@ Bienvenidos al Centro de Documentación Operativa de **OrderFlow**. Los siguient
      - Landed Costs / Costes en Destino en recepción de Órdenes de Compra (Paso 8 de Inventario) con recálculo de PMP (`costPricePmp`).
      - Wizard visual de onboarding Odoo 1-Click (`<OdooOnboardingWizardModal>`) en el Dashboard SuperAdmin (`v1.20.41`).
 
+28. 👔 **[28. Manual de Capital Humano & Asistencia](28-manual-capital-humano-y-asistencia.md)**
+     - Legajo Digital de Colaboradores (`Employee`), vinculación tripartita `Contact` ↔ `Employee` ↔ `User`.
+     - Fichaje de asistencia multi-método (NFC, QR, PIN, App Móvil con biometría nativa y terminales ZKTeco/Hikvision).
+     - RBAC con permisos `hr:employees:*` y `hr:attendance:*`, auditoría de cambios inmutable (`EmployeeAuditLog`) y geocercas Haversine (`v1.21.01`).
+
+29. 🍕 **[29. Manual de Agregados, Modificadores & Galería Unificada](29-manual-agregados-y-modificadores-de-producto.md)**
+     - Configuración de grupos y opciones de agregados (`ModifierGroup` / `ModifierOption`) con recargos de precio `priceDelta` y descuentos de materia prima (`ingredientVariantId` / `qtyDelta`).
+     - Selección de imágenes desde la Galería Unificada del Tenant (`ImagePicker` / `/api/v1/uploads/gallery`) en la ficha de producto.
+     - Selector táctil `ModifierSelector` en el catálogo público (`social-catalog`), snapshots inmutables `OrderLineModifier` y movimientos de stock MRP (`v1.21.01`).
+
 ---
 
 ## 📦 Acceso Rápido por Rol
 
 | Rol | Manuales Recomendados |
 |-----|----------------------|
-| **Admin / Owner / C-Level** | Todos (01 a 27) |
-| **Cajero / POS** | 02 (POS/KDS), 05 (Fidelización), 12 (Crédito), 14 (Cierre Caja), 18 (POS BoM), 22 (Multimoneda), 23 (Tesoreria POS), 25 (DataView Suite) |
-| **Mozo / Vendedor B2B** | 02 (POS), 03 (Turnos), 04 (Catálogo WA), 13 (KUDE WA), 19 (Presupuestos B2B), 22 (Cotización Divisas), 25 (DataView Suite) |
-| **Encargado de Compras / Depósito** | 15 (Multibodega), 17 (MRP Manufactura), 23 (Órdenes de Compra & Proveedores), 24 (Workspace Documental), 25 (DataView Suite), 27 (Landed Costs) |
-| **Chef / Personal de Cocina** | 02 (KDS), 18 (KDS Multi-Estación & SLA) |
-| **Gestor de Marketing / Diseñador** | 01 (Portada), 04 (Catálogo), 05 (Sorteos), 09 (QR Generator), 20 (Storefront Builder) |
+| **Admin / Owner / C-Level** | Todos (01 a 29) |
+| **Cajero / POS** | 02 (POS/KDS), 05 (Fidelización), 12 (Crédito), 14 (Cierre Caja), 18 (POS BoM), 22 (Multimoneda), 23 (Tesoreria POS), 25 (DataView Suite), 29 (Agregados & POS) |
+| **Mozo / Vendedor B2B** | 02 (POS), 03 (Turnos), 04 (Catálogo WA), 13 (KUDE WA), 19 (Presupuestos B2B), 22 (Cotización Divisas), 25 (DataView Suite), 29 (Agregados Catálogo) |
+| **Encargado de Compras / Depósito** | 15 (Multibodega), 17 (MRP Manufactura), 23 (Órdenes de Compra & Proveedores), 24 (Workspace Documental), 25 (DataView Suite), 27 (Landed Costs), 29 (Insumos Agregados MRP) |
+| **Encargado de RRHH / Personal** | 28 (Capital Humano & Asistencia), 03 (Turnos), 24 (Workspace Documental) |
+| **Chef / Personal de Cocina** | 02 (KDS), 18 (KDS Multi-Estación & SLA), 29 (Modificadores Comanda) |
+| **Gestor de Marketing / Diseñador** | 01 (Portada), 04 (Catálogo), 05 (Sorteos), 09 (QR Generator), 20 (Storefront Builder), 29 (Galería Unificada & Agregados) |
 | **Especialista / Spa** | 03 (Turnos), 02 (Comandas) |
-| **DevOps / Analista BI / CFO** | 07 (Flujo E2E), 08 (Deploy Manager), 11 (Odoo Webhooks), 15 (Multibodega), 16 (SSO), 17 (MRP Manufactura), 18 (KDS WebSockets), 19 (Fuerza de Ventas B2B), 20 (Storefront Builder Standalone), 21 (OmniBI Analytics), 22 (Engine Multimoneda), 23 (Compras & Finanzas Multi-Moneda), 24 (Collabora Workspace), 25 (DataView Suite), 26 (OmniAI LLM Local & Zero-Touch Odoo), 27 (Landed Costs & Onboarding Wizard) |
+| **DevOps / Analista BI / CFO** | 07 (Flujo E2E), 08 (Deploy Manager), 11 (Odoo Webhooks), 15 (Multibodega), 16 (SSO), 17 (MRP Manufactura), 18 (KDS WebSockets), 19 (Fuerza de Ventas B2B), 20 (Storefront Builder Standalone), 21 (OmniBI Analytics), 22 (Engine Multimoneda), 23 (Compras & Finanzas Multi-Moneda), 24 (Collabora Workspace), 25 (DataView Suite), 26 (OmniAI LLM Local & Zero-Touch Odoo), 27 (Landed Costs & Onboarding Wizard), 28 (Capital Humano & Asistencia), 29 (Agregados & MRP) |
 
 ---
 
@@ -148,4 +159,4 @@ Bienvenidos al Centro de Documentación Operativa de **OrderFlow**. Los siguient
 
 Este índice se actualiza con cada nueva feature. La numeración sigue el orden de implementación (FEAT-XXX).
 
-**Última actualización**: 2026-08-26 — Agregado manual 27 (Landed Costs & Odoo Onboarding Wizard v1.20.41)
+**Última actualización**: 2026-09-01 — Agregado manual 29 (Agregados, Modificadores & Galería Unificada v1.21.01)
