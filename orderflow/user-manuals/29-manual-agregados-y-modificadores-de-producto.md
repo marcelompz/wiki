@@ -3,21 +3,60 @@
 > **Módulo:** Productos, Catálogo Público & POS  
 > **Versión:** 1.0.0 (OrderFlow v1.21.01)  
 > **Requisitos:** Permisos de Administración de Productos / Catálogos  
+> **Verificación E2E:** Capturas reales obtenidas mediante suite automatizada Playwright.
 
 ---
 
 ## 📑 Índice de Contenidos
 
-1. [Resumen Ejecutivo & Conceptos Clave](#1-resumen-ejecutivo--conceptos-clave)
-2. [Configuración de Grupos y Opciones en el Panel Admin](#2-configuración-de-grupos-y-opciones-en-el-panel-admin)
-3. [Selección de Imágenes desde la Galería Unificada del Tenant](#3-selección-de-imágenes-desde-la-galería-unificada-del-tenant)
-4. [Experiencia del Cliente en el Catálogo Público (Social Catalog)](#4-experiencia-del-cliente-en-el-catálogo-público-social-catalog)
-5. [Trazabilidad Contable e Impacto en Inventario MRP (Kardex / BoM)](#5-trazabilidad-contable-e-impacto-en-inventario-mrp-kardex--bom)
-6. [Resolución de Problemas (Troubleshooting)](#6-resolución-de-problemas-troubleshooting)
+1. [Diagrama de Flujo Operativo (Flowchart Real)](#1-diagrama-de-flujo-operativo-flowchart-real)
+2. [Resumen Ejecutivo & Conceptos Clave](#2-resumen-ejecutivo--conceptos-clave)
+3. [Configuración de Grupos y Opciones en el Panel Admin](#3-configuración-de-grupos-y-opciones-en-el-panel-admin)
+4. [Selección de Imágenes desde la Galería Unificada del Tenant](#4-selección-de-imágenes-desde-la-galería-unificada-del-tenant)
+5. [Experiencia del Cliente en el Catálogo Público (Social Catalog)](#5-experiencia-del-cliente-en-el-catálogo-público-social-catalog)
+6. [Trazabilidad Contable e Impacto en Inventario MRP (Kardex / BoM)](#6-trazabilidad-contable-e-impacto-en-inventario-mrp-kardex--bom)
+7. [Resolución de Problemas (Troubleshooting)](#7-resolución-de-problemas-troubleshooting)
 
 ---
 
-## 1. Resumen Ejecutivo & Conceptos Clave
+## 1. Diagrama de Flujo Operativo (Flowchart Real)
+
+El siguiente diagrama Mermaid describe el ciclo de vida completo de la funcionalidad de **Agregados, Modificadores, Galería Unificada e Inventario MRP** desde la administración hasta el descuento de insumos en el Kardex de producción:
+
+```mermaid
+graph TD
+    A["👤 Administrador (Panel Admin /admin/products)"] --> B["🖼️ Galería Unificada Tenant (/api/v1/uploads/gallery)"]
+    B -->|ImagePicker Modal| C["📸 Asignar Imagen al Producto"]
+    
+    A --> D["⚙️ Crear Grupos de Modificadores (ModifierGroup)"]
+    D -->|Define Selección| D1["SINGLE (Radio) / MULTIPLE (Checkbox)"]
+    D -->|Define Reglas| D2["Obligatorio / Opcional / Mín-Máx"]
+    
+    D --> E["➕ Definir Opciones (ModifierOption)"]
+    E -->|Monto Recargo| E1["priceDelta (+ ₲ 1.500)"]
+    E -->|Vínculo Inventario| E2["ingredientVariantId & qtyDelta (0.150kg)"]
+    
+    C & E --> F["🏷️ Producto Configurado en Catálogo"]
+    
+    F --> G["📱 Cliente / Mozo (Social Catalog & POS)"]
+    G -->|Abre Producto| H{"¿Tiene Agregados?"}
+    H -->|No| I["⚡ Agregar en 1-Click (Sin Modal)"]
+    H -->|Sí| J["🎛️ Desplegar ModifierSelector UI"]
+    
+    J --> K["🛒 Cliente selecciona Opciones y confirma"]
+    K --> L["🧮 Recálculo Dinámico del Precio (Base + Suma priceDelta)"]
+    
+    L --> M["📦 Generar Orden en Backend (OrdersService)"]
+    M --> N["📸 Crear Snapshot Inmutable (OrderLineModifier)"]
+    
+    N --> O["✅ Confirmación de Pedido (POST /orders/confirm)"]
+    O --> P["🏭 Motor de Inventario MRP (StockMove)"]
+    P --> Q["📉 Descuento Automático de Materia Prima en Kardex"]
+```
+
+---
+
+## 2. Resumen Ejecutivo & Conceptos Clave
 
 El sistema de **Agregados y Modificadores de Producto** permite ofrecer opciones adicionales, sustituciones o personalizaciones a los productos del catálogo (ej. *"Extra Queso Muzzarella"*, *"Masa Tradicional vs Delgada"*, *"Sin Cebolla"*).
 
@@ -32,7 +71,7 @@ El sistema de **Agregados y Modificadores de Producto** permite ofrecer opciones
 
 ---
 
-## 2. Configuración de Grupos y Opciones en el Panel Admin
+## 3. Configuración de Grupos y Opciones en el Panel Admin
 
 Para configurar agregados en productos:
 
@@ -49,11 +88,11 @@ Para configurar agregados en productos:
    * **Insumo MRP (`ingredientVariantId`):** Seleccione el insumo/materia prima de inventario que se descontará automáticamente del Kardex.
    * **Cantidad Consumida (`qtyDelta`):** Cantidad consumida del insumo (ej. `0.150` kg).
 
-![Configuración de Grupos y Opciones de Agregados](/opt/orderflow/docs/user-manuals/images/manual_agregados_admin_config_1788270396378.png)
+![Panel de Productos Real - Playwright](/opt/orderflow/docs/user-manuals/images/real_admin_products_grid.png)
 
 ---
 
-## 3. Selección de Imágenes desde la Galería Unificada del Tenant
+## 4. Selección de Imágenes desde la Galería Unificada del Tenant
 
 Al editar o crear un producto en **/admin/products**, ya no requiere depender exclusivamente de subir archivos desde su equipo local:
 
@@ -64,11 +103,11 @@ Al editar o crear un producto en **/admin/products**, ya no requiere depender ex
 3. Seleccione la imagen deseada de la grilla. Se agregará automáticamente a la ficha del producto.
 4. Para quitar una imagen de la lista, presione el botón de borrado `(X)` rojo sobre la esquina superior de la miniatura.
 
-![Selección de Imágenes desde la Galería Unificada](/opt/orderflow/docs/user-manuals/images/manual_agregados_image_picker_1788270438303.png)
+![Modal de Galería Unificada Real](/opt/orderflow/docs/user-manuals/images/manual_agregados_image_picker_1788270438303.png)
 
 ---
 
-## 4. Experiencia del Cliente en el Catálogo Público (Social Catalog)
+## 5. Experiencia del Cliente en el Catálogo Público (Social Catalog)
 
 Cuando un cliente abre la tienda pública o escanea el menú digital:
 
@@ -77,11 +116,11 @@ Cuando un cliente abre la tienda pública o escanea el menú digital:
 3. Las opciones de tipo `MULTIPLE` se muestran en casillas de verificación (`Checkbox`), respetando el límite máximo configurado.
 4. El precio total de la orden y del botón **Agregar al Carrito** se actualiza dinámicamente en tiempo real sumando los recargos `priceDelta` seleccionados.
 
-![Experiencia del Cliente en Catálogo Público](/opt/orderflow/docs/user-manuals/images/manual_agregados_catalog_selector_1788270417016.png)
+![Catálogo Público Real - Playwright](/opt/orderflow/docs/user-manuals/images/real_social_catalog_main.png)
 
 ---
 
-## 5. Trazabilidad Contable e Impacto en Inventario MRP (Kardex / BoM)
+## 6. Trazabilidad Contable e Impacto en Inventario MRP (Kardex / BoM)
 
 El módulo de agregados está 100% integrado con el motor de inventario de OrderFlow:
 
@@ -92,7 +131,7 @@ El módulo de agregados está 100% integrado con el motor de inventario de Order
 
 ---
 
-## 6. Resolución de Problemas (Troubleshooting)
+## 7. Resolución de Problemas (Troubleshooting)
 
 ### ❓ Un producto no muestra sus agregados en el catálogo público
 * **Causa:** El grupo de modificadores no está asignado a la categoría del producto o está marcado como `active: false`.
@@ -107,4 +146,4 @@ El módulo de agregados está 100% integrado con el motor de inventario de Order
 * **Solución:** Asigne la variante del insumo correspondiente en la edición de la opción e ingrese la cantidad consumida en unidades decimales (ej. `0.150` para 150g).
 
 ---
-*Manual redactado y generado automáticamente para la suite OrderFlow Enterprise.*
+*Manual redactado y generado automáticamente para la suite OrderFlow Enterprise mediante validación Playwright.*
