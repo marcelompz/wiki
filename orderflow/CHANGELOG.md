@@ -5,6 +5,39 @@ Todos los cambios notables a este proyecto serán documentados en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 y este proyecto se adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.24.02] - 2026-09-02
+
+### 🔑 Autenticación & Redirección Automática por Subdominio de Tenant
+- **Redirección Transparente tras Login (`login.tsx` / `auth.service.ts`)**: Al iniciar sesión con credenciales, la plataforma consulta el subdominio asignado al tenant predeterminado y redirige automáticamente al usuario hacia `https://<subdomain>.pesallaccia.com/admin` (o su `customDomain`).
+- **Resiliencia ante Desarrollo Local**: Si la aplicación corre en entorno local (`localhost` o IP privada), se omite la redirección externa y se mantiene en el origen actual.
+
+### 🖼️ Separación de Miniaturas en Subdirectorio `/thumbs/` y Filtrado de Galería
+- **Aislamiento Físico de Miniaturas (`image-processing.service.ts`)**: Las versiones reducidas de vista previa `_thumb.webp` se almacenan en la subcarpeta física `thumbs/` dentro del directorio de cada tenant.
+- **Galería Unificada Limpia y Deduplicada (`uploads.controller.ts`, `social-catalog-admin.controller.ts`)**: La API de galería unificada omite miniaturas y archivos JPG/PNG residuales cuando existe su contraparte WebP, mostrando 1 sola entrada por fotografía en los selectores de la interfaz.
+
+### 🔒 Tolerancia Sharp libvips `failOn: 'none'` y Escritura Atómica
+- **Resiliencia ante Advertencias JPEG**: Se configuró la opción `{ failOn: 'none' }` en `sharp` para procesar imágenes con metadatos JPEG imprecisos sin interrumpir la conversión.
+- **Escritura Atómica en Disco**: El servicio escribe en archivos temporales (`.tmp`) antes de aplicar `fs.renameSync()`, previniendo la generación de archivos vacíos de 0 bytes en producción.
+
+### 👑 OmniSites PRO Feature Gate & Enrutamiento SSL Wildcard
+- **Feature Gate Interactivo en Diseñador de Portada (`homepage-builder.tsx`)**: Corrección de endpoints (`/api/v1/modules/installed`) y propiedad `m.moduleId` para detectar dinámicamente si la tienda tiene activo el módulo OmniSites PRO.
+- **Enrutamiento SSL Compatible (`sites.pesallaccia.com`)**: Configuración de reglas en Traefik (`/srv/traefik/dynamic/services.yml`) bajo `sites.pesallaccia.com/?tenant=<subdomain>`, garantizando compatibilidad 100% con los certificados Wildcard SSL de Cloudflare/Let's Encrypt.
+
+## [1.22.00] - 2026-09-01
+
+### 🎨 Integración de Microservicios Standalone OmniVector y OmniSites
+- **OmniVector Standalone (`services/omnivector-standalone` / Puerto `:3029`)**: Importado desde Google AI Studio como editor gráfico vectorial interactivo con capas, formas, IA Gemini y exportación SVG/PNG. Configurado con servidor Express, Vite y contenedor Docker.
+- **OmniSites Standalone (`services/omnisites-standalone` / Puerto `:3030`)**: Importado desde Google AI Studio como diseñador web drag-and-drop (`SiteCraft Studio`) con asistencias de IA Gemini y exportación responsive. Configurado con servidor Express, Vite y contenedor Docker.
+- **Orquestación Standalone (`docker-compose.standalone.yml`)**: Registradas ambas aplicaciones con enrutamiento dinámico en Traefik v3.4 (`vector.<tenant.subdomain>.pesallaccia.com` / `/vector-standalone` y `sites.<tenant.subdomain>.pesallaccia.com` / `/sites-standalone`).
+- **Manifiestos App Store (`omnivector.manifest.json`, `omnisites.manifest.json`)**: Módulos registrados en la App Store de OmniFlow con categoría `design` y permisos asignables por tenant.
+
+## [1.21.02] - 2026-09-01
+
+### 🌐 Gestión de Subdominios y Dominios Custom para SuperAdmin
+- **Gestión Integral en Dashboard SuperAdmin (`super-admin-dashboard.tsx`)**: Se agregó la columna **Subdominio / URL** en la grilla principal de organizaciones, permitiendo al SuperAdmin visualizar de un vistazo qué subdominio (`<subdomain>.pesallaccia.com`) o dominio custom (`customDomain`) tiene asignado cada tenant.
+- **Formulario de Alta y Configuración Marca Blanca**: Se añadieron campos de entrada para `subdomain` (con formateo slug automático) y `customDomain` tanto en el modal de **Crear Tenant** como en el modal de **Configuración de Tenant / Marca Blanca**.
+- **Aprovisionamiento Automático de DNS (`TenantsController`)**: Se actualizó el endpoint `@Patch('/api/v1/tenants/:id')` en NestJS para sanitizar el slug del subdominio, actualizar el estado de verificación `subdomainVerified` e invocar a `CloudflareDnsService` para registrar la entrada DNS automáticamente al modificar el subdominio.
+
 ## [1.21.01] - 2026-08-30
 
 ### 📄 Soporte Completo de Paginación Masiva (`per_page` hasta 300+ productos)
