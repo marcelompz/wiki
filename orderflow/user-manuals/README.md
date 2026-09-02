@@ -137,21 +137,26 @@ Bienvenidos al Centro de Documentación Operativa de **OrderFlow**. Los siguient
      - Selección de imágenes desde la Galería Unificada del Tenant (`ImagePicker` / `/api/v1/uploads/gallery`) en la ficha de producto.
      - Selector táctil `ModifierSelector` en el catálogo público (`social-catalog`), snapshots inmutables `OrderLineModifier` y movimientos de stock MRP (`v1.21.01`).
 
+30. 🔑 **[30. Manual de Configuración de Google Auth, Sincronización de Calendario & Google Places](30-manual-integracion-google-auth-calendar.md)**
+     - Guía paso a paso para configurar proyectos y credenciales OAuth 2.0 en Google Cloud Console.
+     - Autenticación SSO en 1-Clic (`POST /api/v1/auth/google`), Google One Tap y sincronización con contactos Odoo.
+     - Sincronización bidireccional de turnos (`Bookings ↔ Google Calendar`), salones de videollamada **Google Meet** automáticos (`conferenceDataVersion: 1`) y autocompletado de direcciones de delivery (`v1.24.02`).
+
 ---
 
 ## 📦 Acceso Rápido por Rol
 
 | Rol | Manuales Recomendados |
 |-----|----------------------|
-| **Admin / Owner / C-Level** | Todos (01 a 29) |
-| **Cajero / POS** | 02 (POS/KDS), 05 (Fidelización), 12 (Crédito), 14 (Cierre Caja), 18 (POS BoM), 22 (Multimoneda), 23 (Tesoreria POS), 25 (DataView Suite), 29 (Agregados & POS) |
-| **Mozo / Vendedor B2B** | 02 (POS), 03 (Turnos), 04 (Catálogo WA), 13 (KUDE WA), 19 (Presupuestos B2B), 22 (Cotización Divisas), 25 (DataView Suite), 29 (Agregados Catálogo) |
+| **Admin / Owner / C-Level** | Todos (01 a 30) |
+| **Cajero / POS** | 02 (POS/KDS), 05 (Fidelización), 12 (Crédito), 14 (Cierre Caja), 18 (POS BoM), 22 (Multimoneda), 23 (Tesoreria POS), 25 (DataView Suite), 29 (Agregados & POS), 30 (Google Auth) |
+| **Mozo / Vendedor B2B** | 02 (POS), 03 (Turnos), 04 (Catálogo WA), 13 (KUDE WA), 19 (Presupuestos B2B), 22 (Cotización Divisas), 25 (DataView Suite), 29 (Agregados Catálogo), 30 (Google Places) |
 | **Encargado de Compras / Depósito** | 15 (Multibodega), 17 (MRP Manufactura), 23 (Órdenes de Compra & Proveedores), 24 (Workspace Documental), 25 (DataView Suite), 27 (Landed Costs), 29 (Insumos Agregados MRP) |
-| **Encargado de RRHH / Personal** | 28 (Capital Humano & Asistencia), 03 (Turnos), 24 (Workspace Documental) |
+| **Encargado de RRHH / Personal** | 28 (Capital Humano & Asistencia), 03 (Turnos), 24 (Workspace Documental), 30 (Google Auth & Calendar) |
 | **Chef / Personal de Cocina** | 02 (KDS), 18 (KDS Multi-Estación & SLA), 29 (Modificadores Comanda) |
-| **Gestor de Marketing / Diseñador** | 01 (Portada), 04 (Catálogo), 05 (Sorteos), 09 (QR Generator), 20 (Storefront Builder), 29 (Galería Unificada & Agregados) |
-| **Especialista / Spa** | 03 (Turnos), 02 (Comandas) |
-| **DevOps / Analista BI / CFO** | 07 (Flujo E2E), 08 (Deploy Manager), 11 (Odoo Webhooks), 15 (Multibodega), 16 (SSO), 17 (MRP Manufactura), 18 (KDS WebSockets), 19 (Fuerza de Ventas B2B), 20 (Storefront Builder Standalone), 21 (OmniBI Analytics), 22 (Engine Multimoneda), 23 (Compras & Finanzas Multi-Moneda), 24 (Collabora Workspace), 25 (DataView Suite), 26 (OmniAI LLM Local & Zero-Touch Odoo), 27 (Landed Costs & Onboarding Wizard), 28 (Capital Humano & Asistencia), 29 (Agregados & MRP) |
+| **Gestor de Marketing / Diseñador** | 01 (Portada), 04 (Catálogo), 05 (Sorteos), 09 (QR Generator), 20 (Storefront Builder), 29 (Galería Unificada & Agregados), 30 (Google Auth) |
+| **Especialista / Spa** | 03 (Turnos), 02 (Comandas), 30 (Google Calendar & Meet) |
+| **DevOps / Analista BI / CFO** | 07 (Flujo E2E), 08 (Deploy Manager), 11 (Odoo Webhooks), 15 (Multibodega), 16 (SSO), 17 (MRP Manufactura), 18 (KDS WebSockets), 19 (Fuerza de Ventas B2B), 20 (Storefront Builder Standalone), 21 (OmniBI Analytics), 22 (Engine Multimoneda), 23 (Compras & Finanzas Multi-Moneda), 24 (Collabora Workspace), 25 (DataView Suite), 26 (OmniAI LLM Local & Zero-Touch Odoo), 27 (Landed Costs & Onboarding Wizard), 28 (Capital Humano & Asistencia), 29 (Agregados & MRP), 30 (Google Cloud Auth & Calendar Engine) |
 
 ---
 
@@ -159,4 +164,4 @@ Bienvenidos al Centro de Documentación Operativa de **OrderFlow**. Los siguient
 
 Este índice se actualiza con cada nueva feature. La numeración sigue el orden de implementación (FEAT-XXX).
 
-**Última actualización**: 2026-09-01 — Agregado manual 29 (Agregados, Modificadores & Galería Unificada v1.21.01)
+**Última actualización**: 2026-09-02 — Agregado manual 30 (Configuración de Google Auth, Sincronización de Calendario & Google Places v1.24.02)
