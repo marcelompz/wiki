@@ -1,7 +1,7 @@
 {
   "project": "OrderFlow SaaS Omnicanal",
-  "version": "1.20.24",
-  "last_updated": "2026-08-24",
+  "version": "1.20.85",
+  "last_updated": "2026-08-30",
   "features": [
     {
       "id": "FEAT-001",
@@ -762,13 +762,15 @@
       "category": "Core / Documentos & Workspace",
       "title": "OmniFlow Documentos: Workspace propio con Collabora Online (WOPI, edición & locking)",
       "description": "Módulo de gestión documental multi-tenant con espacio de trabajo propio por tenant (carpeta raíz auto-provisionada), modelos Prisma Document, DocumentFolder y DocumentPermission, capa de almacenamiento abstracta DocumentStorageAdapter, WOPI host extendido con PutFile para persistencia y protocolo de locking concurrente con Redis (LOCK, UNLOCK, REFRESH_LOCK).",
-      "status": "planned",
+      "status": "completed",
       "assigned_module": "backend/src/documents/, frontend/src/pages/admin/documents.tsx, docs/planes/omnibi/collabora/PROMPT_DOCUMENTOS_WORKSPACE_ETAPA1.md",
       "depends_on": [
         "FEAT-082"
       ],
-      "blocking": []
+      "blocking": [],
+      "qa_validation": "Backend build clean | Frontend build clean | Unit tests passing (documents.service.spec.ts & wopi-documents.controller.spec.ts) | FEAT-083 workspace manager operational"
     },
+
     {
       "id": "FEAT-084",
       "category": "Core / Social-Catalog / TS Fix & v5 Plan Alignment",
@@ -1049,18 +1051,93 @@
       "depends_on": [],
       "blocking": [],
       "qa_validation": "100% Vite build clean | DataTableContainer con SavedViews, FilterBuilder y SelectionBanner integrado en productos, contactos y pedidos | Troubleshooting #72 documentado"
+    },
+    {
+      "id": "FEAT-107",
+      "category": "Microservicios / Standalone / Capital Humano",
+      "title": "OmniCapitalHumano — Módulo de Gestión de Personal & Legajo Digital (RRHH Core)",
+      "description": "Módulo integral de Capital Humano (human-capital / hr) como contenedor principal de colaboradores, legajos digitales (Employee), contratos (EmploymentContract), estructura salarial (CompensationPlan), ausencias, vacaciones y amonestaciones. Diseñado como microservicio standalone desacoplado (services/hr-standalone, :3028 / rrhh.<domain>) compartiendo @orderflow/auth-shared.",
+      "status": "in_progress",
+      "assigned_module": "services/hr-standalone/, backend/src/hr/, docs/planes/capital-humano/PLAN_OMNICAPITALHUMANO.md",
+      "depends_on": [
+        "FEAT-003",
+        "FEAT-105"
+      ],
+      "blocking": [
+        "FEAT-108"
+      ],
+      "qa_validation": "Diseño de modelos Prisma para Employee y Legajo Digital | Estrategia de microservicio standalone definida"
+    },
+    {
+      "id": "FEAT-108",
+      "category": "Microservicios / Standalone / Asistencia",
+      "title": "OmniAsistencia — Marcador de Asistencia Multi-Método & Geocercas (Sub-módulo de Capital Humano)",
+      "description": "Módulo de marcación de asistencia (attendance) embebido en Capital Humano y disponible como feature standalone: apoya su identidad en Employee.id (FEAT-107), ofreciendo métodos de fichaje por NFC (nfc-standalone), QR, PIN Kiosko, App Móvil con geocerca + biometría local en SO, e integración con terminales hardware ZKTeco/Hikvision.",
+      "status": "pending",
+      "assigned_module": "services/hr-standalone/src/attendance/, backend/src/attendance/, docs/planes/capital-humano/PLAN_OMNIASISTENCIA.md",
+      "depends_on": [
+        "FEAT-107"
+      ],
+      "blocking": [],
+      "qa_validation": "Definición de enums y modelos AttendanceRecord, WorkShift, BiometricDevice | Reuso de nfc-standalone"
+    },
+    {
+      "id": "FEAT-109",
+      "category": "Core / Catálogo & Productos",
+      "title": "Agregados & Modificadores — Schema Prisma y Admin CRUD Controller & Service",
+      "description": "Modelos Prisma ModifierGroup, ModifierOption, ModifierGroupCategory y OrderLineModifier con aislamiento por tenantId, endpoints CRUD para administración de grupos y opciones con asignación a categorías de producto.",
+      "status": "completed",
+      "assigned_module": "backend/prisma/schema.prisma, backend/src/products/modifier-groups.controller.ts, backend/src/products/services/modifier-groups.service.ts",
+      "depends_on": [],
+      "blocking": [],
+      "qa_validation": "Prisma client regenerated | 100% Jest unit tests passing (7/7 tests) | Clean NestJS backend build"
+    },
+    {
+      "id": "FEAT-110",
+      "category": "Frontend & Catálogo Público",
+      "title": "Agregados & Modificadores — Integración en Social Catalog & Componente ModifierSelector",
+      "description": "Resolución pública de ModifierGroup por categoría de producto en SocialCatalogService y desarrollo del componente desacoplado ModifierSelector.tsx para catálogo público y POS.",
+      "status": "completed",
+      "assigned_module": "backend/src/social-catalog/social-catalog.service.ts, frontend/src/components/catalog/modifier-selector.tsx",
+      "depends_on": [
+        "FEAT-109"
+      ],
+      "blocking": [],
+      "qa_validation": "100% Vite build clean | ModifierSelector component created in frontend/src/components/catalog/modifier-selector.tsx"
+    },
+    {
+      "id": "FEAT-111",
+      "category": "Core / Pedidos e Inventario MRP",
+      "title": "Agregados & Modificadores — Impacto en Orden, Precios Centesimales e Inventario (BoM MRP)",
+      "description": "Soporte de modifiers en CreateOrderLineDto, snapshots inmutables OrderLineModifier, recargos de precio al vuelo y movimientos de stock (StockMove / ProductVariant) para consumo de insumos/materia prima (ingredientVariantId) en confirmación de orden.",
+      "status": "completed",
+      "assigned_module": "backend/src/orders/orders.service.ts, backend/src/orders/dto/create-order.dto.ts",
+      "depends_on": [
+        "FEAT-109"
+      ],
+      "blocking": [],
+      "qa_validation": "Backend build clean | OrderLineModifier snapshot relation active | IngredientVariant stock decrement implemented"
+    },
+    {
+      "id": "FEAT-128",
+      "category": "Frontend & Microservicios / Data Editor",
+      "title": "OmniFlow Data Editor — Editor & Validador de Datos Universal (OmniBI Hub & Microservicio Standalone)",
+      "description": "Componente universal multi-formato (JSON, CSV, XLSX) de edición y validación de esquemas Odoo/OmniFlow con vistas Tabular, Árbol y Raw, integrado en OmniBI Analytics Hub y empaquetado como microservicio standalone en services/data-editor-standalone.",
+      "status": "completed",
+      "assigned_module": "frontend/src/components/bi/data-editor/, frontend/src/pages/admin/bi.tsx, services/data-editor-standalone/",
+      "depends_on": [],
+      "blocking": [],
+      "qa_validation": "Frontend build clean 100% | Standalone microservice build clean 100% | OmniBI modal integration functional"
     }
   ],
-  "lastUpdated": "2026-08-27",
-  "last_id": "FEAT-106",
+  "lastUpdated": "2026-09-04",
+  "last_id": "FEAT-128",
   "next_pending_sc": null,
-  "active_plan": "docs/planes/views/00_PLAN_MAESTRO_GESTION_VISTAS_OMNIFLOW.md",
+  "active_plan": "docs/plans/omnibi/PLAN_IMPLEMENTACION_OMNIFLOW_DATA_EDITOR.md",
   "plan_progress": {
-    "Paso 1": "completed",
-    "Paso 2": "completed",
-    "Paso 3": "completed",
-    "Paso 4": "completed",
-    "Paso 5": "completed"
+    "Fase 1 - Core Monorepo & OmniBI": "completed",
+    "Fase 2 - Standalone Microservice": "completed",
+    "Fase 3 - Documentación & Wiki Sync": "completed"
   }
 }
 
