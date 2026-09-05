@@ -82,12 +82,20 @@ Ordená por problema y área. Cada entrada incluye síntomas, causa raíz y solu
 | [76](76-bulk-delete-category-mismatch-and-csv-price-format.md) | Eliminación Masiva por Categoría & Formato de Precios CSV | Backend / DynamicQueryBuilder / CSV / DataView | Eliminación masiva requería múltiples clics por descalce de filtros; precios CSV truncados (`15.000` $\rightarrow$ `15`) | ✅ Resuelto |
 | [95](95-omniledger-traefik-pathprefix-api-v1-hijack-fix.md) | Corrección de Hijack en Traefik `/api/v1` por OmniLedger | DevOps / Traefik / Standalone | `omniledger-standalone` interceptaba todas las rutas `/api/v1/*` de la app principal devolviendo HTTP 404 | ✅ Resuelto |
 | [96](96-zero-byte-webp-sharp-corrupt-jpeg-failon-none-fix.md) | Imágenes WebP de 0 Bytes por Advertencias JPEG en Sharp | Backend / Images / Sharp | Archivos `.webp` de 0 bytes en producción por advertencias en metadatos JPEG (`VipsJpeg: Corrupt JPEG data`); solución: `failOn: 'none'` + escritura atómica | ✅ Resuelto |
+| [97](97-biolink-public-403-rate-limit-fix.md) | HTTP 403 en BioLink Público por Rate Limit | Backend / Throttler / BioLinks | 403 en endpoints públicos de BioLink por tracker `'global'` compartido; fix: tracking por IP | ✅ Resuelto |
+| [64](64-csp-connect-src-login-websocket-blocked.md) | Content-Security-Policy `connect-src` Bloqueando Inicio de Sesión y WebSockets | DevOps / Traefik / CSP / Auth | Error CSP `connect-src` al hacer POST `/api/v1/auth/login` o conectar a API/WebSockets locales/remotos | ✅ Resuelto |
+| [98](98-feat112-tenants-endpoint-protected.md) | FEAT-112 — `POST /tenants` ahora protegido con `TenantCreationGuard` | Backend / Auth / Plan Comercial | Cualquiera podía crear tenant y subdominio sin pagar; fix: SuperAdmin o `provisioningJobId` válido | ✅ Resuelto |
+| [99](99-feat113-signup-wizard-public.md) | FEAT-113 — Wizard de signup público + EarlyAccess | Backend / Commercial / Plan Comercial | Sin wizard de compra los tenants no se podían crear vía flujo público; fix: 5 endpoints públicos en `/api/v1/public/commercial/*` | ✅ Resuelto |
+| [100](100-omnibio-public-resolution-and-qr-history-fix.md) | Resolución Pública OmniBio & Generador de QR | Backend / Frontend / OmniBio / QR | 403 en BioLink público al usar como portada; QRs de BioLink apuntaban a `/social-catalog` y no guardaban historial | ✅ Resuelto |
 
 ---
 
 ## 🧭 Índice por problema
 
 ### Acceso y Auth
+- **403 en endpoints públicos (BioLink) por rate limit:** ver [#97](97-biolink-public-403-rate-limit-fix.md) — `TenantThrottlerGuard` usa tracker `'global'` compartiendo bucket; fix: tracking por IP.
+- **`POST /api/v1/tenants` devuelve 403 tras deploy v1.24.03:** ver [#98](98-feat112-tenants-endpoint-protected.md) — FEAT-112 cierra el endpoint con `TenantCreationGuard`; usar `x-api-key: $MASTER_API_KEY` o `x-provisioning-job-id: $JOB_ID`.
+- **Wizard de signup público (FEAT-113):** ver [#99](99-feat113-signup-wizard-public.md) — endpoints en `/api/v1/public/commercial/*`; flujo: planes → subdomain check → early-access → signup session → payment intent → polling.
 - **403 en endpoints de catálogo con API key:** ver [#05](05-whatsapp-catalog-install-and-api-key-auth.md) — `PermissionsGuard` requiere `user` pero `ApiKeyGuard` solo setea `tenant`.
 - **401 sin JWT ni API key:** ver [#03](03-odoo-user-sync-and-tenant-modules-management.md) — fallback a endpoint público `/api/v1/tenants/public/list`.
 - **QR Generate 500 con Master API Key:** ver [#45](45-qr-master-key-fk-violation.md) — Master key no tiene `tenantId`; FK `qr_code_history_tenantId_fkey` violada.
