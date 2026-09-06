@@ -1,6 +1,6 @@
 # OmniFlow SaaS Omnicanal
 
-![Version](https://img.shields.io/badge/version-1.20.41-blue)
+![Version](https://img.shields.io/badge/version-1.24.04-blue)
 ![License](https://img.shields.io/badge/license-Proprietary-red)
 ![NestJS](https://img.shields.io/badge/backend-NestJS-green)
 ![React](https://img.shields.io/badge/frontend-React-blue)
@@ -39,7 +39,7 @@
 
 ---
 
-## 🚀 Características Principales (v1.20.41)
+## 🚀 Características Principales (v1.24.04)
 
 ### Estandarización de Inventario (Paso 8: Landed Costs)
 - **Recálculo PMP por Costes en Destino:** Prorrateo de gastos de importación, aranceles y fletes locales al recibir Órdenes de Compra, actualizando automáticamente el Precio Medio Ponderado (`costPricePmp`) en base de datos.
@@ -201,5 +201,5 @@ Propietario - OrderFlow Team
 
 ---
 
-**Última actualización:** 2026-08-13  
-**Versión:** 1.20.10
+**Última actualización:** 2026-09-03  
+**Versión:** 1.24.04

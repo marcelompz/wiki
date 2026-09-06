@@ -5,7 +5,60 @@ Todos los cambios notables a este proyecto serán documentados en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 y este proyecto se adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [1.24.02] - 2026-09-02
+## [1.27.00] - 2026-09-06
+
+### 🦊 OmniMessaging Hub — Web Extension Download & Version Verification (v1.27.00)
+- **OmniBot Web Extension Release**: Empaquetado oficial de los binarios zip de la extensión web (`omnibot-firefox.zip` y `omnibot-chrome.zip`) con Manifest V3 para Firefox y Chrome.
+- **Sincronización de Versión Frontend & Backend**: Actualización general a `v1.27.00` reflejada en el encabezado de `/admin/messaging`, `package.json`, Swagger y el `VERSION` global.
+
+## [1.26.00] - 2026-09-05
+
+### 📱 OmniMessaging Hub — Adaptador de WhatsApp Web QR (`WhatsAppWebQrAdapter`) & App Store Integration
+- **Adaptador WhatsApp Web QR (`whatsapp-qr.adapter.ts`)**: Implementación del conector `WHATSAPP_QR` para permitir la vinculación directa de cualquier número escaneando un código QR desde la App de WhatsApp.
+- **Manifiesto App Store (`whatsapp-qr.manifest.json`)**: Registro del nuevo módulo en el catálogo de App Store (`/admin/modules`).
+- **Fábrica de Adaptadores (`channel-adapter.factory.ts`)**: Integración dinámica del adaptador en la suite de canales de OmniMessaging Hub.
+
+## [1.25.11] - 2026-09-05
+
+
+### 💻 OmniMessaging Hub — Proveedor de IA Local Ollama (`LocalOllamaProviderService`) sin costo por API
+- **Soporte de IA Local (`local-ollama-provider.service.ts`)**: Ejecución de LLMs en el servidor local de Provecchio o nodo SBC vía Ollama (`http://localhost:11434`), con fallback automático a respuestas enriquecidas basadas en la base de conocimientos si el motor no se encuentra encendido.
+- **Configuración en Frontend (`messaging.tsx`)**: Opción *"💻 IA Local Ollama (Provecchio / SBC Local)"* agregada en la lista de selección de Proveedor de IA.
+
+## [1.25.10] - 2026-09-05
+
+
+### 📱 OmniMessaging Hub — Webhooks de WhatsApp Cloud API & Telegram para Pruebas en Vivo con Teléfono Real
+- **Controlador de Webhooks (`omnimessaging-webhook.controller.ts`)**: Endpoints de verificación GET/POST `api/v1/omnimessaging/webhooks/whatsapp/:integrationId` y `api/v1/omnimessaging/webhooks/telegram/:integrationId` para conexión de celulares reales en vivo.
+- **Procesamiento Asíncrono de Mensajes Inbound & Outbound**: Respuestas 200 OK inmediatas a Meta/Telegram, ingestión canónica, enrutamiento por IA (`IntentRouterService`) y envío a la cola de salida BullMQ (`OmniMessagingQueueProducer`).
+
+## [1.25.09] - 2026-09-05
+
+### 🛒 OmniMessaging Hub — Consumidor OmniCatalog, Enlaces UTM & Pedidos Idempotentes (Sprint 4)
+- **Servicio de Herramientas de Catálogo (`catalog-tools.service.ts`)**: Búsqueda en el catálogo `SocialProduct` del tenant, filtrado por estado publicado y construcción automática de URLs públicas con tracking UTM (`utm_source=omnibot&utm_medium=whatsapp`).
+- **Inyector Idempotente de Pedidos (`order-injector.service.ts`)**: Inyección directa de órdenes recibidas por canal conversacional con verificación de `orderUuid` en metadatos para evitar duplicaciones.
+- **Suite de Pruebas Unitarias (`omnimessaging-catalog.spec.ts`)**: Pruebas unitarias en Jest al 100% aprobadas.
+
+## [1.25.07] - 2026-09-05
+
+
+### 🧠 OmniMessaging Hub — Motor de IA Cloud (OpenAI/Gemini), Tool Calling & Control de Cuotas (Sprint 3)
+- **Cloud AI Provider (`cloud-ai-provider.service.ts`)**: Servicio para la generación de completions multinube (OpenAI / Gemini) con soporte nativo para **Tool Calling** (Function Calling) y fallbacks en entornos de desarrollo/testing.
+- **Guard de Cuotas por Tenant (`quota-plan-guard.service.ts`)**: Validación automática de consumo mensual de tokens e interacciones por `tenantId` sobre la base de datos de auditoría (`Message`).
+- **Enrutador de Intenciones (`intent-router.service.ts`)**: Manejo de ciclo de vida conversacional (`OmniConversation`), inyección de contexto de catálogo/reservas y auditoría de mensajes en BD.
+- **Suite de Pruebas Unitarias (`omnimessaging-ai.spec.ts`)**: Cobertura al 100% para el motor de IA, control de cuotas y enrutamiento conversacional.
+
+## [1.25.06] - 2026-09-05
+
+
+### 🤖 OmniMessaging Hub — Adapters de Canales, Payloads Canónicos & Colas Asíncronas BullMQ (Sprint 2)
+- **WhatsApp Cloud & Telegram Adapters (`whatsapp-cloud.adapter.ts`, `telegram.adapter.ts`)**: Implementación de adaptadores para la recepción e ingesta de mensajes, transformando estructuras de proveedores externos a la interfaz `CanonicalInboundMessage`.
+- **Canal Adapter Factory (`channel-adapter.factory.ts`)**: Instanciación dinámica del adaptador correspondiente según el tipo de integración (`WHATSAPP_OFFICIAL`, `TELEGRAM`).
+- **Productores & Procesadores BullMQ (`omnimessaging-queue.producer.ts`, `omnimessaging-queue.processor.ts`)**: Procesamiento en segundo plano de mensajes entrantes/salientes con retry exponencial y descifrado seguro de credenciales desde Vault (`CredentialsVaultService`).
+- **Integración NestJS (`omnimessaging.module.ts`)**: Registro del módulo en `app.module.ts` con exportación de servicios principales y suites de test unitarios (Jest) con 100% de éxito.
+
+## [1.24.02] - 2026-09-05
+
 
 ### 🔑 Autenticación & Redirección Automática por Subdominio de Tenant
 - **Redirección Transparente tras Login (`login.tsx` / `auth.service.ts`)**: Al iniciar sesión con credenciales, la plataforma consulta el subdominio asignado al tenant predeterminado y redirige automáticamente al usuario hacia `https://<subdomain>.pesallaccia.com/admin` (o su `customDomain`).
