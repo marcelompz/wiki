@@ -1,7 +1,8 @@
 # Línea de Tiempo y Evolución de OmniFlow
 
-**Última actualización:** 2026-08-30  
-**Versión actual:** `v1.20.87`  
+**Última actualización:** 2026-09-08  
+**Versión actual:** `v1.27.10`  
+**Próximo hito:** `v1.28.0` — OmniMessaging Hub IA, WhatsApp Web Connector, Token Management Admin
 **Documento fuente:** `CHANGELOG.md`, `ROADMAP.md`, `featurelist.json`
 
 ---
@@ -10,7 +11,7 @@
 
 ```mermaid
 timeline
-    title Evolución de OmniFlow / OrderFlow (v0.1.0 → v1.20.6)
+    title Evolución de OmniFlow / OrderFlow (v0.1.0 → v1.25.0-alpha-omnigastro)
     2026-06-15 : v0.1.0 MVP inicial
                   : Multi-tenant API key, Giveaways, WhatsApp catalog
                   : NestJS + Prisma + React + Docker
@@ -67,18 +68,64 @@ timeline
                   : Separación deploy OrderFlow vs Odoo desde /admin/deploy
     2026-08-13 : v1.20.2
                   : Mobile admin drawer navigation + Topbar compacto
-                  : Bottom nav respeta safe-area, sin duplicación de menú
     2026-08-13 : v1.20.3
                   : Orders debug: state machine, cancel reversals, confirm idempotent
                   : 578 tests, E2E QA clean
     2026-08-13 : v1.20.4
                   : Schema decoupling: Giveaways standalone + Social Catalog/Bio-Links
-                  : PostgreSQL schema giveaways created and migrated
     2026-08-13 : v1.20.5
                   : Social Catalog Standalone Extraction
                   : MessagingChannel + CatalogChannelConfig extraídos a standalone
                   : Adapters desacoplados, proxy HTTP en core, 580 tests OK
-```
+    2026-08-28 : v1.20.6-v1.20.99
+                  : Sprint Fixes Producción Provecchio: QR, Social-Catalog, CSP, Deploy 502
+                  : Mejoras Social-Catalog: stockStatus, tags editables, ordenamiento
+                  : OmniCatalog Jerárquico (FEAT-077) + Importación Masiva (FEAT-074)
+                  : QR Generator Multi-Propósito (FEAT-075) + 580+ tests
+    2026-08-30 : v1.20.6-v1.21.02
+                  : Sincronización Odoo en tiempo real (FEAT-090/091/092)
+                  : Cartera Clientes + Cuentas por Cobrar + Límite de Crédito (FEAT-091)
+                  : Sincronización Asíncrona account.move (FEAT-092)
+                  : Gestión Subdominios para SuperAdmin (v1.21.02)
+                  : Paginación masiva 300+ productos (v1.21.01)
+    2026-09-01 : v1.22.00
+                  : OmniVector + OmniSites Standalone (FEAT-066)
+                  : Manifiestos App Store, Traefik routes por tenant subdomain
+    2026-09-02 : v1.24.02
+                  : Redirección automática por subdominio post-login
+                  : Miniaturas WebP en subdirectorio /thumbs/ + filtrado galería
+                  : Tolerancia Sharp libvips failOn:none + escritura atómica
+                  : OmniSites PRO feature gate + SSL Wildcard sites.pesallaccia.com
+    2026-09-03 : v1.24.04
+                  : FEAT-112 OmniGastro Safeguards (ProvisioningJob + TenantCreationGuard)
+                  : FEAT-113 Sprint 1 — Commercial Public Wizard + EarlyAccessCode
+                  : 52/52 unit tests nuevos (24 FEAT-112 + 28 FEAT-113)
+                  : 3 planes comerciales (Starter $39, Pro $179, Ent $549) + EARLY30
+                  : docs/planes/omnigastro/PLAN_OPERATIVO_Y_PROMPTS.md
+    2026-09-04 : v1.25.0-alpha-omnigastro 📍 ROLLPLAY DEMO
+                   : FEAT-125 demo alfa en Provecchio (orderflow.provecchio.com)
+                   : Social Catalog como menú digital del restaurante
+                   : Llamar al Mozo + Enviar pedido al mozo desde QR
+                   : Mini-KDS simulado en /admin/kds (sin KDS físico)
+                   : Gate omni-catalog.tsx por flag Tenant.config.gastro.enabled
+                   : Seed demo-omnigastro (mesa MESA-01, 5 productos, mozo+cocinero)
+    2026-09-07 : v1.27.00
+                   : OmniMessaging Hub Web Extension (Manifest V3 zip bundles)
+                   : Frontend & Backend version sync v1.27.00
+                   : App Store integration para extension
+    2026-09-07 : v1.27.09-v1.27.10
+                   : FEAT-072 OmniMessaging Web Extension v2.5.0
+                   : Aislamiento Shadow DOM Dual-Hos (topbar 48px + sidebar 380px)
+                   : Extracción dinámica E.164 activo via MutationObserver
+                   : CustomEvent inter-context bridge para ConfigModal
+                   : Estado no-autenticado inicial (sin tenant hardcodeado)
+                   : Chrome & Firefox bundles en frontend/public/downloads/
+    2026-09-08 : v1.27.10
+                   : Admin Token Management (/admin/tokens)
+                   : API Key endpoints para admin token generation
+                   : JWT display + session config duration
+                   : Web Extension bundles (Chrome v2.5.0 + Firefox latest) deployed to Provecchio & Production
+                   : Swagger version v1.27.10, ROADMAP + timeline actualizados
 
 ---
 
@@ -195,11 +242,18 @@ timeline
 | **Commercial Release** | **2026-07-25** | **v1.0.0** | 🏆 Plataforma SaaS lista para clientes |
 | Multi-Tier + Standalone | 2026-07-25 | v0.7.0 | Aislamiento enterprise + microservicios |
 | FacturaSend (SIFEN) | 2026-08-01 | v1.4.0 | Facturación electrónica PY |
-| | **Rebranding OmniFlow** | **2026-08-18** | **v1.20.17** | ♻️ Hito histórico de identidad corporativa |
-|| **Deploy Manager** (plan) | 2026-08-11 | v1.10.0 | OmniFlow como plataforma de infraestructura |
-|| **Social Catalog v5 UX/UI** | **2026-08-24** | **v1.20.18** | 📱 SC-01..SC-05: theme dark, toolbar móvil 2 filas, stock badges "¡Última unidad!", ribbon/tags, orden admin unificado + adminSortLabel |
-| | **Product Variants + Batch Import** | **2026-08-25** | **v1.20.22** | 🚀 Variantes Odoo-style, importación masiva Excel, kebab-case refactor |
-| | **Inventory Standardization + Sync ERP** | **2026-08-25** | **v1.20.24** | 🏭 Reservas de stock en OrdersService, sync-products migrado a InventoryService, manual de inventario |
+| **Rebranding OmniFlow** | **2026-08-10** | **v1.19.0** | ♻️ Hito histórico de identidad corporativa |
+| **Deploy Manager** | 2026-08-15 | v1.20.0 | OmniFlow como plataforma de infraestructura |
+| **Social Catalog v5 UX/UI** | 2026-08-24 | v1.20.18 | 📱 SC-01..SC-05: theme dark, toolbar móvil 2 filas, stock badges "¡Última unidad!", ribbon/tags, orden admin unificado |
+| **Product Variants + Batch Import** | 2026-08-25 | v1.20.22 | 🚀 Variantes Odoo-style, importación masiva Excel, kebab-case refactor |
+| **Inventory Standardization + Sync ERP** | 2026-08-25 | v1.20.24 | 🏭 Reservas de stock en OrdersService, sync-products migrado a InventoryService |
+| **OmniCatalog Jerárquico (FEAT-077)** | 2026-08-26 | v1.20.27 | 🌳 Acordeón 3 niveles + sync Odoo pos.category + product.category |
+| **QR Generator Multi-Propósito (FEAT-075)** | 2026-08-26 | v1.20.30 | Servicio standalone REST + componente embeddable |
+| **Sincronización Odoo en tiempo real (FEAT-090/091/092)** | 2026-08-30 | v1.21.00 | Webhooks product.template/category/res.partner, credit status, account.move |
+| **Gestión Subdominios SuperAdmin (v1.21.02)** | 2026-09-01 | v1.21.02 | UI grilla + Cloudflare DNS auto en alta |
+| **OmniVector + OmniSites Standalone (v1.22.00)** | 2026-09-01 | v1.22.00 | 🎨 Editores gráficos vectorial + web drag-and-drop con IA Gemini |
+| **FEAT-112 OmniGastro Safeguards + FEAT-113 Commercial Wizard (v1.24.04)** | **2026-09-03** | **v1.24.04** | 🛡️ ProvisioningJob + TenantCreationGuard + 3 planes comerciales + EARLY30 |
+| **FEAT-125 demo alfa OmniGastro (rollplay Provecchio)** | **2026-09-04** 📍 | **v1.25.0-alpha-omnigastro** | 🍽️ Social Catalog como menú del restaurante, Llamar al Mozo, Enviar pedido, mini-KDS simulado |
 
 ---
 

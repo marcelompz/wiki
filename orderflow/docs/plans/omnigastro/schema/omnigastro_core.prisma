@@ -1,0 +1,442 @@
+// ============================================================
+// OmniGastro Core — Fragmento de schema para migración
+// FEAT-113 + base FEAT-114/115/116/125
+// Generar con: npx prisma migrate dev --name omnigastro_core
+// ============================================================
+
+// ---------- Enums ----------
+
+enum UserRole {
+  ADMIN
+  MANAGER
+  SELLER
+  WAITER
+  VIEWER
+}
+
+enum PosSessionStatus {
+  OPENING_CONTROL
+  OPEN
+  CLOSING_CONTROL
+  CLOSED
+}
+
+enum TableStatus {
+  FREE
+  OCCUPIED
+  BILL_REQUESTED
+  CLEANING
+  RESERVED
+}
+
+enum OrderSource {
+  POS
+  SOCIAL_CATALOG_GUEST
+  DELIVERY
+  KIOSK
+}
+
+enum CourseStage {
+  BEVERAGES
+  APPETIZERS
+  MAINS
+  DESSERTS
+}
+
+enum PrepStatus {
+  HOLD
+  FIRED
+  IN_PREPARATION
+  READY
+  SERVED
+  VOIDED
+}
+
+enum KitchenTicketStatus {
+  QUEUED
+  IN_PROGRESS
+  READY
+  SERVED
+  CANCELLED
+}
+
+enum BomType {
+  KIT_PHANTOM
+  MANUFACTURE
+}
+
+enum UomCategory {
+  UNIT
+  WEIGHT
+  VOLUME
+}
+
+enum PriorityLevel {
+  LOW
+  NORMAL
+  HIGH
+  URGENT
+}
+
+// ---------- PosConfig & PosSession ----------
+
+model PosConfig {
+  id              String             @id @default(uuid())
+  tenantId        String
+  name            String
+  stockLocationId String?
+  allowPriceEdit  Boolean            @default(false)
+  allowDiscount   Boolean            @default(true)
+  isActive        Boolean            @default(true)
+  isDeleted       Boolean            @default(false)
+  deletedAt       DateTime?
+  sessions        PosSession[]
+  createdAt       DateTime           @default(now())
+  updatedAt       DateTime           @updatedAt
+
+  @@index([tenantId])
+  @@map("pos_configs")
+}
+
+model PosSession {
+  id              String             @id @default(uuid())
+  tenantId        String
+  configId        String?
+  config          PosConfig?         @relation(fields: [configId], references: [id], onDelete: Restrict)
+  cashierId       String
+  deviceLabel     String?
+  status          PosSessionStatus   @default(OPEN)
+  openingFloat    Decimal            @db.Decimal(15, 2)
+  expectedCash    Decimal?           @db.Decimal(15, 2)
+  closingCash     Decimal?           @db.Decimal(15, 2)
+  variance        Decimal?           @db.Decimal(15, 2)
+  reportXData     Json?
+  reportZData     Json?
+  openedAt        DateTime           @default(now())
+  closedAt        DateTime?
+  isActive        Boolean            @default(true)
+  isDeleted       Boolean            @default(false)
+  deletedAt       DateTime?
+
+  cashMovements   CashMovement[]
+
+  @@index([tenantId, status])
+  @@index([cashierId])
+  @@map("pos_sessions")
+}
+
+// ---------- Mesas & Comensales ----------
+
+model RestaurantTable {
+  id              String        @id @default(uuid())
+  tenantId        String
+  name            String
+  zone            String?
+  capacity        Int           @default(4)
+  posX            Int?
+  posY            Int?
+  status          TableStatus   @default(FREE)
+  ownerId         String?
+  currentOrderId  String?       @unique
+  qrToken         String        @unique @default(uuid())
+  rfidTag         String?       @unique
+  isActive        Boolean       @default(true)
+  isDeleted       Boolean       @default(false)
+  deletedAt       DateTime?
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  guests          TableGuest[]
+  transferLogs    TableTransferLog[]
+  waiterCalls     WaiterCall[]
+
+  @@index([tenantId, status])
+  @@index([ownerId])
+  @@index([qrToken])
+  @@map("restaurant_tables")
+}
+
+model TableGuest {
+  id          String   @id @default(uuid())
+  tenantId    String
+  tableId     String
+  table       RestaurantTable @relation(fields: [tableId], references: [id], onDelete: Restrict)
+  seatNumber  Int
+  label       String?
+  status      String   @default("SEATED") // SEATED | MOVED | CHECKED_OUT
+  isDeleted   Boolean  @default(false)
+  deletedAt   DateTime?
+  createdAt   DateTime @default(now())
+
+  @@index([tableId])
+  @@map("table_guests")
+}
+
+model TableTransferLog {
+  id             String   @id @default(uuid())
+  tenantId       String
+  tableId        String
+  table          RestaurantTable @relation(fields: [tableId], references: [id], onDelete: Restrict)
+  fromOwnerId    String?
+  toOwnerId      String
+  authorizedById String?
+  reason         String?
+  createdAt      DateTime @default(now())
+
+  @@index([tableId])
+  @@map("table_transfer_logs")
+}
+
+// ---------- Payment & Audit ----------
+
+model PaymentMethod {
+  id        String   @id @default(uuid())
+  tenantId  String
+  name      String
+  code      String
+  isActive  Boolean  @default(true)
+  isDeleted Boolean  @default(false)
+  deletedAt DateTime?
+
+  @@index([tenantId])
+  @@map("payment_methods")
+}
+
+model PosOrderAuditLog {
+  id            String   @id @default(uuid())
+  tenantId      String
+  orderId       String
+  userId        String
+  supervisorId  String?
+  action        String
+  reason        String?
+  metadata      Json?
+  createdAt     DateTime @default(now())
+
+  @@index([tenantId, orderId, createdAt])
+  @@map("pos_order_audit_logs")
+}
+
+// ---------- Split Billing ----------
+
+model BillSplit {
+  id          String   @id @default(uuid())
+  tenantId    String
+  orderId     String
+  method      String   // BY_SEAT | BY_ITEM | EQUAL_PARTS | CUSTOM_AMOUNT
+  parts       Int?
+  createdById String
+  createdAt   DateTime @default(now())
+  isDeleted   Boolean  @default(false)
+  deletedAt   DateTime?
+
+  splitPayments SplitPayment[]
+
+  @@index([orderId])
+  @@map("bill_splits")
+}
+
+model SplitPayment {
+  id          String   @id @default(uuid())
+  billSplitId String
+  billSplit   BillSplit @relation(fields: [billSplitId], references: [id], onDelete: Restrict)
+  guestId     String?
+  amount      Decimal  @db.Decimal(15, 2)
+  tipPortion  Decimal  @default(0) @db.Decimal(15, 2)
+  paymentType String
+  status      String   @default("pending") // pending | paid
+  paidAt      DateTime?
+  isDeleted   Boolean  @default(false)
+  deletedAt   DateTime?
+
+  @@map("split_payments")
+}
+
+// ---------- KDS ----------
+
+model PreparationStation {
+  id          String   @id @default(uuid())
+  tenantId    String
+  name        String
+  categories  String[]
+  slaMinutes  Int      @default(15)
+  isActive    Boolean  @default(true)
+  isDeleted   Boolean  @default(false)
+  deletedAt   DateTime?
+  createdAt   DateTime @default(now())
+
+  tickets     KitchenTicket[]
+
+  @@index([tenantId])
+  @@map("preparation_stations")
+}
+
+model KitchenTicket {
+  id            String               @id @default(uuid())
+  tenantId      String
+  orderId       String
+  stationId     String
+  station       PreparationStation   @relation(fields: [stationId], references: [id], onDelete: Restrict)
+  ticketNumber  String
+  status        KitchenTicketStatus  @default(QUEUED)
+  priority      PriorityLevel        @default(NORMAL)
+  course        CourseStage?
+  startedAt     DateTime?
+  readyAt       DateTime?
+  servedAt      DateTime?
+  isDeleted     Boolean              @default(false)
+  deletedAt     DateTime?
+  createdAt     DateTime             @default(now())
+  updatedAt     DateTime             @updatedAt
+
+  lines         KitchenTicketLine[]
+
+  @@index([tenantId, stationId, status])
+  @@map("kitchen_tickets")
+}
+
+model KitchenTicketLine {
+  id                  String        @id @default(uuid())
+  ticketId            String
+  ticket              KitchenTicket @relation(fields: [ticketId], references: [id], onDelete: Restrict)
+  orderLineId         String
+  productName         String
+  variantName         String?
+  quantity            Decimal       @db.Decimal(10, 3)
+  modifiersText       String?
+  seatNumber          Int           @default(1)
+  deliveryTableNumber String?
+  deliverySeatNumber  Int?
+  giftBannerText      String?
+  isCompleted         Boolean       @default(false)
+
+  @@map("kitchen_ticket_lines")
+}
+
+// ---------- BoM / Live Escandallo ----------
+
+model UnitOfMeasure {
+  id          String      @id @default(uuid())
+  tenantId    String
+  name        String
+  symbol      String
+  category    UomCategory
+  ratioToBase Decimal     @db.Decimal(12, 6)
+  isBase      Boolean     @default(false)
+  isDeleted   Boolean     @default(false)
+  deletedAt   DateTime?
+
+  bomLines    BomLine[]
+
+  @@index([tenantId])
+  @@map("units_of_measure")
+}
+
+model ProductBom {
+  id            String   @id @default(uuid())
+  tenantId      String
+  productId     String?
+  variantId     String?
+  name          String
+  type          BomType  @default(KIT_PHANTOM)
+  yieldQuantity Decimal  @default(1) @db.Decimal(10, 3)
+  isActive      Boolean  @default(true)
+  isDeleted     Boolean  @default(false)
+  deletedAt     DateTime?
+  lines         BomLine[]
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([tenantId, variantId, productId])
+  @@map("product_boms")
+}
+
+model BomLine {
+  id                 String         @id @default(uuid())
+  bomId              String
+  bom                ProductBom     @relation(fields: [bomId], references: [id], onDelete: Restrict)
+  componentVariantId String
+  subBomId           String?
+  quantity           Decimal        @db.Decimal(12, 4)
+  uomId              String
+  uom                UnitOfMeasure  @relation(fields: [uomId], references: [id], onDelete: Restrict)
+  wastePercentage    Decimal        @default(0) @db.Decimal(5, 2)
+  stockLocationId    String?
+  isDeleted          Boolean        @default(false)
+  deletedAt          DateTime?
+  createdAt          DateTime       @default(now())
+
+  @@map("bom_lines")
+}
+
+// ---------- Guest Experience (FEAT-125) ----------
+
+model WaiterCallOption {
+  id           String   @id @default(uuid())
+  tenantId     String
+  posConfigId  String?
+  label        String
+  icon         String?
+  requiresText Boolean  @default(false)
+  sortOrder    Int      @default(0)
+  isActive     Boolean  @default(true)
+  isDeleted    Boolean  @default(false)
+  deletedAt    DateTime?
+
+  @@index([tenantId])
+  @@map("waiter_call_options")
+}
+
+model WaiterCall {
+  id               String    @id @default(uuid())
+  tenantId         String
+  tableId          String
+  table            RestaurantTable @relation(fields: [tableId], references: [id], onDelete: Restrict)
+  orderId          String?
+  optionId         String?
+  freeText         String?
+  status           String    @default("PENDING") // PENDING | ACKNOWLEDGED | RESOLVED
+  calledAt         DateTime  @default(now())
+  acknowledgedAt   DateTime?
+  acknowledgedById String?
+  resolvedAt       DateTime?
+
+  @@index([tenantId, status])
+  @@index([tableId])
+  @@map("waiter_calls")
+}
+
+// ============================================================
+// NOTAS DE INTEGRACIÓN CON MODELOS EXISTENTES
+// ============================================================
+//
+// 1. Order / PosOrder — añadir campos:
+//    source          OrderSource  @default(POS)
+//    guestSessionId  String?
+//    claimedAt       DateTime?
+//    claimedById     String?
+//    tableId         String?
+//    sessionId       String?      // FK a PosSession
+//
+// 2. OrderLine — añadir campos:
+//    seatNumber         Int       @default(1)
+//    isShared           Boolean   @default(false)
+//    isGift             Boolean   @default(false)
+//    targetTableNumber  String?
+//    targetSeatNumber   Int?
+//    giftMessage        String?
+//    guestId            String?
+//    course             CourseStage?
+//    costAtSale         Decimal?  @db.Decimal(15, 2)
+//
+// 3. CashMovement — ajustar:
+//    registeredById  String?  @map("registered_by_id")
+//    registeredBy    User?    @relation(...)
+//    posSessionId    String?
+//    posSession      PosSession? @relation(...)
+//
+// 4. ModifierOption — añadir:
+//    is86ed  Boolean  @default(false)
+//
+// 5. Todas las relaciones nuevas usan onDelete: Restrict
+// 6. Todos los modelos gastro llevan isActive / isDeleted / deletedAt

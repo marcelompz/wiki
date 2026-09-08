@@ -5,6 +5,21 @@ Todos los cambios notables a este proyecto serán documentados en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 y este proyecto se adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.27.10] - 2026-09-08
+
+### 🌐 OmniFlow Web Extension v2.5.0 — Shadow DOM Dual Host, Extracción E.164 & ConfigModal Inter-Context Bridge
+- **Aislamiento Shadow DOM Dual Host**: Implementación de `#omniflow-topbar-host` (48px) y `#omniflow-sidebar-host` (380px) incrustados limpiamente sobre WhatsApp Web sin alterar los estilos nativos del sitio.
+- **Extracción Dinámica del Chat Activo**: Detección mediante `MutationObserver` en `#main header` para extraer nombre y teléfono E.164 activo, vinculándolo a la Ficha 360°, Catálogo POS y Agenda.
+- **Comunicación Inter-Contexto (`CustomEvent`)**: Despacho global de eventos para apertura garantizada del modal de configuración ⚙️ desde cualquier Shadow DOM.
+- **Estado No Autenticado Inicial**: Eliminación de datos duros de prueba (`tenant_latam_asuncion_01`), requiriendo configuración inicial de Tenant ID y Token de Operador.
+- **Empaquetado Cross-Browser**: Generación automatizada de artefactos `omnibot-chrome` y `omnibot-firefox.zip`.
+
+### 🔑 Admin Token Management — Generación UI, API Endpoints & JWT Display
+- **Página de Gestión de Tokens (`/admin/tokens`)**: Interfaz completa para listar, generar y revocar tokens de API con visualización de scopes, expiración y última actividad.
+- **Endpoints API (`auth.controller.ts`)**: `GET /api/v1/auth/tokens`, `POST /api/v1/auth/tokens/generate`, `DELETE /api/v1/auth/tokens/:tokenId` con validación JWT y auditoría.
+- **JWT Display & Session Config**: Modal con visualización segura del token JWT, configuración de duración de sesión (1h/24h/7d/30d) y permisos granulares por módulo.
+- **Swagger Docs**: Endpoint `@ApiBearerAuth` y `@ApiApiKey` actualizados para token management.
+
 ## [1.27.00] - 2026-09-06
 
 ### 🦊 OmniMessaging Hub — Web Extension Download & Version Verification (v1.27.00)

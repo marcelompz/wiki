@@ -1,0 +1,466 @@
+# Enrutamiento de todos los ecosistemas hacia los contenedores por nombre
+# (resolución DNS interna de Docker sobre la red traefik-public).
+#
+# Por cada host se definen DOS routers:
+#   - uno en websecure (TLS, Let's Encrypt) para HTTPS directo al origen
+#   - uno en web (sin TLS) para HTTP directo al origen
+# Un router con `tls` SOLO se sirve en entrypoints TLS; por eso el HTTP
+# necesita su propio router sin `tls`.
+#
+# Contenedores destino deben estar conectados a la red traefik-public:
+#   docker network connect traefik-public <container>
+
+http:
+  routers:
+    # Global redirect to HTTPS (excluding Let's Encrypt challenges)
+    redirect-to-https:
+      rule: "HostRegexp(`{host:.+}`) && !PathPrefix(`/.well-known/acme-challenge/`)"
+      entryPoints: [web]
+      middlewares: [redirect-to-https-middleware]
+      service: noop-service
+
+    # ===================== AXON PROD =====================
+    axon-prod:
+      rule: "Host(`axon.pesallaccia.com`)"
+      entryPoints: [websecure]
+      tls:
+        certResolver: letsencrypt
+      service: axon-prod
+      middlewares: [secure-headers]
+    axon-prod-http:
+      rule: "Host(`axon.pesallaccia.com`)"
+      entryPoints: [web]
+      service: axon-prod
+      middlewares: [secure-headers]
+
+    # ===================== AXON STAGING =====================
+    axon-staging:
+      rule: "Host(`staging.axon.pesallaccia.com`)"
+      entryPoints: [websecure]
+      tls:
+        certResolver: letsencrypt
+      service: axon-staging
+      middlewares: [secure-headers]
+    axon-staging-http:
+      rule: "Host(`staging.axon.pesallaccia.com`)"
+      entryPoints: [web]
+      service: axon-staging
+      middlewares: [secure-headers]
+
+    # ===================== ORDERFLOW PROD =====================
+    orderflow-prod:
+      rule: "Host(`orderflow.pesallaccia.com`) || Host(`pesallaccia.com`) || HostRegexp(`^[a-zA-Z0-9-]+\\.pesallaccia\\.com$`)"
+      priority: 90
+      entryPoints: [websecure]
+      tls:
+        certResolver: letsencrypt
+      service: orderflow-prod-frontend
+      middlewares: [secure-headers-cloudflare]
+    orderflow-prod-http:
+      rule: "Host(`orderflow.pesallaccia.com`) || Host(`pesallaccia.com`) || HostRegexp(`^[a-zA-Z0-9-]+\\.pesallaccia\\.com$`)"
+      priority: 90
+      entryPoints: [web]
+      service: orderflow-prod-frontend
+      middlewares: [secure-headers-cloudflare]
+    orderflow-prod-api:
+      rule: "(Host(`orderflow.pesallaccia.com`) || Host(`pesallaccia.com`) || HostRegexp(`^[a-zA-Z0-9-]+\\.pesallaccia\\.com$`)) && PathPrefix(`/api`)"
+      priority: 95
+      entryPoints: [websecure]
+      tls:
+        certResolver: letsencrypt
+      service: orderflow-prod-backend
+    orderflow-prod-api-http:
+      rule: "(Host(`orderflow.pesallaccia.com`) || Host(`pesallaccia.com`) || HostRegexp(`^[a-zA-Z0-9-]+\\.pesallaccia\\.com$`)) && PathPrefix(`/api`)"
+      priority: 95
+      entryPoints: [web]
+      service: orderflow-prod-backend
+    orderflow-prod-webhook:
+      rule: "(Host(`orderflow.pesallaccia.com`) || Host(`pesallaccia.com`) || HostRegexp(`^[a-zA-Z0-9-]+\\.pesallaccia\\.com$`)) && PathPrefix(`/webhook`)"
+      priority: 95
+      entryPoints: [websecure]
+      tls:
+        certResolver: letsencrypt
+      service: orderflow-prod-odoo
+    orderflow-prod-webhook-http:
+      rule: "(Host(`orderflow.pesallaccia.com`) || Host(`pesallaccia.com`) || HostRegexp(`^[a-zA-Z0-9-]+\\.pesallaccia\\.com$`)) && PathPrefix(`/webhook`)"
+      priority: 95
+      entryPoints: [web]
+      service: orderflow-prod-odoo
+
+    # ===================== ORDERFLOW STAGING =====================
+    orderflow-staging:
+      rule: "Host(`staging.pesallaccia.com`)"
+      entryPoints: [websecure]
+      tls:
+        certResolver: letsencrypt
+      service: orderflow-staging-frontend
+      middlewares: [secure-headers]
+    orderflow-staging-http:
+      rule: "Host(`staging.pesallaccia.com`)"
+      entryPoints: [web]
+      service: orderflow-staging-frontend
+      middlewares: [secure-headers]
+    orderflow-staging-api:
+      rule: "Host(`staging.pesallaccia.com`) && PathPrefix(`/api`)"
+      entryPoints: [websecure]
+      tls:
+        certResolver: letsencrypt
+      service: orderflow-staging-backend
+    orderflow-staging-api-http:
+      rule: "Host(`staging.pesallaccia.com`) && PathPrefix(`/api`)"
+      entryPoints: [web]
+      service: orderflow-staging-backend
+
+    # ===================== ODOO 19 PROD =====================
+    odoo-prod:
+      rule: "Host(`odoo.pesallaccia.com`)"
+      priority: 100
+      entryPoints: [websecure]
+      tls:
+        certResolver: letsencrypt
+      service: odoo-19-ce
+      middlewares: [secure-headers]
+    odoo-prod-http:
+      rule: "Host(`odoo.pesallaccia.com`)"
+      priority: 100
+      entryPoints: [web]
+      service: odoo-19-ce
+      middlewares: [secure-headers]
+
+    # ===================== TENANT SUBDOMAINS =====================
+    tenant-storefront:
+      rule: "HostRegexp(`^[a-zA-Z0-9-]+\\.pesallaccia\\.com$`) && !Host(`orderflow.pesallaccia.com`) && !Host(`pesallaccia.com`) && !Host(`api.pesallaccia.com`) && !Host(`staging.pesallaccia.com`) && !Host(`axon.pesallaccia.com`) && !Host(`staging.axon.pesallaccia.com`) && !Host(`odoo.pesallaccia.com`)"
+      priority: 90
+      entryPoints: [websecure]
+      tls:
+        certResolver: letsencrypt
+      service: orderflow-prod-frontend
+      middlewares: [secure-headers-cloudflare]
+    tenant-storefront-http:
+      rule: "HostRegexp(`^[a-zA-Z0-9-]+\\.pesallaccia\\.com$`) && !Host(`orderflow.pesallaccia.com`) && !Host(`pesallaccia.com`) && !Host(`api.pesallaccia.com`) && !Host(`staging.pesallaccia.com`) && !Host(`axon.pesallaccia.com`) && !Host(`staging.axon.pesallaccia.com`) && !Host(`odoo.pesallaccia.com`)"
+      priority: 90
+      entryPoints: [web]
+      service: orderflow-prod-frontend
+      middlewares: [secure-headers-cloudflare]
+
+    # ===================== STANDALONE MICROSERVICES =====================
+    giveaways-standalone:
+      rule: "(Host(`orderflow.pesallaccia.com`) || Host(`pesallaccia.com`)) && PathPrefix(`/standalone/giveaways`)"
+      priority: 120
+      entryPoints: [websecure]
+      tls:
+        certResolver: letsencrypt
+      service: giveaways-standalone-svc
+    giveaways-standalone-http:
+      rule: "(Host(`orderflow.pesallaccia.com`) || Host(`pesallaccia.com`)) && PathPrefix(`/standalone/giveaways`)"
+      priority: 120
+      entryPoints: [web]
+      service: giveaways-standalone-svc
+
+    whatsapp-catalog-standalone:
+      rule: "(Host(`orderflow.pesallaccia.com`) || Host(`pesallaccia.com`)) && PathPrefix(`/standalone/whatsapp-catalog`)"
+      priority: 120
+      entryPoints: [websecure]
+      tls:
+        certResolver: letsencrypt
+      service: whatsapp-catalog-standalone-svc
+    whatsapp-catalog-standalone-http:
+      rule: "(Host(`orderflow.pesallaccia.com`) || Host(`pesallaccia.com`)) && PathPrefix(`/standalone/whatsapp-catalog`)"
+      priority: 120
+      entryPoints: [web]
+      service: whatsapp-catalog-standalone-svc
+
+    omnisites-standalone:
+      rule: "Host(`sites.pesallaccia.com`) || PathPrefix(`/sites-standalone`)"
+      priority: 130
+      entryPoints: [websecure]
+      tls:
+        certResolver: letsencrypt
+      service: omnisites-standalone-svc
+    omnisites-standalone-http:
+      rule: "Host(`sites.pesallaccia.com`) || PathPrefix(`/sites-standalone`)"
+      priority: 130
+      entryPoints: [web]
+      service: omnisites-standalone-svc
+
+    omnivector-standalone:
+      rule: "Host(`vector.pesallaccia.com`) || PathPrefix(`/vector-standalone`)"
+      priority: 130
+      entryPoints: [websecure]
+      tls:
+        certResolver: letsencrypt
+      service: omnivector-standalone-svc
+    omnivector-standalone-http:
+      rule: "Host(`vector.pesallaccia.com`) || PathPrefix(`/vector-standalone`)"
+      priority: 130
+      entryPoints: [web]
+      service: omnivector-standalone-svc
+
+    # ===================== AIEER PROD (CETISA) =====================
+    aieer-prod:
+      rule: "Host(`aieer.cetisa.com.py`)"
+      priority: 100
+      entryPoints: [websecure]
+      tls:
+        certResolver: letsencrypt-http
+      service: aieer-prod-frontend
+      middlewares: [secure-headers]
+    aieer-prod-http:
+      rule: "Host(`aieer.cetisa.com.py`)"
+      priority: 100
+      entryPoints: [web]
+      service: aieer-prod-frontend
+      middlewares: [secure-headers]
+    aieer-prod-api:
+      rule: "Host(`aieer.cetisa.com.py`) && (PathPrefix(`/api`) || PathPrefix(`/token`))"
+      priority: 110
+      entryPoints: [websecure]
+      tls:
+        certResolver: letsencrypt-http
+      service: aieer-prod-backend
+    aieer-prod-api-http:
+      rule: "Host(`aieer.cetisa.com.py`) && (PathPrefix(`/api`) || PathPrefix(`/token`))"
+      priority: 110
+      entryPoints: [web]
+      service: aieer-prod-backend
+
+    # ===================== AIEER STAGING (CETISA / PESALLACCIA) =====================
+    aieer-staging:
+      rule: "Host(`staging.aieer.pesallaccia.com`) || Host(`aieer-staging.cetisa.com.py`)"
+      priority: 100
+      entryPoints: [websecure]
+      tls:
+        certResolver: letsencrypt-http
+      service: aieer-staging-frontend
+      middlewares: [secure-headers]
+    aieer-staging-http:
+      rule: "Host(`staging.aieer.pesallaccia.com`) || Host(`aieer-staging.cetisa.com.py`)"
+      priority: 100
+      entryPoints: [web]
+      service: aieer-staging-frontend
+      middlewares: [secure-headers]
+    aieer-staging-api:
+      rule: "(Host(`staging.aieer.pesallaccia.com`) || Host(`aieer-staging.cetisa.com.py`)) && (PathPrefix(`/api`) || PathPrefix(`/token`))"
+      priority: 110
+      entryPoints: [websecure]
+      tls:
+        certResolver: letsencrypt-http
+      service: aieer-staging-backend
+    aieer-staging-api-http:
+      rule: "(Host(`staging.aieer.pesallaccia.com`) || Host(`aieer-staging.cetisa.com.py`)) && (PathPrefix(`/api`) || PathPrefix(`/token`))"
+      priority: 110
+      entryPoints: [web]
+      service: aieer-staging-backend
+
+    # ===================== CAPACITACIONES PSICOVITAL =====================
+    capacitaciones:
+      rule: "Host(`capacitaciones.psicovital.com.py`)"
+      entryPoints: [websecure]
+      tls:
+        certResolver: letsencrypt
+      service: capacitaciones-svc
+      middlewares: [secure-headers]
+    capacitaciones-http:
+      rule: "Host(`capacitaciones.psicovital.com.py`)"
+      entryPoints: [web]
+      service: capacitaciones-svc
+      middlewares: [secure-headers]
+
+    # ===================== DEMO ODOO =====================
+    demo-odoo:
+      rule: "Host(`demo.pesallaccia.com`)"
+      entryPoints: [websecure]
+      tls:
+        certResolver: letsencrypt
+      service: demo-odoo-svc
+    demo-odoo-http:
+      rule: "Host(`demo.pesallaccia.com`)"
+      entryPoints: [web]
+      service: demo-odoo-svc
+
+    # ===================== VAULTWARDEN (SECURE) =====================
+    vaultwarden:
+      rule: "Host(`secure.pesallaccia.com`)"
+      priority: 100
+      entryPoints: [websecure]
+      tls:
+        certResolver: letsencrypt
+      service: vaultwarden-svc
+    vaultwarden-http:
+      rule: "Host(`secure.pesallaccia.com`)"
+      priority: 100
+      entryPoints: [web]
+      service: vaultwarden-svc
+    vaultwarden-ws:
+      rule: "Host(`secure.pesallaccia.com`) && PathPrefix(`/notifications/hub`)"
+      priority: 110
+      entryPoints: [websecure]
+      tls:
+        certResolver: letsencrypt
+      service: vaultwarden-ws-svc
+    vaultwarden-ws-http:
+      rule: "Host(`secure.pesallaccia.com`) && PathPrefix(`/notifications/hub`)"
+      priority: 110
+      entryPoints: [web]
+      service: vaultwarden-ws-svc
+
+    # ===================== VITALOG =====================
+    vitalog:
+      rule: "Host(`vitalog.pesallaccia.com`)"
+      priority: 100
+      entryPoints: [websecure]
+      tls:
+        certResolver: letsencrypt
+      service: vitalog-web-svc
+    vitalog-http:
+      rule: "Host(`vitalog.pesallaccia.com`)"
+      priority: 100
+      entryPoints: [web]
+      service: vitalog-web-svc
+    vitalog-mobile:
+      rule: "Host(`vitalog.pesallaccia.com`) && PathPrefix(`/mobile`)"
+      priority: 110
+      entryPoints: [websecure]
+      tls:
+        certResolver: letsencrypt
+      service: vitalog-mobile-svc
+    vitalog-mobile-http:
+      rule: "Host(`vitalog.pesallaccia.com`) && PathPrefix(`/mobile`)"
+      priority: 110
+      entryPoints: [web]
+      service: vitalog-mobile-svc
+    vitalog-api:
+      rule: "Host(`vitalog.pesallaccia.com`) && (PathPrefix(`/api`) || PathPrefix(`/docs`) || PathPrefix(`/openapi.json`))"
+      priority: 120
+      entryPoints: [websecure]
+      tls:
+        certResolver: letsencrypt
+      service: vitalog-api-svc
+    vitalog-api-http:
+      rule: "Host(`vitalog.pesallaccia.com`) && (PathPrefix(`/api`) || PathPrefix(`/docs`) || PathPrefix(`/openapi.json`))"
+      priority: 120
+      entryPoints: [web]
+      service: vitalog-api-svc
+
+    # ===================== NANDUTIA PROD =====================
+    nanduti-prod:
+      rule: "Host(`nanduti.pesallaccia.com`)"
+      entryPoints: [websecure]
+      tls:
+        certResolver: letsencrypt
+      service: nanduti-prod
+      middlewares: [secure-headers]
+    nanduti-prod-http:
+      rule: "Host(`nanduti.pesallaccia.com`)"
+      entryPoints: [web]
+      service: nanduti-prod
+      middlewares: [secure-headers]
+
+  services:
+    aieer-prod-frontend:
+      loadBalancer:
+        servers:
+          - url: "http://data_analysis_frontend:80"
+    aieer-prod-backend:
+      loadBalancer:
+        servers:
+          - url: "http://data_analysis_backend:8000"
+    capacitaciones-svc:
+      loadBalancer:
+        servers:
+          - url: "http://host.docker.internal:8080"
+    demo-odoo-svc:
+      loadBalancer:
+        servers:
+          - url: "http://host.docker.internal:8038"
+    vaultwarden-svc:
+      loadBalancer:
+        servers:
+          - url: "http://vaultwarden:80"
+    vaultwarden-ws-svc:
+      loadBalancer:
+        servers:
+          - url: "http://vaultwarden:3012"
+    vitalog-mobile-svc:
+      loadBalancer:
+        servers:
+          - url: "http://host.docker.internal:8888"
+    vitalog-web-svc:
+      loadBalancer:
+        servers:
+          - url: "http://vitalog-frontend-web-1:3333"
+    vitalog-api-svc:
+      loadBalancer:
+        servers:
+          - url: "http://vitalog-backend-1:8000"
+    nanduti-prod:
+      loadBalancer:
+        servers:
+          - url: "http://nandutia_app:8000"
+    giveaways-standalone-svc:
+      loadBalancer:
+        servers:
+          - url: "http://orderflow_giveaways_standalone:3020"
+    whatsapp-catalog-standalone-svc:
+      loadBalancer:
+        servers:
+          - url: "http://orderflow_whatsapp_catalog_standalone:3021"
+    omnisites-standalone-svc:
+      loadBalancer:
+        servers:
+          - url: "http://orderflow_omnisites_standalone:3030"
+    omnivector-standalone-svc:
+      loadBalancer:
+        servers:
+          - url: "http://orderflow_omnivector_standalone:3029"
+    odoo-19-ce:
+      loadBalancer:
+        servers:
+          - url: "http://odoo_web_8084:8069"
+    orderflow-prod-frontend:
+      loadBalancer:
+        servers:
+          - url: "http://orderflow-frontend-prod:80"
+    orderflow-prod-backend:
+      loadBalancer:
+        servers:
+          - url: "http://orderflow-backend-prod:3010"
+    orderflow-prod-odoo:
+      loadBalancer:
+        servers:
+          - url: "http://orderflow-odoo-adapter-prod:3005"
+    orderflow-staging-frontend:
+      loadBalancer:
+        servers:
+          - url: "http://orderflow-frontend-prod:80"
+    orderflow-staging-backend:
+      loadBalancer:
+        servers:
+          - url: "http://orderflow-backend-prod:3010"
+    axon-prod:
+      loadBalancer:
+        servers:
+          - url: "http://axon-production-workspace-1:3005"
+    axon-staging:
+      loadBalancer:
+        servers:
+          - url: "http://axon-staging-workspace-1:3005"
+    aieer-staging-frontend:
+      loadBalancer:
+        servers:
+          - url: "http://staging_frontend:80"
+    aieer-staging-backend:
+      loadBalancer:
+        servers:
+          - url: "http://staging_backend:8000"
+    noop-service:
+      loadBalancer:
+        servers:
+          - url: "http://127.0.0.1:9999"
+
+  middlewares:
+    redirect-to-https-middleware:
+      redirectScheme:
+        scheme: https
+        permanent: true
+

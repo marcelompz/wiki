@@ -1,7 +1,7 @@
 {
   "project": "OrderFlow SaaS Omnicanal",
-  "version": "1.20.85",
-  "last_updated": "2026-08-30",
+  "version": "1.27.10",
+  "last_updated": "2026-09-08",
   "features": [
     {
       "id": "FEAT-001",
@@ -1128,16 +1128,107 @@
       "depends_on": [],
       "blocking": [],
       "qa_validation": "Frontend build clean 100% | Standalone microservice build clean 100% | OmniBI modal integration functional"
+    },
+    {
+      "id": "FEAT-129",
+      "category": "Frontend & Microservicios / OmniSites",
+      "title": "Evolución OmniSites PRO & Site-Builder — Motor de IA Gemini Transaccional, Mobile Sticky OmniBar & Handlers Decoupled",
+      "description": "Evolución del diseñador de sitios con System Prompt holístico de Gemini para generación transaccional del tenant, Sticky OmniBar fija para móviles, badges operativos en tiempo real y handlers nativos decoupled (handleAddToCart, handleQuickOrderWhatsApp).",
+      "status": "completed",
+      "assigned_module": "services/omnisites-standalone/, frontend/src/pages/admin/homepage-builder.tsx, docs/plans/omnisites_ajuste.md",
+      "depends_on": [],
+      "blocking": [],
+      "qa_validation": "Frontend build clean 100% | OmniSites Standalone build clean 100% | StickyOmniBar & OperationalBadges integrated"
+    },
+    {
+      "id": "FEAT-130",
+      "category": "OmniMessaging Hub & Bot / Sprint 1",
+      "title": "OmniMessaging Hub — Modelos de Datos Prisma, Cifrado AES-256-GCM + HKDF y Aislamiento Multi-Tenant",
+      "description": "Implementación del Sprint 1 del Plan Maestro de OmniMessaging Hub: modelos ChannelIntegration, TenantBotConfig, OmniConversation, Message en schema.prisma, CredentialsVaultService con derivación HKDF por tenantId y registro global de seguridad.",
+      "status": "completed",
+      "assigned_module": "backend/prisma/schema.prisma, backend/src/common/credentials-vault.service.ts, docs/plans/omni-bot/PLAN_DESARROLLO_OMNIMESSAGING_Y_OMNICATALOG_v1.1.0.md",
+      "depends_on": [],
+      "blocking": [],
+      "qa_validation": "Prisma Client 100% generado | Prisma db push sincronizado | Jest unit tests 100% aprobados | NestJS build 100% limpio"
+    },
+    {
+      "id": "FEAT-131",
+      "category": "OmniMessaging Hub & Bot / Sprint 2",
+      "title": "OmniMessaging Hub — Adapters de Canales, Payloads Canónicos y Colas Asíncronas BullMQ",
+      "description": "Implementación del Sprint 2 del Plan Maestro de OmniMessaging Hub: Adapters WhatsApp Cloud API & Telegram, Normalización Canónica, ChannelAdapterFactory, Producer/Processor BullMQ con exponetial backoff y descifrado de credenciales desde Vault.",
+      "status": "completed",
+      "assigned_module": "backend/src/modules/omnimessaging/*",
+      "depends_on": [
+        "FEAT-130"
+      ],
+      "blocking": [],
+      "qa_validation": "WhatsAppCloudAdapter y TelegramAdapter 100% tipados | ChannelAdapterFactory unit tests 100% aprobados | OmniMessagingModule registrado en AppModule | NestJS build 100% limpio"
+    },
+    {
+      "id": "FEAT-132",
+      "category": "OmniMessaging Hub & Bot / Sprint 3",
+      "title": "OmniMessaging Hub — Motor de IA Cloud (OpenAI/Gemini), Tool Calling & Guard de Cuotas por Tenant",
+      "description": "Implementación del Sprint 3 del Plan Maestro de OmniMessaging Hub: CloudAIProviderService con soporte nativo de Tool Calling (OpenAI / Gemini), QuotaPlanGuardService para consumo mensual de tokens/mensajes e IntentRouterService para enrutamiento conversacional.",
+      "status": "completed",
+      "assigned_module": "backend/src/modules/omnimessaging/services/*",
+      "depends_on": [
+        "FEAT-131"
+      ],
+      "blocking": [],
+      "qa_validation": "CloudAIProviderService con Tool Calling | QuotaPlanGuardService con agregado Prisma | IntentRouterService test unitarios 100% aprobados | NestJS build 100% limpio"
+    },
+    {
+      "id": "FEAT-133",
+      "category": "OmniMessaging Hub & Bot / Sprint 4",
+      "title": "OmniMessaging Hub — Consumidor de Catálogo Omnicanal, URLs con UTMs e Inyección Idempotente de Pedidos",
+      "description": "Implementación del Sprint 4 del Plan Maestro de OmniMessaging Hub: CatalogToolsService para consultas dinámicas de productos/stock y URLs públicas formateadas con UTMs, y OrderInjectorService para inyección de pedidos con idempotencia por orderUuid.",
+      "status": "completed",
+      "assigned_module": "backend/src/modules/omnimessaging/services/catalog-tools.service.ts, backend/src/modules/omnimessaging/services/order-injector.service.ts",
+      "depends_on": [
+        "FEAT-132"
+      ],
+      "blocking": [],
+      "qa_validation": "CatalogToolsService unit tests 100% aprobados | OrderInjectorService idempotencia probada 100% | NestJS build 100% limpio"
+    },
+    {
+      "id": "FEAT-134",
+      "category": "OmniMessaging Hub & Bot / Sprint 5",
+      "title": "OmniMessaging Hub — Admin UI (/admin/messaging), Human Takeover y Deploy Final a Producción",
+      "description": "Implementación del Sprint 5 del Plan Maestro de OmniMessaging Hub: Interfaz de administración en React (/admin/messaging), control de Human Takeover en tiempo real y despliegue del 100% de la suite a los servidores de producción.",
+      "status": "completed",
+      "assigned_module": "frontend/src/pages/admin/messaging.tsx, frontend/src/AdminApp.tsx, frontend/src/components/Sidebar.tsx",
+      "depends_on": [
+        "FEAT-133"
+      ],
+      "blocking": [],
+      "qa_validation": "Frontend build 100% limpio | Backend NestJS 100% limpio | Rutas /admin/messaging registradas | Despliegues en producción sincronizados"
+    },
+    {
+      "id": "FEAT-135",
+      "category": "Admin / Security",
+      "title": "Admin Token Management — UI, API Endpoints & JWT Display",
+      "description": "Página de gestión de tokens en /admin/tokens con endpoints GET/POST/DELETE, visualización JWT y configuración de duración de sesión.",
+      "status": "completed",
+      "assigned_module": "frontend/src/pages/admin/tokens.tsx, backend/src/auth/auth.controller.ts",
+      "depends_on": [],
+      "blocking": [],
+      "qa_validation": "Backend build clean | Frontend build clean | Admin routes /admin/tokens functional | Token generation & revocation working"
     }
   ],
-  "lastUpdated": "2026-09-04",
-  "last_id": "FEAT-128",
+  "lastUpdated": "2026-09-08",
+  "last_id": "FEAT-135",
   "next_pending_sc": null,
-  "active_plan": "docs/plans/omnibi/PLAN_IMPLEMENTACION_OMNIFLOW_DATA_EDITOR.md",
+  "active_plan": "docs/plans/omni-bot/PLAN_DESARROLLO_OMNIMESSAGING_Y_OMNICATALOG_v1.1.0.md",
   "plan_progress": {
-    "Fase 1 - Core Monorepo & OmniBI": "completed",
-    "Fase 2 - Standalone Microservice": "completed",
-    "Fase 3 - Documentación & Wiki Sync": "completed"
+    "Sprint 1 - Infraestructura & Seguridad": "completed",
+    "Sprint 2 - Core de Mensajería & Canales": "completed",
+    "Sprint 3 - Motor de IA & Control de Cuotas": "completed",
+    "Sprint 4 - Consumidor OmniCatalog & ERP": "completed",
+    "Sprint 5 - Admin UI, Human Takeover & Deploy": "completed"
   }
 }
+
+
+
+
 

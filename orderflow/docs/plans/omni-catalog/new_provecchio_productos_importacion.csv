@@ -1,0 +1,204 @@
+Nombre;Descripción;Precio;Referencia interna;Rastrear inventario;Es pos bom product?;Unidades;Disponible en PDV;Categoria del producto 0;Categoria de PDV 0;Categoria de PDV 1
+Espresso;45 ml;15.000;BEB001;VERDADERO;VERDADERO;Unidades;VERDADERO;Para beber;Cafe;Caliente
+Espresso macchiato;;18.000;BEB002;VERDADERO;VERDADERO;Unidades;VERDADERO;Para beber;Cafe;Caliente
+Espresso cortado;;18.000;BEB003;VERDADERO;VERDADERO;Unidades;VERDADERO;Para beber;Cafe;Caliente
+Huevos benedictinos con salmón ahumado;;55.000;COM001;VERDADERO;VERDADERO;Unidades;VERDADERO;Para comer;Huevos benedictinos;Caliente
+Huevos benedictinos;Lomo ahumado / Jamón crudo / Jamón de pavo;45.000;COM002;VERDADERO;VERDADERO;Unidades;VERDADERO;Para comer;Huevos benedictinos;Caliente
+Huevos revueltos simple;;25.000;COM003;VERDADERO;VERDADERO;Unidades;VERDADERO;Para comer;Revueltos & omeletes;Caliente
+Huevos revueltos con jamón de pavo;;35.000;COM004;VERDADERO;VERDADERO;Unidades;VERDADERO;Para comer;Revueltos & omeletes;Caliente
+Huevos revueltos;Jamón crudo / Jamón y queso / Lomo ahumado / Panceta;30.000;COM005;VERDADERO;VERDADERO;Unidades;VERDADERO;Para comer;Revueltos & omeletes;Caliente
+Americano;;18.000;BEB004;VERDADERO;VERDADERO;Unidades;VERDADERO;Para beber;Cafe;Caliente
+Americano cortado;;18.000;BEB005;VERDADERO;VERDADERO;Unidades;VERDADERO;Para beber;Cafe;Caliente
+Latte;;20.000;BEB006;VERDADERO;VERDADERO;Unidades;VERDADERO;Para beber;Cafe;Frío
+Latte canela caliente;;25.000;BEB007;VERDADERO;VERDADERO;Unidades;VERDADERO;Para beber;Cafe;Caliente
+Latte vainilla caliente;;25.000;BEB008;VERDADERO;VERDADERO;Unidades;VERDADERO;Para beber;Cafe;Caliente
+Latte coco caliente;;25.000;BEB009;VERDADERO;VERDADERO;Unidades;VERDADERO;Para beber;Cafe;Caliente
+Flat white;;22.000;BEB010;VERDADERO;VERDADERO;Unidades;VERDADERO;Para beber;Cafe;Caliente
+Cappuccino;;22.000;BEB011;VERDADERO;VERDADERO;Unidades;VERDADERO;Para beber;Cafe;Caliente
+Caramel latte caliente;;28.000;BEB012;VERDADERO;VERDADERO;Unidades;VERDADERO;Para beber;Cafe;Caliente
+Mocha caliente;;30.000;BEB013;VERDADERO;VERDADERO;Unidades;VERDADERO;Para beber;Cafe;Caliente
+Infusion ka´a yara;;15.000;BEB014;VERDADERO;VERDADERO;Unidades;VERDADERO;Para beber;Especiales;Caliente
+Ka´a yara latte;;18.000;BEB015;VERDADERO;VERDADERO;Unidades;VERDADERO;Para beber;Especiales;Caliente
+Chocolatada caliente;;20.000;BEB016;VERDADERO;VERDADERO;Unidades;VERDADERO;Para beber;Especiales;Caliente
+Cocolatada caliente;;32.000;BEB017;VERDADERO;VERDADERO;Unidades;VERDADERO;Para beber;Especiales;Caliente
+Ka´a yara caramel;;22.000;BEB018;VERDADERO;VERDADERO;Unidades;VERDADERO;Para beber;Especiales;Caliente
+Leche dorada;;25.000;BEB019;VERDADERO;VERDADERO;Unidades;VERDADERO;Para beber;Especiales;Caliente
+Leche dorada con leche de coco;;35.000;BEB020;VERDADERO;VERDADERO;Unidades;VERDADERO;Para beber;Especiales;Caliente
+Chai latte;;30.000;BEB021;VERDADERO;VERDADERO;Unidades;VERDADERO;Para beber;Especiales;Caliente
+Chai coco latte;;40.000;BEB022;VERDADERO;VERDADERO;Unidades;VERDADERO;Para beber;Especiales;Caliente
+Matcha latte;;30.000;BEB023;VERDADERO;VERDADERO;Unidades;VERDADERO;Para beber;Especiales;Caliente
+Coco matcha caliente;;40.000;BEB024;VERDADERO;VERDADERO;Unidades;VERDADERO;Para beber;Especiales;Caliente
+V60;;35.000;BEB025;VERDADERO;VERDADERO;Unidades;VERDADERO;Para beber;Filtrados;Caliente
+Chemex;;35.000;BEB026;VERDADERO;VERDADERO;Unidades;VERDADERO;Para beber;Filtrados;Caliente
+Aeropress;;35.000;BEB027;VERDADERO;VERDADERO;Unidades;VERDADERO;Para beber;Filtrados;Caliente
+Te verde (Taza);;12.000;BEB028;VERDADERO;VERDADERO;Unidades;VERDADERO;Para beber;Te e infusiones;Caliente
+Te ceylan (Taza);;12.000;BEB029;VERDADERO;VERDADERO;Unidades;VERDADERO;Para beber;Te e infusiones;Caliente
+Te rojo (Taza);;12.000;BEB030;VERDADERO;VERDADERO;Unidades;VERDADERO;Para beber;Te e infusiones;Caliente
+Te de limon siciliano, menta y verde (Taza);;12.000;BEB031;VERDADERO;VERDADERO;Unidades;VERDADERO;Para beber;Te e infusiones;Caliente
+Te de 7 heirbas (Taza);;12.000;BEB032;VERDADERO;VERDADERO;Unidades;VERDADERO;Para beber;Te e infusiones;Caliente
+Te verde (Pava);;20.000;BEB033;VERDADERO;VERDADERO;Unidades;VERDADERO;Para beber;Te e infusiones;Caliente
+Te ceylan (Pava);;20.000;BEB034;VERDADERO;VERDADERO;Unidades;VERDADERO;Para beber;Te e infusiones;Caliente
+Te rojo (Pava);;20.000;BEB035;VERDADERO;VERDADERO;Unidades;VERDADERO;Para beber;Te e infusiones;Caliente
+Te de limon siciliano, menta y verde (Pava);;20.000;BEB036;VERDADERO;VERDADERO;Unidades;VERDADERO;Para beber;Te e infusiones;Caliente
+Te de 7 heirbas (Pava);;20.000;BEB037;VERDADERO;VERDADERO;Unidades;VERDADERO;Para beber;Te e infusiones;Caliente
+Mineral con o sin gas 500ml;;10.000;BEB038;VERDADERO;VERDADERO;Unidades;VERDADERO;Para beber;Agua;Fría
+Agua premium (con y sin gas);;10.000;BEB039;VERDADERO;VERDADERO;Unidades;VERDADERO;Para beber;Agua;Fría
+Tonica;;10.000;BEB040;VERDADERO;VERDADERO;Unidades;VERDADERO;Para beber;Agua;Fría
+Tostadas francesas con queso paraguay, frutas y panceta;;50.000;COM006;VERDADERO;VERDADERO;Unidades;VERDADERO;Para comer;Tostadas francesas;Caliente
+Sandwich de croissant de jamón y queso;;30.000;COM007;VERDADERO;VERDADERO;Unidades;VERDADERO;Para comer;Sandwich de croissant;
+Sandwich de croissant de huevos revueltos;;35.000;COM008;VERDADERO;VERDADERO;Unidades;VERDADERO;Para comer;Sandwich de croissant;
+Sandwich de croissant de bondiola;;38.000;COM009;VERDADERO;VERDADERO;Unidades;VERDADERO;Para comer;Sandwich de croissant;
+Croissant de queso;;20.000;COM010;VERDADERO;VERDADERO;Unidades;VERDADERO;Para comer;Croissants;
+Croissant jamon de pavo y queso;;30.000;COM011;VERDADERO;VERDADERO;Unidades;VERDADERO;Para comer;Croissants;
+Croissant de jamón y queso;;25.000;COM012;VERDADERO;VERDADERO;Unidades;VERDADERO;Para comer;Croissants;
+Mixto de jamón y queso pan lactal blanco;;15.000;COM013;VERDADERO;VERDADERO;Unidades;VERDADERO;Para comer;Mixtos;Caliente
+Mixto de jamón y queso pan lactal integral;;15.000;COM014;VERDADERO;VERDADERO;Unidades;VERDADERO;Para comer;Mixtos;Caliente
+Mixto de jamón y queso masa madre;;20.000;COM015;VERDADERO;VERDADERO;Unidades;VERDADERO;Para comer;Mixtos;Caliente
+Mixto de jamón de pavo pan lactal blanco;;20.000;COM016;VERDADERO;VERDADERO;Unidades;VERDADERO;Para comer;Mixtos;Caliente
+Mixto de jamón de pavo pan lactal integral;;20.000;COM017;VERDADERO;VERDADERO;Unidades;VERDADERO;Para comer;Mixtos;Caliente
+Mixto de jamón de pavo masa madre;;25.000;COM018;VERDADERO;VERDADERO;Unidades;VERDADERO;Para comer;Mixtos;Caliente
+Mixto capresse pan lactal blanco;;18.000;COM019;VERDADERO;VERDADERO;Unidades;VERDADERO;Para comer;Mixtos;Caliente
+Mixto capresse pan lactal integral;;18.000;COM020;VERDADERO;VERDADERO;Unidades;VERDADERO;Para comer;Mixtos;Caliente
+Mixto capresse masa madre;;25.000;COM021;VERDADERO;VERDADERO;Unidades;VERDADERO;Para comer;Mixtos;Caliente
+Mbeju mestizo;;15.000;COM022;VERDADERO;VERDADERO;Unidades;VERDADERO;Para comer;Tipicas;
+Mbeju extra queso;;20.000;COM023;VERDADERO;VERDADERO;Unidades;VERDADERO;Para comer;Tipicas;
+Mbeju capresse;;25.000;COM024;VERDADERO;VERDADERO;Unidades;VERDADERO;Para comer;Tipicas;
+Mbeju de jamón y queso;;25.000;COM025;VERDADERO;VERDADERO;Unidades;VERDADERO;Para comer;Tipicas;
+Mbeju de queso azul;;30.000;COM026;VERDADERO;VERDADERO;Unidades;VERDADERO;Para comer;Tipicas;
+Chipita mestiza;;15.000;COM027;VERDADERO;VERDADERO;Unidades;VERDADERO;Para comer;Tipicas;
+Nuggets con papas rusticas;;45.000;COM028;VERDADERO;VERDADERO;Unidades;VERDADERO;Para comer;Peques;
+Spaghetti con jamon y queso;;45.000;COM029;VERDADERO;VERDADERO;Unidades;VERDADERO;Para comer;Platos fuertes;
+Suprema grillada con arroz kesu;;60.000;COM030;VERDADERO;VERDADERO;Unidades;VERDADERO;Para comer;Platos fuertes;
+Suprema grillada con ensalada;;60.000;COM031;VERDADERO;VERDADERO;Unidades;VERDADERO;Para comer;Platos fuertes;
+Americano frio;;20.000;BEB041;VERDADERO;VERDADERO;Unidades;VERDADERO;Para beber;Cafe;Frío
+Americano cortado frio;;22.000;BEB042;VERDADERO;VERDADERO;Unidades;VERDADERO;Para beber;Cafe;Frío
+Latte frio;;22.000;BEB043;VERDADERO;VERDADERO;Unidades;VERDADERO;Para beber;Cafe;Frío
+Latte canela frio;;28.000;BEB044;VERDADERO;VERDADERO;Unidades;VERDADERO;Para beber;Cafe;Frío
+Latte vainilla frio;;28.000;BEB045;VERDADERO;VERDADERO;Unidades;VERDADERO;Para beber;Cafe;Frío
+Latte coco frio;;28.000;BEB046;VERDADERO;VERDADERO;Unidades;VERDADERO;Para beber;Cafe;Frío
+Caramel latte frio;;30.000;BEB047;VERDADERO;VERDADERO;Unidades;VERDADERO;Para beber;Cafe;Frío
+Mocha frio;;35.000;BEB048;VERDADERO;VERDADERO;Unidades;VERDADERO;Para beber;Cafe;Frío
+Chocolatada fria;;22.000;BEB049;VERDADERO;VERDADERO;Unidades;VERDADERO;Para beber;Chocolate;Frío
+Cocolatada fria;;32.000;BEB050;VERDADERO;VERDADERO;Unidades;VERDADERO;Para beber;Chocolate;Frío
+Ka´a yara tonic fresh;;25.000;BEB051;VERDADERO;VERDADERO;Unidades;VERDADERO;Para beber;Cocteles;Frío
+Coffee tonic;;30.000;BEB052;VERDADERO;VERDADERO;Unidades;VERDADERO;Para beber;Cafe;Frío
+Frappe vainilla;;30.000;BEB053;VERDADERO;VERDADERO;Unidades;VERDADERO;Para beber;Frappe;Frío
+Frappe mango;;30.000;BEB054;VERDADERO;VERDADERO;Unidades;VERDADERO;Para beber;Frappe;Frío
+Suprema grillada con papas rústicas;;60.000;COM032;VERDADERO;VERDADERO;Unidades;VERDADERO;Para comer;Platos fuertes;
+Suprema grillada con spaghetti;;60.000;COM033;VERDADERO;VERDADERO;Unidades;VERDADERO;Para comer;Platos fuertes;
+Medallones de lomito con arroz kesu;;88.000;COM034;VERDADERO;VERDADERO;Unidades;VERDADERO;Para comer;Platos fuertes;
+Medallones de lomito con ensalada;;85.000;COM035;VERDADERO;VERDADERO;Unidades;VERDADERO;Para comer;Platos fuertes;
+Medallones de lomito con spaghettis;;88.000;COM036;VERDADERO;VERDADERO;Unidades;VERDADERO;Para comer;Platos fuertes;
+Medallones de lomito con papas rústicas;;88.000;COM037;VERDADERO;VERDADERO;Unidades;VERDADERO;Para comer;Platos fuertes;
+Frappe choco;;35.000;BEB055;VERDADERO;VERDADERO;Unidades;VERDADERO;Para beber;Frappe;Frío
+Frappe frutos rojos;;35.000;BEB056;VERDADERO;VERDADERO;Unidades;VERDADERO;Para beber;Frappe;Frío
+Frappe mocha;;35.000;BEB057;VERDADERO;VERDADERO;Unidades;VERDADERO;Para beber;Frappe;Frío
+Frappe matcha;;38.000;BEB058;VERDADERO;VERDADERO;Unidades;VERDADERO;Para beber;Frappe;Frío
+Frappe frutos rojos y banana;;35.000;BEB059;VERDADERO;VERDADERO;Unidades;VERDADERO;Para beber;Frappe;Frío
+Cold brew black;;30.000;BEB060;VERDADERO;VERDADERO;Unidades;VERDADERO;Para beber;Cold brew;Frío
+Cold brew con zumo de naranja;;35.000;BEB061;VERDADERO;VERDADERO;Unidades;VERDADERO;Para beber;Cold brew;Frío
+Sandwich gourmet de lomito;Con: masa madre / Focaccia;55.000;COM038;VERDADERO;VERDADERO;Unidades;VERDADERO;Para comer;Sandwich gourmet;
+Sandwich gourmet de lomito;Con pan Ciabatta X.;65.000;COM039;VERDADERO;VERDADERO;Unidades;VERDADERO;Para comer;Sandwich gourmet;
+Sandwich gourmet de pavo;Con: masa madre / Focaccia;65.000;COM040;VERDADERO;VERDADERO;Unidades;VERDADERO;Para comer;Sandwich gourmet;
+Sandwich gourmet de pavo;Con pan Ciabatta X.;58.000;COM041;VERDADERO;VERDADERO;Unidades;VERDADERO;Para comer;Sandwich gourmet;
+Sandwich gourmet de pollo asado;Con: masa madre / Focaccia;48.000;COM042;VERDADERO;VERDADERO;Unidades;VERDADERO;Para comer;Sandwich gourmet;
+Sandwich gourmet de pollo asado;Con pan Ciabatta X.;58.000;COM043;VERDADERO;VERDADERO;Unidades;VERDADERO;Para comer;Sandwich gourmet;
+Ensalada de queso azul y nueces;;55.000;COM044;VERDADERO;VERDADERO;Unidades;VERDADERO;Para comer;Ensaladas;
+Cold brew con frutos rojos;;35.000;BEB062;VERDADERO;VERDADERO;Unidades;VERDADERO;Para beber;Cold brew;Frío
+Cold brew con mburukuja;;35.000;BEB063;VERDADERO;VERDADERO;Unidades;VERDADERO;Para beber;Cold brew;Frío
+Limonada;;12.000;BEB064;VERDADERO;VERDADERO;Unidades;VERDADERO;Para beber;Jugos;Frío
+Limonada (jarra);;25.000;BEB065;VERDADERO;VERDADERO;Unidades;VERDADERO;Para beber;Jugos;Frío
+Jugo de durazno (vaso);;12.000;BEB066;VERDADERO;VERDADERO;Unidades;VERDADERO;Para beber;Jugos;Frío
+Jugo de durazno (jarra);;25.000;BEB067;VERDADERO;VERDADERO;Unidades;VERDADERO;Para beber;Jugos;Frío
+Jugo de piña (vaso);;15.000;BEB068;VERDADERO;VERDADERO;Unidades;VERDADERO;Para beber;Jugos;Frío
+Jugo de piña (jarra);;30.000;BEB069;VERDADERO;VERDADERO;Unidades;VERDADERO;Para beber;Jugos;Frío
+Zumo de naranja;;20.000;BEB070;VERDADERO;VERDADERO;Unidades;VERDADERO;Para beber;Jugos;Frío
+Ensalada caesar di mora;;50.000;COM045;VERDADERO;VERDADERO;Unidades;VERDADERO;Para comer;Ensaladas;
+Ensalada de la casa;;30.000;COM046;VERDADERO;VERDADERO;Unidades;VERDADERO;Para comer;Ensaladas;
+Papas rusticas horneadas;;20.000;COM047;VERDADERO;VERDADERO;Unidades;VERDADERO;Para comer;Fuera de carta;
+Bruschetta de huevos revueltos, rucula y cherry;;30.000;COM048;VERDADERO;VERDADERO;Unidades;VERDADERO;Para comer;Bruschettas;
+Bruschetta de aguacate, rucula y poche;;35.000;COM049;VERDADERO;VERDADERO;Unidades;VERDADERO;Para comer;Bruschettas;
+Bruschetta de tomates secos y queso;;35.000;COM050;VERDADERO;VERDADERO;Unidades;VERDADERO;Para comer;Bruschettas;
+Bruschetta de espinaca cremosa con huevo poche;;35.000;COM051;VERDADERO;VERDADERO;Unidades;VERDADERO;Para comer;Bruschettas;
+Bruschetta capresse;;40.000;COM052;VERDADERO;VERDADERO;Unidades;VERDADERO;Para comer;Bruschettas;
+Bruschetta de hongos cremosos con queso azul;;55.000;COM053;VERDADERO;VERDADERO;Unidades;VERDADERO;Para comer;Bruschettas;
+Bruschetta de jamón crudo, queso morbier y frutos rojos;;55.000;COM054;VERDADERO;VERDADERO;Unidades;VERDADERO;Para comer;Bruschettas;
+Bruschetta fusión;;55.000;COM055;VERDADERO;VERDADERO;Unidades;VERDADERO;Para comer;Bruschettas;
+Picada gourmet para 1 persona;;75.000;COM056;VERDADERO;VERDADERO;Unidades;VERDADERO;Para comer;Picadas gourmet;
+Picada gourmet para 2 personas;;130.000;COM057;VERDADERO;VERDADERO;Unidades;VERDADERO;Para comer;Picadas gourmet;
+Picada gourmet para 3 personas;;190.000;COM058;VERDADERO;VERDADERO;Unidades;VERDADERO;Para comer;Picadas gourmet;
+Tapioca rellena con huevos revueltos y muzzarella;;30.000;COM059;VERDADERO;VERDADERO;Unidades;VERDADERO;Para comer;Fit;Tapiocas rellenas
+Tapioca rellena con palmito y huevo duro;;38.000;COM060;VERDADERO;VERDADERO;Unidades;VERDADERO;Para comer;Fit;Tapiocas rellenas
+Sandwich pan lactal integral de huevo duro, lechuga y tomate;;30.000;COM061;VERDADERO;VERDADERO;Unidades;VERDADERO;Para comer;Fit;Sandwich frío
+Sandwich pan lactal integral de jamon, queso, lechuga y tomate;;30.000;COM062;VERDADERO;VERDADERO;Unidades;VERDADERO;Para comer;Fit;Sandwich frío
+Sandwich pan de masa madre de huevo duro, lechuga y tomate;;35.000;COM063;VERDADERO;VERDADERO;Unidades;VERDADERO;Para comer;Fit;Sandwich frío
+Sandwich pan de masa madre de jamon, queso, lechuga y tomate;;35.000;COM064;VERDADERO;VERDADERO;Unidades;VERDADERO;Para comer;Fit;Sandwich frío
+Tostada de masa madre con banana caramelizadas con miel y canela;;25.000;COM065;VERDADERO;VERDADERO;Unidades;VERDADERO;Para comer;Tostadas;
+Bowl de frutas;;25.000;COM066;VERDADERO;VERDADERO;Unidades;VERDADERO;Para comer;Frutas;
+Bowl de frutas, granola y miel;;30.000;COM067;VERDADERO;VERDADERO;Unidades;VERDADERO;Para comer;Frutas;
+Croissant con crema pastelera;;18.000;COM068;VERDADERO;VERDADERO;Unidades;VERDADERO;Para comer;Croissants;
+Croissant con dulce de leche;;18.000;COM069;VERDADERO;VERDADERO;Unidades;VERDADERO;Para comer;Croissants;
+Croissant con guayaba;;18.000;COM070;VERDADERO;VERDADERO;Unidades;VERDADERO;Para comer;Croissants;
+Croissant con nutella;;25.000;COM071;VERDADERO;VERDADERO;Unidades;VERDADERO;Para comer;Croissants;
+Waffles con caramelo;;25.000;COM072;VERDADERO;VERDADERO;Unidades;VERDADERO;Para comer;Dulces y waffles;
+Waffles con nutella;;30.000;COM073;VERDADERO;VERDADERO;Unidades;VERDADERO;Para comer;Dulces y waffles;
+Waffles con dulce de leche;;25.000;COM074;VERDADERO;VERDADERO;Unidades;VERDADERO;Para comer;Dulces y waffles;
+Waffles con fruta;;30.000;COM075;VERDADERO;VERDADERO;Unidades;VERDADERO;Para comer;Dulces y waffles;
+Picada de 220;;220.000;COM076;VERDADERO;VERDADERO;Unidades;VERDADERO;Para comer;Picadas gourmet;
+Picada de 280;;280.000;COM077;VERDADERO;VERDADERO;Unidades;VERDADERO;Para comer;Picadas gourmet;
+Picada de 320;;320.000;COM078;VERDADERO;VERDADERO;Unidades;VERDADERO;Para comer;Picadas gourmet;
+Picada combinada;;380.000;COM079;VERDADERO;VERDADERO;Unidades;VERDADERO;Para comer;Picadas gourmet;
+Picada de 550 extra grande;;550.000;COM080;VERDADERO;VERDADERO;Unidades;VERDADERO;Para comer;Picadas gourmet;
+Bruschetta de res;;55.000;COM081;VERDADERO;VERDADERO;Unidades;VERDADERO;Para comer;Bruschettas;
+Sandwich capresse con pan keto muzza normal;;45.000;COM082;VERDADERO;VERDADERO;Unidades;VERDADERO;Para comer;Sandwich sin TACC;Frío
+Croque monseiur;;30.000;COM083;VERDADERO;VERDADERO;Unidades;VERDADERO;Para comer;Crunchy & melted;Caliente
+Croque madame;;35.000;COM084;VERDADERO;VERDADERO;Unidades;VERDADERO;Para comer;Crunchy & melted;Caliente
+Capresse grilled;;35.000;COM085;VERDADERO;VERDADERO;Unidades;VERDADERO;Para comer;Crunchy & melted;Caliente
+Sandwich pollo y panceta pan de la casa blanco;;45.000;COM086;VERDADERO;VERDADERO;Unidades;VERDADERO;Para comer;Sandwich;Caliente
+Sandwich pollo y panceta pan de masa madre;;50.000;COM087;VERDADERO;VERDADERO;Unidades;VERDADERO;Para comer;Sandwich;Caliente
+Sandwich de lomo ahumado de la casa con pan de la casa blanco;;45.000;COM088;VERDADERO;VERDADERO;Unidades;VERDADERO;Para comer;Entre panes;Frio
+Sandwich de lomo ahumado de la casa con pan de masa madre;;45.000;COM089;VERDADERO;VERDADERO;Unidades;VERDADERO;Para comer;Entre panes;Frio
+Sandwich de jamón crudo artesanal con pan de la casa blanco;;48.000;COM090;VERDADERO;VERDADERO;Unidades;VERDADERO;Para comer;Entre panes;Frio
+Sandwich de jamón crudo artesanal con pan de masa madre;;48.000;COM091;VERDADERO;VERDADERO;Unidades;VERDADERO;Para comer;Entre panes;Frio
+Sandwich de jamón de pavo con pan de la casa blanco;;45.000;COM092;VERDADERO;VERDADERO;Unidades;VERDADERO;Para comer;Entre panes;Frio
+Sandwich de jamón de pavo con pan baguette masa madre;;45.000;COM093;VERDADERO;VERDADERO;Unidades;VERDADERO;Para comer;Entre panes;Frio
+Sandwich de salmón ahumado con pan de la casa blanco;;58.000;COM094;VERDADERO;VERDADERO;Unidades;VERDADERO;Para comer;Entre panes;Frio
+Sandwich de salmón ahumado con pan de masa madre;;58.000;COM095;VERDADERO;VERDADERO;Unidades;VERDADERO;Para comer;Entre panes;Frio
+Sandwich capresse con pan de la casa blanco;;45.000;COM096;VERDADERO;VERDADERO;Unidades;VERDADERO;Para comer;Veggie;Frio
+Sandwich capresse con pan de masa madre;;45.000;COM097;VERDADERO;VERDADERO;Unidades;VERDADERO;Para comer;Veggie;Frio
+Sandwich de tomates secos y queso con pan de la casa blanco;;45.000;COM098;VERDADERO;VERDADERO;Unidades;VERDADERO;Para comer;Veggie;Frio
+Sandwich de tomates secos y queso con pan de masa madre;;45.000;COM099;VERDADERO;VERDADERO;Unidades;VERDADERO;Para comer;Veggie;Frio
+Sandwich de queso azul y nueces con pan de la casa blanco;;50.000;COM100;VERDADERO;VERDADERO;Unidades;VERDADERO;Para comer;Veggie;Frio
+Sandwich de queso azul y nueces con pan de masa madre;;50.000;COM101;VERDADERO;VERDADERO;Unidades;VERDADERO;Para comer;Veggie;Frio
+Sandwich de hongos frescos con pan de la casa blanco;;55.000;COM102;VERDADERO;VERDADERO;Unidades;VERDADERO;Para comer;Veggie;Frio
+Sandwich de hongos frescos con pan de masa madre;;55.000;COM103;VERDADERO;VERDADERO;Unidades;VERDADERO;Para comer;Veggie;Frio
+Milanesa de contramuslo con arroz kesu;;65.000;COM104;VERDADERO;VERDADERO;Unidades;VERDADERO;Para comer;Platos fuertes;Caliente
+Milanesa de contramuslo con ensalada;;60.000;COM105;VERDADERO;VERDADERO;Unidades;VERDADERO;Para comer;Platos fuertes;Caliente
+Milanesa de contramuslo con papas rústicas;;65.000;COM106;VERDADERO;VERDADERO;Unidades;VERDADERO;Para comer;Platos fuertes;Caliente
+Mango cremoso;;25.000;BEB071;VERDADERO;VERDADERO;Unidades;VERDADERO;Para beber;Jugos;Frío
+Jugo verde detox;;30.000;BEB072;VERDADERO;VERDADERO;Unidades;VERDADERO;Para beber;Jugos;Frío
+Caipiriña;;25.000;BEB073;VERDADERO;VERDADERO;Unidades;VERDADERO;Para beber;Cocteles;Frío
+Moscow mule;;30.000;BEB074;VERDADERO;VERDADERO;Unidades;VERDADERO;Para beber;Cocteles;Frío
+Gin & tonic fresh gordons;;30.000;BEB075;VERDADERO;VERDADERO;Unidades;VERDADERO;Para beber;Cocteles;Frío
+Gin & tonic red gordons;;30.000;BEB076;VERDADERO;VERDADERO;Unidades;VERDADERO;Para beber;Cocteles;Frío
+Aperol tonic;;35.000;BEB077;VERDADERO;VERDADERO;Unidades;VERDADERO;Para beber;Cocteles;Frío
+Cerveza artesanal suave;;25.000;BEB078;VERDADERO;VERDADERO;Unidades;VERDADERO;Para beber;Cerveza artesanal;Frío
+Cerveza artesanal intermedia;;25.000;BEB079;VERDADERO;VERDADERO;Unidades;VERDADERO;Para beber;Cerveza artesanal;Frío
+Cerveza artesanal fuerte;;30.000;BEB080;VERDADERO;VERDADERO;Unidades;VERDADERO;Para beber;Cerveza artesanal;Frío
+Milanesa de contramuslo con spaghetti;;65.000;COM107;VERDADERO;VERDADERO;Unidades;VERDADERO;Para comer;Platos fuertes;
+Pan keto;;70.000;COM108;VERDADERO;VERDADERO;Unidades;VERDADERO;Para comer;Fuera de carta;
+Huevos italy;;25.000;COM109;VERDADERO;VERDADERO;Unidades;VERDADERO;Para comer;Revueltos & omeletes;Caliente
+Huevos vyro chusco;;25.000;COM110;VERDADERO;VERDADERO;Unidades;VERDADERO;Para comer;Revueltos & omeletes;Caliente
+Crackers con semilla;;25.000;COM111;VERDADERO;VERDADERO;Unidades;VERDADERO;Para comer;Fuera de carta;Frío
+Omelette simple;;25.000;COM112;VERDADERO;VERDADERO;Unidades;VERDADERO;Para comer;Revueltos & omeletes;Caliente
+Omelette con jamon crudo;;30.000;COM113;VERDADERO;VERDADERO;Unidades;VERDADERO;Para comer;Revueltos & omeletes;Caliente
+Omelette con jamón de pavo;;35.000;COM114;VERDADERO;VERDADERO;Unidades;VERDADERO;Para comer;Revueltos & omeletes;Caliente
+Omelette con jamón y queso;;30.000;COM115;VERDADERO;VERDADERO;Unidades;VERDADERO;Para comer;Revueltos & omeletes;Caliente
+Omelette con lomo ahumado;;30.000;COM116;VERDADERO;VERDADERO;Unidades;VERDADERO;Para comer;Revueltos & omeletes;Caliente
+Omelette con panceta;;30.000;COM117;VERDADERO;VERDADERO;Unidades;VERDADERO;Para comer;Revueltos & omeletes;Caliente
+Tostada de queso crema, frutas clásicas y miel;;30.000;COM118;VERDADERO;VERDADERO;Unidades;VERDADERO;Para comer;Tostadas;Caliente
+Chicken house;;55.000;COM119;VERDADERO;VERDADERO;Unidades;VERDADERO;Para comer;Fuera de carta;Sandwich gourmet
+Croissant sin relleno;;15.000;COM120;VERDADERO;VERDADERO;Unidades;VERDADERO;Para comer;Croissants;
+Bruschetta de queso azul y frutos rojos;;45.000;COM121;VERDADERO;VERDADERO;Unidades;VERDADERO;Para comer;Bruschettas;Frío
+Spaghetti con hongos;;70.000;COM122;VERDADERO;VERDADERO;Unidades;VERDADERO;Para comer;Platos fuertes;Caliente
+Papardeles con hongos;;70.000;COM123;VERDADERO;VERDADERO;Unidades;VERDADERO;Para comer;Platos fuertes;Caliente

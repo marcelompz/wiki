@@ -26,6 +26,10 @@ OrderFlow opera con un modelo híbrido:
 | **6. Loyalty Standalone** | `services/loyalty-standalone` | `:3025` | `fidelizacion.pesallaccia.com` | ✅ **LISTO (v1.0.0)** | Tarjetas de puntos, recompensas y niveles BRONZE→PLATINUM. |
 | **7. OmniBI Standalone** | `services/omnibi-standalone` | `:3027` | `bi.pesallaccia.com` | ✅ **LISTO (v1.20.15)** | Ingesta histórica read-only XML-RPC (Odoo 14) + Analytics YoY unificado + persistencia aislada Prisma. |
 | **8. Storefront & Web Builder Standalone** | `services/storefront-builder-standalone` | `:3026` | `diseno.pesallaccia.com` | ✅ **LISTO (v1.20.34)** | Diseñador web desacoplado y personalizador omnicanal Drag & Drop (Portada, Catálogo WA y Bio-Links). |
+| **9. OmniCapitalHumano & OmniAsistencia Standalone** | `services/hr-standalone` | `:3028` | `rrhh.pesallaccia.com` | 🔄 **EN DESARROLLO (v1.0.0 / FEAT-107, FEAT-108)** | Suite de Legajo Digital (`Employee`), Nómina parametrizable, Ausencias, Vacaciones y Marcador de Asistencia Standalone (NFC/QR/Biometría/Kiosko). |
+| **10. OmniVector Standalone** | `services/omnivector-standalone` | `:3029` | `vector.pesallaccia.com` | ✅ **LISTO (v1.0.0)** | Editor gráfico vectorial interactivo con herramientas de dibujo, formas, capas, IA Gemini y exportación SVG/PNG. |
+| **11. OmniSites Standalone** | `services/omnisites-standalone` | `:3030` | `sites.pesallaccia.com` | ✅ **LISTO (v1.0.0)** | Diseñador web drag-and-drop SiteCraft Studio con generación asistida por IA Gemini y exportación responsive. |
+| **12. OmniFlow Data Editor Standalone** | `services/data-editor-standalone` | `:3029` | `data-editor.pesallaccia.com` | ✅ **LISTO (v1.0.0)** | Editor y validador universal de datos (JSON/CSV/XLSX) con tabla estilo Excel, vista de árbol, código raw y validación de esquemas Odoo (`res.partner`, `product.template`, `sale.order`). |
 
 ---
 
