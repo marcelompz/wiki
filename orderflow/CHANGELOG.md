@@ -5,6 +5,15 @@ Todos los cambios notables a este proyecto serán documentados en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 y este proyecto se adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.29.0] - 2026-09-09
+
+### 🍽️ OmniGastro Submenú Exclusivo & Autenticación de Mozos por PIN (FEAT-130)
+- **Submenú Exclusivo en Sidebar (`Sidebar.tsx`)**: Creación de la sección de navegación de primer nivel `OmniGastro 🍽️` con accesos directos a Mesas & Salón, Panel Mozos (PIN), Caja Gastro & Cobros, Cocina & Bar (KDS) y Propinas e Incentivos.
+- **Autenticación por PIN para Mozos (`gastro-mozos.tsx`)**: Interfaz táctil tipo POS con teclado numérico para inicio de sesión seguro por mozo mediante PIN de 4 dígitos.
+- **Control de Mesas & QRs (`gastro-tables.tsx`)**: Mapa interactivo de salón, estado de ocupación de mesas, control de comensales y descarga de códigos QR para comanda móvil por cliente.
+- **Caja Gastro & Cobro Centralizado (`gastro-cashier.tsx`)**: Módulo para cajero con soporte para propina voluntaria (10% sugerido o customizable), cobros mixtos (Efectivo, Tarjeta, QR, Transferencia) y cierre de mesa.
+- **Propinas & Comisiones por Promoción (`gastro-incentives.tsx`)**: Configuración de incentivos por producto/promoción (Monto Fijo o Porcentaje) y reporte de liquidación acumulada para el personal de salón.
+
 ## [1.28.0] - 2026-09-09
 
 ### 🍽️ OmniGastro Multi-Mozo & Gestión de Espacios (v1.28.0)
