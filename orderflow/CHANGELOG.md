@@ -5,6 +5,23 @@ Todos los cambios notables a este proyecto serán documentados en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 y este proyecto se adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.28.0] - 2026-09-09
+
+### 🍽️ OmniGastro Multi-Mozo & Gestión de Espacios (v1.28.0)
+- **Asignación Multi-Mozo en Panel de Administración (`/admin/gastro`)**: Selector de sesión de mozo activo en la cabecera ("Mozo 1", "Mozo 2", "Mozo 3", "Mozo 4").
+- **Acciones y Asignación de Pedidos Unclaimed**: Menú desplegable `Asignar / Reclamar ▾` en tarjetas de pedidos sin mozo asignado para reclamo o delegación directa a cualquier mozo de la plantilla.
+- **Atención de Llamados a Mozo (`WaiterCall`)**: Menú desplegable `Atender ▾` en la sección de llamadas de mesas activas.
+- **Soporte Backend (`orders.controller.ts`)**: Endpoint `POST /api/v1/orders/:id/claim` extendido para recibir `@Body() { claimedBy?: string }`.
+
+### 🎨 Estándar Maestro UX/UI & Optimización Táctil Móvil
+- **Estándar Maestro de Diseño (`docs/architecture/ux-ui-design-standard.md`)**: Publicación del manual de diseño unificado, temas claro/oscuro y reglas de contraste.
+- **Target Size Táctil Móvil (44px)**: Regla de 44px min-height/min-width en `admin-mobile.css` para botones, campos de texto y controles de la interfaz móvil.
+- **Normalización CSS**: Solución para estilos autofill en inputs, adaptaciones de modal gastro y llaves i18n del login.
+
+### 💼 OmniCRM & Auto-Creación de Contactos Legacy
+- **Marca OmniCRM en Navigation Sidebar**: Titular global "OmniCRM (CRM & Relaciones)" en el menú principal.
+- **Conversión Automática a Contactos (`contacts.service.ts`)**: Generación y vinculación automática de un `Contacto` tipo `CUSTOMER` al importar o sincronizar usuarios o socios comerciales desde Odoo u otros software legacy.
+
 ## [1.27.10] - 2026-09-08
 
 ### 🌐 OmniFlow Web Extension v2.5.0 — Shadow DOM Dual Host, Extracción E.164 & ConfigModal Inter-Context Bridge

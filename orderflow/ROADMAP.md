@@ -1,10 +1,10 @@
 # 🗺️ ROADMAP DE ORDERFLOW - v1.24.04 → v2.0.0
-**Última Actualización:** 2026-09-08 (Release v1.27.10 — Web Extension v2.5.0, Token Management, Dual-Host Shadow DOM)
+**Última Actualización:** 2026-09-09 (Release v1.28.0 — OmniGastro Multi-Mozo, Estándar UX/UI & OmniCRM Sincronizado)
 
-**Versión Actual:** **`v1.27.10`** 🔄 **PRODUCTION READY** | Marca pública: OmniFlow. Capa técnica interna: OrderFlow.
-**Próximo Release:** **v1.28.0 (Fase 8 — OmniMessaging Hub IA y WhatsApp Web Connector)**
+**Versión Actual:** **`v1.28.0`** 🔄 **PRODUCTION READY** | Marca pública: OmniFlow. Capa técnica interna: OrderFlow.
+**Próximo Release:** **v1.29.0 (Secciones Regionales Multipaís & Integración Local)**
 **Roadmap Comercial:** ver [docs/planes/comercial/OmniFlow_Plan_Comercial_v1.md](docs/planes/comercial/OmniFlow_Plan_Comercial_v1.md) (FEAT-112 a FEAT-119, horizonte 4–6 semanas)
-**Estado:** ✅ **STAGING & PRODUCTION OPERATIVE** | 🏆 **HARDENED v1.27.10** | QA E2E Suite Integrada | 724/754 tests unitarios pasados (30 pre-existentes en mocks NestJS pendientes de fix)
+**Estado:** ✅ **STAGING & PRODUCTION OPERATIVE** | 🏆 **HARDENED v1.28.0** | QA E2E Suite Integrada | 724/754 tests unitarios pasados (30 pre-existentes en mocks NestJS pendientes de fix)
 
 
 **Visión Estratégica:** Plataforma SaaS omnicanal de alta velocidad con aislamiento multi-tier, marketplace de plugins de terceros, facturación automática Stripe/Mercado Pago y escalado horizontal a Kubernetes.
