@@ -90,6 +90,7 @@ Ordená por problema y área. Cada entrada incluye síntomas, causa raíz y solu
 | [98](98-feat112-tenants-endpoint-protected.md) | FEAT-112 — `POST /tenants` ahora protegido con `TenantCreationGuard` | Backend / Auth / Plan Comercial | Cualquiera podía crear tenant y subdominio sin pagar; fix: SuperAdmin o `provisioningJobId` válido | ✅ Resuelto |
 | [99](99-feat113-signup-wizard-public.md) | FEAT-113 — Wizard de signup público + EarlyAccess | Backend / Commercial / Plan Comercial | Sin wizard de compra los tenants no se podían crear vía flujo público; fix: 5 endpoints públicos en `/api/v1/public/commercial/*` | ✅ Resuelto |
 | [100](100-omnibio-public-resolution-and-qr-history-fix.md) | Resolución Pública OmniBio & Generador de QR | Backend / Frontend / OmniBio / QR | 403 en BioLink público al usar como portada; QRs de BioLink apuntaban a `/social-catalog` y no guardaban historial | ✅ Resuelto |
+| [131](131-frontend-docker-build-timeout.md) | Timeout en Compilación Docker de Frontend | DevOps / Docker / BuildKit / Memory | Exit code 255 por timeout del servidor durante compilación Vite/TypeScript de frontend | ✅ Resuelto |
 
 ---
 
