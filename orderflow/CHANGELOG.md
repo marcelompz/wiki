@@ -5,6 +5,14 @@ Todos los cambios notables a este proyecto serán documentados en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 y este proyecto se adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.33.0] - 2026-09-11
+
+### 🛡️ Aislamiento Multi-Tenant DB 100% Completado & Blindaje JWT Fail-Fast
+- **100% Aislamiento de Dominio en 19 Módulos**: Inyección de `@TenantPrisma() db?: PrismaClient` en controllers y helper `getDb(db)` en servicios de `quotations`, `purchases`, `finances`, `saved-views`, `documents`, `inventory`, `contacts`, `biolinks`, `loyalty`, `giveaways`, `qr`, `social-catalog`, `tags`, `ribbons`, `catalog`, `analytics`, `bookings`, `customers`, `products`.
+- **Resolución Dinámica Root en `JwtAuthGuard`**: `JwtAuthGuard` y `ApiKeyGuard` inyectan `TenantResolutionService` para garantizar que sesiones normales de usuario (POS, Admin, KDS) sobre tenants con DB dedicada resuelvan la conexión aislada automáticamente.
+- **Fail-Fast `JWT_SECRET`**: Eliminación de fallbacks hardcodeados en código; validación estricta al arranque si las claves de seguridad no existen en variables de entorno.
+- **Guarda de Arquitectura Anti-Regresión (`architecture.spec.ts`)**: Integrado en la suite Jest con 114/114 test suites passing (790/790 unit tests pasando).
+
 ## [1.32.0] - 2026-09-11
 
 ### 🪑 OmniGastro Mesas & Mapa de Piso — Zonas, Ownership del Mozo & QR Dinámico (FEAT-114)

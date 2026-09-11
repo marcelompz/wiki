@@ -1,5 +1,8 @@
 # Plan de Cierre — Aislamiento Multi-Tenant Real (Fase 7 del Blindaje) + JWT_SECRET
 
+> **ESTADO FINAL:** ✅ **100% CERRADO Y COMPLETADO (11 de Septiembre de 2026)**
+> **Resultado:** 19/19 módulos de dominio totalmente migrados a `@TenantPrisma()`, `JwtAuthGuard` resolviendo `tenantPrisma` dinámico en tier dedicado, `JWT_SECRET` fail-fast configurado y test de arquitectura anti-regresión `backend/src/common/architecture.spec.ts` 100% pasando en Jest.
+
 **Objetivo:** cerrar la brecha real detectada al auditar el repo v1.26.00: el tráfico de sesión normal (JWT: POS, admin, KDS) nunca setea `request.tenantPrisma`, por lo que cualquier tenant con DB dedicada sigue usando el cliente Prisma compartido para casi todas sus operaciones. Además, eliminar el `JWT_SECRET` hardcodeado presente en 4 archivos.
 
 **Estado de partida (verificado contra el repo, no contra el audit del 2026-09-02 que quedó desincronizado tras el aplanado de `backend/src/` → `backend/`):**

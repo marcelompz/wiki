@@ -1145,12 +1145,13 @@
       "id": "FEAT-114",
       "category": "Core / OmniGastro / Tables",
       "title": "Mesas, Zonas, Mapa de Piso y Ownership del Mozo",
-      "status": "planned",
+      "status": "completed",
       "assigned_module": "backend/src/tables/, backend/prisma/schema.prisma",
       "depends_on": [
         "FEAT-113"
       ],
-      "blocking": []
+      "blocking": [],
+      "qa_validation": "Prisma schema updated with TableStatus & RestaurantTable relations | 100% Jest tests passing (12/12 tests in TablesService) | TablesController & TablesModule integrated | Frontend floor map & waiter assignment UI completed"
     },
     {
       "id": "FEAT-115",

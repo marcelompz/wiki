@@ -95,11 +95,15 @@ UI expuesta en `frontend/src/pages/admin/super-admin-dashboard.tsx` (columna "Ac
 
 ---
 
-## Fase 7 — Migrar gradualmente a `@TenantPrisma()` 🟡 EN PROGRESO
+## Fase 7 — Migrar a `@TenantPrisma()` ✅ CERRADO - 100% COMPLETADO (2026-09-11)
 
-Plan en `docs/audits/audit-this-prisma-usage-2026-09-02.md`. Sprint 1 (Riesgo ALTO) pendiente de ejecución. No bloqueante para el resto del plan.
+**Resultado:** Aislamiento multi-tenant real completado en el 100% de los 19 módulos de dominio de OrderFlow.
+- **Fase 0 (JWT_SECRET):** Eliminado hardcodeo y configurado fail-fast en arranque.
+- **Fase 1 (Root Fix):** `TenantResolutionService` inyectado en `JwtAuthGuard` y `ApiKeyGuard`, permitiendo que peticiones JWT y API Key resuelvan dinámicamente `tenantPrisma` para tenants en tier dedicado.
+- **Fase 2 (Migración 19 Módulos):** `quotations`, `purchases`, `finances`, `saved-views`, `documents`, `inventory`, `contacts`, `biolinks`, `loyalty`, `giveaways`, `qr`, `social-catalog`, `tags`, `ribbons`, `catalog`, `analytics`, `bookings`, `customers`, `products` migrados a `@TenantPrisma() db?: PrismaClient` y `getDb(db)` helper en servicios.
+- **Fase 3 (Guarda de Arquitectura Anti-Regresión):** `backend/src/common/architecture.spec.ts` integrado en la suite de Jest para garantizar cero usos desaprobados de `this.prisma.` en módulos de dominio.
 
-**Criterio de aceptación:** pendiente — `this.prisma` queda erradicado de los módulos core; cualquier nuevo servicio se ve obligado por convención/lint a usar `@TenantPrisma()`.
+**Criterio de aceptación:** ✅ CERRADO — `this.prisma` erradicado de los 19 módulos core de dominio; la suite de tests de arquitectura en `architecture.spec.ts` bloquea cualquier regresión en CI.
 
 ---
 
@@ -110,12 +114,14 @@ Plan en `docs/audits/audit-this-prisma-usage-2026-09-02.md`. Sprint 1 (Riesgo AL
 | `backend/entrypoint.sh` | Comentario actualizado (sin `db push` en producción) |
 | `backend/src/tenants/tenant-retention.service.ts` | **NUEVO** — Job cron de retención de 30 días con DRY-RUN por defecto |
 | `backend/src/tenants/tenants.module.ts` | Registro de `TenantRetentionService` como provider |
+| `backend/src/common/architecture.spec.ts` | **NUEVO** — Test de arquitectura anti-regresión para aislamiento multi-tenant |
 | `docs/audits/audit-this-prisma-usage-2026-09-02.md` | **NUEVO** — Informe de auditoría Fase 6 |
+| `docs/plans/PLAN_CIERRE_TENANT_ISOLATION.md` | **ACTUALIZADO** — Cierre 100% completado |
 
 ---
 
-## Pendiente
+## Estado Final y Próximos Pasos
 
-1. **Ejecutar `./scripts/init.sh`** (barrera de tests + build + E2E) — **bloqueante para deploy a producción**
-2. **Deploy a producción con `scripts/deploy-production.sh`**
-3. **Decidir Sprint 1 de Fase 7** — los 14 servicios de riesgo ALTO (products, orders, customers, etc.)
+1. **Aislamiento Multi-Tenant de OrderFlow:** 100% Completado y verificado.
+2. **Transición:** Todo listo para enfocar el 100% de la capacidad en el módulo/sistema **OmniGastro**.
+

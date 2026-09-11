@@ -1,7 +1,7 @@
-# 🗺️ ROADMAP DE ORDERFLOW - v1.32.0 → v2.0.0
-**Última Actualización:** 2026-09-11 (Release v1.32.0 — OmniGastro Floor Map, Tables, Zones & Waiter Ownership FEAT-114)
+# 🗺️ ROADMAP DE ORDERFLOW - v1.33.0 → v2.0.0
+**Última Actualización:** 2026-09-11 (Release v1.33.0 — Aislamiento Multi-Tenant DB 100% Completado & JwtAuthGuard Root Fix)
 
-**Versión Actual:** **`v1.32.0`** 🔄 **PRODUCTION READY** | Marca pública: OmniFlow. Capa técnica interna: OrderFlow.
+**Versión Actual:** **`v1.33.0`** 🔄 **PRODUCTION READY** | Marca pública: OmniFlow. Capa técnica interna: OrderFlow.
 **Próximo Release:** **v1.29.0 (Secciones Regionales Multipaís & Integración Local)**
 **Roadmap Comercial:** ver [docs/planes/comercial/OmniFlow_Plan_Comercial_v1.md](docs/planes/comercial/OmniFlow_Plan_Comercial_v1.md) (FEAT-112 a FEAT-119, horizonte 4–6 semanas)
 **Estado:** ✅ **STAGING & PRODUCTION OPERATIVE** | 🏆 **HARDENED v1.29.0** | QA E2E Suite Integrada | Build Limpio & Cobertura Total
