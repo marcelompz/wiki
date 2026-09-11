@@ -41,6 +41,7 @@
    - `storageService.saveConfig()` escribe a `chrome.storage.local` (o `browser.storage.local` en Firefox) y actualiza el caché + notifica suscriptores.
    - Fallback a `localStorage` solo para entornos de desarrollo (preview local / `server.cjs`).
    - Se añadieron `subscribe()` / `unsubscribe()` para reactividad y el listener `chrome.storage.onChanged` que actualiza el caché automáticamente cuando otro contexto (popup) guarda cambios.
+   - **Fix adicional (v2.5.1):** `DEFAULT_CONFIG.baseUrl` cambió de `"https://api.omniflow.cloud"` a `""`, ya que el dominio `api.omniflow.cloud` no es propiedad de OrderFlow/OmniFlow. Los usuarios deben obtener la API URL correcta desde `/admin/tokens` (provecchio.com o pesallaccia.com según el entorno).
 
 2. **Modal de Configuración autónomo en la TopBar (`ConfigModal`):**
    - `OmniFlowTopBar` ahora es un componente con estado (`useState<isConfigOpen>`) que renderiza internamente `ConfigModal` dentro del mismo *shadow DOM*.
@@ -53,6 +54,7 @@
 
 4. **Limpieza de Credenciales Base & Estado No Autenticado:**
    - `DEFAULT_CONFIG` inicia con `tenantId: ""` y `operatorToken: ""`, mostrando `🟡 Sin tenant / Sin sesión` en la TopBar.
+   - `DEFAULT_CONFIG.baseUrl` inicia como `""` (vacío), requiriendo configuración explícita del usuario.
    - `systemPromptBase` se añadió al `OmniFlowConfig` para soportar el prompt del OmniBot.
 
 5. **Detector Dinámico de Chat Activo (`whatsappDom.ts`):**
@@ -62,6 +64,10 @@
 6. **Simplificación del `content-script.ts`:**
    - Eliminado el listener de `storage` event (reemplazado por `chrome.storage.onChanged` interno en `storageService`).
    - La TopBar maneja su propia reactividad; el `content-script` ya no re-renderiza manualmente la barra.
+   - **Fix adicional (v2.5.1):** `domActiveChat` declarado antes de su uso (corregido temporal dead zone).
+
+7. **`getApiBaseUrl()` fix en frontend:**
+   - El método `getApiBaseUrl()` en `frontend/src/services/api.ts` retornaba string vacío cuando `VITE_API_URL=/api` (el fallback `/api` era stripeado dejando `""`). Ahora verifica que el resultado no sea vacío ni comience con `/` antes de usarlo, cayendo correctamente al `window.location.origin` (`https://provecchio.com` o `https://pesallaccia.com`). Este fix garantiza que la página `/admin/tokens` muestre la API URL correcta para la extensión.
 
 7. **Corrección de bugs en `App.tsx`:**
    - `domActiveChat` se declaraba después de su uso (temporal dead zone) — se reordenó la lógica.

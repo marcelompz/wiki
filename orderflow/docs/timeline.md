@@ -1,8 +1,8 @@
 # Línea de Tiempo y Evolución de OmniFlow
 
-**Última actualización:** 2026-09-08  
-**Versión actual:** `v1.27.10`  
-**Próximo hito:** `v1.28.0` — OmniMessaging Hub IA, WhatsApp Web Connector, Token Management Admin
+**Última actualización:** 2026-09-09  
+**Versión actual:** `v1.28.0`  
+**Próximo hito:** `v1.29.0` — Secciones Regionales Multipaís & Integraciones Locales
 **Documento fuente:** `CHANGELOG.md`, `ROADMAP.md`, `featurelist.json`
 
 ---

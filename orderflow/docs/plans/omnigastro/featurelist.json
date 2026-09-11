@@ -1131,7 +1131,7 @@
       "id": "FEAT-113",
       "category": "Core / OmniGastro / POS Sessions",
       "title": "OmniDineIn Cimientos: PosSession real + rol WAITER + permisos cash:* / tables:*",
-      "status": "planned",
+      "status": "completed",
       "assigned_module": "backend/src/pos-sessions/, backend/src/orders/, backend/src/common/rbac.service.ts, backend/prisma/schema.prisma",
       "depends_on": [
         "FEAT-093",
@@ -1139,7 +1139,7 @@
         "FEAT-112"
       ],
       "blocking": [],
-      "qa_validation": "Open/close session with variance; cannot collect without open session; WAITER role + 8 new permissions seeded"
+      "qa_validation": "Prisma client generated | 100% Jest tests passing (6/6 tests in PosSessionsService) | WAITER role + 8 cash/tables permissions seeded | Backend nest build clean | Frontend vite build clean"
     },
     {
       "id": "FEAT-114",

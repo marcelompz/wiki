@@ -1,8 +1,8 @@
-# 🗺️ ROADMAP DE ORDERFLOW - v1.24.04 → v2.0.0
-**Última Actualización:** 2026-09-09 (Release v1.29.0 — OmniGastro Submenú Exclusivo, Login PIN Mozos & Caja Centralizada)
+# 🗺️ ROADMAP DE ORDERFLOW - v1.30.0 → v2.0.0
+**Última Actualización:** 2026-09-11 (Release v1.30.0 — Adopted Vocero CRM patterns, OmniGastro & POS Odoo Engine)
 
-**Versión Actual:** **`v1.29.0`** 🔄 **PRODUCTION READY** | Marca pública: OmniFlow. Capa técnica interna: OrderFlow.
-**Próximo Release:** **v1.30.0 (Secciones Regionales Multipaís & Integración Local)**
+**Versión Actual:** **`v1.30.0`** 🔄 **PRODUCTION READY** | Marca pública: OmniFlow. Capa técnica interna: OrderFlow.
+**Próximo Release:** **v1.29.0 (Secciones Regionales Multipaís & Integración Local)**
 **Roadmap Comercial:** ver [docs/planes/comercial/OmniFlow_Plan_Comercial_v1.md](docs/planes/comercial/OmniFlow_Plan_Comercial_v1.md) (FEAT-112 a FEAT-119, horizonte 4–6 semanas)
 **Estado:** ✅ **STAGING & PRODUCTION OPERATIVE** | 🏆 **HARDENED v1.29.0** | QA E2E Suite Integrada | Build Limpio & Cobertura Total
 

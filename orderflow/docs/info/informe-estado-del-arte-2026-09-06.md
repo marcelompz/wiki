@@ -1,10 +1,13 @@
 # 🛡️ OmniFlow / OrderFlow — Informe del Estado del Arte y Evaluación Técnica
 
+> ⚠️ **DOCUMENTO ACTUALIZADO:** Este informe ha sido superado por la versión oficial [informe-estado-del-arte-2026-09-11.md](file:///opt/orderflow/docs/info/informe-estado-del-arte-2026-09-11.md) (`v1.30.0`).
+
 > **Documento de Contexto Técnico Vivo & Análisis de Madurez**  
-> **Fecha:** 2026-09-06  
-> **Versión Core:** `v1.24.04` (Baseline `v1.27.00`)  
+> **Fecha Original:** 2026-09-06 | **Última Revisión:** 2026-09-11 (`v1.30.0`)  
+> **Versión Core:** `v1.30.0`  
 > **Marca Comercial:** OmniFlow | **Nombre Técnico:** OrderFlow  
-> **Índice de Madurez:** 9.8 / 10  
+> **Índice de Madurez:** 9.9 / 10  
+
 
 ---
 

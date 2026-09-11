@@ -55,3 +55,14 @@ Permite incentivar las ventas de platos o bebidas específicas.
   - **Monto Fijo:** Ejemplo: Gs. 10.000 por cada *Combo Parrilla* vendido.
   - **Porcentaje %:** Ejemplo: 5% sobre la venta de *Vinos Reserva*.
 - **Liquidación por Mozo:** Muestra la suma total de propinas + comisiones por promociones ganadas en la jornada para liquidar al cierre del turno.
+
+---
+
+## 🖥️ 5. Punto de Venta Odoo Universal POS (`/admin/pos`)
+
+Ver manual completo en [19-manual-pos-odoo-universal.md](19-manual-pos-odoo-universal.md).
+
+- **Modo Dual:** Configuración por caja de retail/mostrador vs. restaurante (`isRestaurant: boolean`).
+- **Teclado Táctil (NumPad):** Edición rápida de Cantidad, Descuento % y Precio unitario.
+- **Arqueo y Cierre de Caja:** Manejo estricto de sesiones `PosSession` y reportes Z.
+

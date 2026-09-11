@@ -5,6 +5,27 @@ Todos los cambios notables a este proyecto serán documentados en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 y este proyecto se adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.31.0] - 2026-09-11
+
+### 🍽️ OmniDineIn Cimientos — PosSession Real, Rol WAITER & Permisos Cash/Tables (FEAT-113)
+- **Control de Sesiones POS (`PosSessionsService` & `PosSessionsController`)**: Implementación de apertura y cierre formal de cajas POS con cálculo automático de diferencia de arqueo (`variance` = `closingCash` - `expectedCash`), fondo inicial `openingFloat`, etiquetas de terminal `deviceLabel` y generación de reportes Z.
+- **Rol `WAITER` & Permisos Scoped**: Incorporación del rol `WAITER` al enum `UserRole` y siembra de 8 permisos de caja y salón (`cash:collect`, `cash:open_session`, `cash:close_session`, `cash:audit`, `tables:own`, `tables:transfer`, `tables:reassign`, `tables:manage`).
+- **Atribución de Movimientos de Caja (`CashMovement`)**: Vinculación atómica de `posSessionId` y `registeredById` en `CashMovement` al confirmar órdenes de venta, manteniendo trazabilidad completa del cajero/mozo que registró el cobro.
+- **Manifiesto de Módulo & Registry**: Módulo registrado en `pos-sessions.manifest.json` y cargado automáticamente mediante `modules.registry.ts`.
+
+
+## [1.28.2] - 2026-09-10
+
+### 🏬 POS Terminal — Selección Táctil de Productos & NumPad en Tiempo Real (v1.28.2)
+- **Selección Directa de Producto (`selectedLineIndex`)**: Resaltado visual en azul (`#e0f2fe`) de la línea seleccionada en el ticket POS (`pos.tsx`), permitiendo tocar cualquier producto previamente agregado para modificar su cantidad o aplicar descuento.
+- **Entrada NumPad en Tiempo Real**: Eliminación del paso de confirmación manual; al digitar números en el NumPad o cambiar entre `Cant.` y `Desc %`, la modificación se refleja inmediatamente en el carrito y en el cálculo del Total.
+
+## [1.29.1] - 2026-09-10
+
+### 🛠️ POS & Orders — Parámetros DTO de Cobro POS & Descuento por Línea (v1.29.1)
+- **Corrección de Excepción de Validación NestJS (`ValidationPipe`)**: Incorporación de los atributos opcionales `@IsOptional()` y `@IsString()` / `@IsNumber()` a `CreateOrderDto` y `CreateOrderLineDto` (`create-order.dto.ts`) para `waiterId`, `posConfigId`, `tableId`, `guestCount`, `totalAmount`, `paymentStatus`, `paymentGateway` y `discount_percent`.
+- **Cálculo de Descuentos por Línea**: Procesamiento automático del porcentaje de descuento (`discount_percent`) en el cálculo del subtotal de la línea de pedido y persistencia en metadatos.
+
 ## [1.29.0] - 2026-09-09
 
 ### 🍽️ OmniGastro Submenú Exclusivo & Autenticación de Mozos por PIN (FEAT-130)

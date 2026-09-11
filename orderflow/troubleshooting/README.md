@@ -17,6 +17,9 @@ Ordená por problema y área. Cada entrada incluye síntomas, causa raíz y solu
 | [06](06-postgresql-camelcase-column-names.md) | Columnas camelCase en PostgreSQL | Backend / Prisma / SQL | Errores de sintaxis al ejecutar SQL directo contra Prisma | ✅ Resuelto |
 | [06-SSL](06-provecchio-traefik-ssl-and-502-diagnosis.md) | SSL & 502 en Provecchio (anterior) | DevOps / Traefik / Cloudflare | 502 en API; NS_ERROR_REDIRECT_LOOP en `provecchio.com` | ✅ Resuelto |
 | [13](13-provecchio-missing-frontend-502.md) | 502 Contenedor Frontend Ausente | DevOps / Docker / Deploy | 502 Bad Gateway `provecchio.com` tras deploy: contenedor `orderflow-frontend-prod` no creado | ✅ Resuelto |
+| [101](101-feat125-demo-alfa-provecchio.md) | Demo Alfa FEAT-125 Provecchio | QA / Provecchio | Verificación y puesta a punto de demo alfa | ✅ Resuelto |
+| [102](102-hr-controller-route-prefix-404-and-employee-role-fix.md) | Rutas `/api/v1/hr/*` 404 & Rol `EMPLOYEE` | Backend / HR / Users | Error 404 al cargar colaboradores/asistencia en `/admin/hr`; falta de rol `EMPLOYEE` en usuarios | ✅ Resuelto |
+| [103](103-catalog-poscategory-select-and-analytics-uuid-cast-fix.md) | Excepción `posCategory` Select & `::uuid` Cast en Analytics | Backend / Catalog / Analytics | Error 500 al listar categorías por `posCategory` inexistente y error SQL `text = uuid` en KPIs | ✅ Resuelto |
 | [78](78-loki-container-transient-restart.md) | Reinicio Transitorio de Contenedor Loki en Deploy | DevOps / Docker / Monitoring | `dependency failed to start: container orderflow-loki exited (1)` durante deploy | ✅ Resuelto |
 | [79](79-catalog-categories-500-fix.md) | Excepción 500 en GET /api/v1/catalog/categories | Backend / Catalog / Prisma | `TypeError: Cannot read properties of undefined (reading 'product')` por Prisma no inyectado en controlador | ✅ Resuelto |
 | [80](80-postgresql-container-transient-healthcheck.md) | Retardo Transitorio en Healthcheck de PostgreSQL en Deploy | DevOps / Docker / Database | `dependency failed to start: container orderflow-database-1 is unhealthy` durante deploy | ✅ Resuelto |
@@ -88,6 +91,7 @@ Ordená por problema y área. Cada entrada incluye síntomas, causa raíz y solu
 | [98](98-feat112-tenants-endpoint-protected.md) | FEAT-112 — `POST /tenants` ahora protegido con `TenantCreationGuard` | Backend / Auth / Plan Comercial | Cualquiera podía crear tenant y subdominio sin pagar; fix: SuperAdmin o `provisioningJobId` válido | ✅ Resuelto |
 | [99](99-feat113-signup-wizard-public.md) | FEAT-113 — Wizard de signup público + EarlyAccess | Backend / Commercial / Plan Comercial | Sin wizard de compra los tenants no se podían crear vía flujo público; fix: 5 endpoints públicos en `/api/v1/public/commercial/*` | ✅ Resuelto |
 | [100](100-omnibio-public-resolution-and-qr-history-fix.md) | Resolución Pública OmniBio & Generador de QR | Backend / Frontend / OmniBio / QR | 403 en BioLink público al usar como portada; QRs de BioLink apuntaban a `/social-catalog` y no guardaban historial | ✅ Resuelto |
+| [131](131-frontend-docker-build-timeout.md) | Timeout en Compilación Docker de Frontend | DevOps / Docker / BuildKit / Memory | Exit code 255 por timeout del servidor durante compilación Vite/TypeScript de frontend | ✅ Resuelto |
 
 ---
 

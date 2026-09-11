@@ -1,8 +1,15 @@
 {
   "project": "OrderFlow SaaS Omnicanal",
-  "version": "1.27.10",
-  "last_updated": "2026-09-08",
+  "version": "1.31.0",
+  "last_updated": "2026-09-11",
   "features": [
+    {
+      "id": "FEAT-130",
+      "category": "OmniGastro / Submenú & Roles",
+      "title": "Submenú exclusivo OmniGastro, Panel de Mozos con Login por PIN, Caja y Gestión de Propinas/Incentivos",
+      "status": "completed",
+      "assigned_module": "frontend/src/components/Sidebar.tsx, frontend/src/pages/admin/gastro-*.tsx"
+    },
     {
       "id": "FEAT-001",
       "category": "Core / Multi-Tenant",
@@ -1213,18 +1220,70 @@
       "depends_on": [],
       "blocking": [],
       "qa_validation": "Backend build clean | Frontend build clean | Admin routes /admin/tokens functional | Token generation & revocation working"
+    },
+    {
+      "id": "FEAT-136",
+      "category": "OmniMessaging Hub / Seguridad",
+      "title": "Webhook Receiver de Doble Capa & Validación HMAC Timing-Safe",
+      "description": "Implementación del patrón A de Vocero CRM: Verificación de token único por canal en ruta con respuesta 404 silenciosa para evitar la enumeración de endpoints, validación de firma HMAC-SHA256 timing-safe mediante crypto.timingSafeEqual y derivación en tiempo constante.",
+      "status": "completed",
+      "assigned_module": "backend/src/modules/omnimessaging/utils/webhook-security.util.ts, backend/src/modules/omnimessaging/controllers/omnimessaging-webhook.controller.ts",
+      "depends_on": ["FEAT-130"],
+      "blocking": [],
+      "qa_validation": "Unit tests 100% aprobados en webhook-security.util.spec.ts | 404 silencioso verificado"
+    },
+    {
+      "id": "FEAT-137",
+      "category": "Core / Aislamiento Multi-Tenant",
+      "title": "Tenant Scoping Forzado con Fail-Fast Helper",
+      "description": "Implementación del patrón B de Vocero CRM: Helper de filtrado estricto scopedWhere(tenantId, conditions) que rechaza inmediatamente (fail-fast) cualquier llamada a base de datos con tenantId nulo o vacío.",
+      "status": "completed",
+      "assigned_module": "backend/src/common/helpers/tenant-scope.helper.ts",
+      "depends_on": [],
+      "blocking": [],
+      "qa_validation": "Unit tests 100% aprobados en tenant-scope.helper.spec.ts"
+    },
+    {
+      "id": "FEAT-138",
+      "category": "OmniMessaging Hub / Contrato & Errores",
+      "title": "Códigos de Error de Negocio Fuertemente Tipados",
+      "description": "Implementación del patrón C de Vocero CRM: Definición del enum OmniMessagingErrorCode (WINDOW_CLOSED, QUOTA_EXCEEDED, SIGNATURE_INVALID, etc.) para respuestas tipadas y consumo directo en IntentRouterService.",
+      "status": "completed",
+      "assigned_module": "backend/src/modules/omnimessaging/enums/omnimessaging-error-code.enum.ts",
+      "depends_on": ["FEAT-132"],
+      "blocking": [],
+      "qa_validation": "Enum OmniMessagingErrorCode registrado y exportado correctamente"
+    },
+    {
+      "id": "FEAT-139",
+      "category": "Core / Rate Limiting",
+      "title": "Rate Limiter con Ventana Deslizante (Sliding Window)",
+      "description": "Implementación del patrón D de Vocero CRM: Servicio agnóstico de rate limiting con ventana deslizante (SlidingWindowRateLimiterService) con buckets por timestamp.",
+      "status": "completed",
+      "assigned_module": "backend/src/common/services/sliding-window-rate-limiter.service.ts",
+      "depends_on": [],
+      "blocking": [],
+      "qa_validation": "Unit tests 100% aprobados en sliding-window-rate-limiter.service.spec.ts"
+    },
+    {
+      "id": "FEAT-113",
+      "category": "Core / OmniGastro / POS Sessions",
+      "title": "OmniDineIn Cimientos: PosSession real + rol WAITER + permisos cash:* / tables:*",
+      "description": "Control de sesiones de caja POS, arqueos con cálculo de variaciones (variance), rol WAITER y siembra de 8 permisos de caja y salón.",
+      "status": "completed",
+      "assigned_module": "backend/src/pos-sessions/, backend/src/orders/, backend/src/common/rbac.service.ts, backend/prisma/schema.prisma",
+      "depends_on": ["FEAT-093", "FEAT-097", "FEAT-112"],
+      "blocking": [],
+      "qa_validation": "Prisma client generated | 100% Jest tests passing (6/6 tests en PosSessionsService, 110/110 test suites) | WAITER role + 8 cash/tables permissions seeded | Backend nest build clean | Frontend vite build clean"
     }
   ],
-  "lastUpdated": "2026-09-08",
-  "last_id": "FEAT-135",
+  "lastUpdated": "2026-09-11",
+  "last_id": "FEAT-139",
   "next_pending_sc": null,
-  "active_plan": "docs/plans/omni-bot/PLAN_DESARROLLO_OMNIMESSAGING_Y_OMNICATALOG_v1.1.0.md",
+  "active_plan": "docs/plans/omnigastro/PLAN_MAESTRO.md",
   "plan_progress": {
-    "Sprint 1 - Infraestructura & Seguridad": "completed",
-    "Sprint 2 - Core de Mensajería & Canales": "completed",
-    "Sprint 3 - Motor de IA & Control de Cuotas": "completed",
-    "Sprint 4 - Consumidor OmniCatalog & ERP": "completed",
-    "Sprint 5 - Admin UI, Human Takeover & Deploy": "completed"
+    "Sprint 0 - Data Safety (Safeguards)": "completed",
+    "Sprint 1 - Cimientos de caja y roles (FEAT-113)": "completed"
   }
 }
 
