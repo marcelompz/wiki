@@ -1,15 +1,66 @@
-# 🗺️ ROADMAP DE ORDERFLOW - v1.33.0 → v2.0.0
-**Última Actualización:** 2026-09-11 (Release v1.33.0 — Aislamiento Multi-Tenant DB 100% Completado & JwtAuthGuard Root Fix)
+# 🗺️ ROADMAP DE ORDERFLOW - v1.33.0 → v2.0.0 (Go-Live Definitivo)
+**Última Actualización:** 2026-09-11 (Release v1.33.0 — Aislamiento Multi-Tenant DB 100% Completado, Design Tokens UI & JwtAuthGuard Fix)
 
-**Versión Actual:** **`v1.33.0`** 🔄 **PRODUCTION READY** | Marca pública: OmniFlow. Capa técnica interna: OrderFlow.
-**Próximo Release:** **v1.29.0 (Secciones Regionales Multipaís & Integración Local)**
-**Roadmap Comercial:** ver [docs/planes/comercial/OmniFlow_Plan_Comercial_v1.md](docs/planes/comercial/OmniFlow_Plan_Comercial_v1.md) (FEAT-112 a FEAT-119, horizonte 4–6 semanas)
-**Estado:** ✅ **STAGING & PRODUCTION OPERATIVE** | 🏆 **HARDENED v1.29.0** | QA E2E Suite Integrada | Build Limpio & Cobertura Total
+**Versión Actual:** **`v1.33.0`** 🔄 **PRODUCTION READY** | Marca pública: OmniFlow. Capa técnica interna: OrderFlow.  
+**Próximos Releases:** **v1.34.0** (Gate 1 Gastro & Landed Costs) ➔ **v1.35.0** (Tauri Desktop & OmnIoT Edge) ➔ **v1.36.0** (Mobile Native) ➔ **v2.0.0** (🚀 **GO LIVE DEFINITIVO DEL ECOSISTEMA — Target: 15 de Febrero de 2027**)  
+**Plan Maestro Go-to-Live:** ver [docs/plans/PLAN_GO_LIVE_APLICACIONES_ECOSISTEMA.md](docs/plans/PLAN_GO_LIVE_APLICACIONES_ECOSISTEMA.md)  
+**Roadmap Comercial:** ver [docs/planes/comercial/OmniFlow_Plan_Comercial_v1.md](docs/planes/comercial/OmniFlow_Plan_Comercial_v1.md) (FEAT-112 a FEAT-119)  
+**Estado:** ✅ **STAGING & PRODUCTION OPERATIVE** | 🏆 **HARDENED v1.33.0** | QA E2E Suite Integrada | Build Limpio & Cobertura Total
 
+**Visión Estratégica:** Plataforma SaaS omnicanal de alta velocidad con aislamiento multi-tier, microservicios desacoplados, wrappers desktop Tauri v2, apps móviles nativas Expo, puente IoT de hardware local (OmnIoT) y contabilidad canónica inmutable (OmniLedger).
 
-**Visión Estratégica:** Plataforma SaaS omnicanal de alta velocidad con aislamiento multi-tier, marketplace de plugins de terceros, facturación automática Stripe/Mercado Pago y escalado horizontal a Kubernetes.
+> 🚀 **Plan Maestro Go-to-Live Ecosistema:** Ver especificación completa de aplicaciones y hardware gateway en [docs/plans/PLAN_GO_LIVE_APLICACIONES_ECOSISTEMA.md](docs/plans/PLAN_GO_LIVE_APLICACIONES_ECOSISTEMA.md).  
+> 📦 **Estrategia de Microservicios Standalone:** Ver roadmap de productos independientes en [docs/guides/ROADMAP_MICROSERVICES.md](docs/guides/ROADMAP_MICROSERVICES.md).
 
-> 📦 **Estrategia de Microservicios Standalone:** Ver el roadmap dedicado de la suite de productos independientes en [docs/guides/ROADMAP_MICROSERVICES.md](docs/guides/ROADMAP_MICROSERVICES.md).
+---
+
+## 🚀 PLAN MAESTRO GO-TO-LIVE ECOSISTEMA & AUDITORÍA DE MADUREZ (Q3 2026)
+
+### 🎯 Fecha Objetivo para Salida a Producción Definitiva: **15 de Febrero de 2027 (v2.0.0)**
+
+El ecosistema **OmniFlow** contempla 10 aplicaciones y capas operativas. A continuación se presenta la evaluación de madurez técnica por componente y los puntos pendientes priorizados hacia el Go-Live final.
+
+### 📊 Matriz de Madurez del Sistema (Audit Q3 2026)
+
+| Módulo / Aplicación | Tipo / Runtime | Madurez (%) | Estado Actual | Brecha / Puntos Pendientes para Go-Live | Target Release |
+|---------------------|----------------|-------------|---------------|------------------------------------------|----------------|
+| **Core Multi-Tenant SaaS** | NestJS 10 / PostgreSQL 15 | **95%** | ✅ Production Ready | Aislamiento DB 100% (v1.33.0). Pendiente: afinamiento final de métricas HA. | **v1.33.0** |
+| **Suite Microservicios Standalone** | PWA / Web (`:3020`-`:3027`) | **92%** | ✅ Production Ready | BioLinks, Catalog, Bookings, Giveaways, OmniBI y OmniLedger operando en Traefik. | **v1.33.0** |
+| **OmniGastro & KDS Deep Alignment** | Web / PWA / WebSockets | **75%** | 🔄 Staging Operativo | Sincronización salón/cocina, recetas BoM en tiempo real, divisibilidad de cuentas. | **v1.34.0** |
+| **OmnIoT Edge Hardware Gateway** | Tauri / Rust Native Daemon | **70%** | 🔄 Desarrollo Avanzado | Emulador Epson ePOS, lectura básculas RS-232, ESC/POS TCP/USB daemon systemd en Debian/Radxa. | **v1.35.0** |
+| **Tauri v2 Desktop Wrappers** | Tauri v2 / Rust Kiosk | **65%** | 🔄 Staging Web | Empaquetado binarios `.AppImage` (Linux) y `.msi` (Windows) para OmniPOS Retail, Gastro y KDS. | **v1.35.0** |
+| **Mobile Native (`@orderflow/mobile`)** | React Native / Expo | **60%** | 🔄 En desarrollo | Publicación APK/IPA para `OmniMozos Pocket`, flujo Tap-to-Pay y sincronización offline-first. | **v1.36.0** |
+| **Alta Disponibilidad / Standby Replica** | PostgreSQL Streaming / Traefik | **60%** | 🔄 Parcial | Failover automatizado y réplica de lectura activa Provecchio ↔ Hetzner (FEAT-011). | **v2.0.0** |
+
+---
+
+### 🏁 Puertas de Calidad (Quality Gates) para Salida a Producción
+
+```mermaid
+graph LR
+    A["v1.33.0 (Actual)<br/>Multi-Tenant DB 100%<br/>Design Tokens UI"] --> B["v1.34.0 (Gate 1)<br/>Gastro & KDS Deep<br/>Landed Costs (Oct 2026)"]
+    B --> C["v1.35.0 (Gates 2 & 3)<br/>Tauri Desktop Wrappers<br/>OmnIoT Hardware Gateway (Nov 2026)"]
+    C --> D["v1.36.0 (Gate 4)<br/>Mobile Native Expo<br/>Tap-to-Pay / NFC (Ene 2027)"]
+    D --> E["v2.0.0 (Go-Live Definitivo)<br/>Ecosistema 100% Operativo<br/>Alta Disponibilidad (15 Feb 2027)"]
+```
+
+1. **Gate 1 — Core & Gastro Alignment (Release v1.34.0 — Octubre 2026):**
+   - Completar Landed Costs (Paso 8) en inventario.
+   - Afinamiento de recetas BoM y comanderas en tiempo real.
+   - Ejecución limpia de suite de tests unitarios y Playwright E2E (`./scripts/init.sh`).
+
+2. **Gate 2 & 3 — Desktop Tauri & OmnIoT Edge Gateway (Release v1.35.0 — Noviembre 2026):**
+   - Binarios ejecutables Tauri v2 (`.AppImage` y `.msi`) para OmniPOS Retail, Gastro y KDS.
+   - Instalación de daemon `omniot` en nodos hardware Debian/Radxa.
+   - Certificación de impresión ESC/POS y pesaje RS-232 en balanzas industriales.
+
+3. **Gate 4 — Mobile Launch & Offline-First (Release v1.36.0 — Enero 2027):**
+   - Compilación e instalación de APK/IPA `@orderflow/mobile` para meseros.
+   - Pruebas de cobro Tap-to-Pay / NFC y experiencia offline-first.
+
+4. **Gate 5 — Go-Live Definitivo del Ecosistema (Release v2.0.0 — 15 de Febrero de 2027):**
+   - Despliegue masivo en alta disponibilidad (Hetzner VPS + Provecchio).
+   - Onboarding zero-touch multi-tenant para producción comercial.
 
 ---
 

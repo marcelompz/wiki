@@ -3,7 +3,7 @@
 **Ecosistema:** OmniFlow (Capa técnica interna: OrderFlow)  
 **Fecha:** 11 de Septiembre de 2026  
 **Versión Baseline:** `v1.33.0`  
-**Servidores Objetivo:** Producción Hetzner VPS (`/srv/orderflow`), Laboratorio Provecchio (`/srv/orderflow`), Nodos Edge OmnIoT Debian/Radxa.
+**Servidores Objetivo:** Producción Hetzner VPS (`/srv/orderflow`), Producción Provecchio (`/srv/orderflow`), Nodos Edge OmnIoT Debian/Radxa.
 
 ---
 
