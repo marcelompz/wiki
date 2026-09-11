@@ -36,10 +36,12 @@ Ambos modos comparten el mismo schema Prisma y el mismo código de services. La 
 | Capa | Tecnologías |
 |------|-------------|
 | **Backend** | NestJS 10, Prisma (PostgreSQL 15), JWT + API Keys |
-| **Frontend web** | React 18, Vite, Refine.dev, Ant Design 5, **Axios** (Cliente HTTP oficial) |
+| **Frontend web** | React 18, Vite, Refine.dev, Ant Design 5 (`theme.useToken()`), **Axios** (Cliente HTTP oficial) |
 | **Mobile** | React Native + Expo, Zustand, **Axios** (Cliente HTTP oficial) |
 | **DevOps** | Docker Compose, Traefik v3.4 (reverse proxy exclusivo & SSL), GitHub Actions, SSH deploy scripts |
 | **Observabilidad** | Winston (logs), Sentry (frontend), health checks |
+
+> 🎨 **Regla Obligatoria de Temas & Tokens UX/UI:** Queda estrictamente prohibido el uso de valores HEX estáticos o colores hardcodeados (`#fff`, `#000`, `#e2e8f0`, etc.) en componentes React o CSS inline. Todo desarrollo frontend debe consumir `const { token } = theme.useToken();` de Ant Design o las variables de CSS del sistema para garantizar compatibilidad nativa con modo claro/oscuro y legibilidad en todos los módulos.
 
 ---
 

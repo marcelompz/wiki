@@ -22,6 +22,8 @@ Antes de examinar código o ejecutar cualquier acción en la base del proyecto, 
 6. **Mantenimiento del Roadmap Standalone:** Cualquier cambio en la suite independiente debe sincronizarse en [docs/guides/ROADMAP_MICROSERVICES.md](docs/guides/ROADMAP_MICROSERVICES.md).
 7. **Sincronización de Documentación con Wiki:** Toda actualización de documentación en `docs/` del proyecto debe reflejarse en la Wiki oficial (`/opt/wiki/orderflow/`). Es **OBLIGATORIO** actualizar e incluir el `ROADMAP.md` junto con `VERSION`, `CHANGELOG.md`, `README.md`, `package.json` y cualquier `.md` en `docs/` en cada release o entrega de características, haciendo push a sus repositorios remotos.
 8. **Subdominios Exclusivos por Tenant:** Todo microservicio, módulo público o ruta expuesta debe usar el subdominio del tenant (`<tenant.subdomain>.<ROOT_DOMAIN>`). Está prohibido crear subdominios por servicio, categoría o módulo. El core OrderFlow es el único autorizado para crear/validar subdominios vía `CloudflareDnsService`. Ver estándar completo: `docs/architecture/tenant-subdomain-standard.md`.
+9. **Autorización Previa Obligatoria para Despliegues:** Queda estrictamente PROHIBIDO que la IA ejecute despliegues, builds de producción, reinicios de contenedores o comandos/scripts de deploy (tales como `docker compose up`, `deploy-production.sh`, etc.) sin solicitar y obtener autorización previa y explícita del usuario.
+10. **Prohibición de Colores Hardcodeados & Obligatoriedad de Tokens de Tema:** Queda estrictamente PROHIBIDO incluir colores absolutos o valores HEX hardcodeados (`#ffffff`, `#000000`, `#e2e8f0`, etc.) en componentes React, Ant Design, CSS inline o en la creación de nuevas páginas/endpoints del frontend. Todo nuevo desarrollo UI DEBE consumir obligatoriamente los tokens de diseño del sistema (`theme.useToken()` de Ant Design, variables `var(--ant-*)` o el sistema de temas dinámico) para garantizar soporte nativo 100% para modo claro y oscuro, alto contraste y paridad de diseño premium.
 
 ---
 
@@ -55,6 +57,51 @@ Esta sección es **vinculante** para todo el proyecto.
 3. **Archivos residuales y temporales:** Prohibido dejar backups (`.bkup`, `.bak`), logs (`.log`) o duplicados dentro de los directorios de código fuente (`src/`). Deben ser ignorados vía `.gitignore` o eliminados.
 
 4. **Rutas y consistencia de despliegue:** El uso de `kebab-case` es mandatorio para garantizar compatibilidad con sistemas Linux/Docker (case-sensitive) y consistencia con las URLs públicas. Cualquier cambio de ruta debe actualizar también referencias en Traefik, React Router y `import` estáticos/dinámicos.
+
+---
+
+## 📁 2.3 Estándar de Estructura de Documentación (`docs/`)
+
+La documentación del proyecto debe mantenerse organizada y clasificada estrictamente según la siguiente taxonomía de directorios:
+
+```text
+docs/
+├── README.md
+├── architecture/          # Arquitectura del sistema, módulos, integraciones y ADRs
+│   ├── system/
+│   ├── modules/
+│   ├── integrations/
+│   └── decisions/
+├── specifications/        # Especificaciones funcionales, API y modelos de datos
+│   ├── features/
+│   ├── api/
+│   ├── data-model/
+│   └── integrations/
+├── tests/                 # Documentación y reportes de suites de pruebas y features
+│   ├── README.md
+│   ├── FEAT-113/
+│   └── FEAT-125/
+├── operations/            # Manuales operativos, runbooks y procedimientos
+│   ├── restaurant/
+│   ├── procedures/
+│   └── roles/
+├── user-manuals/          # Manuales de usuario finales por producto
+│   ├── omniflow/
+│   ├── omnigastro/
+│   ├── omnibi/
+│   └── omniledger/
+├── guides/                # Guías técnicas y tutoriales
+├── troubleshooting/       # Índice y soluciones de problemas
+├── observability/         # Monitoreo, dashboards y métricas
+├── audits/                # Auditorías técnicas y de seguridad
+├── plans/                 # Planes de implementación y roadmaps
+├── brand/                 # Identidad de marca, logos y assets
+├── legal/                 # Contratos y licencias
+├── info/                  # Información general del ecosistema
+├── prompts/               # Prompts y especificaciones para IA
+├── screenshots/           # Capturas de pantalla de la aplicación
+└── historico/             # Archivo de documentos legacy u obsoletos
+```
 
 ---
 
