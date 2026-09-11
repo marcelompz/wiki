@@ -31,6 +31,7 @@ El ecosistema **OmniFlow** está diseñado bajo una arquitectura omnicanal híbr
 | **OmniBookings** | Standalone PWA | Web / Cloud (`:3023`) | Gestión de citas, turnos, profesionales y agenda. | iCal, WhatsApp Notifications |
 | **OmniGiveaways** | Standalone PWA | Web / Cloud (`:3020`) | Sorteos virales, campañas de fidelización y captación. | Redis LRU, Social APIs |
 | **OmniLedger** | Standalone Service | Linux (`:3027`) | Libro mayor canónico, contabilidad partida doble inmutable y RLS. | AsyncPG, PostgreSQL RLS |
+| **OmniRealState** | Standalone Service | Web / Cloud (`:3028`) | Vertical PropTech: inmuebles, loteamientos, GeoJSON, alquileres, expensas, mora y liquidaciones a propietarios. | `@TenantPrisma()`, OmniLedger, Refine UI |
 | **OmnIoT Edge Gateway** | Tauri / Rust Native | Debian / Radxa / Win | Puente universal de hardware (Epson ePOS, COM/RS-232, TCP, USB). | `/dev/ttyS*`, `/dev/usb/lp*`, TCP 9100 |
 
 ---

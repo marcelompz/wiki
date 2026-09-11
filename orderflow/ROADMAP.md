@@ -31,6 +31,7 @@ El ecosistema **OmniFlow** contempla 10 aplicaciones y capas operativas. A conti
 | **Tauri v2 Desktop Wrappers** | Tauri v2 / Rust Kiosk | **65%** | 🔄 Staging Web | Empaquetado binarios `.AppImage` (Linux) y `.msi` (Windows) para OmniPOS Retail, Gastro y KDS. | **v1.35.0** |
 | **Mobile Native (`@orderflow/mobile`)** | React Native / Expo | **60%** | 🔄 En desarrollo | Publicación APK/IPA para `OmniMozos Pocket`, flujo Tap-to-Pay y sincronización offline-first. | **v1.36.0** |
 | **Alta Disponibilidad / Standby Replica** | PostgreSQL Streaming / Traefik | **60%** | 🔄 Parcial | Failover automatizado y réplica de lectura activa Provecchio ↔ Hetzner (FEAT-011). | **v2.0.0** |
+| **OmniRealState (Vertical PropTech)** | Standalone Service (`:3028`) | **35%** | 📋 Plan & Specs Completos | Fast-Track MVP (`services/real-estate-standalone/`), SideBar Refine, GeoJSON, contratos, expensas, mora y liquidaciones. | **v1.34.0 (MVP) → v1.36.0** |
 
 ---
 
@@ -38,15 +39,16 @@ El ecosistema **OmniFlow** contempla 10 aplicaciones y capas operativas. A conti
 
 ```mermaid
 graph LR
-    A["v1.33.0 (Actual)<br/>Multi-Tenant DB 100%<br/>Design Tokens UI"] --> B["v1.34.0 (Gate 1)<br/>Gastro & KDS Deep<br/>Landed Costs (Oct 2026)"]
-    B --> C["v1.35.0 (Gates 2 & 3)<br/>Tauri Desktop Wrappers<br/>OmnIoT Hardware Gateway (Nov 2026)"]
-    C --> D["v1.36.0 (Gate 4)<br/>Mobile Native Expo<br/>Tap-to-Pay / NFC (Ene 2027)"]
+    A["v1.33.0 (Actual)<br/>Multi-Tenant DB 100%<br/>Design Tokens UI"] --> B["v1.34.0 (Gate 1)<br/>Gastro & KDS Deep<br/>Landed Costs & OmniRealState MVP"]
+    B --> C["v1.35.0 (Gates 2 & 3)<br/>Tauri Desktop Wrappers<br/>OmnIoT Hardware Gateway"]
+    C --> D["v1.36.0 (Gate 4)<br/>Mobile Native Expo<br/>OmniRealState Alquileres & Expensas"]
     D --> E["v2.0.0 (Go-Live Definitivo)<br/>Ecosistema 100% Operativo<br/>Alta Disponibilidad (15 Feb 2027)"]
 ```
 
-1. **Gate 1 — Core & Gastro Alignment (Release v1.34.0 — Octubre 2026):**
+1. **Gate 1 — Core & Gastro Alignment & OmniRealState Fast-Track MVP (Release v1.34.0 — Octubre 2026):**
    - Completar Landed Costs (Paso 8) en inventario.
    - Afinamiento de recetas BoM y comanderas en tiempo real.
+   - Fast-Track MVP `OmniRealState` (`services/real-estate-standalone/` en puerto `:3028`), SideBar Refine "Inmobiliaria / PropTech", esquemas `@TenantPrisma()` y visores GeoJSON.
    - Ejecución limpia de suite de tests unitarios y Playwright E2E (`./scripts/init.sh`).
 
 2. **Gate 2 & 3 — Desktop Tauri & OmnIoT Edge Gateway (Release v1.35.0 — Noviembre 2026):**
