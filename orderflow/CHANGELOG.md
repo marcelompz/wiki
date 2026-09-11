@@ -5,6 +5,14 @@ Todos los cambios notables a este proyecto serán documentados en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 y este proyecto se adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.32.0] - 2026-09-11
+
+### 🪑 OmniGastro Mesas & Mapa de Piso — Zonas, Ownership del Mozo & QR Dinámico (FEAT-114)
+- **Módulo Backend de Mesas (`TablesService` & `TablesController`)**: Implementación del mapa de piso dinámico agrupado por zonas (`RestaurantFloor`) y mesas (`RestaurantTable`), con endpoints para creación de zonas, mesas, actualización de coordenadas gráficas (`posX`, `posY`) y estados (`FREE`, `OCCUPIED`, `BILL_REQUESTED`, `CLEANING`, `RESERVED`).
+- **Atribución & Ownership del Mozo (`assignOwner` / `releaseOwner`)**: Sistema de atribución con auto-asignación para mozos (`tables:own`) y reasignación administrativa protegida (`tables:reassign`).
+- **UI Admin Mapa de Piso (`/admin/gastro-tables`)**: Interfaz interactiva para administración visual de mesas, cambio de estados, filtro por zonas y generación de códigos QR imprimibles para acceso al Menú Digital Vivo comensal.
+- **Suites de Pruebas**: 12/12 unit tests passing en `TablesService`, 0 errores TypeScript en frontend y build de producción verificado.
+
 ## [1.31.0] - 2026-09-11
 
 ### 🍽️ OmniDineIn Cimientos — PosSession Real, Rol WAITER & Permisos Cash/Tables (FEAT-113)
