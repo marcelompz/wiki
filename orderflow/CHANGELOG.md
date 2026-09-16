@@ -7,6 +7,9 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.
 
 ## [1.34.0] - 2026-09-16
 
+### 🐛 Bug Fixes
+- **Módulos Admin (`/admin/modules`)**: Corrección de `TypeError: e.depends is undefined` al renderizar tarjetas de módulos sin dependencias expresadas (`depends?: string[]` opcional y guardia `Array.isArray(mod.depends)`) (Troubleshooting #133)
+
 ### 🔍 QA — Provecchio Demo Guide + E2E Screenshots
 - **Guía de Demo Provecchio**: Documentación completa en `docs/info/PROVECCHIO_DEMO_GUIDE.md` con flujos de navegación pública, login, y todos los módulos admin
 - **Suite Playwright**: `qa/tests/test_provecchio_demo.py` — 27 tests (5 smoke, 1 catalog, 21 regression) cubriendo landing, social catalog, bio, login, todos los módulos admin, checkout y legal pages

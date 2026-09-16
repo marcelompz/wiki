@@ -20,6 +20,11 @@ Ordená por problema y área. Cada entrada incluye síntomas, causa raíz y solu
 | [101](101-feat125-demo-alfa-provecchio.md) | Demo Alfa FEAT-125 Provecchio | QA / Provecchio | Verificación y puesta a punto de demo alfa | ✅ Resuelto |
 | [102](102-hr-controller-route-prefix-404-and-employee-role-fix.md) | Rutas `/api/v1/hr/*` 404 & Rol `EMPLOYEE` | Backend / HR / Users | Error 404 al cargar colaboradores/asistencia en `/admin/hr`; falta de rol `EMPLOYEE` en usuarios | ✅ Resuelto |
 | [103](103-catalog-poscategory-select-and-analytics-uuid-cast-fix.md) | Excepción `posCategory` Select & `::uuid` Cast en Analytics | Backend / Catalog / Analytics | Error 500 al listar categorías por `posCategory` inexistente y error SQL `text = uuid` en KPIs | ✅ Resuelto |
+| [104](104-tenant-db-isolation-and-jwtauthguard-root-fix.md) | Aislamiento Multi-Tenant DB 100% & JwtAuthGuard Root Fix | Backend / Auth / Multi-Tenant / Security | JWT de tenant dedicado usaba DB compartida central; fallback hardcodeado de `JWT_SECRET`; errores TS/Jest en 19 módulos | ✅ Resuelto |
+| [105](105-pos-theme-tokens-contrast-fix.md) | Tokenización de Temas & Corrección de Contraste en POS y Gastro | Frontend / POS / Themes | Pérdida de legibilidad en modal de operadores (texto e íconos sobre fondo blanco) y estilos inline hardcodeados en POS/Gastro | ✅ Resuelto |
+| [107](107-biolink-public-endpoints-missing-apikeyguard-fix.md) | BioLink Público 401 — Falta @UseGuards(ApiKeyGuard) en Endpoints Públicos | Backend / BioLinks / Auth | GET /api/v1/bio/:slug y endpoints públicos de BioLink retornan 401 'TenantPrisma no resuelto' | 🔧 Aplicado |
+| [108](108-social-catalog-db-corruption-500.md) | Catálogo Social 500 — Columna Prisma Faltante en Producción | DevOps / Database / Social Catalog | `/api/v1/public/social-catalog/*` retorna 500 en producción (Prisma: column `products.isPosBomProduct` no existe); corrupción local en Docker | ✅ Resuelto
+| [132](132-rls-migration-snakecase-columns.md) | RLS Migration — Columnas snake_case en Migration SQL | Backend / Prisma / SQL | `ERROR: column <table>.tenantId does not exist` al aplicar migración RLS en 3 tablas (locations, stock_quants, stock_moves) | ✅ Resuelto |
 | [78](78-loki-container-transient-restart.md) | Reinicio Transitorio de Contenedor Loki en Deploy | DevOps / Docker / Monitoring | `dependency failed to start: container orderflow-loki exited (1)` durante deploy | ✅ Resuelto |
 | [79](79-catalog-categories-500-fix.md) | Excepción 500 en GET /api/v1/catalog/categories | Backend / Catalog / Prisma | `TypeError: Cannot read properties of undefined (reading 'product')` por Prisma no inyectado en controlador | ✅ Resuelto |
 | [80](80-postgresql-container-transient-healthcheck.md) | Retardo Transitorio en Healthcheck de PostgreSQL en Deploy | DevOps / Docker / Database | `dependency failed to start: container orderflow-database-1 is unhealthy` durante deploy | ✅ Resuelto |
@@ -34,6 +39,8 @@ Ordená por problema y área. Cada entrada incluye síntomas, causa raíz y solu
 | [89](89-category-hierarchy-nested-vs-flat-double-rendering.md) | Algoritmo Jerarquía de Categorías Anidadas vs Planas | Frontend / Admin App / Social Catalog | Categorías PDV (Nivel 1) aparecían anidadas dentro de Producto (Nivel 0) y también repetidas a nivel raíz en el panel de administración | ✅ Resuelto |
 | [90](90-virtual-category-visibility-persistence-fix.md) | Persistencia de Visibilidad de Categorías Virtuales | Frontend / Backend / Social Catalog | Interruptor de visibilidad para 'Fuera de carta' (o subcategorías anidadas) no guardaba isVisible: false por falta de actualización recursiva y ausencia de registro en BD | ✅ Resuelto |
 | [91](91-omniflow-web-extension-shadow-dom-and-dynamic-chat-resolution.md) | Extensión Web OmniFlow (Manifest V3) | Frontend / Browser Extensions / Multi-Tenant | Modal ⚙️ no abría desde Shadow DOM, datos de tenant hardcodeados y falta de extracción dinámica E.164 de chat en WhatsApp Web | ✅ Resuelto |
+| [92](92-pos-order-dto-validation-pipe-fix.md) | Excepción `ValidationPipe` en Cobro POS / Gastronómico | Backend / NestJS / POS / DTO | `property waiterId / totalAmount / discount_percent should not exist` al confirmar venta o cobrar en POS | ✅ Resuelto |
+| [93](93-users-pin-code-missing.md) | Columna `users.pin_code` Faltante | Backend / Prisma / Database | Errores 500 en login; Prisma error `column users.pin_code does not exist` | 🔧 Aplicado |
 | [09](09-docker-orphan-containers-cleanup.md) | Contenedores Duplicados en Docker | DevOps / Docker / Deploy | Contenedores `backend` duplicados corriendo en paralelo | ✅ Resuelto |
 | [10](10-react-router-routes-conflict-and-iterable-guards.md) | Conflicto de Rutas React & Excepciones Iterables | Frontend / React Router / Types | Pantalla en blanco en dominios de producción (`provecchio.com` / `pesallaccia.com`); `t is not iterable` | ✅ Resuelto |
 | [11](11-web-builder-and-dashboard-consolidation.md) | Unificación de Dashboards & Diseñador Web Omnicanal | Frontend / Admin App / UX | Duplicidad de Spa Dashboard; posicionamiento del Diseñador Web desacoplado | ✅ Resuelto |
@@ -92,6 +99,7 @@ Ordená por problema y área. Cada entrada incluye síntomas, causa raíz y solu
 | [99](99-feat113-signup-wizard-public.md) | FEAT-113 — Wizard de signup público + EarlyAccess | Backend / Commercial / Plan Comercial | Sin wizard de compra los tenants no se podían crear vía flujo público; fix: 5 endpoints públicos en `/api/v1/public/commercial/*` | ✅ Resuelto |
 | [100](100-omnibio-public-resolution-and-qr-history-fix.md) | Resolución Pública OmniBio & Generador de QR | Backend / Frontend / OmniBio / QR | 403 en BioLink público al usar como portada; QRs de BioLink apuntaban a `/social-catalog` y no guardaban historial | ✅ Resuelto |
 | [131](131-frontend-docker-build-timeout.md) | Timeout en Compilación Docker de Frontend | DevOps / Docker / BuildKit / Memory | Exit code 255 por timeout del servidor durante compilación Vite/TypeScript de frontend | ✅ Resuelto |
+| [133](133-modules-depends-undefined-typeerror-fix.md) | `TypeError: e.depends is undefined` en Módulos Admin | Frontend / Admin App / Módulos | `e.depends is undefined` al renderizar tarjetas de módulos sin dependencias expresadas | ✅ Resuelto |
 
 ---
 
@@ -117,6 +125,7 @@ Ordená por problema y área. Cada entrada incluye síntomas, causa raíz y solu
 - **P1000 / auth PostgreSQL:** ver [#04](04-prisma-p1000-db-auth-and-redis-fallback.md) — rotación de credenciales y volumen persistente.
 - **AnalyticsCacheService Redis Connection Failure:** ver [#51](51-analytics-cache-service-redis-connection-failure.md) — `AnalyticsCacheService` usa `localhost:6379` hardcodeado + `REDIS_URL` sin expandir; fix parseando `REDIS_URL` y compose sin password.
 - **Errores de columnas en SQL manual:** ver [#06](06-postgresql-camelcase-column-names.md) — Prisma usa camelCase; usar comillas dobles.
+- **RLS Migration — Columnas snake_case:** ver [#132](132-rls-migration-snakecase-columns.md) — `tenantId` vs `tenant_id` en 3 tablas; migration SQL separada por convención de nombres.
 - **Módulos no instalados para un tenant:** ver [#05](05-whatsapp-catalog-install-and-api-key-auth.md) — insertar registro en `module_installations`.
 
 ### Módulos y RBAC
