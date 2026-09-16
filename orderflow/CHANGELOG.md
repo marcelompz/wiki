@@ -12,6 +12,7 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.
 - **Navegación OmniGastro en Sidebar (`Sidebar.tsx`)**: Inclusión de `'gastro'` en `defaultCoreModules` de `AdminApp.tsx` para hacer visibles las opciones de POS Gastro, Caja Gastro (POS Cajero), Mozo (Comandero Móvil) y Salones & Mesas (Troubleshooting #134)
 - **Auth & Usuarios (`GET /api/v1/users`)**: Inclusión de fallback `findTenantBySlug` en `ApiKeyGuard.ts` para resolver correctamente el objeto `tenant` cuando `tenantId` proviene de un slug/subdominio, previniendo excepciones 403 Forbidden en la administración de usuarios (Troubleshooting #135)
 - **Gestión de Salones y Pisos (`POST /api/v1/tables/floors`)**: Incorporación de exención para `user.isSuperAdmin` y roles administrativos (`ADMIN`, `MANAGER`, `SUPERADMIN`, `OWNER`) en `rbac.service.ts` y extracción robusta de `req.tenant?.id` en `tables.controller.ts` para corregir excepciones 403 Forbidden al crear zonas o mesas (Troubleshooting #136)
+- **Gestión de Capital Humano (`/api/v1/hr/*`)**: Inclusión de `ApiKeyGuard` en `@UseGuards(ApiKeyGuard, PermissionsGuard)` en `hr.controller.ts` para popular el contexto de usuario/tenant y resolver excepciones 403 Forbidden en empleados y asistencias (Troubleshooting #137)
 
 ### 🔍 QA — Provecchio Demo Guide + E2E Screenshots
 - **Guía de Demo Provecchio**: Documentación completa en `docs/info/PROVECCHIO_DEMO_GUIDE.md` con flujos de navegación pública, login, y todos los módulos admin
