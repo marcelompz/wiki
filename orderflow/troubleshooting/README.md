@@ -105,6 +105,7 @@ Ordená por problema y área. Cada entrada incluye síntomas, causa raíz y solu
 | [136](136-tables-floors-403-forbidden-rbac-fix.md) | HTTP 403 Forbidden en `POST /api/v1/tables/floors` | Backend / Auth / RBAC / Tables | 403 Forbidden al crear pisos/zonas por omisión de exención RBAC a roles ADMIN/MANAGER | ✅ Resuelto |
 | [137](137-hr-endpoints-403-forbidden-apikeyguard-fix.md) | HTTP 403 Forbidden en `/api/v1/hr/*` | Backend / Auth / HR / ApiKeyGuard | 403 Forbidden en empleados y asistencias por omisión de `ApiKeyGuard` en `HrController` | ✅ Resuelto |
 | [138](138-user-update-password-500-error-fix.md) | HTTP 500 en `PATCH /api/v1/users/:id` | Backend / Users / UsersService | 500 al editar usuario o contraseña por pasar el campo `role` a `prisma.user.update` | ✅ Resuelto |
+| [139](139-hr-create-employee-from-contact-selector.md) | Selector de Contactos CRM en RRHH | Frontend / Admin App / HR / Contactos | Selector opcional en modal de colaboradores para auto-completar datos desde Contactos CRM | ✅ Resuelto |
 
 ---
 
