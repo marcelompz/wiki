@@ -9,6 +9,7 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.
 
 ### 🐛 Bug Fixes
 - **Módulos Admin (`/admin/modules`)**: Corrección de `TypeError: e.depends is undefined` al renderizar tarjetas de módulos sin dependencias expresadas (`depends?: string[]` opcional y guardia `Array.isArray(mod.depends)`) (Troubleshooting #133)
+- **Navegación OmniGastro en Sidebar (`Sidebar.tsx`)**: Inclusión de `'gastro'` en `defaultCoreModules` de `AdminApp.tsx` para hacer visibles las opciones de POS Gastro, Caja Gastro (POS Cajero), Mozo (Comandero Móvil) y Salones & Mesas (Troubleshooting #134)
 
 ### 🔍 QA — Provecchio Demo Guide + E2E Screenshots
 - **Guía de Demo Provecchio**: Documentación completa en `docs/info/PROVECCHIO_DEMO_GUIDE.md` con flujos de navegación pública, login, y todos los módulos admin

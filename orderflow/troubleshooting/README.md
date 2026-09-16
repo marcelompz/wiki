@@ -100,6 +100,7 @@ Ordená por problema y área. Cada entrada incluye síntomas, causa raíz y solu
 | [100](100-omnibio-public-resolution-and-qr-history-fix.md) | Resolución Pública OmniBio & Generador de QR | Backend / Frontend / OmniBio / QR | 403 en BioLink público al usar como portada; QRs de BioLink apuntaban a `/social-catalog` y no guardaban historial | ✅ Resuelto |
 | [131](131-frontend-docker-build-timeout.md) | Timeout en Compilación Docker de Frontend | DevOps / Docker / BuildKit / Memory | Exit code 255 por timeout del servidor durante compilación Vite/TypeScript de frontend | ✅ Resuelto |
 | [133](133-modules-depends-undefined-typeerror-fix.md) | `TypeError: e.depends is undefined` en Módulos Admin | Frontend / Admin App / Módulos | `e.depends is undefined` al renderizar tarjetas de módulos sin dependencias expresadas | ✅ Resuelto |
+| [134](134-sidebar-omnigastro-missing-modules-fix.md) | Módulos OmniGastro Ausentes en Sidebar | Frontend / Admin App / Navigation | Solo figuraba KDS en OmniGastro por omisión de `'gastro'` en `defaultCoreModules` | ✅ Resuelto |
 
 ---
 
