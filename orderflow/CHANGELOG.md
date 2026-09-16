@@ -5,7 +5,71 @@ Todos los cambios notables a este proyecto serán documentados en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 y este proyecto se adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [1.33.0] - 2026-09-11
+## [1.34.0] - 2026-09-16
+
+### 🔍 QA — Provecchio Demo Guide + E2E Screenshots
+- **Guía de Demo Provecchio**: Documentación completa en `docs/info/PROVECCHIO_DEMO_GUIDE.md` con flujos de navegación pública, login, y todos los módulos admin
+- **Suite Playwright**: `qa/tests/test_provecchio_demo.py` — 27 tests (5 smoke, 1 catalog, 21 regression) cubriendo landing, social catalog, bio, login, todos los módulos admin, checkout y legal pages
+- **Capturas de Producción**: 28 screenshots reales capturados de `https://provecchio.com` vía API key auth (`docs/screenshots/provecchio-demo/`)
+- **Auth por API Key**: Validado login admin vía `x-api-key: provecchio-api-key-2026` en headless Chromium
+- **Script de Captura**: `qa/scripts/capture_screenshots.py` para reproducción completa
+- **Framework QA**: Configuración `.env` y `.env.provecchio` con BASE_URL, viewports, timeouts y credenciales placeholder
+
+## [1.34.0] - 2026-09-13
+
+### 🔒 Phase 1 Prisma Multi-Tier Migration + Security Hardening (v1.34.0)
+- **Phase 2 Prisma Migration Completada**: 33 servicios migrados al patrón `getDb(db)` / `db?: PrismaClient` eliminando ~300 llamadas hard a `this.prisma.` en paths de negocio multi-tenant.
+  - `auth.service.ts`: 14 métodos migrados (login, refreshToken, selectTenant, generateTokenForUser, etc.)
+  - `billing/*`: `billing.service.ts`, `subscription-plans.service.ts` (10 métodos)
+  - `integrations/*`: `facturasend-location`, `google-calendar`, `integration-mapper`, `integrations`, `whatsapp-notifications`, `orderflow-integration` (24 métodos)
+  - `omnimessaging/*`: `omnimessaging-webhook.controller.ts`, `follow-up-queue.processor.ts` (9 métodos)
+  - `users/*`: ya usaban patrón `dbClient || this.prisma` (confirmado 11 métodos)
+- **Security JWT Hardening**: `JWT_REFRESH_SECRET` sin defaults hardcoded en `auth.service.ts` (2 ubicaciones); patrón añadido a `WEAK_SECRET_PATTERNS` en `secrets-validation.service.ts`.
+- **Decorator `@TenantPrisma` Fail-Fast**: Ya no hace fallback silencioso al Prisma compartido; lanza `UnauthorizedException` si no hay tenant resuelto (salvo super-admin).
+- **Hard-Delete Tenant Protegido**: Endpoint `DELETE /api/v1/tenants/:id/hard-delete` ahora usa `getDb()` y solo accesible a SuperAdmin con guard explícito.
+- **Tests & Build**: 791/791 unit tests passing (114 suites); TypeScript clean (errores solo en specs pre-existentes y DTOs no relacionados).
+
+### 💰 Landed Costs Dashboard (v1.34.0)
+- **Frontend**: Dashboard completo en `/admin/landed-costs` con resumen por OC (monto, productos, % Landed) y detalle por producto con desglose de Landed Costs asignado
+- **Backend**: Endpoints `/api/v1/purchases/orders/:id/landed-costs` y `/api/v1/purchases/landed-costs/summary` operativos
+- **UI/API**: Completo — frontend + backend + servicio API sincronizados
+
+### 🐛 Bug Fixes (v1.34.0)
+- **Social Catalog 500 — Columna Prisma Faltante**: Endpoint `/api/v1/public/social-catalog/categories/tree` retornaba 500 en producción porque el modelo `Product` en `prisma/schema.prisma` define `isPosBomProduct` (camelCase) pero la columna en la tabla `products` existía como `isposbomproduct` (lowercase). Prisma v5 genera SQL con identificadores entre comillas (`"isPosBomProduct"`), por lo que PostgreSQL no encontraba la columna. **Fix**: `ALTER TABLE products RENAME COLUMN "isposbomproduct" TO "isPosBomProduct"` en dimoraserver1.
+- **BioLink Público 401**: Agregado `@UseGuards(ApiKeyGuard)` a 4 endpoints públicos del BiolinksController (`getPublicByTenantId`, `getPublicBySlug`, `registerClick`, `createOrderFromBioLink`). `@TenantPrisma()` requería un guard que setee `req.tenantPrisma` pero los endpoints públicos no tenían guard, causando `UnauthorizedException` en cada request a `/api/v1/bio/:slug` y otros BioLink públicos.
+
+### 🍽️ Gastro/KDS UX Improvements (v1.34.0)
+- **KDS**: Filtro por estado (Todas/Pendiente/Cocinando/Listo), búsqueda por mesa/mozo/OC, estados dinámicos, layout responsive
+- **Gastro Dashboard**: Reemplazo de colores hardcodeados por tokens de tema (regla 9)
+- **Gastro Mozos**: Reemplazo de 7 colores hardcodeados por tokens de tema (PIN pad, tarjetas)
+- **Gastro Caja**: Reemplazo de 8 colores hardcodeados por tokens de tema (cobro, resumen, modal)
+- **Compliance**: Cero colores hardcodeados en páginas Gastro/KDS
+
+### 🛡️ Phase 3 RLS Enforcement & CI Guard (v1.33.1 - Phase 3 Complete)
+- **RLS Policies Applied**: Migración Prisma `20260912_rls_enable` creada con policies `tenant_isolation` en 90+ tablas (productos, orders, contacts, inventory, billing, bookings, loyalty, giveaways, biolinks, etc.) + child tables via FK (order_lines, quotation_items, appointment_assignments, etc.) + global tables (tenants, users, subscription_plans, permissions).
+- **FORCE ROW LEVEL SECURITY**: Todas las tablas tenant-scoped usan `FORCE ROW LEVEL SECURITY` para que el rol de app (`orderflow_app`) no pueda bypass.
+- **Helper Functions**: `app_current_tenant_id()` y `app_is_superadmin()` para evaluación de policies.
+- **Roles**: `orderflow_migrator` (BYPASSRLS para migraciones) y `orderflow_app` (NOBYPASSRLS para runtime).
+- **TenantRlsInterceptor Updated**: Ahora usa `request.tenantPrisma` (dedicated client) para tenants con `isolationTier = 'dedicated'`, fallback a shared PrismaService. Función `withTenantRls()` actualizada para aceptar clientes dedicados.
+- **CI Guard - Prisma Usage Linter**: Nuevo script `npm run lint:prisma` (`scripts/lint-prisma-usage.js`) que detecta:
+  - Uso directo de `this.prisma.` en servicios sin parámetro `db`.
+  - Inyección de `PrismaService` sin helper `getDb()` / parámetro `db?: PrismaClient`.
+  - Integrado en `package.json` como `npm run lint:prisma`.
+- **E2E Isolation Test**: `test/e2e/rls-isolation.test.ts` verifica aislamiento cross-tenant (Products, Orders, Contacts) + verificación de contexto RLS.
+- **RLS Migration Created**: `prisma/migrations/20260912_rls_enable/migration.sql` lista para deploy.
+- **Docs Updated**: ROADMAP.md actualizado a v1.33.1 con Phase 3 RLS Complete | CI Guard Active.
+- **Phase 2 Prisma Migration Completada**: 33 servicios migrados al patrón `getDb(db)` / `db?: PrismaClient` eliminando ~300 llamadas hard a `this.prisma.` en paths de negocio multi-tenant.
+  - `auth.service.ts`: 14 métodos migrados (login, refreshToken, selectTenant, generateTokenForUser, etc.)
+  - `billing/*`: `billing.service.ts`, `subscription-plans.service.ts` (10 métodos)
+  - `integrations/*`: `facturasend-location`, `google-calendar`, `integration-mapper`, `integrations`, `whatsapp-notifications`, `orderflow-integration` (24 métodos)
+  - `omnimessaging/*`: `omnimessaging-webhook.controller.ts`, `follow-up-queue.processor.ts` (9 métodos)
+  - `users/*`: ya usaban patrón `dbClient || this.prisma` (confirmado 11 métodos)
+- **Security JWT Hardening**: `JWT_REFRESH_SECRET` sin defaults hardcoded en `auth.service.ts` (2 ubicaciones); patrón añadido a `WEAK_SECRET_PATTERNS` en `secrets-validation.service.ts`.
+- **Decorator `@TenantPrisma` Fail-Fast**: Ya no hace fallback silencioso al Prisma compartido; lanza `UnauthorizedException` si no hay tenant resuelto (salvo super-admin).
+- **Hard-Delete Tenant Protegido**: Endpoint `DELETE /api/v1/tenants/:id/hard-delete` ahora usa `getDb()` y solo accesible a SuperAdmin con guard explícito.
+- **Tests & Build**: 791/791 unit tests passing (114 suites); TypeScript clean (errores solo en specs pre-existentes y DTOs no relacionados).
+
+## [1.34.0] - 2026-09-11
 
 ### 🛡️ Aislamiento Multi-Tenant DB 100% Completado & Blindaje JWT Fail-Fast
 - **100% Aislamiento de Dominio en 19 Módulos**: Inyección de `@TenantPrisma() db?: PrismaClient` en controllers y helper `getDb(db)` en servicios de `quotations`, `purchases`, `finances`, `saved-views`, `documents`, `inventory`, `contacts`, `biolinks`, `loyalty`, `giveaways`, `qr`, `social-catalog`, `tags`, `ribbons`, `catalog`, `analytics`, `bookings`, `customers`, `products`.
@@ -13,7 +77,7 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.
 - **Fail-Fast `JWT_SECRET`**: Eliminación de fallbacks hardcodeados en código; validación estricta al arranque si las claves de seguridad no existen en variables de entorno.
 - **Guarda de Arquitectura Anti-Regresión (`architecture.spec.ts`)**: Integrado en la suite Jest con 114/114 test suites passing (790/790 unit tests pasando).
 
-## [1.32.0] - 2026-09-11
+## [1.34.0] - 2026-09-11
 
 ### 🪑 OmniGastro Mesas & Mapa de Piso — Zonas, Ownership del Mozo & QR Dinámico (FEAT-114)
 - **Módulo Backend de Mesas (`TablesService` & `TablesController`)**: Implementación del mapa de piso dinámico agrupado por zonas (`RestaurantFloor`) y mesas (`RestaurantTable`), con endpoints para creación de zonas, mesas, actualización de coordenadas gráficas (`posX`, `posY`) y estados (`FREE`, `OCCUPIED`, `BILL_REQUESTED`, `CLEANING`, `RESERVED`).
@@ -21,7 +85,7 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.
 - **UI Admin Mapa de Piso (`/admin/gastro-tables`)**: Interfaz interactiva para administración visual de mesas, cambio de estados, filtro por zonas y generación de códigos QR imprimibles para acceso al Menú Digital Vivo comensal.
 - **Suites de Pruebas**: 12/12 unit tests passing en `TablesService`, 0 errores TypeScript en frontend y build de producción verificado.
 
-## [1.31.0] - 2026-09-11
+## [1.34.0] - 2026-09-11
 
 ### 🍽️ OmniDineIn Cimientos — PosSession Real, Rol WAITER & Permisos Cash/Tables (FEAT-113)
 - **Control de Sesiones POS (`PosSessionsService` & `PosSessionsController`)**: Implementación de apertura y cierre formal de cajas POS con cálculo automático de diferencia de arqueo (`variance` = `closingCash` - `expectedCash`), fondo inicial `openingFloat`, etiquetas de terminal `deviceLabel` y generación de reportes Z.
@@ -30,19 +94,19 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.
 - **Manifiesto de Módulo & Registry**: Módulo registrado en `pos-sessions.manifest.json` y cargado automáticamente mediante `modules.registry.ts`.
 
 
-## [1.28.2] - 2026-09-10
+## [1.34.0] - 2026-09-10
 
 ### 🏬 POS Terminal — Selección Táctil de Productos & NumPad en Tiempo Real (v1.28.2)
 - **Selección Directa de Producto (`selectedLineIndex`)**: Resaltado visual en azul (`#e0f2fe`) de la línea seleccionada en el ticket POS (`pos.tsx`), permitiendo tocar cualquier producto previamente agregado para modificar su cantidad o aplicar descuento.
 - **Entrada NumPad en Tiempo Real**: Eliminación del paso de confirmación manual; al digitar números en el NumPad o cambiar entre `Cant.` y `Desc %`, la modificación se refleja inmediatamente en el carrito y en el cálculo del Total.
 
-## [1.29.1] - 2026-09-10
+## [1.34.0] - 2026-09-10
 
 ### 🛠️ POS & Orders — Parámetros DTO de Cobro POS & Descuento por Línea (v1.29.1)
 - **Corrección de Excepción de Validación NestJS (`ValidationPipe`)**: Incorporación de los atributos opcionales `@IsOptional()` y `@IsString()` / `@IsNumber()` a `CreateOrderDto` y `CreateOrderLineDto` (`create-order.dto.ts`) para `waiterId`, `posConfigId`, `tableId`, `guestCount`, `totalAmount`, `paymentStatus`, `paymentGateway` y `discount_percent`.
 - **Cálculo de Descuentos por Línea**: Procesamiento automático del porcentaje de descuento (`discount_percent`) en el cálculo del subtotal de la línea de pedido y persistencia en metadatos.
 
-## [1.29.0] - 2026-09-09
+## [1.34.0] - 2026-09-09
 
 ### 🍽️ OmniGastro Submenú Exclusivo & Autenticación de Mozos por PIN (FEAT-130)
 - **Submenú Exclusivo en Sidebar (`Sidebar.tsx`)**: Creación de la sección de navegación de primer nivel `OmniGastro 🍽️` con accesos directos a Mesas & Salón, Panel Mozos (PIN), Caja Gastro & Cobros, Cocina & Bar (KDS) y Propinas e Incentivos.
@@ -51,7 +115,7 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.
 - **Caja Gastro & Cobro Centralizado (`gastro-cashier.tsx`)**: Módulo para cajero con soporte para propina voluntaria (10% sugerido o customizable), cobros mixtos (Efectivo, Tarjeta, QR, Transferencia) y cierre de mesa.
 - **Propinas & Comisiones por Promoción (`gastro-incentives.tsx`)**: Configuración de incentivos por producto/promoción (Monto Fijo o Porcentaje) y reporte de liquidación acumulada para el personal de salón.
 
-## [1.28.0] - 2026-09-09
+## [1.34.0] - 2026-09-09
 
 ### 🍽️ OmniGastro Multi-Mozo & Gestión de Espacios (v1.28.0)
 - **Asignación Multi-Mozo en Panel de Administración (`/admin/gastro`)**: Selector de sesión de mozo activo en la cabecera ("Mozo 1", "Mozo 2", "Mozo 3", "Mozo 4").
@@ -68,7 +132,7 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.
 - **Marca OmniCRM en Navigation Sidebar**: Titular global "OmniCRM (CRM & Relaciones)" en el menú principal.
 - **Conversión Automática a Contactos (`contacts.service.ts`)**: Generación y vinculación automática de un `Contacto` tipo `CUSTOMER` al importar o sincronizar usuarios o socios comerciales desde Odoo u otros software legacy.
 
-## [1.27.10] - 2026-09-08
+## [1.34.0] - 2026-09-08
 
 ### 🌐 OmniFlow Web Extension v2.5.0 — Shadow DOM Dual Host, Extracción E.164 & ConfigModal Inter-Context Bridge
 - **Aislamiento Shadow DOM Dual Host**: Implementación de `#omniflow-topbar-host` (48px) y `#omniflow-sidebar-host` (380px) incrustados limpiamente sobre WhatsApp Web sin alterar los estilos nativos del sitio.
@@ -83,41 +147,41 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.
 - **JWT Display & Session Config**: Modal con visualización segura del token JWT, configuración de duración de sesión (1h/24h/7d/30d) y permisos granulares por módulo.
 - **Swagger Docs**: Endpoint `@ApiBearerAuth` y `@ApiApiKey` actualizados para token management.
 
-## [1.27.00] - 2026-09-06
+## [1.34.0] - 2026-09-06
 
 ### 🦊 OmniMessaging Hub — Web Extension Download & Version Verification (v1.27.00)
 - **OmniBot Web Extension Release**: Empaquetado oficial de los binarios zip de la extensión web (`omnibot-firefox.zip` y `omnibot-chrome.zip`) con Manifest V3 para Firefox y Chrome.
 - **Sincronización de Versión Frontend & Backend**: Actualización general a `v1.27.00` reflejada en el encabezado de `/admin/messaging`, `package.json`, Swagger y el `VERSION` global.
 
-## [1.26.00] - 2026-09-05
+## [1.34.0] - 2026-09-05
 
 ### 📱 OmniMessaging Hub — Adaptador de WhatsApp Web QR (`WhatsAppWebQrAdapter`) & App Store Integration
 - **Adaptador WhatsApp Web QR (`whatsapp-qr.adapter.ts`)**: Implementación del conector `WHATSAPP_QR` para permitir la vinculación directa de cualquier número escaneando un código QR desde la App de WhatsApp.
 - **Manifiesto App Store (`whatsapp-qr.manifest.json`)**: Registro del nuevo módulo en el catálogo de App Store (`/admin/modules`).
 - **Fábrica de Adaptadores (`channel-adapter.factory.ts`)**: Integración dinámica del adaptador en la suite de canales de OmniMessaging Hub.
 
-## [1.25.11] - 2026-09-05
+## [1.34.0] - 2026-09-05
 
 
 ### 💻 OmniMessaging Hub — Proveedor de IA Local Ollama (`LocalOllamaProviderService`) sin costo por API
 - **Soporte de IA Local (`local-ollama-provider.service.ts`)**: Ejecución de LLMs en el servidor local de Provecchio o nodo SBC vía Ollama (`http://localhost:11434`), con fallback automático a respuestas enriquecidas basadas en la base de conocimientos si el motor no se encuentra encendido.
 - **Configuración en Frontend (`messaging.tsx`)**: Opción *"💻 IA Local Ollama (Provecchio / SBC Local)"* agregada en la lista de selección de Proveedor de IA.
 
-## [1.25.10] - 2026-09-05
+## [1.34.0] - 2026-09-05
 
 
 ### 📱 OmniMessaging Hub — Webhooks de WhatsApp Cloud API & Telegram para Pruebas en Vivo con Teléfono Real
 - **Controlador de Webhooks (`omnimessaging-webhook.controller.ts`)**: Endpoints de verificación GET/POST `api/v1/omnimessaging/webhooks/whatsapp/:integrationId` y `api/v1/omnimessaging/webhooks/telegram/:integrationId` para conexión de celulares reales en vivo.
 - **Procesamiento Asíncrono de Mensajes Inbound & Outbound**: Respuestas 200 OK inmediatas a Meta/Telegram, ingestión canónica, enrutamiento por IA (`IntentRouterService`) y envío a la cola de salida BullMQ (`OmniMessagingQueueProducer`).
 
-## [1.25.09] - 2026-09-05
+## [1.34.0] - 2026-09-05
 
 ### 🛒 OmniMessaging Hub — Consumidor OmniCatalog, Enlaces UTM & Pedidos Idempotentes (Sprint 4)
 - **Servicio de Herramientas de Catálogo (`catalog-tools.service.ts`)**: Búsqueda en el catálogo `SocialProduct` del tenant, filtrado por estado publicado y construcción automática de URLs públicas con tracking UTM (`utm_source=omnibot&utm_medium=whatsapp`).
 - **Inyector Idempotente de Pedidos (`order-injector.service.ts`)**: Inyección directa de órdenes recibidas por canal conversacional con verificación de `orderUuid` en metadatos para evitar duplicaciones.
 - **Suite de Pruebas Unitarias (`omnimessaging-catalog.spec.ts`)**: Pruebas unitarias en Jest al 100% aprobadas.
 
-## [1.25.07] - 2026-09-05
+## [1.34.0] - 2026-09-05
 
 
 ### 🧠 OmniMessaging Hub — Motor de IA Cloud (OpenAI/Gemini), Tool Calling & Control de Cuotas (Sprint 3)
@@ -126,7 +190,7 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.
 - **Enrutador de Intenciones (`intent-router.service.ts`)**: Manejo de ciclo de vida conversacional (`OmniConversation`), inyección de contexto de catálogo/reservas y auditoría de mensajes en BD.
 - **Suite de Pruebas Unitarias (`omnimessaging-ai.spec.ts`)**: Cobertura al 100% para el motor de IA, control de cuotas y enrutamiento conversacional.
 
-## [1.25.06] - 2026-09-05
+## [1.34.0] - 2026-09-05
 
 
 ### 🤖 OmniMessaging Hub — Adapters de Canales, Payloads Canónicos & Colas Asíncronas BullMQ (Sprint 2)
@@ -135,7 +199,7 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.
 - **Productores & Procesadores BullMQ (`omnimessaging-queue.producer.ts`, `omnimessaging-queue.processor.ts`)**: Procesamiento en segundo plano de mensajes entrantes/salientes con retry exponencial y descifrado seguro de credenciales desde Vault (`CredentialsVaultService`).
 - **Integración NestJS (`omnimessaging.module.ts`)**: Registro del módulo en `app.module.ts` con exportación de servicios principales y suites de test unitarios (Jest) con 100% de éxito.
 
-## [1.24.02] - 2026-09-05
+## [1.34.0] - 2026-09-05
 
 
 ### 🔑 Autenticación & Redirección Automática por Subdominio de Tenant
@@ -154,7 +218,7 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.
 - **Feature Gate Interactivo en Diseñador de Portada (`homepage-builder.tsx`)**: Corrección de endpoints (`/api/v1/modules/installed`) y propiedad `m.moduleId` para detectar dinámicamente si la tienda tiene activo el módulo OmniSites PRO.
 - **Enrutamiento SSL Compatible (`sites.pesallaccia.com`)**: Configuración de reglas en Traefik (`/srv/traefik/dynamic/services.yml`) bajo `sites.pesallaccia.com/?tenant=<subdomain>`, garantizando compatibilidad 100% con los certificados Wildcard SSL de Cloudflare/Let's Encrypt.
 
-## [1.22.00] - 2026-09-01
+## [1.34.0] - 2026-09-01
 
 ### 🎨 Integración de Microservicios Standalone OmniVector y OmniSites
 - **OmniVector Standalone (`services/omnivector-standalone` / Puerto `:3029`)**: Importado desde Google AI Studio como editor gráfico vectorial interactivo con capas, formas, IA Gemini y exportación SVG/PNG. Configurado con servidor Express, Vite y contenedor Docker.
@@ -162,45 +226,45 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.
 - **Orquestación Standalone (`docker-compose.standalone.yml`)**: Registradas ambas aplicaciones con enrutamiento dinámico en Traefik v3.4 (`vector.<tenant.subdomain>.pesallaccia.com` / `/vector-standalone` y `sites.<tenant.subdomain>.pesallaccia.com` / `/sites-standalone`).
 - **Manifiestos App Store (`omnivector.manifest.json`, `omnisites.manifest.json`)**: Módulos registrados en la App Store de OmniFlow con categoría `design` y permisos asignables por tenant.
 
-## [1.21.02] - 2026-09-01
+## [1.34.0] - 2026-09-01
 
 ### 🌐 Gestión de Subdominios y Dominios Custom para SuperAdmin
 - **Gestión Integral en Dashboard SuperAdmin (`super-admin-dashboard.tsx`)**: Se agregó la columna **Subdominio / URL** en la grilla principal de organizaciones, permitiendo al SuperAdmin visualizar de un vistazo qué subdominio (`<subdomain>.pesallaccia.com`) o dominio custom (`customDomain`) tiene asignado cada tenant.
 - **Formulario de Alta y Configuración Marca Blanca**: Se añadieron campos de entrada para `subdomain` (con formateo slug automático) y `customDomain` tanto en el modal de **Crear Tenant** como en el modal de **Configuración de Tenant / Marca Blanca**.
 - **Aprovisionamiento Automático de DNS (`TenantsController`)**: Se actualizó el endpoint `@Patch('/api/v1/tenants/:id')` en NestJS para sanitizar el slug del subdominio, actualizar el estado de verificación `subdomainVerified` e invocar a `CloudflareDnsService` para registrar la entrada DNS automáticamente al modificar el subdominio.
 
-## [1.21.01] - 2026-08-30
+## [1.34.0] - 2026-08-30
 
 ### 📄 Soporte Completo de Paginación Masiva (`per_page` hasta 300+ productos)
 - **Corrección de Límite en Backend (`products.service.ts`)**: Se corrigió el parámetro de consulta `findAll` en el backend para reconocer `per_page`, `limit` y `take` de forma intercambiable. Anteriormente, si la UI enviaba `per_page: 300`, el backend usaba un valor predeterminado duro de 100 productos por página.
 - **Paginación Exacta**: Ahora listar 150, 200 o 300 productos por página recupera y selecciona la totalidad de los registros de la página en DataView.
 
-## [1.21.00] - 2026-08-30
+## [1.34.0] - 2026-08-30
 
 ### 🌳 Visualización de 2 Niveles de PDV y Corrección de Jerarquía en Social-Catalog
 - **Nivel Padre > Subcategoría en DataView de Productos**: La columna de Categoría de PDV en `/admin/products` ahora renderiza ambos niveles jerárquicos (*Padre > Subcategoría*, ej. *Platos fuertes > Caliente*) mediante consulta del ancestro `parentId`.
 - **Corrección de Jerarquía de 3 Niveles en Social Catalog (`product_pos`)**: Se corrigió `social-catalog.service.ts` para conservar la raíz de Categoría de Producto (*Para comer*, *Para beber*) en Level 0 y anidar dentro las Categorías de PDV en Level 1 y Subcategorías de PDV en Level 2.
 
-## [1.20.99] - 2026-08-30
+## [1.34.0] - 2026-08-30
 
 ### 🔎 Detección Inteligente y Unificación de Categorías Similares/Duplicadas
 - **Algoritmo de Similitud Léxica y Levenshtein**: Incorporado en `social-catalog-admin.controller.ts` para detectar variaciones tipográficas, singular/plural (*Bruschetta* vs *Bruschettas*) y tildes (*Frio* vs *Frío*).
 - **Herramienta `🔎 Detectar Similares` en UI**: Nuevo botón en `CategoryManagement.tsx` que escanea las categorías de la BD y las agrupa por variantes.
 - **Modal de Unificación de 1 Clic (`categories/merge`)**: Permite elegir la categoría canónica y re-asignar automáticamente todos los productos de las variantes en la BD, eliminando las duplicadas atómicamente.
 
-## [1.20.98] - 2026-08-30
+## [1.34.0] - 2026-08-30
 
 ### 📁 Filtrado Estricto de Categorías de Producto (`product` mode en `social-catalog.service.ts`)
 - **Aislamiento Estricto de Categorías de Producto**: Al seleccionar **📁 Categorías de Producto** (`categorySource === 'product'`), el árbol de categorías filtra de manera estricta únicamente las Categorías de Producto principales de los productos (p. ej., *Para comer*, *Para beber*), excluyendo las 30 filas de subcategorías de PDV (como *Bruschettas*, *Caliente*, *Chocolate*).
 - **Conteo Directo y Visibilidad**: Muestra exclusivamente los nodos raíz de categorías de producto con su conteo total de productos agrupados.
 
-## [1.20.97] - 2026-08-30
+## [1.34.0] - 2026-08-30
 
 ### 🌳 Predeterminado Combinado (`product_pos`) para Árbol Completo de Categorías
 - **Ajuste de Origen Predeterminado**: El generador de árbol de categorías (`getCategoryTree`) y la configuración por defecto en el panel de administración del catálogo social utilizan por defecto el modo **Combinado (`product_pos`)**.
 - **Despliegue Completo de Categorías de Producto y PDV**: Garantiza que las **Categorías de Producto** (Nivel 0: p. ej., *Para comer*, *Para beber*) y sus subcategorías de PDV (Nivel 1: *Platos fuertes*, *Croissants* y Nivel 2: *Caliente*, *Frío*) se rendericen y desplieguen completas tanto en el catálogo público como en la vista de administración.
 
-## [1.20.96] - 2026-08-30
+## [1.34.0] - 2026-08-30
 
 ### 🔀 Separación Jerárquica entre Canónico (`/admin/products`) y Visibilidad Dinámica (`/admin/social-catalog`)
 - **Gestión Canónica de BD (`/admin/products`)**: Modal/Drawer de gestión con pestañas independientes para **📁 Categorías de Producto** y **🛒 Categorías de PDV**. Es el único origen de verdad autorizado para crear, renombrar, cambiar la estructura de jerarquía padre/hijo y eliminar físicamente registros de categorías en PostgreSQL.
@@ -209,7 +273,7 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.
   - La acción de quitar/ocultar **NO elimina categorías de la base de datos**; actualiza únicamente la visibilidad de la instancia activa (`isVisible` / `hiddenCategoryIds`).
   - **Origen Dinámico de Categorías**: Permite alternar dinámicamente el despliegue del catálogo por **Categorías de Producto**, **Categorías de PDV** o **Combinado (Producto + PDV)**.
 
-## [1.20.95] - 2026-08-30
+## [1.34.0] - 2026-08-30
 
 ### 🧹 Limpieza de Categorías Huérfanas y Herramienta "⚡ Seleccionar Vacías" (`CategoryManagement.tsx`)
 - **Visualización Obligatoria de Categorías Huérfanas**: `CategoryManagement.tsx` incluye categorías cuyos `parentId` no existen en la base de datos como nodos raíz en la interfaz de administración (`/admin/social-catalog` y `/admin/products`), eliminando "categorías fantasma" ocultas.
@@ -218,20 +282,20 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.
 - **Buscador de Categorías**: Campo de búsqueda rápida por nombre o slug en la interfaz de gestión.
 - **Limpieza BD Provecchio**: Eliminada la categoría fantasma heredada `COMIDAS` y re-vinculados los productos huérfanos a la categoría activa `Platos fuertes` (debajo de `Para comer`).
 
-## [1.20.94] - 2026-08-30
+## [1.34.0] - 2026-08-30
 
 ### 🌳 Visualización de Categorías Vacías, Soporte de 3 Niveles y Corrección de Jerarquías (`social-catalog.service.ts`)
 - **Pre-poblado de Categorías de BD (`includeEmpty = true`)**: El generador de árbol de categorías pre-carga el 100% de los registros de `ProductCategory` existencias en la base de datos (incluso si tienen 0 productos asignados) permitiendo a los administradores visualizar, seleccionar y borrar categorías vacías o duplicadas obsoletas.
 - **Resolución Correcta de Padres (Caso "Platos fuertes" ➔ "Para comer")**: Corregida la búsqueda en la base de datos para priorizar registros que poseen `parentId` activo. "Platos fuertes" se anida correctamente debajo de su categoría padre "Para comer" (Nivel 0) sin forzarse debajo de cadenas secundarias o desactualizadas ("COMIDAS").
 - **Jerarquía Completa de 3 Niveles**: Preserva la estructura exacta de Nivel 0 (Padre) ➔ Nivel 1 (Hija) ➔ Nivel 2 (Nieta) tanto en el panel de administración como en el cliente del catálogo social.
 
-## [1.20.93] - 2026-08-30
+## [1.34.0] - 2026-08-30
 
 ### 🛠️ Endpoint de Guardado y Reordenamiento de Categorías (`PUT/POST /api/v1/admin/social-catalog/categories/reorder`)
 - **Implementación del Handler `reorderCategories` (`SocialCatalogAdminController`)**: Agregado el controlador faltante para atender las peticiones de guardado, reordenamiento y visibilidad de categorías en `/api/v1/admin/social-catalog/categories/reorder`.
 - **Actualización en Transacción Prisma**: Actualiza `sortOrder`, `order`, `isVisible` y `parentId` tanto por ID como por Nombre de Categoría en una sola transacción atómica evitando errores 500 al presionar "Guardar cambios".
 
-## [1.20.92] - 2026-08-30
+## [1.34.0] - 2026-08-30
 
 ### ☑️ Casillas de Selección Múltiple y Eliminación de Categorías Seleccionadas (`CategoryManagement.tsx`)
 - **Casillas Checkbox por Fila (`CategoryManagement.tsx`)**: Añadida casilla de verificación independiente por cada categoría en la lista/árbol para selección unitaria o múltiple.
@@ -239,31 +303,31 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.
 - **Acción "🗑️ Eliminar Seleccionadas (N)" (`POST /api/v1/social-catalog/admin/categories/bulk-delete`)**: Habilitado botón de eliminación atómica para borrar exclusivamente el conjunto de categorías seleccionadas desvinculando adecuadamente los productos.
 - **Disponible en Múltiples Secciones**: Operativo tanto en `/admin/social-catalog` (Tab *Categorías*) como en `/admin/products` (Modal *Gestión Completa de Categorías*).
 
-## [1.20.91] - 2026-08-30
+## [1.34.0] - 2026-08-30
 
 ### 🛒 Selector Interactivo de Cantidad y Eliminación Directa en Carrito (`CartDrawer.tsx`)
 - **Controles Dinámicos Stepper `[ - ] N [ + ]`**: Reemplazado el control estándar de número por botones táctiles responsivos de incremento/decremento `[ - ]` y `[ + ]` dentro del carrito / precuenta. Si la cantidad baja de 1, el producto se elimina automáticamente.
 - **Botón de Eliminación Directa (`🗑️`)**: Añadido botón dedicado de eliminación por producto con icono de papelera visible en pantallas móviles y escritorio.
 
-## [1.20.90] - 2026-08-30
+## [1.34.0] - 2026-08-30
 
 ### 🗑️ Purga Masiva de Categorías & Reutilización Atómica sin Duplicación
 - **Purga de Categorías (`DELETE /api/v1/social-catalog/admin/categories/purge`)**: Agregado endpoint y botón **`⚠️ Vaciar Categorías`** en el panel de administración (`CategoryManagement.tsx`) para desvincular productos y eliminar todas las categorías registradas con confirmación previa.
 - **Reutilización y Desduplicación por Nombre (`batch-product-import.service.ts`)**: Se garantiza que durante la importación masiva de productos (CSV/Excel), si una categoría ya existe (búsqueda insensible a mayúsculas/minúsculas), **se reutiliza el registro existente** y se actualiza su vinculación jerárquica en lugar de generar duplicados.
 
-## [1.20.89] - 2026-08-30
+## [1.34.0] - 2026-08-30
 
 ### 🌳 Estructura Estricta de 3 Niveles (Padre ➔ Hija ➔ Nieta) en Catálogos
 - **Mapeo Atómico Padre-Hija-Nieta (`social-catalog.service.ts`)**: Garantiza la jerarquía de 3 niveles exigida: `Categoria del producto` (Padre - Nivel 0), primera `Categoria de PDV` (Hija - Nivel 1) y segunda `Categoria de PDV` (Nieta - Nivel 2). Filtra la duplicación del nodo raíz y ubica los productos directamente dentro del nodo terminal correspondiente.
 
-## [1.20.88] - 2026-08-30
+## [1.34.0] - 2026-08-30
 
 ### 🏷️ Detección Automática de Nuevas Categorías y Configuración de Marca Blanca SuperAdmin
 - **Detección Dinámica de Categorías en Importaciones y Cargas (`social-catalog.service.ts`)**: Se reemplazó el filtrado restrictivo por whitelist (`includedCategoryIds`) por un filtrado defensivo basado en blacklist (`hiddenCategoryIds`). Todas las categorías y productos recién subidos o creados se detectan y muestran automáticamente sin requerir guardado manual en el panel de administración.
 - **Gestión Integral de Marca Blanca en SuperAdmin (`super-admin-dashboard.tsx`)**: Incorporación del modal `🏷️ Marca Blanca` en la tabla de tenants del SuperAdmin Dashboard, permitiendo configurar el nombre comercial (`businessName`), nombre de plataforma (`name`), URL de logotipo (`themeLogoUrl`), créditos de pie de página (`footerCredits`) y switch para ocultar la marca "Powered by OmniFlow".
 - **Fallback Automático de Categorías PDV (`social-catalog.service.ts`)**: En modo `product_pos`, si un producto importado no posee `posCategory` explícita pero cuenta con `category` de producto, el sistema asigna `prodCatName` automáticamente como fallback, evitando que quede como producto huérfano.
 
-## [1.20.87] - 2026-08-30
+## [1.34.0] - 2026-08-30
 
 ### 🌿 Jerarquía Anidada N-Niveles para Categorías de PDV y Visibilidad por Instancia
 - **Reconstrucción Recursiva de Jerarquía POS (`social-catalog.service.ts`)**: Reconstrucción de la cadena de ancestros de `pos.category` (`getPosCatChain`) en modo combinado `product_pos`. Permite estructuras multinivel completas (`Categoría Producto` ➔ `Categoría PDV Padre` ➔ `Categoría PDV Hija`) sin omitir categorías superiores.
@@ -271,7 +335,7 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.
 - **Conteo Recursivo de Productos (`omni-catalog.tsx`)**: Implementación del helper `getRecursiveProductCount()` para incluir de forma precisa todos los productos situados en subcategorías anidadas dentro de los indicadores del menú digital.
 - **Independencia de Visibilidad de Categorías por Instancia (`social-catalog-admin.controller.ts`, `social-catalog.service.ts`)**: Soporte del parámetro query `instanceKey` en el reordenamiento y visibilidad de categorías, gestionando `hiddenCategoryIds` e `includedCategoryIds` por instancia en lugar de alterar `ProductCategory.isVisible` globalmente.
 
-## [1.20.86] - 2026-08-30
+## [1.34.0] - 2026-08-30
 
 ### 🧾 Modo Precuenta, Selector de Cantidad en Tarjeta, Barra Flotante Móvil y Resolución Multidominio
 - **Resolución Flexible de Subdominios y Aislamiento Multidominio (`ApiKeyGuard.ts`)**: Implementación del helper `findTenantBySlug` que vincula de forma inteligente dominios personalizados (`provecchio.com`), prefijos de `id` (`provecchio-dimora-001`) y subdominios (`dimora`), resolviendo el tenant correcto sin fugas entre cuentas ni requerir API Key en rutas públicas.
@@ -282,7 +346,7 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.
 - **Barra Flotante Sticky Móvil y de Escritorio (`omni-catalog.tsx`)**: Barra flotante anclada en la parte inferior al agregar productos, mostrando íconos, conteo de ítems, Total Estimado y botón directo `Ver Precuenta ➔` / `Ver Pedido ➔`.
 - **Actualización de Documentación y Troubleshooting (#91, #92, #93, #94)**: Actualización completa del **Manual de Usuario 04**, la Guía Maestra del Administrador y 4 entradas de Troubleshooting sincronizadas con la Wiki oficial.
 
-## [1.20.85] - 2026-08-30
+## [1.34.0] - 2026-08-30
 
 ### 🏷️ Propagación de Nombre de Categorías a Productos/PDV, Limpieza de Chips y Gestión Unificada en /admin/products
 - **Propagación Automática de Nombre de Categorías (`social-catalog-admin.controller.ts`, `catalog.service.ts`)**: Al renombrar una categoría en el panel admin, los cambios se actualizan en `ProductCategory` y se propagan masivamente al campo direct `category` y a las claves JSON de metadatos (`posCategory`, `posCategoryName`, `categoryName`, `productCategory`, `productSubcategory`, `posSubcategory`).
@@ -290,7 +354,7 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.
 - **Gestión Unificada de Categorías en `/admin/products` (`products.tsx`)**: Se incorporó el botón **"Gestionar Categorías"** y el Drawer con el componente `<CategoryManagement />` en la vista principal de Productos, permitiendo crear, reordenar, renombrar y configurar estilos directamente desde la administración de inventario.
 - **Limpieza Estética de Chips en Encabezado (`omni-catalog.tsx`)**: Se removieron los emojis decorativos (`🌟`, `🏷️`) de los chips del encabezado y selectores, mostrando nombres sobrios ("Todas", "BEBIDAS", "COMIDAS", "Aceites esenciales", "Difusores") y respetando la bandera `showProductCounts`.
 
-## [1.20.84] - 2026-08-29
+## [1.34.0] - 2026-08-29
 
 ### 👁️ Persistencia Recursiva de Visibilidad & Auto-Creación de Categorías Virtuales ("Fuera de carta")
 - **Conmutación Recursiva de Visibilidad (`CategoryManagement.tsx`)**: Implementación de `updateVisibilityRecursive` para asegurar que el interruptor de visibilidad desmarque correctamente tanto categorías principales como subcategorías anidadas.
@@ -298,7 +362,7 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.
 - **Persistencia por Nombre & Auto-Creación de Categorías Virtuales (`social-catalog.service.ts`)**: `reorderCategories` ahora busca categorías por `id` o por `name` (case-insensitive) y auto-crea automáticamente registros en `productCategory` para categorías virtuales como "Fuera de carta", permitiendo guardar `isVisible: false`.
 - **Integridad de Consulta (`getCategoryTree`)**: Se vinculó la visibilidad desde la BD a categorías virtuales e hijas y se eliminó la restricción rígida `isVisible: true` cuando `includeEmpty === true`.
 
-## [1.20.83] - 2026-08-29
+## [1.34.0] - 2026-08-29
 
 ### 🌳 Corrección de Algoritmo de Visualización de Jerarquía de Categorías (`product`, `pos`, `product_pos`)
 - **Preservación Estricta del Árbol Raíz (`social-catalog.tsx`)**: Se corrigió `loadCategoryTree` eliminando el aplanado que re-insertaba categorías hijas (Nivel 1 PDV) como filas independientes en la raíz.
@@ -306,14 +370,14 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.
 - **Aplanado Deduplicado en Modo Plano (`CategoryManagement.tsx`)**: Implementación del helper `flattenTree()` para renderizar cada nodo exactamente una sola vez cuando el usuario conmuta al selector "Modo plano".
 - **Soporte para las 3 Combinaciones**: Funcionalidad verificada para `categorySource` igual a `product`, `pos` y `product_pos`.
 
-## [1.20.82] - 2026-08-29
+## [1.34.0] - 2026-08-29
 
 ### 🌐 Enrutamiento Dinámico de Subdominios Traefik & Prevención de Fallback en Dominio Raíz
 - **Reglas Dinámicas por Entorno (`docker-compose.prod.yml`)**: Reemplazo de `provecchio.com` hardcodeado en las reglas de ruteo Traefik por `${DOMAIN_NAME:-pesallaccia.com}`, permitiendo que Hetzner escuche dinámicamente wildcard subdomains `*.pesallaccia.com` (como `spa-wellness.pesallaccia.com`).
 - **Aislamiento de Dominio Raíz (`BrandingProvider.tsx`)**: Se omitió la carga por defecto de `localStorage.getItem('apiKey')` al navegar directamente en la raíz de un dominio multi-tenant (`pesallaccia.com`), evitando que la raíz cargara indebidamente el tenant `spa-wellness-001`.
 - **Configuración de Servidor Hetzner (`.env`)**: Actualización de `DOMAIN_NAME=pesallaccia.com` y `ROOT_DOMAIN=pesallaccia.com` en `/srv/orderflow/.env`.
 
-## [1.20.81] - 2026-08-29
+## [1.34.0] - 2026-08-29
 
 ### ⚙️ Sincronización Multi-Instancia & Herencia de Configuración Raíz (`showBusinessName`, Colors, Bgs)
 - **Persistencia de `instanceKey` en PUT Admin (`social-catalog.tsx`)**: Inclusión de `instanceKey` en la consulta `PUT /api/v1/admin/social-catalog/config?instanceKey=${selectedInstanceKey}` y en el payload del formulario, garantizando que guardar cambios, reordenar categorías, o modificar colores/fondos aplique directamente a la instancia seleccionada (`menudigital` vs `default`).
@@ -321,7 +385,7 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.
 - **Persistencia Inmediata de Colores e Imágenes**: Actualización en vivo de `categoryColors` y `categoryBackgrounds` en `onColorChange`, `onBgChange` y `onUploadCategoryBg` con guardado automático contra PostgreSQL.
 - **Sincronización por URL (`useSearchParams`)**: El panel admin inicializa y mantiene la clave de instancia desde parámetros URL (`?instanceKey=menudigital`).
 
-## [1.20.80] - 2026-08-29
+## [1.34.0] - 2026-08-29
 
 ### 🏷️ Corrección de Categorías Repetidas, Ocultamiento Estricto & Resoluciones de Color/Fondo
 - **Filtrado Backend de Categorías Ocultas (`social-catalog.service.ts`)**: Inclusión de `isVisible` en los selects de `categoryRel` y `posCategoryRel`, filtrando dinámicamente cualquier producto cuya categoría esté configurada como `isVisible === false` para prevenir que sigan apareciendo en catálogos como `menudigital` bajo la etiqueta "Fuera de carta".
@@ -329,7 +393,7 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.
 - **Resolución Búsqueda Insensible a Mayúsculas/Espacios (`omni-catalog.tsx`)**: Implementación de los helpers `getCategoryBg()` y `getCategoryColor()` para resolver imágenes de fondo ("Veggie", "Sandwich sin TACC", "Chocolate") y colores personalizados ("Agua" `#FFFFFF`) eliminando diferencias por espacios o minúsculas.
 - **Contraste Dinámico de Texto de Encabezado (`omni-catalog.tsx`)**: Aplicación del cálculo dinámico `getHeaderTextColor()` para garantizar que colores de fondo claros (como blanco `#FFFFFF`) muestren texto oscuro legible en lugar del color primario por defecto.
 
-## [1.20.79] - 2026-08-29
+## [1.34.0] - 2026-08-29
 
 ### 📱 Asignación Dinámica e Inteligente & Selector Manual de Íconos RR.SS. en OmniBio
 - **Detección Automática por URL/Título (`social-platform.utils.ts`)**: Implementación del helper `detectSocialPlatform()` para resolver canales de WhatsApp, Instagram, TikTok, Facebook, X, YouTube, Telegram, LinkedIn, Catálogo Social/OrderFlow, Reservas, Sorteos y enlaces Web genéricos.
@@ -337,57 +401,57 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.
 - **Selector Manual en el Editor Admin (`biolinks.tsx`)**: Integración de la propiedad `platform?: SocialPlatformType` en el formulario modal para permitir forzar o cambiar manualmente el ícono de cualquier botón transaccional.
 - **Vista Previa en Vivo & Página Pública (`public-biolink.tsx`)**: Actualización del motor de renderizado de botones en la Vista Previa Móvil y en la página pública `/bio/[slug]`.
 
-## [1.20.78] - 2026-08-29
+## [1.34.0] - 2026-08-29
 
 ### 🛡️ Detección Proactiva de Instrucciones CPU AVX & Prevención de SIGILL/502 Bad Gateway
 - **Inspección de CPU en `ImageProcessingService` (`image-processing.service.ts`)**: Implementación del método `hasAvxSupport()` que verifica si la CPU del servidor dispone de banderas de instrucciones vectoriales `avx` / `avx2` en `/proc/cpuinfo`.
 - **Bypass de Sharp para Procesadores Legacy (AMD G-T56N)**: En servidores con procesadores pre-AVX (como Provecchio), `ImageProcessingService` omite dinámicamente la invocación de binarios C de `sharp` antes de ejecutar cualquier llamada a libvips, evitando que el proceso Node.js reciba un `SIGILL` (Signal 4) y previniendo caídas repentinas del contenedor y errores 502 Bad Gateway en la subida de imágenes.
 
-## [1.20.77] - 2026-08-29
+## [1.34.0] - 2026-08-29
 
 ### 📱 Resolución Jerárquica de Categorías en Instancias (`social-catalog.service.ts`)
 - **Soporte Completo para IDs Jerárquicos (`prodcat-*` / `poscat-*`) en `includedCategoryIds`**: Corregido el filtrado de productos en `getCatalogProducts` para derivar y comparar los IDs del árbol de categorías (`prodcat-comidas-pos-croissants`, etc.), resolviendo el problema por el cual instancias secundarias como `menudigital` en `provecchio.com` mostraban catálogos vacíos.
 
-## [1.20.76] - 2026-08-29
+## [1.34.0] - 2026-08-29
 
 ### 🛡️ Blindaje de Aislamiento Multi-Tenant & Corrección de Fallback Inseguro
 - **Aislamiento en `ApiKeyGuard` (`api-key.guard.ts`)**: Carga automática del objeto `tenant` completo durante la verificación del token JWT (usando `decoded.tenantId` o `user.defaultTenantId`). Eliminación total del fallback inseguro `findFirst({ where: { active: true } })` que asignaba datos del tenant 1 cuando fallaba la resolución por subdominio.
 - **Resolución Defensiva de Tenant (`social-catalog-admin.controller.ts` & `social-catalog.controller.ts`)**: Implementación del método helper `getTenant(req)` que intenta leer `req.tenant` y `req.user.tenantId`, garantizando que ninguna consulta del catálogo social ejecute sin un tenant explícito o filtre productos/categorías de otros tenants.
 
-## [1.20.75] - 2026-08-29
+## [1.34.0] - 2026-08-29
 
 ### 🏷️ Corrección de Visibilidad de Filtro de Categorías y Conteo (`omni-catalog.tsx`)
 - **Control Estricto de `showCategoryFilter`**: Condicionado el renderizado de la barra horizontal de pills de navegación (`🌟 Todas`, `🏷️ Categoría`) al flag de configuración `showCategoryFilter`. Si el administrador desactiva el filtro de categorías en el panel social, la barra de pills se oculta completamente.
 - **Control Estricto de `showProductCounts`**: Condicionada la visualización del número de productos entre paréntesis `(17)` en las pills de categorías al flag `showProductCounts`.
 
-## [1.20.74] - 2026-08-29
+## [1.34.0] - 2026-08-29
 
 ### 🖼️ Conversión Automática WebP Universal & Auditoría de Uploads
 - **Restablecimiento y Aislamiento de Sharp en ImageProcessingService (`image-processing.service.ts`)**: Integración directa de `sharp` para procesar dinámicamente cualquier formato de imagen entrante (`.jpg`, `.jpeg`, `.png`, `.bmp`) a formato WebP optimizado (calidad 82), generando miniatura WebP (max 300x300) y fallback defensivo ante formatos o entornos no compatibles.
 - **Auditoría Global de Endpoints Upload**: Estandarización de conversión a WebP en `social-catalog-admin.controller.ts`, `products.controller.ts` y `biolinks.controller.ts`.
 - **Script de Migración Retroactiva WebP (`convert-existing-images-to-webp.ts`)**: Creación de script de migración para convertir imágenes pasadas en `uploads/` a `.webp` y actualizar referencias en base de datos PostgreSQL.
 
-## [1.20.73] - 2026-08-29
+## [1.34.0] - 2026-08-29
 
 ### 🖼️ Galería de Archivos en Menú Lateral (`/admin/gallery`)
 - **Pantalla Dedicada Galería de Archivos (`gallery.tsx`)**: Creación de la página completa de administración de imágenes del almacén del tenant (`/admin/gallery`) con soporte de filtrado por categoría (`Catálogo social`, `Productos`, `Bio-links`, `Proveedores`), buscador por nombre de archivo, subida directa desde el host/equipo local, copia de URL con 1-clic y eliminación segura.
 - **Acceso en Barra Lateral (`Sidebar.tsx`)**: Inclusión del acceso 🖼️ **Galería de Archivos** en el grupo *Catálogo & Canales* de la navegación lateral.
 
-## [1.20.72] - 2026-08-29
+## [1.34.0] - 2026-08-29
 
 ### 🎨 Categorías & Despliegue de Producción (UI/UX)
 - **Toggle de Visibilidad de Filtro de Categorías (`showCategoryFilter`)**: Inclusión del switch para mostrar u ocultar la barra/filtro de categorías (`Todas (203)`, `BEBIDAS (80)`, `COMIDAS (123)`) en la sección de visibilidad del admin (`social-catalog.tsx`), aplicando reactivamente al catálogo del cliente final (`omni-catalog.tsx`) y al visor en tiempo real (`CatalogLivePreview.tsx`).
 - **Carga Directa de Archivo de Imagen por Categoría (`CategoryManagement.tsx`)**: Integración del botón **"Subir"** con soporte multipart/form-data directo desde el dispositivo/host del usuario, permitiendo elegir entre la galería/almacén del tenant o subir una imagen local desde su máquina.
 - **Robustez en Botón Guardar Cambios (`CategoryManagement.tsx`)**: Manejo asíncrono con `try/catch/finally` e indicador de carga (`loading={savingOrder}`) con notificaciones asertivas de éxito/error.
 
-## [1.20.71] - 2026-08-29
+## [1.34.0] - 2026-08-29
 
 ### 🎨 Unificación de Gestión de Categorías y Convención Tipográfica Sentence Case (UI/UX)
 - **Unificación de Opciones de Categoría (`CategoryManagement.tsx` & `admin/social-catalog.tsx`)**: Eliminación del panel duplicado "Fondos y Colores por Categoría" y de la selección duplicada en la pestaña "Página y configuración". Todas las configuraciones (nombre, padre, orden, visibilidad, color de encabezado e imagen de fondo) se unificaron en la pestaña "Categorías".
 - **Migración Automática de Estilos por Renombrado (`CategoryManagement.tsx`)**: Al modificar el nombre de una categoría (ej: `tostadas` -> `Tostadas`), los colores e imágenes de fondo asociados se re-mapean y persisten automáticamente, evitando desincronizaciones entre la categoría y sus atributos visuales.
 - **Convención Tipográfica y Microcopy UI/UX (Sentence Case)**: Aplicación estricta de mayúscula inicial en primera palabra únicamente (Sentence Case) en todos los títulos, subtítulos, paneles colapsables, pestañas, etiquetas de formulario, opciones y botones del Admin de Catálogos.
 
-## [1.20.70] - 2026-08-29
+## [1.34.0] - 2026-08-29
 
 
 ### 📂 OmniFlow Documentos & Workspace (FEAT-083) y Categorías Anidadas `product_pos`
@@ -397,39 +461,39 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.
 - **Jerarquía Multinivel `product_pos` ("Categoría de Producto ➔ Categorías de PDV Anidadas")**: Soporte en el motor backend (`social-catalog.service.ts`) para estructurar la clasificación de productos en 2 niveles (Categoría de Producto Padre ➔ Categoría PDV Subcategoría) cuando los tenants configuran `categorySource: 'product_pos'`.
 - **Fondos y Colores por Categoría (`omni-catalog.tsx` & `admin/social-catalog.tsx`)**: Corrección de la tabla de estilos por categoría para listar todas las categorías activas (independiente de la paginación), auto-selección de imágenes subidas en `ImagePicker` y prioridad visual de `customCatColor` e imágenes de fondo en los acordeones públicos.
 
-## [1.20.65] - 2026-08-28
+## [1.34.0] - 2026-08-28
 
 
 ### 🌿 Resolución Dinámica de Instancias Multitenant y Catálogos Especiales (`/social-catalog/:instanceKey`)
 - **Resolución Inteligente de Tenants por Instancia (`api-key.guard.ts`)**: Se extendió la resolución de tenants en el guard público de API Keys para que si una URL pública incluye una clave de instancia (ej: `/social-catalog/doterra` o `/social-catalog/wellness`), el backend consulte automáticamente qué tenant posee configurada dicha instancia en sus instalaciones de módulo.
 - **Vincular Instancia `doterra` a Gaia Wellness (`spa-wellness-001`)**: Se registró y habilitó la instancia `doterra` bajo el tenant Gaia Wellness (`spa-wellness-001`), permitiendo abrir el catálogo de aceites esenciales y bienestar directamente sin depender exclusivamente del subdominio.
 
-## [1.20.64] - 2026-08-28
+## [1.34.0] - 2026-08-28
 
 ### 🖼️ Selección de Fondos y Colores por Categoría & Agrupación Estricta por Categoría de Producto
 - **Agrupación Estricta por Categoría de Producto (`omni-catalog.tsx` & `social-catalog.service.ts`)**: Se ajustó la resolución de nombres de categorías para que al seleccionar `categorySource: 'product'`, la agrupación del backend y frontend priorice estrictamente la categoría de producto (`product.categoryName` / `product.categoryRel.name`), evitando forzar la agrupación por categoría PDV.
 - **Panel Admin "🖼️ Fondos y Colores por Categoría" (`admin/social-catalog.tsx`)**: Se agregó un nuevo panel interactivo en el Admin para configurar individualmente la imagen de fondo (con selector de almacén/dispositivo) y el color del encabezado de cada categoría del catálogo.
 
-## [1.20.63] - 2026-08-28
+## [1.34.0] - 2026-08-28
 
 ### 🎨 Integración Completa de Temas y Placeholder Configurable en Checkout Público (`/social-checkout`)
 - **Adaptación a Sistema de Temas (`social-checkout.tsx`)**: Se integró `getThemeConfig(mode)`, `applyCssVars(mode)` y `<ConfigProvider theme={themeConfig}>` en la vista de confirmación de pedido (`/social-checkout`), permitiendo heredar de forma impecable el modo claro/oscuro/sistema del catálogo y eliminando estilos hardcodeados (#fff, #f8fafc, #000).
 - **Placeholder Configurable por Admin (`social-catalog.tsx` & `social-catalog.service.ts`)**: Se añadió la propiedad `commentsPlaceholder` en la configuración del catálogo y un nuevo campo editable en la administración bajo **"📱 Datos de contacto"**, permitiendo personalizar el placeholder de aclaraciones de pedido por cada catálogo (ej: SPA/Wellness, Restaurante, Retail).
 
-## [1.20.62] - 2026-08-28
+## [1.34.0] - 2026-08-28
 
 ### 🎨 Personalización de Nombre Comercial / Marca en Catálogos Públicos y Admin
 - **Campo `businessName` en Admin Social Catalog (`social-catalog.tsx`)**: Se agregó el campo editable `Form.Item name="businessName"` en el panel de administración bajo la sección **"📱 Datos de contacto"**, permitiendo configurar el nombre de la marca o tienda por cada catálogo (ej: `doTERRA Paraguay`, `PROVECCHIO`).
 - **Priorización de Nombre Comercial en Catálogo Público (`omni-catalog.tsx` & `social-catalog.service.ts`)**: Se actualizó la jerarquía del nombre en el encabezado y pie de página para priorizar `whatsappConfig.businessName` -> `tenantConfig.name` ("PROVECCHIO" / marca comercial) sobre la Razón Social jurídica ("DIMORA S.R.L.").
 
-## [1.20.61] - 2026-08-28
+## [1.34.0] - 2026-08-28
 
 ### 🛡️ Corrección de Enrutamiento de Instancias de Catálogo por Tenant
 - **Desacoplamiento de Slug e Identificador de Tenant (`BrandingProvider.tsx`)**: Se removió la extracción automática de slug de ruta para resolución de tenant, permitiendo que la resolución de tenant por dominio (`pesallaccia.com` -> `provecchio-dimora-001` / API key `0bb60656b9fbfcc27e38ae444e9e376f`) prevalezca en lugar de intentar buscar un tenant inexistente llamado `doterra`.
 - **Delimitación de Responsabilidad en `ApiKeyGuard` (`api-key.guard.ts`)**: Se separó la búsqueda de tenant (`subdomain`/`tenantId`) de la clave de instancia (`instanceKey`), permitiendo que el backend asocie correctamente la petición al tenant correspondiente y use `instanceKey` para filtrar la instancia del catálogo.
 - **Paso Limpio de Parámetros en `SocialCatalogPage` (`omni-catalog.tsx`)**: Se corrigió el envío de `requestParams` para incluir la API Key / Subdomain del tenant junto con `instanceKey=doterra`.
 
-## [1.20.60] - 2026-08-28
+## [1.34.0] - 2026-08-28
 
 ### 🛡️ Resolución Multi-Instancia y Enrutamiento Dinámico de Catálogos por Slug
 - **Desenvolvimiento de Configuración Multi-Instancia (`social-catalog.controller.ts`)**: Se corrigió el endpoint público `/api/v1/public/social-catalog/config` para que invoque `socialCatalogService.getTenantConfig(tenant.id, instanceKey)`, des-anidando las configuraciones de catálogos multicanal (`doterra`, `wellness`, `default`) en lugar de devolver la estructura contenedora `instances`.
@@ -437,32 +501,32 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.
 - **Extracción Inteligente de Slugs en Branding (`BrandingProvider.tsx`)**: Se configuró `BrandingProvider` para que parsee rutas públicas tipo `/social-catalog/:slug` o `/tienda/:slug`, resolviendo dinámicamente el tenant e impidiendo fallbacks falsos al tenant por defecto.
 - **Resolución Bivalente en Backend (`tenants.controller.ts`)**: Se actualizó `getTenantBySubdomain` para consultar tanto la tabla de tenants por subdominio/id/customDomain como la configuración `instanceKey` de `moduleInstallation`, restringiendo el fallback al tenant por defecto a solicitudes de dominio raíz puro.
 
-## [1.20.59] - 2026-08-28
+## [1.34.0] - 2026-08-28
 
 ### 🛡️ Eliminación de Excepción React #310 y Orden Estricto de Hooks
 - **Reordenamiento Incondicional de Hooks en Catálogo (`omni-catalog.tsx`)**: Se reestructuraron todos los hooks (`useState`, `useEffect`, `useMemo`) en `SocialCatalogPage` para que se invoquen incondicionalmente en la parte superior del componente antes de la evaluación de carga (`if (loading || configLoading)`), eliminando definitivamente la excepción `Minified React error #310`.
 - **Limpieza de Precargas de Navegador**: Se removió el elemento de precarga no estándar con `as="document"` que generaba advertencias de consola en navegadores modernos.
 
-## [1.20.58] - 2026-08-28
+## [1.34.0] - 2026-08-28
 
 ### 🛠️ Corrección de Validación de Mapeo de Columnas y UX en Importación Masiva
 - **Resolución de Error Falso Positivo de Mapeo**: Se corrigió la lógica en `BulkUploadModal.tsx` donde se intentaba comparar el nombre arbitrario de la columna del Excel contra una lista fija de alias en lugar de verificar la clave del campo destino (`isFieldMapped('name')` y `isFieldMapped('price')`), eliminando el bloqueo que indicaba *"Falta mapear la columna requerida: name / price"* cuando ya estaban asignados.
 - **Detección Ampliada de Columnas**: Se agregaron variaciones de cabeceras en español e inglés (`descripcion nombre`, `detalle`, `articulo`, `p.venta`, `pvp`, `monto`, `rubro`, `familia`, `cod.barras`, etc.) en `ImportWizardModal.tsx` y `BulkUploadModal.tsx`.
 - **Acceso Permanente al Selector de Codificación**: Se hizo visible la tarjeta de configuración de codificación de archivos y separadores en el paso 0 de `ImportWizardModal.tsx` desde la apertura del modal.
 
-## [1.20.57] - 2026-08-28
+## [1.34.0] - 2026-08-28
 
 ### 🛡️ DTOs para Parámetros de Importación y Prevención de Excepciones de Validación NestJS
 - **Soporte de `fileEncoding` y `encoding` en DTOs de Importación**: Se incluyeron `@IsOptional()` y `@IsString()` para `fileEncoding` y `encoding` en `BulkUploadProductDto` e `ImportFileOptionsDto` (`bulk-upload-product.dto.ts`).
 - **Resolución de Error `property fileEncoding should not exist`**: Se actualizaron los endpoints `bulkUploadPreview`, `bulkUpload`, `validateImportFile` y `executeImportFile` en `products.controller.ts` para usar los DTOs oficiales, eliminando el rechazo de `ValidationPipe` al enviar codificaciones de archivo personalizadas.
 
-## [1.20.56] - 2026-08-28
+## [1.34.0] - 2026-08-28
 
 ### 🛡️ Mapeo Seguro de Categorías y Prevención de Excepciones HTTP 500
 - **Protección Defensiva en `autoSyncCategoriesFromProducts`**: Se trasladó y encapsuló la auto-sincronización dentro de `CatalogService` con bloques try/catch y validación estricta de clientes Prisma pasados desde el controlador.
 - **Prevención de Excepciones TypeError**: Corregido el acceso a `autoSyncCategoriesFromProducts` en `catalog.controller.ts` resolviendo la excepción `Cannot read properties of undefined (reading 'product')` de forma definitiva.
 
-## [1.20.55] - 2026-08-28
+## [1.34.0] - 2026-08-28
 
 ### 🛍️ Visualización de Categorías PDV, ID de Sistema Copiable & Mapeo Completo en Catálogo Social
 - **Resolución de Categorías PDV & Cadenas de Texto**: Se actualizó `mapProduct` en `social-catalog.service.ts` para capturar `posCategory` y `posCategoryName` directamente desde campos textuales de productos y relaciones POS.
@@ -470,7 +534,7 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.
 - **Visualización de ID Sistema y Categoría PDV**: Se agregaron las columnas `ID Sistema` (con copiado al portapapeles en 1 clic) y `Categoría PDV` en las tablas de `/admin/products` y `/admin/social-catalog`.
 - **Selectores de Categoría en Modal de Producto**: Se reemplazó la entrada de texto plano por selectores emergentes de categorías de productos y PDV en el modal de edición de productos del Catálogo Social.
 
-## [1.20.54] - 2026-08-28
+## [1.34.0] - 2026-08-28
 
 ### 🛡️ Visibilidad Total de Categorías en Panel de Administración & Acordeón Público Plegado
 - **Sincronización Automática de Categorías (`autoSyncCategoriesFromProducts`)**: Se agregó sincronización automática en `catalog.controller.ts` y `social-catalog-admin.controller.ts` que convierte automáticamente cualquier categoría textual de productos importados por CSV/Excel/POS en registros de `ProductCategory`.
@@ -478,7 +542,7 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.
 - **Visualización en Panel Admin**: `admin/social-catalog.tsx` consulta de forma segura el endpoint administrativo de categorías `/api/v1/admin/social-catalog/categories/tree` con fallbacks resilientes.
 - **Acordeón Plegado en Vista Pública Cliente**: Revertido `defaultActiveKey` a `[]` en `omni-catalog.tsx` manteniendo los paneles de acordeón colapsados por defecto en el catálogo público del cliente según pedido específico.
 
-## [1.20.53] - 2026-08-28
+## [1.34.0] - 2026-08-28
 
 ### 🗂️ Barra de Navegación por Pestañas/Pills de Categorías & Mapeo Completo en Catálogo Público
 - **Barra de Navegación de Categorías (Pills / Tabs)**: Agregada barra horizontal deslizable de pestañas de categorías (`[🌟 Todas] [🏷️ Categoría 1] [🏷️ Categoría 2]...`) con contadores dinámicos de productos y filtrado instantáneo en `omni-catalog.tsx`.
@@ -486,39 +550,39 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.
 - **Resolución Resiliente en `getCategoryTree`**: Si el `targetCatId` del producto no se encuentra en el mapa o el ID no coincide, se resuelve por coincidencia de nombre (insensible a mayúsculas) o se asigna a un nodo de categoría virtual sin descartar ningún producto ni categoría.
 - **Matching de Categorías en Frontend**: Búsqueda insensible a mayúsculas y espacios sobre `product.category`, `product.posCategoryName`, `product.categoryRel.name` y `product.posCategoryRel.name`.
 
-## [1.20.52] - 2026-08-28
+## [1.34.0] - 2026-08-28
 
 ### 🐛 Fix de Sintaxis en Controller & Despliegue de Producción Estable
 - **Cierre de Método `bulkDelete`**: Corrección de llave de cierre faltante en `products.controller.ts` para posibilitar la compilación Docker de backend en servidor de producción.
 
-## [1.20.51] - 2026-08-28
+## [1.34.0] - 2026-08-28
 
 ### 🔤 Selector de Codificación de Caracteres (`fileEncoding`) & Detección Completa de Categorías en Catálogo Público
 - **Selección de Codificación (Encoding/Nomenclatura)**: Agregado selector de codificación (`fileEncoding`) en `BulkUploadModal` y `ImportWizardModal`, con **UTF-8** por defecto e integración de `Windows-1252` / `ISO-8859-1` / `ISO-8859-15` / `ASCII` mediante `TextDecoder` y SheetJS codepages.
 - **Resolución de Categorías en Catálogo (`social-catalog.service.ts`)**: Se removió el filtro restrictivo de `odooPosCategoryId`, permitiendo que categorías creadas localmente o por CSV se incluyan en `getCategoryTree`.
 - **Detección Dinámica & Nodos Virtuales**: Creación dinámica de nodos de categoría en `getCategoryTree` para asegurar que ningún producto quede sin categoría asignada en la vista pública.
 
-## [1.20.50] - 2026-08-28
+## [1.34.0] - 2026-08-28
 
 ### 🐛 Fix en Mapeo & Procesamiento de Campos en Carga Masiva (`bulkUpload`)
 - **Persistencia de Campos en `bulkUpload` (`products.controller.ts`)**: Se solucionó la omisión de `costPrice`, `productSubcategory`, `posCategory` y `posSubcategory` en la función de parseo de la Carga Masiva, permitiendo que la importación procese y cree la estructura de categorías y precios de costo.
 - **Soporte `costPrice` en `products.service.ts`**: Actualización de los métodos `create` y `update` en `bulkUploadProducts` para guardar y actualizar el precio de costo de los productos.
 
-## [1.20.49] - 2026-08-28
+## [1.34.0] - 2026-08-28
 
 ### 🚫 Opción "Omitir Campo", Mapeo de Precio de Costo & Adaptación de Tema Oscuro en Modales
 - **Opción de Omitir Campo (`__SKIP__`)**: Incorporación de la opción explícita `🚫 Omitir (No importar campo)` en todos los selectores de mapeo de columnas en `ImportWizardModal.tsx` y `BulkUploadModal.tsx`, permitiendo ignorar columnas sin sobreescribir datos en backend.
 - **Mapeo de Precio de Costo Separado**: Desacoplamiento de alias en `detectColumnMapping`, aislando `costPrice` (`['precio costo', 'costo', 'cost']`) de `price` (Precio de Venta) para evitar colisiones.
 - **Estilos Adaptables a Tema Oscuro (Dark Theme Tokens)**: Reemplazo de fondos estáticos claros por `token.colorBgContainer` y `token.colorBgElevated` de Ant Design, garantizando contraste elevado en tema oscuro.
 
-## [1.20.48] - 2026-08-28
+## [1.34.0] - 2026-08-28
 
 ### 🎯 Selección & Mapeo de Columnas de Categorías en Wizard & Carga Masiva
 - **Mapeo de Columnas en Wizard (`ImportWizardModal.tsx`)**: Integración de autodetección de cabeceras de archivo y tarjeta interactiva de selección de mapeo para definir explícitamente qué columna del archivo corresponde a: Nombre, Categoría de Producto (Nivel 1), Subcategoría de Producto (Nivel 2), Categoría de PDV (Nivel 1), Subcategoría de PDV (Nivel 2), Precio Venta, Precio Costo, Stock, SKU, Código de Barras, Descripción y Handle.
 - **Campos Ampliados en Carga Masiva (`BulkUploadModal.tsx`)**: Incorporación de selectores para `productSubcategory`, `posCategory` y `posSubcategory` en la grilla de mapeo de Carga Masiva.
 - **Soporte `columnMapping` en Backend (`products.controller.ts` & `batch-product-import.service.ts`)**: Procesamiento del parámetro `columnMapping` en endpoints `POST /import/validate` y `POST /import/execute`, priorizando la columna elegida por el usuario para cada campo sobre los alias automáticos en parseos Excel y CSV.
 
-## [1.20.47] - 2026-08-28
+## [1.34.0] - 2026-08-28
 
 ### 📂 Doble Jerarquía de Categorías Independientes, Preservación de Texto CSV & Enriquecimiento DataView
 - **Independencia de Cadenas de Categorías (Producto vs PDV)**: Separación estricta de `productChain` (`Categoría de Producto` $\rightarrow$ `Subcategoría`) y `posChain` (`Categoría de PDV` $\rightarrow$ `Subcategoría PDV`) vinculando ambas cadenas atómicamente a la base de datos tanto en `BulkUploadModal` como en `ImportWizardModal`.
@@ -526,26 +590,26 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.
 - **DataView de Productos Enriquecido (`products.tsx`)**: Incorporación de columnas visualizables y filtrables para `skuInterno`, `barcode`, `description`, `posCategory`, `costPrice` y estado `active`.
 - **Formulario de Edición Ampliado**: Enriquecimiento del modal de edición de productos para editar todos los atributos clave (`posCategoryId`, `skuInterno`, `barcode`, `costPrice`, `active`).
 
-## [1.20.46] - 2026-08-28
+## [1.34.0] - 2026-08-28
 
 ### 🗑️ Fix de Eliminación Masiva por Selección Explícita y Categoría (`DynamicQueryBuilder`)
 - **Garantía de Eliminación Inmediata por IDs**: Cuando se selecciona un conjunto explícito de filas (`mode === 'selected'`), la consulta SQL/Prisma prioriza los `ids` directos eliminando cualquier descalce con el nombre o ID de categoría.
 - **Búsqueda Robusta por Categoría**: Cuando se utiliza eliminación global (`mode === 'all'`), la cláusula de categoría matchea mediante `OR` la propiedad `category` (texto), `categoryId` (relación producto) y `posCategoryId` (relación PDV).
 
-## [1.20.45] - 2026-08-28
+## [1.34.0] - 2026-08-28
 
 ### 📱 Registro de Módulos POS y KDS en App Store (`modules.registry.ts`)
 - **Manifiestos de Módulos (`pos.manifest.json` y `kds.manifest.json`)**: Creación de los archivos de manifiesto para los módulos Punto de Venta (POS) y Pantalla de Cocina (KDS).
 - **Registro en Backend (`ModulesRegistry`)**: Incorporación de `pos` y `kds` en el array de escaneo del backend (`modules.registry.ts`), exponiendo ambos módulos en el App Store (`/admin/modules`).
 
-## [1.20.44] - 2026-08-28
+## [1.34.0] - 2026-08-28
 
 ### 📂 Jerarquía de Categorías de Izquierda a Derecha & Selector en Social Catalog (OmniCatalog)
 - **Importación Jerárquica de Categorías**: Implementación de `findOrCreateCategoryHierarchy(tenantId, chain)` en `products.service.ts` y `batch-product-import.service.ts`, procesando la prelación de izquierda a derecha (`Categoría de Producto` $\rightarrow$ `Categoría de PDV` $\rightarrow$ `Subcategoría de PDV`) en `BulkUploadModal` y `ImportWizardModal`.
 - **Selector de Estructura de Categorías en Admin**: Agregada la opción `categorySource` en `social-catalog.tsx` permitiendo alternar entre `Categorías de PDV`, `Categoría de Producto ➔ Categorías de PDV Anidadas` y `Categoría de Producto Únicamente`.
 - **Soporte de Columnas Duplicadas en CSV**: Detección inteligente de múltiples columnas con el mismo nombre en la cabecera del archivo (ej. `Categoria de PDV` en Col J y Col K).
 
-## [1.20.43] - 2026-08-28
+## [1.34.0] - 2026-08-28
 
 ### 📊 DataView Suite: Selección Global, Fix de Agrupaciones y Paginación Ampliada
 - **Aislamiento en Selección por Agrupación**: Corrección de `handleSelectGroupPage` y `selectedRowKeys` en `DataTableContainer.tsx` para que al seleccionar items en el encabezado de un grupo, solo afecte a ese grupo.
@@ -553,7 +617,7 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.
 - **Paginación Ampliada**: Opciones `[10, 20, 50, 100, 150, 200, 250, 300, 500]` configuradas en `DataTableContainer.tsx`.
 - **Parsing de Precios en CSV & Wizard**: Integración de `parseCurrencyNumber(val, format)` en `products.controller.ts`, `social-catalog-admin.controller.ts`, y `batch-product-import.service.ts` con `{ raw: true }` en SheetJS, resolviendo el recorte de miles en CSV y garantizando la importación síncrona en el Wizard.
 
-## [1.20.42] - 2026-08-28
+## [1.34.0] - 2026-08-28
 
 ### 🛍️ Soporte Multi-Instancia Simultánea en Social Catalog & Catálogos Reducidos (Coffee Party)
 - **Estructura Multi-Instancia (`config.instances`):** Migración del almacenamiento de configuraciones de catálogo en `ModuleInstallation.config.instances[instanceKey]` en [social-catalog.service.ts](file:///opt/orderflow/backend/src/social-catalog/social-catalog.service.ts), resolviendo la sobreescritura del catálogo predeterminado producida por la restricción `@@unique([tenantId, moduleId])` de Prisma.
@@ -561,7 +625,7 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.
 - **Catálogos Reducidos por Evento (Coffee Party):** Soporte para `includedCategoryIds` e `includedTagIds` en `SocialCatalogConfig`, permitiendo filtrar categorías y productos permitidos en el catálogo público (`getCatalogProducts`, `getCategoryTree`).
 - **Troubleshooting #75:** Documentación de la resolución en [75-social-catalog-multi-instance-overwrite-fix.md](file:///opt/orderflow/docs/troubleshooting/75-social-catalog-multi-instance-overwrite-fix.md).
 
-## [1.20.41] - 2026-08-27
+## [1.34.0] - 2026-08-27
 
 ### 📊 OmniFlow DataView Suite — Integración Total en Pantallas Admin & Presets
 - **Integración Total en Pantallas Admin (`frontend/src/pages/admin/`):** Sustitución de tablas estáticas por `<DataTableContainer>` en `/admin/products` (`products.tsx`), `/admin/contacts` (`contacts.tsx`) y `/admin/orders` (`orders.tsx`), exponiendo el Toolbar de Filtros Avanzados, Visibilidad de Columnas y Banner de Selección Global.
@@ -573,14 +637,14 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.
 - **Landed Costs en Recepción de Órdenes de Compra (`PurchasesService`):** Prorrateo proporcional de costes de destino (flete, aranceles, seguro) sobre los productos de una OC al recibirla, recalculando atómicamente el Precio Medio Ponderado (PMP) (`costPricePmp` y `costPrice`) e impactando el Kardex.
 - **Wizard Visual de Onboarding Odoo 1-Click (`<OdooOnboardingWizardModal>`):** Asistente modal en 4 pasos en el Dashboard SuperAdmin (`/admin/deploy`) para auto-configurar datos de empresa, categorías, depósitos y credenciales Odoo con descarga o envío directo del manifiesto `tenant_manifest.json`.
 
-## [1.20.40] - 2026-08-26
+## [1.34.0] - 2026-08-26
 
 ### 🤖 Motor de Integración LLM Local (OmniAI) & Onboarding Zero-Touch Odoo
 - **Motor LLM Local (`LlmModule`):** Módulo NestJS inyectable (`LlmService`, `LlmController`) con conexión a servicios de Inteligencia Artificial locales (Ollama / vLLM en `ai.provecchio.com` o proxy Traefik SSL) sin enviar datos sensibles a servicios de terceros.
 - **Endpoints de Inferencia:** `/api/v1/integrations/llm/status` (chequeo de salud) y `/api/v1/integrations/llm/chat/completions` (generación de respuestas con modelos `llama3`, `mistral`, `gemma`).
 - **Onboarding Zero-Touch Odoo (`tenant_manifest.json`):** Endpoint `POST /api/v1/public/webhooks/odoo/onboard-manifest` y método `onboardTenantFromManifest` para aprovisionar datos de empresa, categorías, depósitos e integración Odoo en 1-Click.
 
-## [1.20.39] - 2026-08-26
+## [1.34.0] - 2026-08-26
 
 ### 📊 OmniFlow DataView Suite (Gestión Estándar de Vistas & Selección Global)
 - **Backend Core DataView (`backend/src/common/data-view/`):** DTOs `FilterQueryDto`, `SelectionPayloadDto`, `BulkActionDto`, decorador `@DataViewQuery()` y servicio universal `DynamicQueryBuilder` para parsing de operadores dinámicos (`eq`, `ne`, `like`, `ilike`, `gt`, `gte`, `between`, `in`) y soporte de selección global de registros en base de datos (`mode: 'all'`, `selected`, `none`).
@@ -588,7 +652,7 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.
 - **DataView UI Kit (Frontend):** Suite de componentes React/AntDesign (`DataTableContainer.tsx`, `SelectionBanner.tsx`, `FilterBuilder.tsx`, `ColumnVisibility.tsx`) y hook declarativo `useDataTable`.
 - **Instanciación en Módulos:** Configuraciones declarativas `ProductListConfig.tsx`, `ContactListConfig.tsx`, `OrderListConfig.tsx`, e `InventoryListConfig.tsx` para habilitar vistas avanzadas, filtros combinables y acciones masivas en la UI admin.
 
-## [1.20.24] - 2026-08-25
+## [1.34.0] - 2026-08-25
 
 ### 🏭 Inventory Standardization (Paso 3 — Stock Reservation)
 - **Reserva de stock en pedidos:** `OrdersService.create()` y `OrdersService.confirm()` ahora usan `InventoryService.reserveStock()` y `confirmReservationAsMove()` cuando `USE_DOUBLE_ENTRY_STOCK=true`.
@@ -596,7 +660,7 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.
 - **Feature flag:** comportamiento controlado por `USE_DOUBLE_ENTRY_STOCK`; sin flag, se mantiene la lógica original de `stockAvailable` para no afectar pedidos admin existentes.
 - **Nuevos métodos en `InventoryService`:** `reserveStock`, `releaseStockReservation`, `confirmReservationAsMove` para manejo explícito de `StockQuant.reservedQuantity`.
 
-## [1.20.22] - 2026-08-25
+## [1.34.0] - 2026-08-25
 
 ### 🚀 Product Variants & Batch Import
 - Backend: servicios `variants.service.ts`, `attributes.service.ts`, `batch-product-import.service.ts` para variantes estilo Odoo y carga masiva.
@@ -615,7 +679,7 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.
 - **Eliminación de categorías:** `DELETE /api/v1/social-catalog/categories/:id` ahora desvincula productos (`category: null`, `categoryId: null`) y elimina la categoría. Documentado en troubleshooting #63.
 - **Refactor naming:** renombrados archivos de páginas frontend a `kebab-case` (`omni-catalog.tsx`, `api-key-config.tsx`, etc.) y eliminados backups residuales.
 
-## [1.20.21] - 2026-08-25
+## [1.34.0] - 2026-08-25
 
 ### 🎨 Enhanced (OmniCatalog UX/UI — SC-09..SC-13)
 - **SC-09 — Inserción de variables en plantillas:** confirmado funcional; `TemplateVariablePicker` inserta `{{clientName}}`, etc. en el caret del textarea activo.
@@ -628,7 +692,7 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.
 - **Social Catalog sortBy default:** cambiado default a `sortBy='admin'` y envío siempre de `sortBy` al backend para respetar orden admin (carta física).
 - **Eliminación de categorías:** `DELETE /api/v1/social-catalog/categories/:id` ahora desvincula productos (`category: null`, `categoryId: null`) y elimina la categoría. Documentado en troubleshooting #63.
 
-## [1.20.20] - 2026-08-25
+## [1.34.0] - 2026-08-25
 
 ### 🐛 Fixed (OmniBio / Bio-Links — BL-01, BL-02, BL-06)
 - **Rutas públicas rotas en Fast Checkout (BL-01):**
@@ -662,7 +726,7 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.
   - `services/biolinks-standalone/src/bio-links.controller.ts` y `omni-bio.controller.ts` sincronizados con misma lógica de resolución de precio server-side.
   - Rutas standalone ya exponían `@Post('public/:slug/click')` y `@Post('public/:slug/order')` correctamente; solo se alineó la lógica de negocio.
 
-## [1.20.19] - 2026-08-24
+## [1.34.0] - 2026-08-24
 
 ### 🐛 Fixed (Social-Catalog Public Toggling Visibility Bug)
 - **Persistencia de toggles de visibilidad `false` en Social-Catalog Público:**
@@ -676,7 +740,7 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.
 - **SC-03 - Badges de Stock "¡Última unidad!":** renderización de badge cuando `stock === 1` (exacto) en los tiles de producto.
 - **SC-05 - Ordenamiento Admin Unificado:** integrado `sortBy: 'admin'` con fallback a `adminSortLabel` configurable desde el panel de administración.
 
-## [1.20.18] - 2026-08-24
+## [1.34.0] - 2026-08-24
 
 ### 🐛 Fixed (Social-Catalog / Multi-Instance Config & UX)
 - **Persistencia por `instanceKey` en Panel de Administración:**
@@ -699,7 +763,7 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.
 - **Dark Theme Contrast Improvement:** Tokens dark mode ajustados (`text.primary: #F1F5F9`, `text.secondary: #CBD5E1`, `text.muted: #94A3B8`) para mejor contraste ≥ 4.5:1.
 - **Client-Side View Mode Toggle:** Estado `clientViewMode` con persistencia en `localStorage` (`social-catalog-view-mode`). UI con iconos `BarsOutlined` (lista) y `AppstoreOutlined` (tarjetas).
 
-## [1.20.17] - 2026-08-24
+## [1.34.0] - 2026-08-24
 
 ### 🚀 Added / Enhanced (Core / Social-Catalog / OmniCatalog)
 - **Evaluación del Estado del Arte & Alineación v5:**
@@ -711,7 +775,7 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.
 - **Frontend TSX Syntax Repair:** Eliminadas 85 líneas de código JSX huérfano y duplicado en `frontend/src/pages/social-catalog.tsx`. Resueltos cierres desbalanceados de tags y colisión de variable `showFilters`. Compilación `npm run build` 100% limpia.
 - **Backend ProductsService & SocialCatalogService:** Corregida falta de llave de cierre en `ProductsService` (`products.service.ts`), eliminada propiedad `active` en `Tag.create` y tipado explícito `(c: string)` en `social-catalog.service.ts`.
 
-## [1.20.11] - 2026-08-18
+## [1.34.0] - 2026-08-18
 
 ### 🚀 Added / Enhanced (Infraestructura / Deploy Manager & Odoo Provisioning)
 - **Visualización Instantánea y Estado del Deploy:**
@@ -736,7 +800,7 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.
 
 ---
 
-## [1.20.8] - 2026-08-14
+## [1.34.0] - 2026-08-14
 
 ### 🚀 Added / Changed (FEAT-065 + FEAT-066)
 - **Schema Decoupling (Fase 3 - Bio-Links):**
@@ -760,7 +824,7 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.
 
 ---
 
-## [1.20.9] - 2026-08-14
+## [1.34.0] - 2026-08-14
 
 ### 🚀 Added / Changed (FEAT-011 + FEAT-012)
 - **Réplica Standby Mejorada (FEAT-011):**
@@ -778,7 +842,7 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.
 
 ---
 
-## [1.20.10] - 2026-08-14 (En desarrollo)
+## [1.34.0] - 2026-08-14 (En desarrollo)
 
 ### 🚀 Added / Changed (Deploy Manager Odoo)
 - **Deploy Manager Odoo:** despliegue y ciclo de vida multi-sistema desde Super Admin (FEAT-060/actualización).
@@ -786,7 +850,7 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.
 
 ---
 
-## [1.20.7] - 2026-08-13
+## [1.34.0] - 2026-08-13
 
 ### 🚀 Added
 - **Provisioning Autónomo Self-Service (`register-tenant`):**
@@ -805,7 +869,7 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.
 
 ---
 
-## [1.20.6] - 2026-08-13
+## [1.34.0] - 2026-08-13
 
 ### 🐛 Fixed
 - **Root domain landing (BUG #36):** el dominio raíz `/` ahora renderiza `LandingBioLinksCatalog` (spearhead landing page) en vez del catálogo e-commerce cuando hay sesión iniciada. Refactor de `frontend/src/App.tsx` + nuevo `frontend/src/pages/LandingBioLinksCatalog.tsx`.
@@ -813,7 +877,7 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.
 
 ---
 
-## [1.20.5] - 2026-08-13
+## [1.34.0] - 2026-08-13
 
 ### 🚀 Added / Changed (FEAT-065 - Social Catalog Standalone Extraction)
 - **Schema Decoupling (Fase 2 - Social Catalog):**
@@ -839,7 +903,7 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.
 
 ---
 
-## [1.20.4] - 2026-08-13
+## [1.34.0] - 2026-08-13
 
 ### 🚀 Added / Changed (FEAT-064 - Schema Decoupling + FEAT-065 - Social Catalog/Bio-Links)
 - **Schema Decoupling (Fase 0 + Fase 1 Giveaways):**
@@ -854,7 +918,7 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.
 
 ---
 
-## [1.20.1] - 2026-08-12
+## [1.34.0] - 2026-08-12
 
 ### 🚀 Added / Changed (FEAT-059 - Infrastructure Deploy Manager + FEAT-060 - Manuales con Playwright)
 - **Backend `deploy-manager` (multi-sistema):**
@@ -897,7 +961,7 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.
 
 ---
 
-## [1.20.2] - 2026-08-13
+## [1.34.0] - 2026-08-13
 
 ### 🚀 Added / Changed (UX/UI Mobile Admin)
 - **Mobile Navigation Drawer:**
@@ -911,7 +975,7 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.
 
 ---
 
-## [1.20.4] - 2026-08-13
+## [1.34.0] - 2026-08-13
 
 ### 🚀 Added / Changed (Orders Debug)
 - **State Machine:**
@@ -928,7 +992,7 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.
 
 ---
 
-## [1.19.0] - 2026-08-10
+## [1.34.0] - 2026-08-10
 
 ### 🎨 Added / Changed (Rebranding Parcial - Capa Visible)
 - **Marca pública:** se adopta **OmniFlow** como nombre visible para clientes y usuarios finales.
@@ -941,7 +1005,7 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.
   - `docs/00-contexto-agentes.md`: aclarada convención de marca (OmniFlow público / OrderFlow técnico).
 - **Nota:** este release es 100% compatible hacia atrás; no hay breaking changes en APIs ni esquemas.
 
-## [1.18.2] - 2026-08-10
+## [1.34.0] - 2026-08-10
 
 ### 🧪 Added / Changed (E2E Coverage + Integration Flows)
 - **E2E QA ampliada (`scripts/qa_e2e_check.py`):**
@@ -951,7 +1015,7 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.
   - `follow-up.flow.integration.spec.ts`: flujo end-to-end de follow-up (regla -> job -> cola -> adapter -> cooldown).
 - **QA:** `./scripts/init.sh` validado.
 
-## [1.18.1] - 2026-08-10
+## [1.34.0] - 2026-08-10
 
 ### 🧪 Added / Changed (Test Coverage + Policy)
 - **Tests unitarios Follow-Up Omnicanal (FEAT-056):**
@@ -969,7 +1033,7 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.
   - Regla de bloqueo: no se mergea ni depliega sin suite actualizada.
 - **QA:** `./scripts/init.sh` validado (tests + builds + E2E Playwright sin errores).
 
-## [1.18.0] - 2026-08-10
+## [1.34.0] - 2026-08-10
 
 ### 🚀 Added / Changed (FEAT-056 + FEAT-057)
 - **Follow-Up Omnicanal (FEAT-056):**
@@ -999,7 +1063,7 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.
 - Actualización de `featurelist.json` con FEAT-056 y FEAT-057.
 - Alineación de rutas y permisos para panel de retención.
 
-## [1.17.0] - 2026-08-09
+## [1.34.0] - 2026-08-09
 
 ### 🎨 Design Tokens & Dark Mode Contrast (Prompt_Implementar_tokens)
 - **Tokens CSS** (`styles/admin-mobile.css`): semánticos `--success/--warning/--danger/--info` (+ bg/border) en light/dark/prefers-color-scheme; utilidades `.text-*`, `.panel-*`; overrides Ant Design (cards, buttons, modals, dropdowns, selects).
@@ -1022,7 +1086,7 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.
 
 ---
 
-## [1.16.3] - 2026-08-09
+## [1.34.0] - 2026-08-09
 
 ### 🛠️ Fixed (Sidebar Module Permissions Filtering)
 - **FEAT:** `Sidebar.tsx` — filtro de visibilidad por módulo instalado/activo y permisos JWT.
@@ -1040,7 +1104,7 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.
 
 ---
 
-## [1.16.2] - 2026-08-09
+## [1.34.0] - 2026-08-09
 
 ### 🛠️ Fixed (Sidebar Collapsible Groups Bug)
 - **FIX:** `Sidebar.tsx` — grupos del menú lateral ahora son colapsables (acordeón) con `useMemo` para estabilidad de referencias.
@@ -1052,7 +1116,7 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.
 
 ---
 
-## [1.16.1] - 2026-08-07
+## [1.34.0] - 2026-08-07
 
 ### 🛠️ Fixed (Admin Dark Mode & Deploy Robustness)
 - **FIX:** Reemplazo de fondos hardcodeados (`#fafafa`, `#f5f5f5`, `#fff`, `#f0f0f0`) por tokens CSS variables en panel admin.
@@ -1085,7 +1149,7 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.
 
 ---
 
-## [1.16.0] - 2026-08-06
+## [1.34.0] - 2026-08-06
 
 ### 🚀 Added (Admin UI/UX Overhaul)
 - **FEAT-049:** Tema oscuro de primera clase en admin con toggle y persistencia en `localStorage`.
@@ -1103,7 +1167,7 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.
 
 ---
 
-## [1.15.1] - 2026-08-06
+## [1.34.0] - 2026-08-06
 
 ### 🚀 Added (Social Catalog Payments)
 - **FEAT-013 Ext:** Integración de Pagopar en `social-catalog` checkout.
@@ -1113,7 +1177,7 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.
 
 ---
 
-## [1.15.0] - 2026-08-06
+## [1.34.0] - 2026-08-06
 
 ### 🚀 Added (Social Commerce Omnichannel Hub)
 - **FEAT-48:** Refactorización completa de `whatsapp-catalog` a `social-catalog` (Catálogo Social Omnicanal).
@@ -1127,7 +1191,7 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.
 
 ---
 
-## [1.14.0] - 2026-08-06
+## [1.34.0] - 2026-08-06
 
 ### 🚀 Added (Core Architecture / EventBus, Queues, Inventory, Mapper & Audit)
 - **FEAT-43:** Implementación de la cola duradera de eventos y webhooks con **BullMQ** y **Redis 7** (`backend/src/queues/`).
@@ -1149,7 +1213,7 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.
 
 ---
 
-## [1.13.2] - 2026-08-05
+## [1.34.0] - 2026-08-05
 
 ### 🛠️ Refactor (Deploy Robustness)
 - **Entrypoint:** `backend/entrypoint.sh` now runs `prisma migrate deploy` (instead of `prisma db push --accept-data-loss`) and executes any provided command via `exec "$@"` instead of always starting the Nest app. This isolates schema/migration checks from application startup and respects migration history in production.
@@ -1159,7 +1223,7 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.
 
 ---
 
-## [1.13.1] - 2026-08-05
+## [1.34.0] - 2026-08-05
 
 ### 🛠️ Refactor
 - **Scripts:** Modified `init.sh` to accept flags (`--skip-e2e`, `--only-backend`, etc.) to prevent OS hangs on local development by allowing selective execution of validation steps. Changed Jest execution to `--maxWorkers=2` to bound CPU/RAM usage.
@@ -1173,7 +1237,7 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.
 - **Troubleshooting:** Updated `docs/troubleshooting/README.md` to index the new document #25.
 - **Roadmap:** Incorporated 5 strategic milestones from `docs/Informe_Comparativo_Odoo_vs_OrderFlow.md` as `v1.16.0` (pre-K8s) targets: Durable Event Queue, Extensible EventBus, Multi-Warehouse Inventory, Configurable Integration Mapper and Expanded AuditLog.
 
-## [1.13.0] - 2026-08-05
+## [1.34.0] - 2026-08-05
 
 ### ✨ Features
 - **Contacts:** Added `taxId` duplicate detection — `create()` and `update()` now verify uniqueness per tenant, throwing `ConflictException` if a duplicate RUC/NIT exists.
@@ -1196,7 +1260,7 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.
 ### 🐛 Bug Fixes
 - **Contacts:** Fixed `parentId` field having zero propagation logic — now supports address sync and parent validation.
 
-## [1.12.3] - 2026-08-05
+## [1.34.0] - 2026-08-05
 
 ### 🐛 Bug Fixes
 - **Odoo Adapter:** Fixed Python f-string syntax (`f"INV-{invoice.invoice_id}"`) in `odoo-invoice.plugin.js` causing `SyntaxError` and container crash loop. Replaced with JS template literal `` `INV-${invoice.invoice_id}` ``.
@@ -1211,14 +1275,14 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.
 - **Users:** Added `findByEmail` method to `UsersService`.
 - **Users:** Added `upsertAccess` (upsert instead of throw-on-conflict) to `UserTenantAccessService`; `assignAccess` kept as alias for backward compatibility.
 
-## [1.12.2] - 2026-08-05
+## [1.34.0] - 2026-08-05
 
 ### 🐛 Bug Fixes
 - **Admin:** Merge sidebar items Usuarios/Clientes into single Contactos entry.
 - **Admin:** Guard `installedModules.some()` against non-array values to fix Contactos page crash (`U.some is not a function`).
 - **Tests:** Fix `bookings.service.spec.ts`, `webhook-cron.service.spec.ts`, `product-imports.service.spec.ts` missing mocks/typing.
 
-## [1.12.1] - 2026-08-04
+## [1.34.0] - 2026-08-04
 
 ### 🐛 Bug Fixes
 - **Orders:** Mover side-effects (webhook, WebSocket KDS) fuera de la transacción de confirmación para separar commit de DB de notificaciones.
@@ -1240,7 +1304,7 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.
 - **Sprint:** Creado `docs/OrderFlow_v1.12.1_Informe_Sprint.md` con análisis diferencial y veredicto.
 - **UX Mobile-First:** Actualizado `docs/guides/PLAN_UX_UI_MOBILE_FIRST.md` con estado completado.
 
-## [1.12.0] - 2026-08-04
+## [1.34.0] - 2026-08-04
 
 ### 🚀 Features
 - **Frontend Testing:** Configuración de Vitest + React Testing Library y tests iniciales para hooks y stores críticos.
@@ -1256,14 +1320,14 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.
 - Reorganización de featurelist.json: renumeración de FEAT-029 duplicado a FEAT-041.
 - Actualización de versiones a v1.12.0 en VERSION, package.json, README, ROADMAP, CHANGELOG.
 
-## [1.11.0] - 2026-08-03
+## [1.34.0] - 2026-08-03
 
 ### 📚 Documentación
 - **Plan de Sprint:** Creado `docs/PLAN_SPRINT_V1_11_0.md` con alcance, secuenciación y criterios de aceptación para v1.11.0/v1.12.0.
 - **Contribución:** Renombrado `CONTRIBUTING.md` a `CONTRIBUTINGen.md` y creada versión en español `CONTRIBUTING.md`.
 - **Análisis:** Agregado `docs/INFORME_MADUREZ_1.9.0_actualizado.md` con reevaluación de documentación.
 
-## [1.10.0] - 2026-08-03
+## [1.34.0] - 2026-08-03
 
 ### 📚 Documentación
 - **Gobernanza:** Creado `CONTRIBUTING.md` y `SECURITY.md` para colaboradores externos.
@@ -1272,7 +1336,7 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.
 - **Monitorización:** Definido stack Prometheus + Grafana + Alertmanager con métricas y alertas.
 - **SLA:** Creado `docs/sla.md` con acuerdos por plan (Startup, Professional, Enterprise).
 
-## [1.9.0] - 2026-08-03
+## [1.34.0] - 2026-08-03
 
 ### 🚀 Features
 - **Billing:** Integración de Pagopar como pasarela de pagos local (Paraguay) con webhook, DTOs y módulo dedicado.
@@ -1286,7 +1350,7 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.
 - Creada `docs/guides/PAGOPAR_INTEGRATION.md`.
 - Creada `docs/STAFFING_ARCHITECTURE_ANALYSIS.md`.
 
-## [1.8.1] - 2026-08-03
+## [1.34.0] - 2026-08-03
 
 ### ⚙️ Proceso y Documentación
 - **Proceso de Despliegue:** Formalizada y documentada la Fase 5 del proceso de despliegue, que incluye la verificación y sincronización explícita con el repositorio de GitHub (tags, changelog, roadmap) como paso final obligatorio.
@@ -1300,7 +1364,7 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.
 - **Validación:** `./scripts/init.sh` pasado (54 suites / 444 tests, build backend y frontend limpios).
 - **Troubleshooting:** Creada entrada `#20` en `docs/troubleshooting/` para el error de build de `AdaptiveTable` resuelto durante el despliegue.
 
-## [1.8.0] - 2026-08-03
+## [1.34.0] - 2026-08-03
 
 ### 🧪 **Deuda Técnica: Aumento de Cobertura de Pruebas (Backend)**
 - **Planificación:** Creado el documento `docs/PLAN_TESTING_COVERAGE_V1_8_0.md` para guiar el aumento de cobertura de pruebas del backend del ~45% al 70%.
@@ -1310,7 +1374,7 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.
 - **Testing (`integrations.service.spec.ts`):** Ampliada la cobertura de `IntegrationsService`, cubriendo tanto el envío exitoso a Odoo como el caso en que la integración no está activa.
 - **Testing (`currency.service.spec.ts`):** Creado el archivo de especificaciones para `CurrencyService` con la estructura inicial para probar la lógica de cotizaciones.
 
-## [1.7.0] - 2026-08-03
+## [1.34.0] - 2026-08-03
 
 ### 💻 **Refinamiento UX/UI Escritorio (Desktop-First Admin)**
 - **Planificación:** Se ha creado el documento `docs/PLAN_DESKTOP_UX_REFINEMENT.md` que guiará la optimización de la experiencia de usuario en el backoffice de escritorio.
@@ -1322,7 +1386,7 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.
 - **Frontend (Refactorización):** Se ha refactorizado la página de administración de Contactos (`contacts.tsx`) para utilizar el `AdaptiveTable`, unificando la experiencia de usuario en las vistas de lista principales.
 - **Frontend (Refactorización):** Se ha refactorizado el Dashboard principal (`dashboard.tsx`) para utilizar un layout de múltiples columnas en escritorio, mejorando la densidad de información con KPIs y gráficos.
 
-## [1.6.0] - 2026-08-03
+## [1.34.0] - 2026-08-03
 
 ### 📱 **UX/UI Mobile-First & Ergonomía Intuitiva**
 - **Frontend (Catálogo/Checkout):**
@@ -1332,14 +1396,14 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.
   - Implementada `Navegación Móvil Adaptativa` con una `Bottom Navigation Bar` para el backoffice, optimizando la usabilidad en pantallas pequeñas.
   - Completada la `Transformación Responsive de Tablas Admin a Tarjetas` para todas las tablas principales del panel de administración, mejorando la visualización en móvil.
   - Desarrollado `SuperAdmin Tenant Switcher Flotante Táctil` para una gestión de tenants más eficiente en dispositivos táctiles.
-## [1.5.2] - 2026-08-03
+## [1.34.0] - 2026-08-03
 
 ### 📄 **Análisis y Documentación del Ecosistema**
 - **Documentación:**
   - Creado `docs/RESUMEN_ECOSISTEMA_Y_PROYECTOS.md` con un resumen completo del estado del arte de OrderFlow, Traefik y la Wiki.
   - Creado `docs/ANALISIS_METODOLOGIA_HUMANO_IA.md` con el análisis del modelo de desarrollo "Cyborg Lead Developer".
 
-## [1.5.1] - 2026-08-02
+## [1.34.0] - 2026-08-02
 
 ### 🎨 **Responsive UX/UI Backoffice + Traefik v3.4 (QA-001)**
 - **Frontend (admin pages):**
@@ -1356,7 +1420,7 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.
 - **Documentación (`AGENTS.md`):**
   - Actualizada regla de infraestructura: Traefik v3.4 exclusivo, configuración desde `/opt/traefik-orderflow` con sync a `/srv/traefik`.
 
-## [1.5.0] - 2026-08-01
+## [1.34.0] - 2026-08-01
 
 ### 🏢 **OrderFlow como Tenant Enterprise + Fixes Frontend/Routing (FEAT-024)**
 - **Frontend (`Dockerfile.prod`, `docker-compose.prod.yml`):**
@@ -1373,7 +1437,7 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.
   - Agregada variable `ORDERFLOW_COMPANY_DB_URL` para provisioning de DB dedicada del tenant enterprise.
 - **QA & Despliegue:** `./scripts/init.sh` pasado (58 suites / 498 tests, build backend y frontend limpios, E2E Playwright sin errores).
 
-## [1.4.0] - 2026-08-01
+## [1.34.0] - 2026-08-01
 
 ### 🇵🇾 **Facturación Electrónica Paraguaya con FacturaSend (SIFEN)**
 - **Prisma Schema (`schema.prisma`):**
@@ -1391,7 +1455,7 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.
   - Hook en `orders.service.confirm()` para emisión directa si el tenant tiene configuración de FacturaSend.
 - **QA & Despliegue:** `./scripts/init.sh` pasado (72 tests específicos de FacturaSend, 58 suites / 498 tests totales).
 
-## [1.3.0] - 2026-08-01
+## [1.34.0] - 2026-08-01
 
 ### 💱 **Automatización de Cotizaciones desde Fuentes Locales de PY (FEAT-022)**
 - **Prisma Schema (`schema.prisma`):**
@@ -1421,7 +1485,7 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.
   - `POST /api/v1/currency/refresh/:tenantId` — trigger manual de refresh.
 - **QA & Despliegue:** `./scripts/init.sh` pasado (54 suites / 426 tests, build backend y frontend limpios).
 
-## [1.1.9] - 2026-07-31
+## [1.34.0] - 2026-07-31
 
 ### 🚀 **Unificación de Navegación & QA E2E Integral**
 - **Backend (`customers.controller.ts`):**
@@ -1433,7 +1497,7 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.
 - **QA & Testing (`scripts/qa_e2e_check.py`):**
   - Ampliada la suite E2E de Playwright en Python para verificar la navegación de todas las subrutas administrativas (`/admin/products`, `/admin/customers`, `/admin/bookings`, `/admin/loyalty`, `/admin/homepage-builder`, `/admin/whatsapp-catalog`) y descartar errores JS y HTTP 502/404.
 
-## [1.1.8] - 2026-07-31
+## [1.34.0] - 2026-07-31
 
 ### 🎨 **Gestor Visual de Portada & Enrutamiento Separado (Landing vs. Tienda)**
 - **Frontend (`TenantHomepage.tsx`, `App.tsx`, `PublicStorefrontPage.tsx`):**
@@ -1446,7 +1510,7 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.
 - **Protocolo & Documentación:**
   - Actualizados `featurelist.json` (FEAT-019), `docs/00-contexto-agentes.md` y guías de arquitectura.
 
-## [1.1.3] - 2026-07-27
+## [1.34.0] - 2026-07-27
 
 ### 🛡️ **File Store Unificado por Tenant + Backups**
 - **Backend (`main.ts`, `whatsapp-catalog-admin.controller.ts`):**
@@ -1466,7 +1530,7 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.
   - Actualizada regla de file store en `docs/00-contexto-agentes.md`: todos los archivos deben vivir bajo `uploads/{tenantId}/{module}/`.
   - Actualizado `.gitignore` para excluir `uploads/` del repositorio.
 
-## [1.1.2] - 2026-07-27
+## [1.34.0] - 2026-07-27
 
 ### 🐛 **Fix: Envío de pedido por WhatsApp sin contenido**
 - **Frontend (`whatsapp-checkout.tsx`):**
@@ -1492,7 +1556,7 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.
   - Eliminada API key hardcodeada del checkout.
   - Ahora resuelve tenant por `subdomain`, query param o `apiKey` tenant config, igual que el catálogo público.
 
-## [1.1.1] - 2026-07-27
+## [1.34.0] - 2026-07-27
 
 ### 🐛 **Fix: Catálogo WhatsApp vacío para tenants resueltos por subdominio alias**
 - **Frontend (`whatsapp-catalog.tsx`):**
@@ -1505,7 +1569,7 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.
 
 ---
 
-## [1.1.0] - 2026-07-26
+## [1.34.0] - 2026-07-26
 
 ### 🚀 **Microservicios Standalone & Extracción de Arquitectura**
 - **Microservicio `whatsapp-catalog-standalone`**:
@@ -1531,7 +1595,7 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.
 
 ---
 
-## [1.0.0] - 2026-07-25
+## [1.34.0] - 2026-07-25
 
 ### ☸️ **Estructura Kubernetes & Helm (v2.0.0 Ready)**
 - **Arquitectura de Helm Charts Preparada (`k8s/`)**:

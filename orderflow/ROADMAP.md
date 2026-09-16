@@ -1,22 +1,13 @@
-# 🗺️ ROADMAP DE ORDERFLOW - v1.33.0 → v2.0.0 (Go-Live Definitivo)
-**Última Actualización:** 2026-09-11 (Release v1.33.0 — Aislamiento Multi-Tenant DB 100% Completado, Design Tokens UI & JwtAuthGuard Fix)
+# 🗺️ ROADMAP DE ORDERFLOW - v1.34.0 → v2.0.0 (Go-Live Definitivo)
+**Última Actualización:** 2026-09-13 (Release v1.34.0 — Gate 1 Landed Costs & Gastro/KDS Complete)
 
-**Versión Actual:** **`v1.33.0`** 🔄 **PRODUCTION READY** | Marca pública: OmniFlow. Capa técnica interna: OrderFlow.  
-**Próximos Releases:** **v1.34.0** (Gate 1 Gastro & Landed Costs) ➔ **v1.35.0** (Tauri Desktop & OmnIoT Edge) ➔ **v1.36.0** (Mobile Native) ➔ **v2.0.0** (🚀 **GO LIVE DEFINITIVO DEL ECOSISTEMA — Target: 15 de Febrero de 2027**)  
+**Versión Actual:** **`v1.34.0`** 🔄 **PRODUCTION READY** | Marca pública: OmniFlow. Capa técnica interna: OrderFlow.  
+**Próximos Releases:** **v1.35.0** (Tauri Desktop & OmnIoT Edge) ➔ **v1.36.0** (Mobile Native) ➔ **v2.0.0** (🚀 **GO LIVE DEFINITIVO DEL ECOSISTEMA — Target: 15 de Febrero de 2027**)  
 **Plan Maestro Go-to-Live:** ver [docs/plans/PLAN_GO_LIVE_APLICACIONES_ECOSISTEMA.md](docs/plans/PLAN_GO_LIVE_APLICACIONES_ECOSISTEMA.md)  
 **Roadmap Comercial:** ver [docs/planes/comercial/OmniFlow_Plan_Comercial_v1.md](docs/planes/comercial/OmniFlow_Plan_Comercial_v1.md) (FEAT-112 a FEAT-119)  
-**Estado:** ✅ **STAGING & PRODUCTION OPERATIVE** | 🏆 **HARDENED v1.33.0** | QA E2E Suite Integrada | Build Limpio & Cobertura Total
+**Estado:** ✅ **STAGING & PRODUCTION OPERATIVE** | 🏆 **HARDENED v1.34.0** | Gate 1 Landed Costs & Gastro/KDS Complete | CI Guard Active | QA E2E Suite | Build Limpio & Cobertura Total
 
-**Visión Estratégica:** Plataforma SaaS omnicanal de alta velocidad con aislamiento multi-tier, microservicios desacoplados, wrappers desktop Tauri v2, apps móviles nativas Expo, puente IoT de hardware local (OmnIoT) y contabilidad canónica inmutable (OmniLedger).
-
-> 🚀 **Plan Maestro Go-to-Live Ecosistema:** Ver especificación completa de aplicaciones y hardware gateway en [docs/plans/PLAN_GO_LIVE_APLICACIONES_ECOSISTEMA.md](docs/plans/PLAN_GO_LIVE_APLICACIONES_ECOSISTEMA.md).  
-> 📦 **Estrategia de Microservicios Standalone:** Ver roadmap de productos independientes en [docs/guides/ROADMAP_MICROSERVICES.md](docs/guides/ROADMAP_MICROSERVICES.md).
-
----
-
-## 🚀 PLAN MAESTRO GO-TO-LIVE ECOSISTEMA & AUDITORÍA DE MADUREZ (Q3 2026)
-
-### 🎯 Fecha Objetivo para Salida a Producción Definitiva: **15 de Febrero de 2027 (v2.0.0)**
+<!--CURRENT_VERSION-->1.34.0<!--/CURRENT_VERSION-->
 
 El ecosistema **OmniFlow** contempla 10 aplicaciones y capas operativas. A continuación se presenta la evaluación de madurez técnica por componente y los puntos pendientes priorizados hacia el Go-Live final.
 
@@ -24,8 +15,8 @@ El ecosistema **OmniFlow** contempla 10 aplicaciones y capas operativas. A conti
 
 | Módulo / Aplicación | Tipo / Runtime | Madurez (%) | Estado Actual | Brecha / Puntos Pendientes para Go-Live | Target Release |
 |---------------------|----------------|-------------|---------------|------------------------------------------|----------------|
-| **Core Multi-Tenant SaaS** | NestJS 10 / PostgreSQL 15 | **95%** | ✅ Production Ready | Aislamiento DB 100% (v1.33.0). Pendiente: afinamiento final de métricas HA. | **v1.33.0** |
-| **Suite Microservicios Standalone** | PWA / Web (`:3020`-`:3027`) | **92%** | ✅ Production Ready | BioLinks, Catalog, Bookings, Giveaways, OmniBI y OmniLedger operando en Traefik. | **v1.33.0** |
+| **Core Multi-Tenant SaaS** | NestJS 10 / PostgreSQL 15 | **95%** | ✅ Production Ready | Aislamiento DB 100% (v1.33.1). Pendiente: afinamiento final de métricas HA. | **v1.33.1** |
+| **Suite Microservicios Standalone** | PWA / Web (`:3020`-`:3027`) | **92%** | ✅ Production Ready | BioLinks, Catalog, Bookings, Giveaways, OmniBI y OmniLedger operando en Traefik. | **v1.33.1** |
 | **OmniGastro & KDS Deep Alignment** | Web / PWA / WebSockets | **75%** | 🔄 Staging Operativo | Sincronización salón/cocina, recetas BoM en tiempo real, divisibilidad de cuentas. | **v1.34.0** |
 | **OmnIoT Edge Hardware Gateway** | Tauri / Rust Native Daemon | **70%** | 🔄 Desarrollo Avanzado | Emulador Epson ePOS, lectura básculas RS-232, ESC/POS TCP/USB daemon systemd en Debian/Radxa. | **v1.35.0** |
 | **Tauri v2 Desktop Wrappers** | Tauri v2 / Rust Kiosk | **65%** | 🔄 Staging Web | Empaquetado binarios `.AppImage` (Linux) y `.msi` (Windows) para OmniPOS Retail, Gastro y KDS. | **v1.35.0** |
@@ -39,7 +30,7 @@ El ecosistema **OmniFlow** contempla 10 aplicaciones y capas operativas. A conti
 
 ```mermaid
 graph LR
-    A["v1.33.0 (Actual)<br/>Multi-Tenant DB 100%<br/>Design Tokens UI"] --> B["v1.34.0 (Gate 1)<br/>Gastro & KDS Deep<br/>Landed Costs & OmniRealState MVP"]
+    A["v1.33.1 (Actual)<br/>Multi-Tenant DB 100%<br/>Design Tokens UI"] --> B["v1.34.0 (Gate 1)<br/>Gastro & KDS Deep<br/>Landed Costs & OmniRealState MVP"]
     B --> C["v1.35.0 (Gates 2 & 3)<br/>Tauri Desktop Wrappers<br/>OmnIoT Hardware Gateway"]
     C --> D["v1.36.0 (Gate 4)<br/>Mobile Native Expo<br/>OmniRealState Alquileres & Expensas"]
     D --> E["v2.0.0 (Go-Live Definitivo)<br/>Ecosistema 100% Operativo<br/>Alta Disponibilidad (15 Feb 2027)"]
@@ -364,8 +355,8 @@ Permite vender módulos individuales (Giveaways, WhatsApp Catalog, Bio-Links, et
 | **Self-service: selección de tier `shared`/`dedicated`** (`subscription.tsx`) | ✅ Hecho | 🟡 Media |
 | **Marketplace / Plugin SDK** (`MarketplaceModule` + SDK endpoints) | ✅ Hecho | 🟡 Media |
 | **Plugin registry + instalación desde marketplace** (`GET/POST /api/v1/marketplace/*`) | ✅ Hecho | 🟡 Media |
+| **Marketplace Addons — Empaquetado & Distribución** (FEAT-140→145) | 📋 Plan | 🔴 Alta | [PLAN_OMNIFLOW_MARKETPLACE_ADDONS.md](docs/plans/Estandarizacion/PLAN_OMNIFLOW_MARKETPLACE_ADDONS.md) |
 | **White-label completo** (Dominio custom, favicon, `document.title`, `removeOrderflowBranding`) | ✅ Hecho | 🟡 Media |
-| **Multi-language (i18n)** (`react-i18next` + ES / EN / PT) | ✅ Hecho | 🟡 Media |
 | **MIDA / SAP integradores** (`IntegrationsService` MIDA/SAP connectors) | ✅ Hecho | 🟡 Media |
 | **App Store / Google Play** publicación | ❌ Pendiente | 🟢 Baja |
 | **Analytics Dashboard avanzado** (`AnalyticsModule` + visualizaciones) | ✅ Hecho | 🟢 Baja |
