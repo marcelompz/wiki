@@ -102,6 +102,7 @@ Ordená por problema y área. Cada entrada incluye síntomas, causa raíz y solu
 | [133](133-modules-depends-undefined-typeerror-fix.md) | `TypeError: e.depends is undefined` en Módulos Admin | Frontend / Admin App / Módulos | `e.depends is undefined` al renderizar tarjetas de módulos sin dependencias expresadas | ✅ Resuelto |
 | [134](134-sidebar-omnigastro-missing-modules-fix.md) | Módulos OmniGastro Ausentes en Sidebar | Frontend / Admin App / Navigation | Solo figuraba KDS en OmniGastro por omisión de `'gastro'` en `defaultCoreModules` | ✅ Resuelto |
 | [135](135-users-endpoint-403-forbidden-tenant-resolution-fix.md) | HTTP 403 Forbidden en `/api/v1/users` | Backend / Auth / ApiKeyGuard / RBAC | 403 Forbidden al cargar usuarios por fallos al resolver subdominio/slug de tenant en `ApiKeyGuard` | ✅ Resuelto |
+| [136](136-tables-floors-403-forbidden-rbac-fix.md) | HTTP 403 Forbidden en `POST /api/v1/tables/floors` | Backend / Auth / RBAC / Tables | 403 Forbidden al crear pisos/zonas por omisión de exención RBAC a roles ADMIN/MANAGER | ✅ Resuelto |
 
 ---
 
