@@ -101,6 +101,7 @@ Ordená por problema y área. Cada entrada incluye síntomas, causa raíz y solu
 | [131](131-frontend-docker-build-timeout.md) | Timeout en Compilación Docker de Frontend | DevOps / Docker / BuildKit / Memory | Exit code 255 por timeout del servidor durante compilación Vite/TypeScript de frontend | ✅ Resuelto |
 | [133](133-modules-depends-undefined-typeerror-fix.md) | `TypeError: e.depends is undefined` en Módulos Admin | Frontend / Admin App / Módulos | `e.depends is undefined` al renderizar tarjetas de módulos sin dependencias expresadas | ✅ Resuelto |
 | [134](134-sidebar-omnigastro-missing-modules-fix.md) | Módulos OmniGastro Ausentes en Sidebar | Frontend / Admin App / Navigation | Solo figuraba KDS en OmniGastro por omisión de `'gastro'` en `defaultCoreModules` | ✅ Resuelto |
+| [135](135-users-endpoint-403-forbidden-tenant-resolution-fix.md) | HTTP 403 Forbidden en `/api/v1/users` | Backend / Auth / ApiKeyGuard / RBAC | 403 Forbidden al cargar usuarios por fallos al resolver subdominio/slug de tenant en `ApiKeyGuard` | ✅ Resuelto |
 
 ---
 
