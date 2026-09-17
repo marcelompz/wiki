@@ -5,6 +5,36 @@ Todos los cambios notables a este proyecto serán documentados en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 y este proyecto se adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.34.2] - 2026-09-16
+
+### 🍽️ Gestión de Mozos (OmniGastro)
+- **Llamada automática al mozo al crear pedido guest** (`backend/src/guest/guest-orders.controller.ts`):
+  - Cuando un cliente envía un pedido desde el catálogo social con `serviceMode: 'TABLE'`, se crea automáticamente una llamada al mozo (`wc_{orderId}`) con la mesa y productos.
+  - El mozo recibe notificación `waiterCallNew` en `/admin/gastro` con mesa y productos para confirmar antes de pasar a KDS y Caja.
+- **Gestión de mozos en admin de catálogo social** (`frontend/src/pages/admin/social-catalog.tsx`):
+  - Nueva sección "🍽️ Gestión de Mozos" dentro del panel "🛒 Modo de venta y Pedidos en Mesa / QR" (visible al activar `gastroEnabled`).
+  - Editor de opciones de mozo (agregar/eliminar botones que el cliente puede solicitar desde el catálogo público).
+  - Lista de llamadas al mozo con estados (PENDING/ACKNOWLEDGED/TAKEN_ORDER/RESOLVED) y acciones (Aceptar, Reconocer, Resolver).
+
+### 🔐 Sistema de Permisos
+- **Seed automático de permisos** (`backend/src/main.ts`):
+  - `RbacService.seedPermissions()` se ejecuta automáticamente al iniciar el backend, asegurando que todos los permisos del sistema existan en la base de datos (92 permisos).
+
+### 🛠️ Corrección de bugs
+- **Columna faltante `products.isPosBomProduct`**: Añadida columna faltante en la base de datos que causaba error 500 en el endpoint `/api/v1/admin/social-catalog/products`.
+
+## [1.34.1] - 2026-09-16
+
+### 🏛️ Paridad y Conciliación Odoo `res.partner` ↔ `hr.employee` (OmniFlow `Contact` ↔ `Employee`)
+- **Sincronización Automática Empleado $\rightarrow$ Contacto CRM (`/admin/hr` $\rightarrow$ `/admin/contacts`)**:
+  - Implementación de `syncContactForEmployee` en `HrService` para auto-crear y vincular un `Contact` con el rol `EMPLOYEE` en `contact_roles` al registrar un legajo en RRHH.
+  - Implementación de `syncUnlinkedEmployees` (Auto-Healing) que detecta y cura automáticamente colaboradores creados previamente sin `contactId` (como Ivan Castillo), haciéndolos visibles en el CRM de Contactos (Troubleshooting #140).
+- **Sincronización Inversa Contacto $\rightarrow$ Empleado (`/admin/contacts` $\rightarrow$ `/admin/hr`)**:
+  - Implementación de `syncEmployeeForContact` en `ContactsService.addRole` para instanciar automáticamente el legajo en la tabla `employees` al asignar la función/rol `EMPLOYEE` a una ficha del CRM.
+- **Enlace Tripartito de Usuario (`User`)**:
+  - Actualización atómica del campo `Employee.userId` en `ContactsService.syncUserForContact` al otorgar acceso de usuario a una persona, consolidando la triada `Contact` $\leftrightarrow$ `Employee` $\leftrightarrow$ `User`.
+- **Plan Maestro de Conciliación**: Documentado en [PLAN_CONCILIACION_ODOO_CONTACT_EMPLOYEE.md](docs/plans/capital-humano/PLAN_CONCILIACION_ODOO_CONTACT_EMPLOYEE.md).
+
 ## [1.34.0] - 2026-09-16
 
 ### 🐛 Bug Fixes

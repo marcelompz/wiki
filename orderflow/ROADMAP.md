@@ -1,11 +1,29 @@
 # 🗺️ ROADMAP DE ORDERFLOW - v1.34.0 → v2.0.0 (Go-Live Definitivo)
-**Última Actualización:** 2026-09-13 (Release v1.34.0 — Gate 1 Landed Costs & Gastro/KDS Complete)
+**Última Actualización:** 2026-09-16 (Release v1.34.2 — Waiter Management, Permissions Seed, Auto Waiter Call)
 
-**Versión Actual:** **`v1.34.0`** 🔄 **PRODUCTION READY** | Marca pública: OmniFlow. Capa técnica interna: OrderFlow.  
-**Próximos Releases:** **v1.35.0** (Tauri Desktop & OmnIoT Edge) ➔ **v1.36.0** (Mobile Native) ➔ **v2.0.0** (🚀 **GO LIVE DEFINITIVO DEL ECOSISTEMA — Target: 15 de Febrero de 2027**)  
-**Plan Maestro Go-to-Live:** ver [docs/plans/PLAN_GO_LIVE_APLICACIONES_ECOSISTEMA.md](docs/plans/PLAN_GO_LIVE_APLICACIONES_ECOSISTEMA.md)  
-**Roadmap Comercial:** ver [docs/planes/comercial/OmniFlow_Plan_Comercial_v1.md](docs/planes/comercial/OmniFlow_Plan_Comercial_v1.md) (FEAT-112 a FEAT-119)  
-**Estado:** ✅ **STAGING & PRODUCTION OPERATIVE** | 🏆 **HARDENED v1.34.0** | Gate 1 Landed Costs & Gastro/KDS Complete | CI Guard Active | QA E2E Suite | Build Limpio & Cobertura Total
+**Versión Actual:** **`v1.34.2`** 🔄 **PRODUCTION READY** | Marca pública: OmniFlow. Capa técnica interna: OrderFlow.  
+**Próximos Releases:** **v1.35.0** (Tauri Desktop & OmnIoT Edge) ➔ **v1.36.0** (Mobile Native) ➔ **v2.0.0** (🚀 **GO-Live Definitivo del Ecosistema — Target: 15 de Febrero de 2027**)
+**Plan Maestro Go-to-Live:** ver [docs/plans/PLAN_GO_LIVE_APLICACIONES_ECOSISTEMA.md](docs/plans/PLAN_GO_LIVE_APLICACIONES_ECOSISTEMA.md)
+**Roadmap Comercial:** ver [docs/planes/comercial/OmniFlow_Plan_Comercial_v1.md](docs/planes/comercial/OmniFlow_Plan_Comercial_v1.md) (FEAT-112 a FEAT-119)
+**Estado:** ✅ **STAGING & PRODUCTION OPERATIVE** | 🏆 **HARDENED v1.34.2** | Gate 1 Landed Costs & Gastro/KDS Complete | CI Guard Active | QA E2E Suite | Build Limpio & Cobertura Total
+
+<!--CURRENT_VERSION-->1.34.2<!--/CURRENT_VERSION-->
+
+### 🚀 Release v1.34.2 — Waiter Management & Permissions (Septiembre 2026)
+
+| Feature | Módulo | Estado |
+|---------|--------|--------|
+| **Gestión de Mozos en Admin Social Catalog** | `frontend/src/pages/admin/social-catalog.tsx` | ✅ Production |
+| **Opciones de Mozo (editor CRUD)** | `WaiterOptionsEditor` component | ✅ Production |
+| **Llamadas recientes al mozo (estados + acciones)** | `WaiterCallsList` component | ✅ Production |
+| **Llamada automática al mozo al crear pedido guest** | `backend/src/guest/guest-orders.controller.ts` | ✅ Production |
+| **Seed automático de permisos al iniciar backend** | `backend/src/main.ts` | ✅ Production |
+| **Columna `isPosBomProduct` corregida** | `products` table | ✅ Production |
+| **104 permisos sembrados en DB** | `permissions` table | ✅ Production |
+| **1 empleado sembrado (Marcelo Pesallaccia)** | `employees` table | ✅ Production |
+| **5 productos sembrados (Provecchio)** | `products` table | ✅ Production |
+
+---
 
 <!--CURRENT_VERSION-->1.34.0<!--/CURRENT_VERSION-->
 
