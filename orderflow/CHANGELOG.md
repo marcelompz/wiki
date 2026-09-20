@@ -5,7 +5,147 @@ Todos los cambios notables a este proyecto serán documentados en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 y este proyecto se adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.35.0] - 2026-09-20
+
+### 🍽️ OmniHRMS (Nueva Vertical) — Fase 1 & 2
+- **FEAT-123 — TipPool / TipDistribution** (`backend/src/hr/`):
+  - Modelos `TipPool` y `TipDistribution` con 5 métodos de distribución: `EQUAL`, `BY_HOURS_WORKED`, `BY_ROLE_WEIGHT`, `BY_SALES`, `CUSTOM`.
+  - Estados: `TipPoolStatus` (OPEN, CLOSED, DISTRIBUTED), `TipDistributionStatus` (PENDING, APPROVED, PAID, CANCELLED).
+  - `TipPoolService`: CRUD, `addTipToPool`/`removeTipFromPool` (integración con `CashMovement`), `closeTipPool`/`reopenTipPool`, `distributeTipPool`, `approveDistributions`/`payDistributions`/`cancelDistributions`.
+  - `TipPoolController`: endpoints completos, permisos `hr:tips:manage` / `hr:tips:read`.
+  - Integración `CashMovement.tipPoolId` FK → `TipPool`.
+  - 14/14 tests passing.
+- **FEAT-124 — OmniAsistencia Mobile App + Biometric Verification** (Completed):
+  - Mobile app React Native/Expo: `EmployeeClockInScreen` (empleado), `AdminEmployeeScreen` (admin).
+  - Biometría nativa: Face ID / Huella via `expo-local-authentication`, Selfie fallback via `expo-image-picker`.
+  - Geolocalización obligatoria (`expo-location`) + geocerca configurable (`AttendancePolicy.geofenceEnforcement`).
+  - Backend: `AttendanceRecord` con `biometricMethod` (FACE_ID/FINGERPRINT/SELFIE), `biometricVerified`, `selfieUrl`, `distanceMeters`.
+  - Admin: CRUD empleados, enrolamiento biométrico (`BiometricDeviceEnrollment` + `deviceUserId`), dispositivos (ZKTECO/HIKVISION/MOBILE_APP), workplaces, policies.
+  - Expo: `expo-local-authentication`, `expo-image-picker`, `expo-location`, `expo-crypto`.
+  - **Regla**: Biometría 100% en dispositivo (OS), backend solo recibe `biometricVerified` firmado.
+- **FEAT-125 — Biometric Module Standalone** (`backend/src/biometric/`):
+  - Módulo NestJS independiente de HR (`BiometricModule`), con `BiometricController` + `BiometricService`.
+  - Nuevo modelo Prisma `BiometricCredential` (tenantId, userId?, employeeId?, method, deviceId, secretHash, isActive, lastUsedAt) con relaciones a `User`, `Employee`, `Tenant`, `AttendanceRecord`.
+  - Endpoints: `POST /api/v1/biometric/enroll`, `POST /api/v1/biometric/verify`, `POST /api/v1/biometric/login`, `GET /api/v1/biometric/credentials`, `DELETE /api/v1/biometric/credentials/:id`.
+  - Permisos RBAC: `biometric:credentials:create/read/delete/verify` (sembrados en `rbac.service.ts`).
+  - `auth.service.ts` expone `generateAccessTokenForUser` / `generateRefreshTokenForUser` para reutilización.
+  - `useBiometric` hook (mobile) extendido: `enrollCredential`, `loginWithBiometric`, `listCredentials`, `revokeCredential`.
+  - `authStore` (mobile) extendido con `loginWithBiometric` + `setAuthState`.
+  - **Regla arquitectónica**: cero lógica de negocio condicionada por `ORDERFLOW_MODE` en services; la diferencia es responsabilidad de guards/middleware.
+  - Prisma generate OK | Backend `npm run build` clean | Mobile `tsc --noEmit` clean | Frontend `vite build` clean.
+
+## [1.34.8] - 2026-09-19
+- **FEAT-121 — POS Core Cash Management** (`backend/src/pos/`):
+  - `CashManagementService`: apertura sesión con PIN (valida `User.pinCode`), cash in/out (CHANGE_FUND, SAFE_DROP, PAYOUT, OPERATIONAL_EXPENSE, REFUND) que **NO afectan cierre de caja**, Arqueo X (intermedio solo informa), Arqueo Z (cierre con varianza).
+  - Endpoints: `open-pin`, `cash/in`, `cash/out`, `reports/x`, `reports/z`.
+- **FEAT-122 — KDS & Printer Feature Toggles** (`PosConfig`):
+  - 35 feature toggles configurables por Admin/SuperAdmin.
+- **FEAT-119/121/122 UI** — Frontend stores: `usePosStore`, `useGastroStore`, `useKdsStore`, `useBillSplitStore`.
+
+## [1.34.8] - 2026-09-19
+
+### 🍽️ OmniGastro / Frontend POS/KDS Stores (FEAT-121, 122, 119 UI)
+- **Stores Frontend** (`frontend/src/store/`):
+  - `usePosStore`: FEAT-121 cash management (activeCashSession, cashMovements, arqueoX/Z), FEAT-119 seat-level (`updateLineSeat`, `markLineAsGift`), FEAT-122 feature toggles en `PosConfigState`.
+  - `useGastroStore`: FEAT-115/119 table guests (`TableGuestState`, add/remove/update/transfer), statuses extendidos (CLEANING, RESERVED).
+  - `useKdsStore` (nuevo): tickets, stations, bump bar (START/READY/SERVE/VOID), auto-status basado en líneas.
+  - `useBillSplitStore` (nuevo): splits, pagos, estados PENDING/PARTIAL/PAID.
+- **TypeScript clean** | Build exitoso | 865/865 tests passing.
+
+## [1.34.7] - 2026-09-19
+
+### 🍽️ OmniGastro / POS Core & KDS Config (FEAT-121, FEAT-122)
+- **FEAT-121 — POS Core Cash Management** (`backend/src/pos/`):
+  - `CashManagementService`: apertura sesión con PIN (valida `User.pinCode`), cash in/out (CHANGE_FUND, SAFE_DROP, PAYOUT, OPERATIONAL_EXPENSE, REFUND) que **NO afectan cierre de caja**, Arqueo X (intermedio solo informa), Arqueo Z (cierre con varianza).
+  - Endpoints: `POST /pos/sessions/open-pin`, `POST /pos/cash/in`, `POST /pos/cash/out`, `POST /pos/reports/x`, `POST /pos/reports/z`, `GET /pos/reports/z/:id`.
+  - `PosCoreService` CRUD + feature toggles.
+- **FEAT-122 — KDS & Printer Feature Toggles** (`PosConfig`):
+  - 35 feature toggles configurables por Admin/SuperAdmin:
+    - Mesas: `enableTables`, `enableFloorMap`, `enableTableTransfer`, `enableSeatManagement`, `enableCrossTableGifting`
+    - KDS: `enableKDS`, `enableKDSBumpBar`, `enableKDSCoursing`, `enableKitchenPrinter` (IP/puerto)
+    - Impresión: `enableOrderPrinter` (IP/puerto), `printAutoOnConfirm`, `printBillOnPayment`
+    - Takeaway/Delivery: `enableTakeaway`, `enableDelivery`, `enableSelfOrdering`, `enableQRMenu`
+    - Pagos: `enableCashControl`, `enableCardPayments`, `enableTransferPayments`, `enableSplitPayments`, `enableTipOnPayment`
+    - Fidelización: `enableLoyalty`, `loyaltyAutoEnroll`
+  - Permite negocios sin mesas (solo KDS), solo impresoras, o ambos.
+- **Manifiestos core** actualizados: `pos`, `pos-sessions`, `tables`, `kds`, `bom`, `bill-split`, `positions` a `1.34.7`.
+
+## [1.34.6] - 2026-09-19
+
+### 🍽️ OmniGastro / HR Bridge (FEAT-120)
+- **Position (Cargos/Puestos)** — Modelo bridge hacia OmniHRMS (`backend/src/positions/`, `backend/prisma/schema.prisma`):
+  - Modelo `Position`: name, code, description, baseRole (mapea a UserRole), active, tenantId.
+  - `UserTenantAccess.positionId` FK → Position (nullable).
+  - `PositionService`: CRUD + `seedDefaultPositions()` (Cajero/CASHIER→SELLER, Mozo/WAITER→WAITER, Cocinero/COOK→EMPLOYEE, Jefe de Sala/HEAD_WAITER→MANAGER, Barman/BARMAN→WAITER, Host/HOST→EMPLOYEE).
+  - `PositionController`: endpoints CRUD + `POST /positions/seed` para cargar defaults OmniGastro.
+  - `UsersController` actualizado: `positionId` en `create`/`update`, incluye `position` en `findAll`/`staff`.
+  - 11/11 tests passing.
+- **Manifiesto core** `positions` creado v1.34.6.
+- **Prisma generate** OK con nuevos modelos.
+
+## [1.34.5] - 2026-09-19
+
+### 🍽️ OmniGastro / Tables & Guest Experience (FEAT-119)
+- **FEAT-119 — Seat-level Ordering + Cross-Table Gifting + Punto Pivote** (`backend/src/tables/`):
+  - `TablesService`: `createCrossTableGift`, `getSeatOrderSummary`, `sendGiftToSeat`.
+  - `TablesController`: 3 nuevos endpoints:
+    - `POST /tables/:id/gift` — enviar regalo a comensal de otra mesa (o misma).
+    - `GET /tables/:id/seat-summary` — resumen de pedidos agrupados por asiento.
+    - `POST /tables/:id/gift-line` — regalar línea existente a otro comensal (re-gifting).
+  - Aprovecha modelos existentes: `OrderLine` (seatNumber, isGift, targetSeatNumber, giftMessage), `Order` (giftBannerText), `TableGuest` (seatNumber, status).
+  - 8/8 tests passing.
+- **Manifiesto core** `tables` actualizado a `1.34.5`.
+
+## [1.34.4] - 2026-09-19
+
+### 🍽️ OmniGastro / Billing, KDS y Costing (FEAT-116, FEAT-117, FEAT-118)
+- **FEAT-116 — Split Billing** (`backend/src/bill-split/`):
+  - `BillSplitService` con createBillSplit/getBillSplit/markPaid/cancel.
+  - `BillSplitController` con 4 endpoints (`orders:read`, `orders:create`).
+  - Modelos `BillSplit` y `SplitPayment` en schema.
+  - 10/10 tests passing.
+- **FEAT-117 — Kitchen Display System** (`backend/src/kds/`):
+  - `KitchenTicketService` con createTicket/getTickets/bumpBarAction/cancelTicket/getStations/createStation.
+  - `KdsController` con 5 endpoints. Flujo bump bar: START→READY→SERVE/VOID.
+  - Modelos `PreparationStation`, `KitchenTicket`, `KitchenTicketLine` en schema.
+  - 9/9 tests passing.
+- **FEAT-118 — Live Escandallo Engine** (`backend/src/bom/live-escandallo.service.ts`):
+  - Explosión recursiva de `ProductBom` tipo KIT_PHANTOM.
+  - Ajuste dinámico por modificadores + factor de merma (wastePercentage).
+  - Snapshot costAtSale/unitCost al momento de venta.
+  - Caché in-memory (reemplazable por Redis).
+  - 7/7 tests passing.
+- **Integración**: `BillSplitModule`, `KdsModule` y `LiveEscandalloService` (en `BomModule`) agregados a `app.module.ts`.
+- **Manifiestos core** actualizados: `bill-split`, `kds`, `bom` a `1.34.4`.
+- **AGENTS.md regla #11** actualizada con aclaración de vertical-specific (patch dentro de vertical existente).
+
+## [1.34.3] - 2026-09-19
+
+### 🍽️ OmniGastro / Guest Experience (FEAT-125 DB Migration)
+- **Migración de persistencia JSON → DB real** (`backend/src/guest/`, `backend/src/waiter/`):
+  - `GuestTablesController`: usa `RestaurantTable.findFirst({ token })` en lugar de `Tenant.config.gastro.qrTokens`.
+  - `GuestOrdersController`: crea `Order` con `tableId` FK real + `WaiterCall.create()` en tabla DB.
+  - `GuestCallWaiterController`: usa `WaiterCallOption.findFirst()` + `WaiterCall.create()` (tablas reales).
+  - `WaiterCallsController`: list/acknowledge/take-order/resolve sobre modelo `WaiterCall`.
+  - `AdminWaiterCallOptionsController` (nuevo): CRUD completo sobre `WaiterCallOption`.
+- **FEAT-115 Tests**: 5 nuevos tests en `tables.service.spec.ts` (TableGuest + TableTransferLog, 100% coverage).
+- **@TenantPrisma() decorator** activo en todos los endpoints de `TablesController`.
+- **Eliminación de deuda técnica**: persistencia en `Tenant.config.gastro` (JSON) ya no se usa.
+
+### 🔧 Mejoras de Infraestructura
+- **Estándar de versionado por feature** agregado a `AGENTS.md` regla #11: cada FEAT requiere `patch`/`minor` bump en `VERSION`, `package.json`, `featurelist.json` y manifests core.
+- **Sincronización de manifests core** (`tables`, `pos`, `pos-sessions`) a `1.34.3`.
+
 ## [1.34.2] - 2026-09-16
+
+### 🎂 Fidelización / Sistema de Cumpleaños
+- **Detección automática de cumpleaños** (`backend/src/loyalty/`, `backend/src/loyalty/birthday/`):
+  - Cron diario que detecta clientes con cumpleaños y dispara campañas automáticas de fidelización.
+  - Push notifications personalizadas vía OneSignal para felicitación + cupón de regalo.
+  - Campañas de cumpleaños configurables por tenant (mensaje, descuento, vigencia).
+- **Endpoint de cumpleaños** (`GET /api/v1/loyalty/birthdays/today`):
+  - Lista de clientes con cumpleaños hoy (requiere autenticación admin/staff).
+- **Sistema de cupones de cumpleaños**: Generación automática de cupones de fidelización vinculados a campañas de cumpleaños.
 
 ### 🍽️ Gestión de Mozos (OmniGastro)
 - **Llamada automática al mozo al crear pedido guest** (`backend/src/guest/guest-orders.controller.ts`):
