@@ -48,5 +48,5 @@ docs/
 - **Configuración de IA** integrada en el panel de administración, sin variables de entorno hardcodeadas.
 - **Sincronización Local-First** de diagramas BPMN mediante PouchDB/CouchDB.
 - **Historial de cambios** de diagramas con trazabilidad por versión y rollback.
-- **Code-splitting dinámico** con Vite: bundle principal reducido de ~1.47MB a ~594KB.
+- **Code-splitting dinámico** con Vite: bundle principal reducido de ~1.47MB a ~452KB.
 - **Pruebas unitarias** automatizadas para validadores BPMN, factory de IA y settings.
