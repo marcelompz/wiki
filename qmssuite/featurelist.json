@@ -1,0 +1,153 @@
+{
+  "version": "1.10.0",
+  "lastUpdated": "2026-09-22",
+  "features": [
+    {
+      "id": "FEAT-001",
+      "title": "Control Documental ISO 9001 §7.5",
+      "status": "completed",
+      "description": "Lista maestra de documentos con versionado, aprobación por PIN, hash SHA-256, backup Google Drive y trazabilidad completa.",
+      "modules": ["Lista Maestra", "DocumentDetailModal", "GoogleDrive"]
+    },
+    {
+      "id": "FEAT-002",
+      "title": "Organigrama Interactivo",
+      "status": "completed",
+      "description": "Visualización del organigrama de la empresa con roles y usuarios.",
+      "modules": ["OrganigramaView"]
+    },
+    {
+      "id": "FEAT-003",
+      "title": "Checklist Designer",
+      "status": "completed",
+      "description": "Diseñador de listas de verificación para inspecciones y auditorías.",
+      "modules": ["ChecklistDesigner"]
+    },
+    {
+      "id": "FEAT-004",
+      "title": "Recetario y Escalado",
+      "status": "completed",
+      "description": "Gestión de recetas industriales con cálculo de mermas y escalado de producción.",
+      "modules": ["RecipeManager"]
+    },
+    {
+      "id": "FEAT-005",
+      "title": "Multi-rol y Auth",
+      "status": "completed",
+      "description": "Sistema de autenticación con roles: SUPER_ADMIN, QUALITY_MANAGER, PROCESS_OWNER, AUTHOR, STAKEHOLDER.",
+      "modules": ["LoginPage", "UserManager", "googleAuthNative"]
+    },
+    {
+      "id": "FEAT-006",
+      "title": "Kiosco PWA Planta",
+      "status": "completed",
+      "description": "Modo kiosco táctil para captura de checklists en planta, offline-first.",
+      "modules": ["KioskView"]
+    },
+    {
+      "id": "FEAT-007",
+      "title": "Inspector Móvil",
+      "status": "completed",
+      "description": "App móvil para auditorías con cámara, QR y geolocalización.",
+      "modules": ["MobileInspectorView"]
+    },
+    {
+      "id": "FEAT-008",
+      "title": "Terminal de Pesaje",
+      "status": "completed",
+      "description": "Terminal fija para balanza RS-232, tara e impresión ZPL.",
+      "modules": ["DesktopTerminalView"]
+    },
+    {
+      "id": "FEAT-009",
+      "title": "Backups e Infra",
+      "status": "completed",
+      "description": "Panel de backups y estado de infraestructura.",
+      "modules": ["BackupsAndInfra"]
+    },
+    {
+      "id": "FEAT-010",
+      "title": "API Docs",
+      "status": "completed",
+      "description": "Documentación OpenAPI/Swagger integrada.",
+      "modules": ["OpenApiDocs"]
+    },
+    {
+      "id": "FEAT-011",
+      "title": "Generador IA de Diagramas BPMN 2.0",
+      "status": "completed",
+      "description": "Generación automática de flujogramas BPMN 2.0 desde texto de procedimientos usando IA multi-proveedor (Gemini/OpenAI/Ollama), con editor visual, aprobación con PIN y trazabilidad ISO 9001 §7.5.",
+      "modules": ["bpmnGenerator", "BpmnEditor", "SettingsPanel", "ai/*"]
+    },
+    {
+      "id": "FEAT-012",
+      "title": "Configuración de Proveedores de IA",
+      "status": "completed",
+      "description": "Panel de configuración para seleccionar proveedor de IA (Gemini/OpenAI/Ollama) y cargar credenciales/base URLs/modelos sin hardcodear.",
+      "modules": ["SettingsPanel", "QmsSettingsService"]
+    },
+    {
+      "id": "FEAT-013",
+      "title": "Code-splitting y Optimización de Bundle",
+      "status": "completed",
+      "description": "Bundle principal reducido de ~1.47MB a ~452KB mediante dynamic imports, manualChunks y lazy loading de módulos.",
+      "modules": ["vite.config", "App.tsx", "ai/gemini.ts"]
+    },
+    {
+      "id": "FEAT-014",
+      "title": "Pruebas Unitarias",
+      "status": "completed",
+      "description": "Suite de tests Jest con 15 casos pasando: validadores BPMN, factory de IA y settings.",
+      "modules": ["__tests__/ai", "__tests__/services"]
+    },
+    {
+      "id": "FEAT-015",
+      "title": "Plan de Evolución Lean ISO",
+      "status": "in_progress",
+      "description": "Plan estratégico para evolucionar QMSSuite hacia una plataforma de Lean Transformation potenciada por IA, con 5 fases: VSM, Riesgos, IA Ingest, KPIs/SIPOC, Gobernanza.",
+      "modules": ["docs/plans/Plan-Implementacion-EvolucionQMSSuiteLeanISO.md"]
+    }
+  ],
+  "next": [
+    {
+      "id": "FEAT-016",
+      "title": "Motor VSM & Calculadora de Costos de Merma",
+      "status": "pending",
+      "description": "Categorización Lean (VA/NVA/NVA), cálculo automático de costo anual y visualización de línea de tiempo VSM desde BPMN.",
+      "priority": "high",
+      "estimatedSprints": 2
+    },
+    {
+      "id": "FEAT-017",
+      "title": "Matriz de Riesgos ISO 9001 §6.1",
+      "status": "pending",
+      "description": "Generación por IA de riesgos, mapa de calor dinámico y checklist PWA offline para verificación de controles.",
+      "priority": "high",
+      "estimatedSprints": 2
+    },
+    {
+      "id": "FEAT-018",
+      "title": "Captura Multimodal e Ingesta Inteligente",
+      "status": "pending",
+      "description": "Voice-to-BPMN con LLMs y OCR inteligente para ingesta de manuales obsoletos en PDF/Word.",
+      "priority": "medium",
+      "estimatedSprints": 2
+    },
+    {
+      "id": "FEAT-019",
+      "title": "SIPOC y Motor de Recomendación de KPIs",
+      "status": "pending",
+      "description": "Estructura SIPOC, sugerencia inteligente de indicadores y conectividad RS-232 para balanzas.",
+      "priority": "medium",
+      "estimatedSprints": 2
+    },
+    {
+      "id": "FEAT-020",
+      "title": "Gobernanza de Proyectos de Mejora",
+      "status": "pending",
+      "description": "Gestión de Quick Wins, matriz Impacto vs. Complejidad y dashboard ejecutivo BI.",
+      "priority": "medium",
+      "estimatedSprints": 2
+    }
+  ]
+}
