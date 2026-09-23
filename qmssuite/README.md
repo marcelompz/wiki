@@ -50,4 +50,5 @@ docs/
 - **Historial de cambios** de diagramas con trazabilidad por versión y rollback.
 - **Code-splitting dinámico** con Vite: bundle principal reducido de ~1.47MB a ~452KB.
 - **Motor VSM & Calculadora de Costos de Merma** para análisis Lean de procesos (VA/NVA/NVA), costos anualizados y ratio de valor agregado.
+- **Matriz de Riesgos ISO 9001 §6.1** con registro de riesgos, cálculo de impacto/probabilidad inherente y residual, mapa de calor y estados de tratamiento.
 - **Pruebas unitarias** automatizadas para validadores BPMN, factory de IA y settings.
