@@ -103,9 +103,25 @@
     {
       "id": "FEAT-015",
       "title": "Plan de Evolución Lean ISO",
-      "status": "in_progress",
+      "status": "completed",
       "description": "Plan estratégico para evolucionar QMSSuite hacia una plataforma de Lean Transformation potenciada por IA, con 5 fases: VSM, Riesgos, IA Ingest, KPIs/SIPOC, Gobernanza.",
       "modules": ["docs/plans/Plan-Implementacion-EvolucionQMSSuiteLeanISO.md"]
+    },
+    {
+      "id": "FEAT-016",
+      "title": "Motor VSM & Calculadora de Costos de Merma",
+      "status": "completed",
+      "description": "Categorización Lean (VA/NVA/NVA), cálculo automático de costo anual y visualización de línea de tiempo VSM desde BPMN.",
+      "priority": "high",
+      "estimatedSprints": 2
+    },
+    {
+      "id": "FEAT-017",
+      "title": "Matriz de Riesgos ISO 9001 §6.1",
+      "status": "in_progress",
+      "description": "Generación por IA de riesgos, mapa de calor dinámico y checklist PWA offline para verificación de controles.",
+      "priority": "high",
+      "estimatedSprints": 2
     }
   ],
   "next": [
