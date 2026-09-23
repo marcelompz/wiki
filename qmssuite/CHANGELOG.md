@@ -3,6 +3,165 @@
 Todos los cambios notables en este proyecto se documentan en este archivo.
 El formato se basa en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/) y se adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
+## [1.20.0] - 2026-09-23
+
+### Agregado
+- **Mejoras UI/UX y Accesibilidad (FEAT-028)**:
+  - Ajustes visuales, accesibilidad y experiencia de usuario en módulos existentes.
+
+- **Cobertura Ampliada de Pruebas Unitarias (FEAT-029)**:
+  - Suite Jest ampliada con tests para servicios, exportaciones, storage e IA contextual.
+  - Tests nuevos: `storage.test.ts`, `processInsightAi.test.ts`, `processInsightExportEdge.test.ts`.
+
+### Corregido
+- Ajustes menores en code-splitting y lazy loading de módulos.
+
+---
+
+## [1.19.0] - 2026-09-23
+
+### Agregado
+- **Scaffolding Backend NestJS + Prisma (FEAT-027)**:
+  - Estructura inicial en `backend/` con `AppModule`, `PrismaModule`, schema Prisma y Dockerfile.
+  - Entidades base: `Document`, `DocumentVersion`, `DocumentApproval`, `SipocDiagram`, `GovernanceProject`, `ProcessInsight`, `ProcessInsightSimulation`, `ProcessInsightHistory`.
+  - docker-compose actualizado con servicio `qms-backend`.
+
+### Corregido
+- Ajustes menores en code-splitting y lazy loading de módulos.
+
+---
+
+## [1.18.0] - 2026-09-23
+
+### Agregado
+- **Persistencia Extendida para Simulaciones e Historial (FEAT-026)**:
+  - `QmsStorage` ahora soporta simulaciones e historial de insights con réplica Local-First.
+  - `ProcessInsightView` guarda simulaciones y eventos recientes en el historial.
+
+### Corregido
+- Ajustes menores en code-splitting y lazy loading de módulos.
+
+---
+
+## [1.17.0] - 2026-09-23
+
+### Agregado
+- **Cobertura de Pruebas Unitarias (FEAT-025)**:
+  - Tests para `processInsight.ts`: context builders, generación de sugerencias y simulador.
+  - Tests para `processInsightExport.ts`: payload PDF, CSV y verificación de exportación.
+  - Suite total: 23 tests passing.
+
+### Corregido
+- Ajustes menores en code-splitting y lazy loading de módulos.
+
+---
+
+## [1.16.0] - 2026-09-23
+
+### Agregado
+- **IA Contextual en Recomendaciones (FEAT-024)**:
+  - Integración de `QmsSettingsService` en `processInsight.ts` para enriquecer sugerencias con IA multi-proveedor.
+  - Botón "Enriquecer con IA" en `ProcessInsightView` con carga y fallback seguro.
+  - Sin modificar módulos previos; usa factory existente.
+
+### Corregido
+- Ajustes menores en code-splitting y lazy loading de módulos.
+
+---
+
+## [1.15.0] - 2026-09-23
+
+### Agregado
+- **Persistencia Local-First FEAT-023**:
+  - Extensiones en `QmsStorage` para SIPOC, Gobernanza e Insights con réplica `qmsLocalFirst`.
+  - Vínculo de persistencia en `SipocView`, `GovernanceView` y `ProcessInsightView`.
+
+### Corregido
+- Ajustes menores en code-splitting y lazy loading de módulos.
+
+---
+
+## [1.14.0] - 2026-09-23
+
+### Agregado
+- **Exportación de Recomendaciones (FEAT-022)**:
+  - Nuevo servicio `src/services/processInsightExport.ts` para exportar recomendaciones a CSV y payload listo para PDF.
+  - Integración en `ProcessInsightView` con botones de exportación y confirmación visual.
+  - Sin dependencias nuevas; listo para conectar con `jspdf`/`exceljs` en releases posteriores.
+
+### Corregido
+- Ajustes menores en code-splitting y lazy loading de módulos.
+
+---
+
+## [1.13.0] - 2026-09-23
+
+### Agregado
+- **Motor de Recomendación y Simulación de Mejoras (FEAT-021)**:
+  - Nuevo módulo `ProcessInsightView` para integrar VSM, SIPOC, Riesgos y Gobernanza en recomendaciones accionables.
+  - Tipos en `src/types/processInsight.ts` (`ImprovementSuggestion`, `SimulationInput`, `SimulationResult`).
+  - Servicio `src/services/processInsight.ts` con generación de sugerencias por dominio y simulador financiero.
+  - Integración en panel admin con subtab "Insights" y lazy loading.
+
+### Corregido
+- Ajustes menores en code-splitting y lazy loading de módulos.
+
+---
+
+## [1.12.0] - 2026-09-23
+
+### Agregado
+- **SIPOC y Motor de Recomendación de KPIs (FEAT-019)**:
+  - Nuevo módulo `SipocView` para diagramas SIPOC de 5 columnas.
+  - Tipos en `src/types/sipoc.ts` (SipocElement, SipocDiagram, KpiDefinition, KpiRecommendation).
+  - Servicio `src/services/sipoc.ts` con catálogo de KPIs por sector, validación de integridad y recomendaciones contextuales.
+  - Integración en panel admin con subtab "SIPOC / KPIs".
+  - Lazy loading del módulo para mantener el bundle optimizado.
+- **Gobernanza de Proyectos de Mejora (FEAT-020)**:
+  - Nuevo módulo `GovernanceView` para gestión de proyectos de mejora continua.
+  - Tipos en `src/types/governance.ts` (ImprovementProject, QuickWin, GovernanceSummary, MatrixCell).
+  - Servicio `src/services/governance.ts` con CRUD de proyectos, cálculo de Quick Wins, matriz Impacto vs Complejidad y resumen financiero.
+  - Dashboard ejecutivo con tarjetas de resumen, tabla de proyectos, lista de Quick Wins y matriz de priorización.
+  - Integración en panel admin con subtab "Gobernanza".
+  - Lazy loading del módulo para mantener el bundle optimizado.
+
+### Corregido
+- Ajustes menores en code-splitting y lazy loading de módulos.
+
+---
+
+## [1.11.0] - 2026-09-23
+
+### Agregado
+- **Motor VSM & Calculadora de Costos de Merma (FEAT-016)**:
+  - Nuevo módulo `VsmView` para análisis Lean de procesos.
+  - Tipos VSM en `src/types/vsm.ts` (VsmProcess, VsmSummary, VsmNodeMetadata).
+  - Servicio `src/services/vsm.ts` con cálculo automático de VA/NVA, costos anualizados y ratio de valor agregado.
+  - Clasificación de actividades: VA, NNVA, NVA.
+  - Integración en panel admin con subtab "Motor VSM".
+- **Matriz de Riesgos ISO 9001 §6.1 (FEAT-017)**:
+  - Nuevo módulo `RiskMatrixView` para registro y evaluación de riesgos.
+  - Tipos en `src/types/risk.ts` (RiskRegister, RiskLevel, RiskStatus).
+  - Servicio `src/services/risk.ts` con cálculo de impacto/probabilidad inherente y residual, mapa de calor y helpers de estado.
+  - Integración en panel admin con subtab "Matriz de Riesgos".
+- **Captura Multimodal e Ingesta Inteligente (FEAT-018)**:
+  - Nuevo módulo `VoiceToBpmnView` para dictado por voz y carga de archivos.
+  - Tipos en `src/types/multimodal.ts` (CaptureMode, VoiceCaptureState, FileCaptureState).
+  - Servicio `src/services/multimodal.ts` con captura de voz usando Web Speech API y extracción básica de texto desde PDF/Word/imágenes.
+  - Generación directa de BPMN desde texto dictado o extraído.
+  - Integración en panel admin con subtab "Voz a BPMN".
+- **SIPOC y Motor de Recomendación de KPIs (FEAT-019)**:
+  - Nuevo módulo `SipocView` para diagramas SIPOC de 5 columnas.
+  - Tipos en `src/types/sipoc.ts` (SipocElement, SipocDiagram, KpiDefinition, KpiRecommendation).
+  - Servicio `src/services/sipoc.ts` con catálogo de KPIs por sector, validación de integridad y recomendaciones contextuales.
+  - Integración en panel admin con subtab "SIPOC / KPIs".
+  - Lazy loading del módulo para mantener el bundle optimizado.
+
+### Corregido
+- Ajustes menores en code-splitting y lazy loading de módulos.
+
+---
+
 ## [1.10.0] - 2026-09-22
 
 ### Agregado
@@ -10,6 +169,7 @@ El formato se basa en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/
 - **Historial de cambios de diagramas BPMN** con registro de `bpmnVersionHistory` y detección de modificaciones por contenido/hash.
 - **Soporte de drag & drop** para archivos `.bpmn`/`.xml` en el editor BPMN.
 - **Indicadores de cambio** en el modal de documento cuando el diagrama fue editado o regenerado.
+- **Code-splitting dinámico** con Vite: bundle principal reducido de ~1.47MB a ~452KB mediante dynamic imports de módulos admin, clientes, BpmnEditor, bpmnGenerator y proveedores de IA.
 
 ### Corregido
 - Ajustes menores en sincronización Local-First de `bpmnXml` y manejo de errores en importación.

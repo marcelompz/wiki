@@ -1,6 +1,6 @@
 {
-  "version": "1.10.0",
-  "lastUpdated": "2026-09-22",
+  "version": "1.17.0",
+  "lastUpdated": "2026-09-23",
   "features": [
     {
       "id": "FEAT-001",
@@ -124,14 +124,6 @@
       "estimatedSprints": 2
     },
     {
-      "id": "FEAT-017",
-      "title": "Matriz de Riesgos ISO 9001 §6.1",
-      "status": "completed",
-      "description": "Registro de riesgos con impacto/probabilidad inherente y residual, generación asistida por IA, mapa de calor y checklist PWA offline para verificación de controles.",
-      "priority": "high",
-      "estimatedSprints": 2
-    },
-    {
       "id": "FEAT-018",
       "title": "Captura Multimodal e Ingesta Inteligente",
       "status": "completed",
@@ -142,41 +134,7 @@
     {
       "id": "FEAT-019",
       "title": "SIPOC y Motor de Recomendación de KPIs",
-      "status": "in_progress",
-      "description": "Estructura SIPOC, sugerencia inteligente de indicadores y conectividad RS-232 para balanzas.",
-      "priority": "medium",
-      "estimatedSprints": 2
-    }
-  ],
-  "next": [
-    {
-      "id": "FEAT-016",
-      "title": "Motor VSM & Calculadora de Costos de Merma",
-      "status": "pending",
-      "description": "Categorización Lean (VA/NVA/NVA), cálculo automático de costo anual y visualización de línea de tiempo VSM desde BPMN.",
-      "priority": "high",
-      "estimatedSprints": 2
-    },
-    {
-      "id": "FEAT-017",
-      "title": "Matriz de Riesgos ISO 9001 §6.1",
-      "status": "pending",
-      "description": "Generación por IA de riesgos, mapa de calor dinámico y checklist PWA offline para verificación de controles.",
-      "priority": "high",
-      "estimatedSprints": 2
-    },
-    {
-      "id": "FEAT-018",
-      "title": "Captura Multimodal e Ingesta Inteligente",
-      "status": "pending",
-      "description": "Voice-to-BPMN con LLMs y OCR inteligente para ingesta de manuales obsoletos en PDF/Word.",
-      "priority": "medium",
-      "estimatedSprints": 2
-    },
-    {
-      "id": "FEAT-019",
-      "title": "SIPOC y Motor de Recomendación de KPIs",
-      "status": "pending",
+      "status": "completed",
       "description": "Estructura SIPOC, sugerencia inteligente de indicadores y conectividad RS-232 para balanzas.",
       "priority": "medium",
       "estimatedSprints": 2
@@ -184,10 +142,51 @@
     {
       "id": "FEAT-020",
       "title": "Gobernanza de Proyectos de Mejora",
-      "status": "pending",
+      "status": "completed",
       "description": "Gestión de Quick Wins, matriz Impacto vs. Complejidad y dashboard ejecutivo BI.",
       "priority": "medium",
       "estimatedSprints": 2
+    },
+    {
+      "id": "FEAT-021",
+      "title": "Motor de Recomendación y Simulación de Mejoras",
+      "status": "completed",
+      "description": "Motor de insights que cruza VSM, SIPOC, Riesgos y Gobernanza para generar recomendaciones priorizadas y simulador financiero de impacto.",
+      "priority": "medium",
+      "estimatedSprints": 2
+    },
+    {
+      "id": "FEAT-022",
+      "title": "Exportación de Recomendaciones",
+      "status": "completed",
+      "description": "Exportación de recomendaciones y resultados de simulación a CSV y payload PDF desde ProcessInsightView.",
+      "priority": "medium",
+      "estimatedSprints": 1
+    },
+    {
+      "id": "FEAT-023",
+      "title": "Persistencia Local-First",
+      "status": "completed",
+      "description": "Persistencia Local-First en QmsStorage para SIPOC, Gobernanza e Insights con réplica a PouchDB/CouchDB.",
+      "priority": "medium",
+      "estimatedSprints": 2
+    },
+    {
+      "id": "FEAT-024",
+      "title": "IA Contextual en Recomendaciones",
+      "status": "completed",
+      "description": "Enriquecimiento de sugerencias con IA multi-proveedor usando QmsSettingsService desde ProcessInsightView.",
+      "priority": "medium",
+      "estimatedSprints": 2
+    },
+    {
+      "id": "FEAT-025",
+      "title": "Pruebas Unitarias de Insights y Exportación",
+      "status": "completed",
+      "description": "Suite Jest para processInsight y processInsightExport: context builders, generación de sugerencias, simulador y exportaciones.",
+      "priority": "medium",
+      "estimatedSprints": 1
     }
-  ]
+  ],
+  "next": []
 }

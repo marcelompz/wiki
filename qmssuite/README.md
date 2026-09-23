@@ -48,8 +48,6 @@ docs/
 - **Configuración de IA** integrada en el panel de administración, sin variables de entorno hardcodeadas.
 - **Sincronización Local-First** de diagramas BPMN mediante PouchDB/CouchDB.
 - **Historial de cambios** de diagramas con trazabilidad por versión y rollback.
-- **Code-splitting dinámico** con Vite: bundle principal reducido de ~1.47MB a ~452KB.
-- **Motor VSM & Calculadora de Costos de Merma** para análisis Lean de procesos (VA/NVA/NVA), costos anualizados y ratio de valor agregado.
-- **Matriz de Riesgos ISO 9001 §6.1** con registro de riesgos, cálculo de impacto/probabilidad inherente y residual, mapa de calor y estados de tratamiento.
-- **Captura Multimodal e Ingesta Inteligente** con dictado por voz (Web Speech API) y carga de PDF/Word para generar BPMN automáticamente.
 - **Pruebas unitarias** automatizadas para validadores BPMN, factory de IA y settings.
+- **Cobertura ampliada de pruebas unitarias (Jest)** para storage, exportaciones edge cases y enriquecimiento IA.
+- **Mejoras UI/UX y accesibilidad** en módulos existentes.
