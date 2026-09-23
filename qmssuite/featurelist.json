@@ -124,10 +124,26 @@
       "estimatedSprints": 2
     },
     {
+      "id": "FEAT-017",
+      "title": "Matriz de Riesgos ISO 9001 §6.1",
+      "status": "completed",
+      "description": "Registro de riesgos con impacto/probabilidad inherente y residual, generación asistida por IA, mapa de calor y checklist PWA offline para verificación de controles.",
+      "priority": "high",
+      "estimatedSprints": 2
+    },
+    {
       "id": "FEAT-018",
       "title": "Captura Multimodal e Ingesta Inteligente",
-      "status": "in_progress",
+      "status": "completed",
       "description": "Voice-to-BPMN con LLMs y OCR inteligente para ingesta de manuales obsoletos en PDF/Word.",
+      "priority": "medium",
+      "estimatedSprints": 2
+    },
+    {
+      "id": "FEAT-019",
+      "title": "SIPOC y Motor de Recomendación de KPIs",
+      "status": "in_progress",
+      "description": "Estructura SIPOC, sugerencia inteligente de indicadores y conectividad RS-232 para balanzas.",
       "priority": "medium",
       "estimatedSprints": 2
     }
