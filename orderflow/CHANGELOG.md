@@ -18,6 +18,21 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.
   - Verifica: git status, SSH, espacio en disco, Docker daemon/Compose, contenedores huérfanos, redes, volúmenes, `docker compose config`, env vars y conectividad a DB primaria.
   - Aborta el deploy ante fallos críticos; permite continuar con advertencias.
 - **Troubleshooting #163** — Documentado fix integral de réplica: routing, `pg_hba.conf`, password, sintaxis de `primary_conninfo`, permisos de data directory y arranque como `postgres`.
+- **Protección de uploads** — `docker volume prune` excluye `uploads_data`; backup automático del volumen antes de cada deploy en `backups/uploads_backup_<timestamp>.tar.gz`.
+- **Plan de backups con filestore** — Creado `docs/plans/omnigastro/backups-filestore-post-sprint.md` para implementar backup completo (DB + filestore) y restore estructurado en una fase posterior.
+
+### 🍽️ OmniGastro — Sprint Provecchio (Prueba de Campo)
+- **Modal llamar al mozo** — Reemplazado `Radio.Group` por `Select` en `omni-catalog.tsx` para evitar selección múltiple y mejorar legibilidad. Ahora permite envío con solo texto o solo opción.
+- **Panel admin reactivo** — `gastro.tsx` ahora filtra llamadas y pedidos por `omniGastroActiveWaiter` (PIN activo). Si no hay waiter activo, muestra todo (admin).
+- **Notificación sonora** — El panel gastro ya dispara `playNotificationSound("call")` en `waiterCallNew` y `playNotificationSound("update")` en `waiterCallUpdate`.
+- **RBAC y autoasignación por PIN** — El mozo autenticado por PIN se autoasigna al atender llamadas (`waiterId` en body). El backend guarda `acknowledgedById` y `waiterId` en `waiterCall`.
+- **Troubleshooting #164** — Documentado fix de `VITE_API_URL` en producción.
+- **Troubleshooting #165** — Documentada pérdida de uploads y mitigación en deploy.
+
+### 📋 Docs
+- Creado `docs/plans/omnigastro/sprint-provecho-campo.md` con sprint de prueba en campo.
+- Actualizado `docs/REPLICA_STANDBY.md` con nota de arquitectura failover y referencia al plan Tailscale.
+- Actualizado índice `docs/troubleshooting/README.md` con entradas #164 y #165.
 
 ### 📋 Docs
 - Creado `docs/plans/omni-gastro/plans/tailscale-provecchio-replica.md` con plan de migración a Tailscale/NetBird para cerrar el puerto 5432 públicamente.
