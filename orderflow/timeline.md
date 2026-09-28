@@ -1,8 +1,8 @@
 # Línea de Tiempo y Evolución de OmniFlow
 
-**Última actualización:** 2026-09-08  
-**Versión actual:** `v1.27.10`  
-**Próximo hito:** `v1.28.0` — OmniMessaging Hub IA, WhatsApp Web Connector, Token Management Admin
+**Última actualización:** 2026-09-28  
+**Versión actual:** `v1.37.0`  
+**Próximo hito:** `v1.38.0` — Tauri Desktop & OmnIoT Edge
 **Documento fuente:** `CHANGELOG.md`, `ROADMAP.md`, `featurelist.json`
 
 ---
@@ -120,12 +120,17 @@ timeline
                    : CustomEvent inter-context bridge para ConfigModal
                    : Estado no-autenticado inicial (sin tenant hardcodeado)
                    : Chrome & Firefox bundles en frontend/public/downloads/
-    2026-09-08 : v1.27.10
+     2026-09-08 : v1.27.10
                    : Admin Token Management (/admin/tokens)
                    : API Key endpoints para admin token generation
                    : JWT display + session config duration
                    : Web Extension bundles (Chrome v2.5.0 + Firefox latest) deployed to Provecchio & Production
                    : Swagger version v1.27.10, ROADMAP + timeline actualizados
+     2026-09-28 : v1.37.0
+                   : Provecchio Failover Activo — Réplica PostgreSQL sincronizada
+                   : Protocolo pre-deploy diagnóstico (`scripts/pre-deploy-diagnostic.sh`)
+                   : Troubleshooting #163 — Fix integral replica (pg_hba, password, permissions, entrypoint)
+                   : Plan Tailscale/NetBird para cerrar puerto 5432 públicamente
 
 ---
 
@@ -254,6 +259,8 @@ timeline
 | **OmniVector + OmniSites Standalone (v1.22.00)** | 2026-09-01 | v1.22.00 | 🎨 Editores gráficos vectorial + web drag-and-drop con IA Gemini |
 | **FEAT-112 OmniGastro Safeguards + FEAT-113 Commercial Wizard (v1.24.04)** | **2026-09-03** | **v1.24.04** | 🛡️ ProvisioningJob + TenantCreationGuard + 3 planes comerciales + EARLY30 |
 | **FEAT-125 demo alfa OmniGastro (rollplay Provecchio)** | **2026-09-04** 📍 | **v1.25.0-alpha-omnigastro** | 🍽️ Social Catalog como menú del restaurante, Llamar al Mozo, Enviar pedido, mini-KDS simulado |
+| **Landed Costs Dashboard** | 2026-09-13 | **v1.34.0** | 💰 Dashboard completo + backend API + despliegue a producción y Provecchio |
+| **Gastro/KDS UX Improvements** | 2026-09-14 | **v1.34.0** | 🍽️ Filtros KDS, búsqueda, tokens de tema en Gastro (regla 9) |
 
 ---
 

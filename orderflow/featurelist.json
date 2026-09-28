@@ -1,7 +1,7 @@
 {
   "project": "OrderFlow SaaS Omnicanal",
-  "version": "1.35.0",
-  "last_updated": "2026-09-20",
+  "version": "1.37.0",
+  "last_updated": "2026-09-28",
   "features": [
     {
       "id": "FEAT-130",
@@ -777,7 +777,6 @@
       "blocking": [],
       "qa_validation": "Backend build clean | Frontend build clean | Unit tests passing (documents.service.spec.ts & wopi-documents.controller.spec.ts) | FEAT-083 workspace manager operational"
     },
-
     {
       "id": "FEAT-084",
       "category": "Core / Social-Catalog / TS Fix & v5 Plan Alignment",
@@ -1079,14 +1078,14 @@
       "id": "FEAT-108",
       "category": "Core / Capital Humano / Asistencia",
       "title": "OmniAsistencia — Marcador de Asistencia Multi-Método & Geocercas (Sub-módulo de Capital Humano)",
-      "description": "Módulo de marcación de asistencia (attendance) embebido en Capital Humano: apoya su identidad en Employee.id (FEAT-107), ofreciendo métodos de fichaje por NFC, QR, PIN Kiosko, App Móvil con geocerca + biometría local en SO, e integración con terminales hardware ZKTeco/Hikvision. Vive en el core (backend/hr/), sin planes de extracción a standalone.",
-      "status": "pending",
+      "description": "Módulo de marcación de asistencia (attendance) embebido en Capital Humano: apoya su identidad en Employee.id (FEAT-107), ofreciendo métodos de fichaje por NFC (nfc-standalone integrado), QR, PIN Kiosko, App Móvil con geocerca + biometría local en SO, e integración con terminales hardware ZKTeco/Hikvision. Vive en el core (backend/hr/), sin planes de extracción a standalone. Progreso: modelos NFC (NfcTag/NfcScanLog), endpoint POST /api/v1/nfc/scan, integración en recordAttendance con validación de scan log. Cierre flujo PIN Kiosko: public kiosk controller HrKioskPublicController con endpoints POST /api/v1/public/hr/kiosk/pin/verify y /pin/mark-attendance, service methods verifyKioskPin y markAttendanceByKioskPin, pinCode en Employee DTOs.",
+      "status": "in_progress",
       "assigned_module": "backend/hr/, docs/planes/capital-humano/PLAN_OMNIASISTENCIA.md",
       "depends_on": [
         "FEAT-107"
       ],
       "blocking": [],
-      "qa_validation": "Definición de enums y modelos AttendanceRecord, WorkShift, BiometricDevice | Reuso de nfc-standalone"
+      "qa_validation": "Definición de enums y modelos AttendanceRecord, WorkShift, BiometricDevice | Reuso de nfc-standalone | Public kiosk controller HrKioskPublicController operativo | Service methods verifyKioskPin y markAttendanceByKioskPin | pinCode en CreateEmployeeDto y UpdateEmployeeDto | Backend build clean | Tests HR unitarios pasan"
     },
     {
       "id": "FEAT-109",
@@ -1228,7 +1227,9 @@
       "description": "Implementación del patrón A de Vocero CRM: Verificación de token único por canal en ruta con respuesta 404 silenciosa para evitar la enumeración de endpoints, validación de firma HMAC-SHA256 timing-safe mediante crypto.timingSafeEqual y derivación en tiempo constante.",
       "status": "completed",
       "assigned_module": "backend/src/modules/omnimessaging/utils/webhook-security.util.ts, backend/src/modules/omnimessaging/controllers/omnimessaging-webhook.controller.ts",
-      "depends_on": ["FEAT-130"],
+      "depends_on": [
+        "FEAT-130"
+      ],
       "blocking": [],
       "qa_validation": "Unit tests 100% aprobados en webhook-security.util.spec.ts | 404 silencioso verificado"
     },
@@ -1250,7 +1251,9 @@
       "description": "Implementación del patrón C de Vocero CRM: Definición del enum OmniMessagingErrorCode (WINDOW_CLOSED, QUOTA_EXCEEDED, SIGNATURE_INVALID, etc.) para respuestas tipadas y consumo directo en IntentRouterService.",
       "status": "completed",
       "assigned_module": "backend/src/modules/omnimessaging/enums/omnimessaging-error-code.enum.ts",
-      "depends_on": ["FEAT-132"],
+      "depends_on": [
+        "FEAT-132"
+      ],
       "blocking": [],
       "qa_validation": "Enum OmniMessagingErrorCode registrado y exportado correctamente"
     },
@@ -1272,7 +1275,11 @@
       "description": "Control de sesiones de caja POS, arqueos con cálculo de variaciones (variance), rol WAITER y siembra de 8 permisos de caja y salón.",
       "status": "completed",
       "assigned_module": "backend/src/pos-sessions/, backend/src/orders/, backend/src/common/rbac.service.ts, backend/prisma/schema.prisma",
-      "depends_on": ["FEAT-093", "FEAT-097", "FEAT-112"],
+      "depends_on": [
+        "FEAT-093",
+        "FEAT-097",
+        "FEAT-112"
+      ],
       "blocking": [],
       "qa_validation": "Prisma client generated | 100% Jest tests passing (6/6 tests en PosSessionsService, 110/110 test suites) | WAITER role + 8 cash/tables permissions seeded | Backend nest build clean | Frontend vite build clean"
     },
@@ -1283,7 +1290,9 @@
       "description": "Gestión visual de zonas, mapa de piso interactivo, asignación y liberación de mozo por mesa (ownership), cambio de estados de mesa.",
       "status": "completed",
       "assigned_module": "backend/src/tables/, backend/prisma/schema.prisma",
-      "depends_on": ["FEAT-113"],
+      "depends_on": [
+        "FEAT-113"
+      ],
       "blocking": [],
       "qa_validation": "Prisma schema updated | 100% Jest tests passing (12/12 tests in TablesService) | TablesController & TablesModule integrated | @TenantPrisma decorator active | lint:prisma clean | Backend nest build clean | Frontend vite build clean"
     },
@@ -1294,7 +1303,10 @@
       "description": "Migración de persistencia JSON (Tenant.config.gastro) a tablas DB reales: RestaurantTable.token para QR estático, WaiterCall para llamadas al mozo, WaiterCallOption para botones configurables. Controladores: GuestTablesController, GuestOrdersController (GUEST_DRAFT), GuestCallWaiterController, WaiterCallsController (acknowledge/resolve), AdminWaiterCallOptionsController (CRUD).",
       "status": "completed",
       "assigned_module": "backend/src/guest/, backend/src/waiter/, backend/prisma/schema.prisma",
-      "depends_on": ["FEAT-113", "FEAT-114"],
+      "depends_on": [
+        "FEAT-113",
+        "FEAT-114"
+      ],
       "blocking": [],
       "qa_validation": "TypeScript 0 errors (npx tsc --noEmit --skipLibCheck) | 118/118 test suites passing (820/820 tests) | Prisma models WaiterCall/WaiterCallOption/RestaurantTable deployed | JSON→DB migration complete | WebSocket emit/waiterCallNew/waiterCallUpdate active"
     },
@@ -1305,7 +1317,10 @@
       "description": "BillSplitService con createBillSplit/getBillSplit/markPaid/cancel. BillSplitController con 4 endpoints. Modelos BillSplit y SplitPayment en schema. Permite dividir una orden en múltiples pagos con states PENDING/PAID/CANCELLED.",
       "status": "completed",
       "assigned_module": "backend/src/bill-split/, backend/prisma/schema.prisma",
-      "depends_on": ["FEAT-113", "FEAT-114"],
+      "depends_on": [
+        "FEAT-113",
+        "FEAT-114"
+      ],
       "blocking": [],
       "qa_validation": "10/10 tests passing (bill-split.service.spec.ts) | BillSplitModule integrated into app.module.ts | TypeScript 0 errors"
     },
@@ -1313,23 +1328,29 @@
       "id": "FEAT-117",
       "category": "Core / OmniGastro / Kitchen Display System",
       "title": "KDS (Kitchen Display System) con Bump Bar",
-      "description": "KitchenTicketService con createTicket/getTickets/bumpBarAction/cancelTicket/getStations/createStation. KdsController con 5 endpoints. Modelos PreparationStation, KitchenTicket, KitchenTicketLine en schema. Flujo bump bar: START→READY→SERVE/VOID.",
+      "description": "KitchenTicketService con createTicket/getTickets/bumpBarAction/cancelTicket/getStations/createStation. KdsController con 5 endpoints. Modelos PreparationStation, KitchenTicket, KitchenTicketLine en schema. Flujo bump bar: START→READY→SERVE/VOID. Coursíng KDS: assignCourseStage/advanceCourseStage/getCourseStages con historial courseHistory. Endpoints: POST /kds/tickets/:id/course-stages, PATCH /kds/tickets/:id/course-stages/advance, GET /kds/tickets/:id/course-stages.",
       "status": "completed",
       "assigned_module": "backend/src/kds/, backend/prisma/schema.prisma",
-      "depends_on": ["FEAT-113", "FEAT-114"],
+      "depends_on": [
+        "FEAT-113",
+        "FEAT-114"
+      ],
       "blocking": [],
-      "qa_validation": "9/9 tests passing (kds.service.spec.ts) | KdsModule integrated into app.module.ts | TypeScript 0 errors"
+      "qa_validation": "9/9 tests passing (kds.service.spec.ts) | KdsModule integrated into app.module.ts | TypeScript 0 errors | CourseStage endpoints active | CourseStage enum extended with courseHistory Json? field"
     },
     {
       "id": "FEAT-118",
       "category": "Core / OmniGastro / Costing",
       "title": "Live Escandallo Engine con Caché Redis",
-      "description": "LiveEscandalloService con executeEscandallo. Explosión recursiva de ProductBom tipo KIT_PHANTOM, ajuste dinámico por modificadores, factor de merma (wastePercentage) + conversión UoM, snapshot costAtSale/unitCost, caché in-memory (reemplazable por Redis), ejecución bajo transacción when waiter confirms/sends to kitchen.",
+      "description": "LiveEscandalloService con executeEscandallo. Explosión recursiva de ProductBom tipo KIT_PHANTOM, ajuste dinámico por modificadores, factor de merma (wastePercentage) + conversión UoM, snapshot costAtSale/unitCost, caché in-memory (reemplazable por Redis), ejecución bajo transacción when waiter confirms/sends to kitchen. Integrado en OrdersService.sendToKitchen (FEAT-097) al enviar pedido a cocina. Endpoint: POST /api/v1/bom/escandallo.",
       "status": "completed",
-      "assigned_module": "backend/src/bom/live-escandallo.service.ts",
-      "depends_on": ["FEAT-113", "FEAT-114"],
+      "assigned_module": "backend/src/bom/live-escandallo.service.ts, backend/src/bom/bom.controller.ts, backend/src/orders/orders.service.ts",
+      "depends_on": [
+        "FEAT-113",
+        "FEAT-114"
+      ],
       "blocking": [],
-      "qa_validation": "7/7 tests passing (live-escandallo.service.spec.ts) | BomModule updated to export LiveEscandalloService | TypeScript 0 errors"
+      "qa_validation": "7/7 tests passing (live-escandallo.service.spec.ts) | BomModule updated to export LiveEscandalloService | BomController registered | OrdersService.sendToKitchen calls LiveEscandalloService | TypeScript 0 errors"
     },
     {
       "id": "FEAT-119",
@@ -1338,7 +1359,11 @@
       "description": "TablesService con createCrossTableGift, getSeatOrderSummary, sendGiftToSeat. TablesController con endpoints POST /tables/:id/gift, GET /tables/:id/seat-summary, POST /tables/:id/gift-line. Modelos: OrderLine (seatNumber, isGift, targetSeatNumber, giftMessage), Order (giftBannerText), TableGuest (seatNumber, status). Permite regalar ítems entre mesas/asientos y ver resumen por comensal.",
       "status": "completed",
       "assigned_module": "backend/src/tables/",
-      "depends_on": ["FEAT-113", "FEAT-114", "FEAT-115"],
+      "depends_on": [
+        "FEAT-113",
+        "FEAT-114",
+        "FEAT-115"
+      ],
       "blocking": [],
       "qa_validation": "8/8 tests passing (tables.feat119.spec.ts) | Cross-table gifting + seat-level ordering endpoints active | TypeScript 0 errors"
     },
@@ -1349,7 +1374,9 @@
       "description": "Modelo Position (name, code, baseRole -> UserRole, active) + positionId en UserTenantAccess. PositionService con CRUD + seedDefaultPositions (Cajero, Mozo, Cocinero, Jefe de Sala, Barman, Host). PositionController con endpoints y seed. Integración en UsersController (positionId en create/update, position en findAll/staff). Permite asignar cargo predefinido a usuarios; baseRole mapea a RBAC actual. Preparado para OmniHRMS (sueldos, horarios, competencias).",
       "status": "completed",
       "assigned_module": "backend/src/positions/, backend/prisma/schema.prisma (Position, UserTenantAccess.positionId)",
-      "depends_on": ["FEAT-113"],
+      "depends_on": [
+        "FEAT-113"
+      ],
       "blocking": [],
       "qa_validation": "11/11 tests passing (position.service.spec.ts) | PositionModule integrated into app.module.ts | TypeScript 0 errors | Prisma generate OK"
     },
@@ -1360,7 +1387,9 @@
       "description": "CashManagementService: apertura sesión con PIN (valida User.pinCode), ingresos/egresos de efectivo (CHANGE_FUND, SAFE_DROP, PAYOUT, OPERATIONAL_EXPENSE, REFUND) que NO afectan cierre de caja, Arqueo X (intermedio, solo informa), Arqueo Z (cierre con varianza). Endpoints: open-pin, cash/in, cash/out, reports/x, reports/z. 35 feature toggles en PosConfig para habilitar/deshabilitar módulos por negocio.",
       "status": "completed",
       "assigned_module": "backend/src/pos/ (cash-management.service.ts, pos-core.service.ts, pos.controller.ts)",
-      "depends_on": ["FEAT-113"],
+      "depends_on": [
+        "FEAT-113"
+      ],
       "blocking": [],
       "qa_validation": "PosModule + CashManagementService integrated | Feature toggles en PosConfig | 865/865 tests passing | TypeScript 0 errors"
     },
@@ -1371,7 +1400,9 @@
       "description": "PosConfig feature toggles para KDS: enableKDS, enableKDSBumpBar, enableKDSCoursing, enableKitchenPrinter (IP/puerto), enableOrderPrinter (IP/puerto), printAutoOnConfirm, printBillOnPayment. Permite restaurantes con solo KDS, solo impresoras, o ambos. Configurable desde Admin/SuperAdmin.",
       "status": "completed",
       "assigned_module": "backend/src/pos/ (pos-core.service.ts schema, pos.controller.ts)",
-      "depends_on": ["FEAT-117"],
+      "depends_on": [
+        "FEAT-117"
+      ],
       "blocking": [],
       "qa_validation": "PosConfig extendido con 35 toggles | Prisma generate OK | TypeScript 0 errors"
     },
@@ -1382,7 +1413,11 @@
       "description": "Modelos TipPool y TipDistribution con 5 métodos de distribución (EQUAL, BY_HOURS_WORKED, BY_ROLE_WEIGHT, BY_SALES, CUSTOM). TipPoolService con CRUD, add/remove tips from cash movements, close/reopen, distribute, approve, pay. TipPoolController con endpoints completos. Integración con CashMovement (tipPoolId FK). Permisos hr:tips:manage / hr:tips:read. 14 tests passing.",
       "status": "completed",
       "assigned_module": "backend/src/hr/ (tip-pool.service.ts, tip-pool.controller.ts, schema.prisma: TipPool, TipDistribution, CashMovement.tipPoolId)",
-      "depends_on": ["FEAT-113", "FEAT-115", "FEAT-120"],
+      "depends_on": [
+        "FEAT-113",
+        "FEAT-115",
+        "FEAT-120"
+      ],
       "blocking": [],
       "qa_validation": "14/14 tests passing (tip-pool.service.spec.ts) | TipPoolModule integrated into HrModule | Prisma generate OK | TypeScript 0 errors"
     },
@@ -1393,7 +1428,11 @@
       "description": "Módulo NestJS independiente (`backend/src/biometric/`) con `BiometricController` + `BiometricService`. Nuevo modelo Prisma `BiometricCredential` (tenantId, userId?, employeeId?, method, deviceId, secretHash, isActive, lastUsedAt) con relaciones a `User`, `Employee`, `Tenant`, `AttendanceRecord`. Endpoints: `POST /api/v1/biometric/enroll`, `POST /api/v1/biometric/verify`, `POST /api/v1/biometric/login`, `GET /api/v1/biometric/credentials`, `DELETE /api/v1/biometric/credentials/:id`. Permisos RBAC: `biometric:credentials:create/read/delete/verify`. `auth.service.ts` expone `generateAccessTokenForUser` / `generateRefreshTokenForUser` para reutilización. Hook `useBiometric` (mobile) extendido: `enrollCredential`, `loginWithBiometric`, `listCredentials`, `revokeCredential`. `authStore` (mobile) extendido con `loginWithBiometric` + `setAuthState`. Secrets device-bound (SHA-256 hash) gated by OS biometrics via `expo-secure-store` con `requireAuthentication: true`.",
       "status": "completed",
       "assigned_module": "backend/src/biometric/, backend/prisma/schema.prisma, backend/src/common/rbac.service.ts, backend/src/app.module.ts, backend/src/auth/auth.service.ts, mobile/src/hooks/useBiometric.ts, mobile/src/services/biometric.ts, mobile/src/store/authStore.ts, mobile/src/types/index.ts",
-      "depends_on": ["FEAT-113", "FEAT-115", "FEAT-120"],
+      "depends_on": [
+        "FEAT-113",
+        "FEAT-115",
+        "FEAT-120"
+      ],
       "blocking": [],
       "qa_validation": "Prisma generate OK | Backend `npm run build` clean (0 TS errors) | Mobile `tsc --noEmit` clean | Frontend `vite build` clean | `./scripts/init.sh` backend + frontend + unit tests passed (Traefik/E2E skipped: external host/network unreachable from sandbox)"
     },
@@ -1404,23 +1443,211 @@
       "description": "Mobile app (React Native/Expo) para marcación de asistencia con geolocalización obligatoria y biometría nativa (Face ID / Huella / Selfie fallback). Backend AttendanceRecord integra biometricMethod (FACE_ID/FINGERPRINT/SELFIE), biometricVerified, selfieUrl, distanceMeters, geofenceEnforcement. Admin: gestión empleados (CRUD), enrolamiento biométrico (deviceUserId mapping), dispositivos (ZKTECO/HIKVISION/MOBILE_APP), workplaces, policies. Frontend: EmployeeClockInScreen (empleado), AdminEmployeeScreen (admin). Expo LocalAuthentication + ImagePicker + Location. 100% biometría en dispositivo, backend solo recibe token firmado por OS.",
       "status": "completed",
       "assigned_module": "mobile/src/ (EmployeeClockInScreen, AdminEmployeeScreen, useBiometric hook, attendance/hr APIs, types) + backend/src/hr/ (attendance endpoints)",
-      "depends_on": ["FEAT-113", "FEAT-115"],
-      "blocking": ["FEAT-125 (Liquidación Nomina)"],
+      "depends_on": [
+        "FEAT-113",
+        "FEAT-115"
+      ],
+      "blocking": [
+        "FEAT-125 (Liquidación Nomina)"
+      ],
       "qa_validation": "TypeScript clean | Expo build OK | Biometric auth flow implemented | Geofence + selfie fallback working | Biometric module decoupled from HR (FEAT-125)"
+    },
+    {
+      "id": "FEAT-140",
+      "category": "Core / OmniHRMS / Organizational Structure",
+      "title": "Organigrama HRMS: departamentos, cargos y asignación jerárquica",
+      "description": "CRUD multi-tenant de departamentos, jerarquía de departamentos y cargos, validación de ciclos, organigrama, jefaturas y asignación formal de departamento/cargo/jefe a empleados. Incluye pantallas administrativas de estructura y talento.",
+      "status": "completed",
+      "assigned_module": "backend/src/hr/, backend/src/positions/, frontend/src/pages/admin/hr-organization.tsx",
+      "depends_on": [
+        "FEAT-120"
+      ],
+      "blocking": [],
+      "qa_validation": "Backend build clean | Frontend build clean | Tenant ownership and hierarchy validation implemented"
+    },
+    {
+      "id": "FEAT-141",
+      "category": "Core / Scheduling / Feature Granular",
+      "title": "ISchedulingService Core — Motor de Disponibilidad Multi-Tenant Extraído de cal.diy",
+      "description": "Feature granular core reutilizable: ISchedulingService con AvailabilityEngine, BusyTimesEngine y lógica pura de slots. Consumido por bookings, OmniCRM, HR/attendance y POS/KDS. Sin dependencias de frameworks externos. Multi-tenant por tenantId.",
+      "status": "in_progress",
+      "priority": "HIGH",
+      "assigned_module": "backend/src/scheduling/, backend/src/bookings/, docs/plans/scheduling/",
+      "depends_on": [],
+      "blocking": [],
+      "qa_validation": "ISchedulingService.getSlots() respeta buffers y excepciones | checkAvailability() valida doble recurso | Cache Redis opcional | Tests unitarios >90% | bookings.service.ts integrado sin regresiones"
+    },
+    {
+      "id": "FEAT-142",
+      "category": "Core / Scheduling / Calendar Sync",
+      "title": "ICalendarService — Sincronización Bidireccional Google Calendar, Office 365, CalDAV",
+      "description": "Providers de calendar sync: GoogleCalendarProvider, Office365Provider, CalDAVProvider. Overlay de busy-time desde calendarios externos en getSlots. Modelo SelectedCalendar en Prisma. Endpoint POST /api/v1/bookings/:id/calendar/sync.",
+      "status": "planned",
+      "priority": "HIGH",
+      "assigned_module": "backend/src/scheduling/, backend/src/integrations/calendar/, docs/plans/scheduling/",
+      "depends_on": [
+        "FEAT-141"
+      ],
+      "blocking": [],
+      "qa_validation": "Crear booking genera evento en Google Calendar | Cancelar booking elimina evento | Busy-time reflejado en getSlots | Tests de integración con mocks"
+    },
+    {
+      "id": "FEAT-143",
+      "category": "Core / Scheduling / Video Conferencing",
+      "title": "IVideoService — Integración Daily, Zoom, Teams para Meetings Virtuales",
+      "description": "Providers de video: DailyProvider, ZoomProvider, TeamsProvider. Creación de meetings al confirmar booking. Guardado de videoMeetingId y videoMeetingUrl en AppointmentAssignment. Endpoint POST /api/v1/bookings/:id/video/create.",
+      "status": "planned",
+      "priority": "MEDIUM",
+      "assigned_module": "backend/src/scheduling/, backend/src/integrations/video/, docs/plans/scheduling/",
+      "depends_on": [
+        "FEAT-141"
+      ],
+      "blocking": [],
+      "qa_validation": "Crear booking genera link de video | Actualizar booking actualiza meeting | Cancelar booking elimina meeting | Tests de integración con mocks"
+    },
+    {
+      "id": "FEAT-144",
+      "category": "Core / Scheduling / Recurrencia",
+      "title": "Motor de Recurrencia y Reglas de Scheduling (RRULE + Booking Limits)",
+      "description": "Soporte de recurrencia simplificada (RRULE DAILY/WEEKLY/MONTHLY), validación de minAdvanceHours y maxAdvanceDays, límites de booking por usuario/tenant, y scheduling types: INDIVIDUAL, COLLECTIVE, ROUND_ROBIN, SEATS.",
+      "status": "planned",
+      "priority": "MEDIUM",
+      "assigned_module": "backend/src/scheduling/, backend/src/bookings/, docs/plans/scheduling/",
+      "depends_on": [
+        "FEAT-141"
+      ],
+      "blocking": [],
+      "qa_validation": "Crear booking recurrente genera múltiples AppointmentAssignment | Respetar límites de anticipación | Validar disponibilidad en toda la serie"
+    },
+    {
+      "id": "FEAT-145",
+      "category": "Core / Scheduling / Webhooks",
+      "title": "Webhooks Enriquecidos con Eventos de Dominio Scheduling",
+      "description": "Ampliación del WebhookService existente con eventos: scheduling.slot.available, scheduling.slot.booked, scheduling.slot.cancelled, scheduling.calendar.synced, scheduling.video.created. Payload estandarizado con tenantId, slotId, resourceId, timestamp.",
+      "status": "planned",
+      "priority": "LOW",
+      "assigned_module": "backend/src/scheduling/, backend/src/webhooks/, docs/plans/scheduling/",
+      "depends_on": [
+        "FEAT-141",
+        "FEAT-142",
+        "FEAT-143",
+        "FEAT-144"
+      ],
+      "blocking": [],
+      "qa_validation": "Webhook scheduling.slot.booked llega al endpoint | Payload estandarizado | Retry automático en fallo"
+    },
+    {
+      "id": "FEAT-146",
+      "category": "Core / Scheduling / Payments",
+      "title": "IPaymentService — Abstracción de Pagos Multi-Provider (Stripe, Mercado Pago, Pagopar)",
+      "description": "Interfaz IPaymentService con createPaymentIntent, capturePayment, refundPayment, getStatus. Reutiliza lógica existente de billing. No porta schema de cal.diy.",
+      "status": "planned",
+      "priority": "MEDIUM",
+      "assigned_module": "backend/src/scheduling/, backend/src/billing/, docs/plans/scheduling/",
+      "depends_on": [
+        "FEAT-142"
+      ],
+      "blocking": [],
+      "qa_validation": "Crear booking con pago genera PaymentIntent | Capturar pago al confirmar | Reembolso al cancelar"
+    },
+    {
+      "id": "FEAT-147",
+      "category": "Core / KDS / Dynamic Routing",
+      "title": "KDS Dynamic Routing por PreparationStation",
+      "description": "Envío de comandas a estaciones de cocina por categoría usando PreparationStation.categories[]. sendToKitchen() filtra líneas showInKDS=false, agrupa por estación y emite eventos kds:ticket_new por estación.",
+      "status": "completed",
+      "priority": "HIGH",
+      "assigned_module": "backend/src/orders/orders.service.ts, backend/src/kds/kds.controller.ts",
+      "depends_on": [
+        "FEAT-121",
+        "FEAT-130"
+      ],
+      "blocking": [],
+      "qa_validation": "Pedido con líneas de bebida y comida van a estaciones separadas | showInKDS=false omite líneas | Evento kds:ticket_new por estación"
+    },
+    {
+      "id": "FEAT-148",
+      "category": "Core / KDS / Product Visibility",
+      "title": "Product.showInKDS — Visibilidad por producto en KDS",
+      "description": "Flag booleano showInKDS en Product para ocultar ítems no preparados (ej: bebidas enlatadas) de la pantalla de cocina.",
+      "status": "completed",
+      "priority": "HIGH",
+      "assigned_module": "backend/prisma/schema.prisma, backend/src/orders/orders.service.ts, frontend/src/pages/admin/products/*",
+      "depends_on": [
+        "FEAT-147"
+      ],
+      "blocking": [],
+      "qa_validation": "Producto con showInKDS=false no aparece en KDS | Migración aplicada | Default TRUE para no romper datos existentes"
+    },
+    {
+      "id": "FEAT-149",
+      "category": "Core / POS / Cash Management",
+      "title": "Multi-Cash Register con Asignación Dinámica de Cajeros",
+      "description": "Modelos CashRegister y CashRegisterAccess para múltiples cajas dinámicas por tenant. Cada caja tiene su propio set de empleados autorizados (canOpen, canClose, canRefund, canDiscount). PosSession puede asociarse a una caja específica.",
+      "status": "completed",
+      "priority": "HIGH",
+      "assigned_module": "backend/prisma/schema.prisma, backend/src/pos/cash-register.service.ts, backend/src/pos/cash-register.controller.ts, backend/src/pos/pos.module.ts, frontend/src/pages/admin/gastro-cashier.tsx",
+      "depends_on": [
+        "FEAT-121"
+      ],
+      "blocking": [],
+      "qa_validation": "CRUD cajas registradoras | Asignación de empleados a caja | PosSession vinculada a caja | Accesos respetan permisos | Frontend gastro-cashier abre sesión con PIN"
+    },
+    {
+      "id": "FEAT-150",
+      "category": "Core / Auth / Unified PIN",
+      "title": "PIN Unificado de Empleado para HR, Roles y Caja",
+      "description": "El PIN Employee.pinCode sirve para marcación de asistencia, login de rol (waiter/cashier/cook) y apertura de caja. Endpoint POST /api/v1/auth/verify-pin valida PIN y retorna datos del empleado.",
+      "status": "completed",
+      "priority": "HIGH",
+      "assigned_module": "backend/prisma/schema.prisma, backend/src/auth/auth.service.ts, backend/src/auth/auth.controller.ts, frontend/src/pages/admin/gastro-mozos.tsx, frontend/src/pages/admin/gastro-cashier.tsx",
+      "depends_on": [
+        "FEAT-149"
+      ],
+      "blocking": [],
+      "qa_validation": "PIN correcto retorna empleado | PIN incorrecto retorna 401 | Usado en gastro-mozos.tsx para login | Usado en POS para apertura de caja"
+    },
+    {
+      "id": "FEAT-151",
+      "category": "Core / OmniGastro / KDS Printing",
+      "title": "KDS Configurable Multi-Estación + Impresión Selectiva (ESC/POS, cola BullMQ)",
+      "description": "Routing multi-destino de comandas por producto/estación usando ProductPreparationStation (N:N). PreparationsStation soporta configuración de impresora ESC/POS (red/Bluetooth/USB). KitchenPrintService + KitchenPrintProcessor (BullMQ) para impresión automática y manual desde KDS/POS. Tablas: Product.kdsVisibilityMode, ProductPreparationStation, KitchenPrintJob.",
+      "status": "completed",
+      "priority": "HIGH",
+      "assigned_module": "backend/src/kds/, backend/src/queues/, backend/prisma/schema.prisma, frontend/src/pages/admin/kds.tsx, docs/plans/omnigastro/DISENO_KDS_CONFIGURABLE_IMPRESION.md",
+      "depends_on": [
+        "FEAT-147",
+        "FEAT-148"
+      ],
+      "blocking": [],
+      "qa_validation": "Producto visible en 0..N estaciones | sendToKitchen genera tickets multi-estación | Impresión ESC/POS network OK | Cola BullMQ reintenta 3x | WebSocket por estación tenant:{tenantId}:station:{stationId}"
+    },
+    {
+      "id": "FEAT-152",
+      "category": "Core / OmniGastro / KDS Routing",
+      "title": "KDS Product-Station Links (N:N) + Routing Multi-Destino por pedido",
+      "description": "Modelo ProductPreparationStation para vincular productos a estaciones específicas (isVisible, printOnStation). sendToKitchen agrupa líneas por estación destino y crea un ticket por estación. Fallback a routing por categoría cuando no hay vínculos explícitos. Admin UI para asignar estaciones por producto.",
+      "status": "completed",
+      "priority": "HIGH",
+      "assigned_module": "backend/src/kds/, backend/src/orders/, backend/prisma/schema.prisma, frontend/src/pages/admin/products.tsx",
+      "depends_on": [
+        "FEAT-151"
+      ],
+      "blocking": [],
+      "qa_validation": "ProductPreparationStation CRUD | sendToKitchen multi-ticket por pedido | Producto con kdsVisibilityMode=SELECTED solo aparece en estaciones vinculadas | Admin UI asigna estaciones por producto"
     }
   ],
-  "lastUpdated": "2026-09-19",
-  "last_id": "FEAT-139",
+  "lastUpdated": "2026-09-27",
+  "last_id": "FEAT-152",
   "next_pending_sc": null,
   "active_plan": "docs/plans/omnigastro/PLAN_MAESTRO.md",
   "plan_progress": {
     "Sprint 0 - Data Safety (Safeguards)": "completed",
     "Sprint 1 - Cimientos de caja y roles (FEAT-113)": "completed",
-    "Sprint 2 - Salón y Mesas (FEAT-114)": "completed"
+    "Sprint 2 - Salón y Mesas (FEAT-114)": "completed",
+    "Sprint 3 - OmniGastro Data Migration & Promotions API (v1.35.5)": "completed",
+    "Sprint 3.1 - KDS Configurable + Impresión (FEAT-151/152)": "planned",
+    "Sprint 4 - Engineering Fixes & DB Convention (FEAT-147..150)": "completed",
+    "Sprint 5 - Hardware y Escala (FEAT-120..124)": "pending"
   }
 }
-
-
-
-
-

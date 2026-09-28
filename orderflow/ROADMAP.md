@@ -1,31 +1,46 @@
 # 🗺️ ROADMAP DE ORDERFLOW - v1.34.0 → v2.0.0 (Go-Live Definitivo)
-**Última Actualización:** 2026-09-16 (Release v1.34.2 — Waiter Management, Permissions Seed, Auto Waiter Call)
+**Última Actualización:** 2026-09-28 (Release v1.37.0 — Provecchio Failover + Pre-Deploy Diagnostics)
 
-**Versión Actual:** **`v1.34.2`** 🔄 **PRODUCTION READY** | Marca pública: OmniFlow. Capa técnica interna: OrderFlow.  
-**Próximos Releases:** **v1.35.0** (Tauri Desktop & OmnIoT Edge) ➔ **v1.36.0** (Mobile Native) ➔ **v2.0.0** (🚀 **GO-Live Definitivo del Ecosistema — Target: 15 de Febrero de 2027**)
+**Versión Actual:** **`v1.37.0`** 🔄 **PRODUCTION READY** | Marca pública: OmniFlow. Capa técnica interna: OrderFlow.  
+**Próximos Releases:** **v1.38.0** (Tauri Desktop & OmnIoT Edge) ➔ **v2.0.0** (🚀 **GO-Live Definitivo del Ecosistema — Target: 15 de Febrero de 2027**)
 **Plan Maestro Go-to-Live:** ver [docs/plans/PLAN_GO_LIVE_APLICACIONES_ECOSISTEMA.md](docs/plans/PLAN_GO_LIVE_APLICACIONES_ECOSISTEMA.md)
 **Roadmap Comercial:** ver [docs/planes/comercial/OmniFlow_Plan_Comercial_v1.md](docs/planes/comercial/OmniFlow_Plan_Comercial_v1.md) (FEAT-112 a FEAT-119)
-**Estado:** ✅ **STAGING & PRODUCTION OPERATIVE** | 🏆 **HARDENED v1.34.2** | Gate 1 Landed Costs & Gastro/KDS Complete | CI Guard Active | QA E2E Suite | Build Limpio & Cobertura Total
+**Estado:** ✅ **STAGING & PRODUCTION OPERATIVE** | 🏆 **HARDENED v1.36.4** | OmniGastro Fases 0-3.1 Completadas | RBAC Hardening En PR | CI Guard Active | QA E2E Suite | Build Limpio & Cobertura Total
 
-<!--CURRENT_VERSION-->1.34.2<!--/CURRENT_VERSION-->
+<!--CURRENT_VERSION-->1.37.0<!--/CURRENT_VERSION-->
 
-### 🚀 Release v1.34.2 — Waiter Management & Permissions (Septiembre 2026)
+### 🚀 Release v1.36.4 — OmniGastro KDS Multi-Estación + RBAC Hardening (Septiembre 2026)
 
 | Feature | Módulo | Estado |
 |---------|--------|--------|
-| **Gestión de Mozos en Admin Social Catalog** | `frontend/src/pages/admin/social-catalog.tsx` | ✅ Production |
-| **Opciones de Mozo (editor CRUD)** | `WaiterOptionsEditor` component | ✅ Production |
-| **Llamadas recientes al mozo (estados + acciones)** | `WaiterCallsList` component | ✅ Production |
-| **Llamada automática al mozo al crear pedido guest** | `backend/src/guest/guest-orders.controller.ts` | ✅ Production |
-| **Seed automático de permisos al iniciar backend** | `backend/src/main.ts` | ✅ Production |
-| **Columna `isPosBomProduct` corregida** | `products` table | ✅ Production |
-| **104 permisos sembrados en DB** | `permissions` table | ✅ Production |
-| **1 empleado sembrado (Marcelo Pesallaccia)** | `employees` table | ✅ Production |
-| **5 productos sembrados (Provecchio)** | `products` table | ✅ Production |
+| **FEAT-151/152 — KDS Configurable Multi-Estación + Impresión Selectiva** | `backend/src/kds/`, `backend/src/queues/`, `backend/prisma/schema.prisma` | ✅ Production Ready |
+| **ProductPreparationStation (N:N)** | Tabla intermedia producto-estación | ✅ Production Ready |
+| **KitchenPrintService + ESC/POS** | `backend/src/kds/kitchen-print.service.ts` | ✅ Scaffolding + cola BullMQ |
+| **Routing Multi-Destino** | `OrdersService.sendToKitchen` agrupa líneas por estación | ✅ Production Ready |
+| **WebSocket por estación** | `tenant:{tenantId}:station:{stationId}` | ✅ Production Ready |
+| **Admin UI KDS Stations** | `/admin/kds/stations` (`gastro-kds-stations.tsx`) | ✅ Production Ready |
+| **RBAC Hardening — PermissionsGuard** | Cierre bypass API key | ✅ En PR #1 |
+| **RBAC Hardening — RbacService** | Cierre bypass MANAGER + seed extendida | ✅ En PR #1 |
+| **StepUpGuard** | Autorización PIN para acciones críticas (gift, Z) | ✅ En PR #1 |
+| **4 permisos nuevos** | `tables:status`, `tables:guests`, `tables:gift`, `pos:config` | ✅ En PR #1 |
+| **E2E Playwright OmniGastro** | Suites estabilizadas | ✅ Production Ready |
 
 ---
 
-<!--CURRENT_VERSION-->1.34.0<!--/CURRENT_VERSION-->
+### 🚀 Release v1.37.0 — Provecchio Failover + Pre-Deploy Diagnostics (Septiembre 2026)
+
+| Feature | Módulo | Estado |
+|---------|--------|--------|
+| **Réplica PostgreSQL Failover Provecchio** | `docker-compose.provecchio.yml`, `scripts/replica-entrypoint.sh` | ✅ Production Ready |
+| **Entrypoint custom réplica** | Backup inicial condicional, `postgresql.auto.conf`, `standby.signal`, `su-exec postgres` | ✅ Production Ready |
+| **Auth replica en primary** | `pg_hba.conf` + `ports: 5432:5432` temporal en `docker-compose.prod.yml` | ✅ Resuelto |
+| **Protocolo pre-deploy** | `scripts/pre-deploy-diagnostic.sh` integrado en `deploy-production.sh` | ✅ Production Ready |
+| **Troubleshooting #163** | Documentación completa del fix integral de réplica | ✅ Documentado |
+| **Plan Tailscale/NetBird** | `docs/plans/omni-gastro/plans/tailscale-provecchio-replica.md` | 📋 Planificado |
+
+---
+
+<!--CURRENT_VERSION-->1.37.0<!--/CURRENT_VERSION-->
 
 El ecosistema **OmniFlow** contempla 10 aplicaciones y capas operativas. A continuación se presenta la evaluación de madurez técnica por componente y los puntos pendientes priorizados hacia el Go-Live final.
 
@@ -35,12 +50,13 @@ El ecosistema **OmniFlow** contempla 10 aplicaciones y capas operativas. A conti
 |---------------------|----------------|-------------|---------------|------------------------------------------|----------------|
 | **Core Multi-Tenant SaaS** | NestJS 10 / PostgreSQL 15 | **95%** | ✅ Production Ready | Aislamiento DB 100% (v1.33.1). Pendiente: afinamiento final de métricas HA. | **v1.33.1** |
 | **Suite Microservicios Standalone** | PWA / Web (`:3020`-`:3027`) | **92%** | ✅ Production Ready | BioLinks, Catalog, Bookings, Giveaways, OmniBI y OmniLedger operando en Traefik. | **v1.33.1** |
-| **OmniGastro & KDS Deep Alignment** | Web / PWA / WebSockets | **75%** | 🔄 Staging Operativo | Sincronización salón/cocina, recetas BoM en tiempo real, divisibilidad de cuentas. | **v1.34.0** |
+| **OmniGastro & KDS Multi-Estación** | Web / PWA / WebSockets | **95%** | ✅ Production Ready | Fases 0-3.1 completadas (FEAT-112 a FEAT-152). KDS configurable multi-estación + impresión ESC/POS + RBAC hardening en PR. | **v1.36.4** |
 | **OmnIoT Edge Hardware Gateway** | Tauri / Rust Native Daemon | **70%** | 🔄 Desarrollo Avanzado | Emulador Epson ePOS, lectura básculas RS-232, ESC/POS TCP/USB daemon systemd en Debian/Radxa. | **v1.35.0** |
 | **Tauri v2 Desktop Wrappers** | Tauri v2 / Rust Kiosk | **65%** | 🔄 Staging Web | Empaquetado binarios `.AppImage` (Linux) y `.msi` (Windows) para OmniPOS Retail, Gastro y KDS. | **v1.35.0** |
 | **Mobile Native (`@orderflow/mobile`)** | React Native / Expo | **60%** | 🔄 En desarrollo | Publicación APK/IPA para `OmniMozos Pocket`, flujo Tap-to-Pay y sincronización offline-first. | **v1.36.0** |
-| **Alta Disponibilidad / Standby Replica** | PostgreSQL Streaming / Traefik | **60%** | 🔄 Parcial | Failover automatizado y réplica de lectura activa Provecchio ↔ Hetzner (FEAT-011). | **v2.0.0** |
+| **Alta Disponibilidad / Standby Replica** | PostgreSQL Streaming / Traefik | **75%** | ✅ Failover Activo | Réplica Provecchio operativa para failover; pendiente migración a Tailscale/NetBird para cerrar puerto 5432 públicamente. | **v1.37.0** |
 | **OmniRealState (Vertical PropTech)** | Standalone Service (`:3028`) | **35%** | 📋 Plan & Specs Completos | Fast-Track MVP (`services/real-estate-standalone/`), SideBar Refine, GeoJSON, contratos, expensas, mora y liquidaciones. | **v1.34.0 (MVP) → v1.36.0** |
+| **Scheduling Core (Feature Granular)** | NestJS Module / Core Service | **5%** | 📋 Documentación Iniciada | Motor de scheduling multi-tenant extraído de cal.diy: disponibilidad avanzada, calendar sync, video conferencing, webhooks. Consumido por bookings, OmniCRM, HR, POS. Docs: `docs/plans/scheduling/`. | **v1.36.0 → v1.41.0** |
 
 ---
 

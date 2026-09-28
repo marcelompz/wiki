@@ -5,6 +5,82 @@ Todos los cambios notables a este proyecto serán documentados en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 y este proyecto se adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.37.0] - 2026-09-28
+
+### 🛡️ Infraestructura — Réplica Provecchio + Diagnóstico Pre-Deploy
+- **Réplica PostgreSQL failover en Provecchio** — `orderflow-database-replica-prod` sincronizada en tiempo real desde el primary via streaming WAL.
+  - Exposición provisional de `5432` en `docker-compose.prod.yml` del primary para permitir `pg_basebackup`.
+  - Autorización en `pg_hba.conf` del primary solo para la IP de Provecchio (`38.52.135.227/32`) con `scram-sha-256`.
+  - Entrypoint custom `scripts/replica-entrypoint.sh` que maneja backup inicial, permisos (`chown` + `chmod 700`), `postgresql.auto.conf` con `primary_conninfo` citado y `standby.signal`.
+  - Arranque con `su-exec postgres` para cumplir la política de la imagen `postgres:15-alpine`.
+  - Verificado: `pg_is_in_recovery()` → `t`; logs muestran `database system is ready to accept read-only connections` y `started streaming WAL from primary`.
+- **Protocolo de diagnóstico pre-deploy** — Creado `scripts/pre-deploy-diagnostic.sh` e integrado en `scripts/deploy-production.sh`.
+  - Verifica: git status, SSH, espacio en disco, Docker daemon/Compose, contenedores huérfanos, redes, volúmenes, `docker compose config`, env vars y conectividad a DB primaria.
+  - Aborta el deploy ante fallos críticos; permite continuar con advertencias.
+- **Troubleshooting #163** — Documentado fix integral de réplica: routing, `pg_hba.conf`, password, sintaxis de `primary_conninfo`, permisos de data directory y arranque como `postgres`.
+
+### 📋 Docs
+- Creado `docs/plans/omni-gastro/plans/tailscale-provecchio-replica.md` con plan de migración a Tailscale/NetBird para cerrar el puerto 5432 públicamente.
+- Actualizado `docs/REPLICA_STANDBY.md` con nota de arquitectura failover y referencia al plan Tailscale.
+- Actualizado índice `docs/troubleshooting/README.md` con entrada #163.
+
+## [1.36.4] - 2026-09-28
+
+### 🍽️ OmniGastro — KDS Multi-Estación + Impresión Selectiva (FEAT-151/152)
+- **KDS Configurable Multi-Estación** — Routing determinista por pedido: un producto puede verse en 0, 1 o N centros de producción.
+  - Nuevo enum `KdsVisibilityMode`: `ALL_STATIONS`, `SELECTED`, `NONE`.
+  - Nueva tabla intermedia `ProductPreparationStation` (N:N producto-estación) con `isVisible` y `printOnStation`.
+  - `sendToKitchen` ahora genera **un ticket por estación destino**, no por línea.
+  - Fallback a routing por categoría cuando `SELECTED` no tiene vinculaciones explícitas.
+- **Impresión ESC/POS + Cola BullMQ**
+  - `KitchenPrintService` con builders ESC/POS para ticket y boleta.
+  - Soporte multi-transporte: `ESC_POS_NETWORK`, `ESC_POS_BLUETOOTH`, `ESC_POS_USB`.
+  - `KitchenPrintProcessor` (cola `kitchen-print`) con retry 3 intentos + backoff exponencial.
+  - Trazabilidad en `KitchenTicket`: `printedAt`, `printCount`, `lastPrintStatus`.
+- **WebSockets por estación** — Sala `tenant:{tenantId}:station:{stationId}` para aislar qué ve cada KDS.
+- **Admin UI** — Nueva página `/admin/kds/stations` (`gastro-kds-stations.tsx`) con CRUD de estaciones, configuración de impresora y links de productos.
+- **Migración** — `20260927193000_kds_multi_station_printing` aplicada.
+
+### 🔐 RBAC Hardening — Empleados POS/Mesas/Waiter
+- **PermissionsGuard** — Eliminado bypass total por API key. Las terminales POS/KDS ahora requieren permiso explícito.
+- **RbacService.hasPermission** — Eliminado bypass de `MANAGER`. Solo `ADMIN` y `isSuperAdmin` tienen bypass incondicional.
+- **Nuevos permisos** — `tables:status`, `tables:guests`, `tables:gift`, `pos:config`.
+- **Seed extendida** — `EMPLOYEE` y `VIEWER` ahora tienen mapeo inicial de permisos.
+- **StepUpGuard** — Autorización por PIN para acciones críticas (gift, cierre Z).
+- **Controllers blindados** — `pos.controller.ts`, `tables.controller.ts`, `waiter-calls.controller.ts` con `PermissionsGuard` + `@RequirePermissions`.
+- **Tests** — `rbac.service.spec.ts` y `permissions.guard.spec.ts` actualizados/creados.
+
+### 📋 Docs
+- Actualizado `PLAN_MAESTRO.md`, `README.md`, `ROADMAP_OMNIGASTRO.md`.
+- Creado `docs/plans/omnigastro/diseno-rbac-empleados.md` (diseño auditado contra v1.36.4).
+- Creado `docs/info/OrderFlow_v1.36.4_Estado_del_Arte.md`.
+
+## [1.36.0] - 2026-09-21
+
+### 🐛 OmniGastro — Datos Dinámicos y Endpoint Promociones
+- **Fix hardcoded data** en 4 páginas admin: reemplazados arrays estáticos por endpoints dinámicos.
+  - `gastro-mozos.tsx`: normalización de `todayTips`/`todayIncentives`/`activeOrders` con `?? 0`; elimina crash `TypeError` en login PIN.
+  - `gastro.tsx`: `loadWaitersList()` desde `/api/v1/users/staff`.
+  - `gastro-cashier.tsx`: bills desde `/api/v1/orders/guest/pending`.
+  - `pos.tsx`: operadores desde `/api/v1/users/staff`.
+  - `gastro-incentives.tsx`: cargado dinámico de promociones y staff; corrección de imports.
+- **Backend** — nuevo endpoint `GET /api/v1/integrations/promotions` + `listPromotions()` con fallback a 3 promos ejemplo.
+- **Tests** — corregidos 2 suites preexistentes: mock `employee` faltante en `position.service.spec.ts` e import incorrecto en `localization.registry.spec.ts`.
+
+### 🔧 Fixes de Ingeniería y Preparación FEAT-149/150
+- **Convención DB** — actualizado `AGENTS.md` con sección 2.4 obligatoria sobre columnas `snake_case` para tablas nuevas y migraciones con timestamp completo `YYYYMMDDHHMMSS`.
+- **Schema Prisma** — corregidos `CashRegister` y `CashRegisterAccess` a `snake_case` con `@map()` explícito en columnas nuevas.
+- **Migraciones** — renombradas 3 migraciones del 21/09 a timestamp completo:
+  - `20260921180000_add_employee_pin_code`
+  - `20260921190000_add_product_kds_visibility`
+  - `20260921230000_add_cash_registers`
+- **Backend Auth** — nuevo `POST /api/v1/auth/verify-pin` con guard `ApiKeyGuard`, reemplaza endpoint legacy de users para PIN unificado.
+- **Frontend** — `gastro-mozos.tsx` ahora usa `/api/v1/auth/verify-pin` y campo `pinCode` consistente con backend.
+
+### 📋 Scheduling Core — Documentación Iniciada (FEAT-141..146)
+- Creado `docs/plans/scheduling/` con `README.md`, `ROADMAP_SCHEDULING.md` y `PLAN_MAESTRO_CALDIY_INTEGRATION.md`.
+- Actualizado `featurelist.json` y `ROADMAP.md` con matriz de dependencias.
+
 ## [1.35.0] - 2026-09-20
 
 ### 🍽️ OmniHRMS (Nueva Vertical) — Fase 1 & 2
