@@ -27,7 +27,7 @@
 
 ---
 
-### 🚀 Release v1.37.0 — Provecchio Failover + Pre-Deploy Diagnostics (Septiembre 2026)
+### 🚀 Release v1.37.0 — Provecchio Failover + Pre-Deploy Diagnostics + OmniGastro Sprint (Septiembre 2026)
 
 | Feature | Módulo | Estado |
 |---------|--------|--------|
@@ -37,6 +37,8 @@
 | **Protocolo pre-deploy** | `scripts/pre-deploy-diagnostic.sh` integrado en `deploy-production.sh` | ✅ Production Ready |
 | **Troubleshooting #163** | Documentación completa del fix integral de réplica | ✅ Documentado |
 | **Plan Tailscale/NetBird** | `docs/plans/omni-gastro/plans/tailscale-provecchio-replica.md` | 📋 Planificado |
+| **Sprint Provecchio — OmniGastro** | Fixes de campo en modal llamada mozo, panel admin reactivo, sonido, RBAC por PIN | ✅ Completado |
+| **Backup con filestore** | Plan post-sprint en `docs/plans/omnigastro/backups-filestore-post-sprint.md` | 📋 Planificado |
 
 ---
 
