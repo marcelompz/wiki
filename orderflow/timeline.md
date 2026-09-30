@@ -1,7 +1,7 @@
 # Línea de Tiempo y Evolución de OmniFlow
 
-**Última actualización:** 2026-09-28  
-**Versión actual:** `v1.37.0`  
+**Última actualización:** 2026-09-30  
+**Versión actual:** `v1.37.3`  
 **Próximo hito:** `v1.38.0` — Tauri Desktop & OmnIoT Edge
 **Documento fuente:** `CHANGELOG.md`, `ROADMAP.md`, `featurelist.json`
 

@@ -1,7 +1,7 @@
 {
   "project": "OrderFlow SaaS Omnicanal",
-  "version": "1.37.0",
-  "last_updated": "2026-09-28",
+  "version": "1.37.3",
+  "last_updated": "2026-09-30",
   "features": [
     {
       "id": "FEAT-130",

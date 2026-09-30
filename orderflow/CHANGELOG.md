@@ -5,6 +5,16 @@ Todos los cambios notables a este proyecto serán documentados en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 y este proyecto se adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.37.3] - 2026-09-30
+
+### 🍽️ OmniGastro — Sprint Provecchio Field Fixes
+- **Modal llamar al mozo unificado** — Reemplazado `Radio.Group` por `Select` en modal de tracking post-pedido de `omni-catalog.tsx` para evitar selección múltiple y mejorar legibilidad.
+- **Validación backend suavizada** — `POST /api/v1/guest/tables/:id/call-waiter` ahora permite `freeText` como fallback cuando `optionId` no existe en la BD del tenant.
+- **Filtro backend por waiterId** — `GET /api/v1/waiter/calls` acepta query param `waiterId` para filtrar llamadas asignadas a ese mozo o sin asignar. El frontend envía el parámetro cuando hay PIN activo.
+- **tableNumber legible** — Panel admin `/admin/gastro` muestra `tableNumber || tableId` en vez de UUID puro en las llamadas al mozo.
+- **Sonido en catálogo público** — Agregado `playNotificationSound('call')` después de enviar llamada al mozo y al pedir la cuenta.
+- **Tokens de tema en modal tracking** — Reemplazados colores hardcodeados por `primaryColor`, `secondaryColor` y `cssVars.*` en modal de tracking de `omni-catalog.tsx`.
+
 ## [1.37.0] - 2026-09-28
 
 ### 🛡️ Infraestructura — Réplica Provecchio + Diagnóstico Pre-Deploy
