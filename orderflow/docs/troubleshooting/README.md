@@ -119,7 +119,10 @@ Ordená por problema y área. Cada entrada incluye síntomas, causa raíz y solu
 | [165](165-uploads-volume-loss-on-deploy.md) | Pérdida de uploads de tenant tras deploy/reinicio | Infraestructura / Docker / Uploads | Volumen `orderflow_uploads_data` vacío o sin carpeta del tenant después de deploy; riesgo por `docker volume prune` | 🛠️ Mitigado |
 | [166](166-stale-version-after-deploy.md) | Versión desplegada en Provecchio queda vieja tras deploy | Deploy / Frontend / Backend | Se sigue mostrando `OmniFlow v1.36.x` aunque el repo local ya está en `1.37.1` | 🛠️ Documentado |
 | [167](167-provecchio-biolinks-orphan-image-missing.md) | Imágenes huérfanas en catálogo público de Provecchio | Infraestructura / Uploads / QA E2E | `qa_e2e_check.py` reporta 404 en `/uploads/biolinks/.../1790132632369_provecchio_isotipo_full.jpg` y `/uploads/social-catalog/.../1790132682642_header_full.jpg` sin referencia activa en BD ni filesystem | 🛠️ Documentado |
+| [168](168-omnigastro-field-testing-qr-domain-and-floor-rename.md) | OmniGastro Field Testing — QR Domain y Renombrado de Zonas | Frontend / Backend / OmniGastro / QA | QR generan `dimora.local` en vez de `provecchio.local`; sin endpoint/UI para renombrar pisos; nombres inconsistentes entre `/admin/gastro/tables` y `/admin/gastro/mozos` | 🛠️ Parcialmente resuelto |
 | [163](163-provecchio-replica-pg_hba-password-fix.md) | Réplica Provecchio Bloqueada en Restart por pg_hba y password | Backend / PostgreSQL / Réplica DR | `orderflow-database-replica-prod` queda en `Restarting (1)`; `pg_basebackup` falla con `connection refused` o `no pg_hba.conf entry` | ✅ Resuelto |
+| [159](159-positions-schema-500-error.md) | 500 Error en /api/v1/hr/departments, /api/v1/hr/organization y /api/v1/positions — Schema Prisma camelCase vs snake_case + FK constraint | Backend / Prisma / Database / HR | `Invalid this.prisma.department.findMany()`: column `positions.departmentId`/`positions.tenantId` does not exist; `Unique constraint failed on ('tenant_id','code')`; FK `positions_tenant_id_fkey` violada para `super-admin-global` | ✅ Resuelto |
+
 
 ---
 
@@ -195,3 +198,4 @@ Ordená por problema y área. Cada entrada incluye síntomas, causa raíz y solu
 - **FAQ comercial:** [docs/FAQ.md](../FAQ.md)
 - **Deploy y entornos:** [README.md](../README.md) — sección *Deploy y Ambientes*
 - **Política de limpieza de config legacy:** [README.md](../README.md) — sección *Limpieza de Configuración Obsoleta*
+| [160](160-inventory-admin-routes-missing.md) | 404 en /admin/inventory/* rutas no registradas en React Router | Frontend / React Router | Sidebar tiene links pero AdminApp.tsx no tiene <Route> para inventory/* | ✅ Resuelto |
