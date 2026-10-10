@@ -1,8 +1,8 @@
 # OmniGastro — Suite Gastronómica para OmniFlow
 
-> **Estado:** FEAT-112 Safeguards **completed** · FEAT-125 (demo alfa 2026-09-04) **in_progress** · resto planned.
+> **Estado:** Fase 0–3.1 completada · Hardening RBAC empleados **pendiente implementación** (ver `diseno-rbac-empleados.md`).
 > **Versión base:** OmniFlow / OrderFlow v1.24.04
-> **Última actualización:** 2026-09-03
+> **Última actualización:** 2026-09-27
 
 OmniGastro convierte OmniFlow en el **Sistema Operativo Restaurantero** completo, alcanzando paridad operativa con Toast POS y superándola en offline-first nativo, soberanía multi-tier, Live Escandallo atómico y Seat-level ordering.
 
@@ -28,25 +28,23 @@ OmniGastro convierte OmniFlow en el **Sistema Operativo Restaurantero** completo
 | Fase | FEATs | Estado | Doc |
 |---|---|---|---|
 | **0 — Safeguards** | FEAT-112 | ✅ **completed** | [`PLAN_MAESTRO.md`](./PLAN_MAESTRO.md) §2 |
-| **1 — Cimientos + Caja** | FEAT-113 | 🟡 **next** | [`features/FEAT-113-omnidinein-cimientos.md`](./features/FEAT-113-omnidinein-cimientos.md) |
-| **2 — Salón + Guest Experience** | FEAT-114, 115, 116, 119, 125 | 🟡 **FEAT-125 in_progress (demo alfa 2026-09-04)** | [`features/FEAT-125-guest-menu-claim-waiter.md`](./features/FEAT-125-guest-menu-claim-waiter.md), [`features/FEAT-116-split-payments.md`](./features/FEAT-116-split-payments.md), [`PLAN_OPERATIVO_Y_PROMPTS.md`](./PLAN_OPERATIVO_Y_PROMPTS.md) §FEAT-125 |
-| **3 — Cocina + Costos** | FEAT-117, 118 | ⚪ planned | [`PLAN_MAESTRO.md`](./PLAN_MAESTRO.md) §3 + §4 |
+| **1 — Cimientos + Caja** | FEAT-113 | ✅ **completed** | [`features/FEAT-113-omnidinein-cimientos.md`](./features/FEAT-113-omnidinein-cimientos.md) |
+| **2 — Salón + Guest Experience** | FEAT-114, 115, 116, 119, 125 | ✅ **completed** | [`features/FEAT-125-guest-menu-claim-waiter.md`](./features/FEAT-125-guest-menu-claim-waiter.md), [`features/FEAT-116-split-payments.md`](./features/FEAT-116-split-payments.md) |
+| **3 — Cocina + Costos** | FEAT-117, 118 | ✅ **completed** | [`PLAN_MAESTRO.md`](./PLAN_MAESTRO.md) §3 + §4 |
+| **3.1 — KDS Configurable + Impresión** | FEAT-147, 148, 151, 152 | ✅ **completed** | [`DISENO_KDS_CONFIGURABLE_IMPRESION.md`](./DISENO_KDS_CONFIGURABLE_IMPRESION.md) |
 | **4 — Hardware + Escala** | FEAT-120 → 124 | ⚪ planned | [`PLAN_MAESTRO.md`](./PLAN_MAESTRO.md) §5 |
 
 ---
 
 ## 📋 Próximos pasos inmediatos
 
-1. **FEAT-125 demo alfa 2026-09-04 (Provecchio, `orderflow.provecchio.com`)** — Guest Digital Menu + Table Claim + Waiter Call + mini-KDS simulado.
-   - Alcance reducido: sin migración Prisma (todo en `Order.metadata` + `Tenant.config` JSON).
-   - Prompt listo: [`PLAN_OPERATIVO_Y_PROMPTS.md`](./PLAN_OPERATIVO_Y_PROMPTS.md) §FEAT-125 (alcance demo)
-   - Doc detallado: [`features/FEAT-125-guest-menu-claim-waiter.md`](./features/FEAT-125-guest-menu-claim-waiter.md)
-   - Rama: `feat/gastro-02-tables-split-guest`
-2. **Post-demo:** cerrar gaps reales del FEAT-112 (soft-delete + Restrict + linter) — ver [`PLAN_OPERATIVO_Y_PROMPTS.md`](./PLAN_OPERATIVO_Y_PROMPTS.md) §FEAT-112.
-3. **FEAT-113** (Sprint 1) — OmniDineIn Cimientos: PosSession real + rol WAITER + permisos `cash:*` / `tables:*`.
-   - Prompt detallado: [`features/FEAT-113-omnidinein-cimientos.md`](./features/FEAT-113-omnidinein-cimientos.md)
-   - Depende de: FEAT-093, FEAT-097, FEAT-112 (✅ completed)
-   - Rama: `feat/gastro-01-pos-session-roles`
+1. 🟡 **Hardening RBAC empleados** — Cerrar brechas de permisos en POS, mesas y waiter calls.
+   - Diseño: [`diseno-rbac-empleados.md`](./diseno-rbac-empleados.md)
+   - Permisos nuevos: `tables:status`, `tables:guests`, `tables:gift`, `pos:config`
+   - Cierre de bypass por API key en `PermissionsGuard`
+   - Step-up PIN para acciones críticas (gift, cierre Z, anulación)
+   - Rama sugerida: `feat/gastro-rbac-empleados`
+2. **Post-implementación**: tag `v1.27.0-omnigastro-rbac` + merge a `develop`
 
 ---
 

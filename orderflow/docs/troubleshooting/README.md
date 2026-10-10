@@ -144,6 +144,7 @@ Ordená por problema y área. Cada entrada incluye síntomas, causa raíz y solu
 - **Rutas `/api` no llegan al backend:** ver [#02](02-production-docker-manifests-and-ssl-redirects.md) — reglas Traefik y `container_name` fijos.
 - **502 Bad Gateway — Backend en red bridge:** ver [#140](140-backend-bridge-network-502.md) — contenedor backend en red `bridge` en vez de `traefik-public`/`orderflow-network`; fix: `docker network connect` o restart vía Compose.
 - **No se pudo escribir la configuración de Traefik:** ver [#33](33-traefik-dynamic-config-write-failure.md) — directorio dinámico de Traefik no montado en el contenedor de OmniFlow o permisos incorrectos.
+- **Provecchio: Traefik enrutando a QMSSuite en vez de OrderFlow:** ver [#169](169-provecchio-traefik-qms-routing-fix.md) — loadBalancer URLs apuntaban a contenedores QMSSuite (3000/3001) en lugar de OrderFlow (3010/80); fix: actualizar services.yml y sincronizar a `/opt/srv/traefik/dynamic/`.
 
 ### Base de Datos
 - **P1000 / auth PostgreSQL:** ver [#04](04-prisma-p1000-db-auth-and-redis-fallback.md) — rotación de credenciales y volumen persistente.
@@ -199,3 +200,5 @@ Ordená por problema y área. Cada entrada incluye síntomas, causa raíz y solu
 - **Deploy y entornos:** [README.md](../README.md) — sección *Deploy y Ambientes*
 - **Política de limpieza de config legacy:** [README.md](../README.md) — sección *Limpieza de Configuración Obsoleta*
 | [160](160-inventory-admin-routes-missing.md) | 404 en /admin/inventory/* rutas no registradas en React Router | Frontend / React Router | Sidebar tiene links pero AdminApp.tsx no tiene <Route> para inventory/* | ✅ Resuelto |
+| [169](169-provecchio-traefik-qms-routing-fix.md) | Provecchio: Traefik enrutando a QMSSuite en vez de OrderFlow | DevOps / Traefik / Deploy | 502 Bad Gateway / carga QMSSuite en provecchio.com; loadBalancer URLs apuntaban a qms-web-app:3000 / qms-backend-api:3001 | ✅ Resuelto |
+| [170](170-local-backend-build-hostname-mismatch.md) | Backend Local Fuera de Docker: Hostname `postgres` vs `localhost` | DevOps / Docker / Local Deploy | Backend compilado localmente no arranca: `PrismaClientInitializationError: Can't reach database server at postgres:5432` | ✅ Resuelto |

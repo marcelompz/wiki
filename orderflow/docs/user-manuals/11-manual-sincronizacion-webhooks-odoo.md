@@ -130,6 +130,27 @@ sequenceDiagram
 
 ## 5. DIAGNÓSTICO Y RESOLUCIÓN DE PROBLEMAS (TROUBLESHOOTING)
 
+## 5.1 Vista previa de datos maestros desde Odoo
+
+Antes de importar cambios a OrderFlow, un usuario con permiso `integrations:read` puede consultar una vista previa paginada de los datos maestros de una integración Odoo:
+
+```text
+GET /api/v1/integrations/:integrationId/odoo/master-data/:resource/preview
+```
+
+Los recursos disponibles son:
+
+- `products`
+- `categories`
+- `stock`
+- `departments`
+- `positions`
+- `employees`
+
+Se pueden utilizar los parámetros `limit` (entre 1 y 1000) y `offset`. La respuesta incluye `dryRun: true` y no modifica la base de datos de OrderFlow. Las credenciales de Odoo tampoco se devuelven en la respuesta.
+
+Esta vista previa permite revisar productos, existencias y estructura HRMS antes de implementar la fase de importación y reconciliación.
+
 ### ❓ El webhook no se refleja en OrderFlow
 1. **Verificar logs del backend de OrderFlow:**
    ```bash

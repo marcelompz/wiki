@@ -1125,7 +1125,7 @@
       "assigned_module": "backend/prisma/, backend/src/common/, .github/workflows/",
       "depends_on": [],
       "blocking": [],
-      "qa_validation": "Soft-delete extension + Restrict on root entities + CI migration check + no PrismaService singleton in gastro modules"
+      "qa_validation": "SG-01: softDeleteExtension wired into PrismaService via PrismaClient.extend — intercepts delete/deleteMany/findFirst/findMany/findUnique/count on 60+ models with isDeleted/deletedAt. SG-02: onDelete:Restrict verified on RestaurantTable, PosSession, PosConfig, PreparationStation, UnitOfMeasure, ProductBom, BillSplit, WaiterCall, RestaurantFloor, KitchenTicket, TableGuest, SplitPayment, BomLine. SG-03: no-restricted-syntax rule in .eslintrc.cjs — 0 violations in src/. Verified 2026-09-18."
     },
     {
       "id": "FEAT-113",
@@ -1139,7 +1139,7 @@
         "FEAT-112"
       ],
       "blocking": [],
-      "qa_validation": "Prisma client generated | 100% Jest tests passing (6/6 tests in PosSessionsService) | WAITER role + 8 cash/tables permissions seeded | Backend nest build clean | Frontend vite build clean"
+      "qa_validation": "PosSessionsService open/getActive/close/getReport implemented. WAITER role in UserRole enum. 8 cash/tables permissions seeded. RbacService.seedRolePermissions() assigns WAITER: tables:own, tables:transfer, orders:read, orders:create, orders:update, cash:collect. Called at bootstrap in main.ts. Verified 2026-09-18."
     },
     {
       "id": "FEAT-114",
@@ -1281,15 +1281,56 @@
       "qa_validation": "QR→GUEST_DRAFT→claim→tracking; WaiterCall alerts; table-side custody + pay-link; split payments",
       "demo_target": "Rollplay alfa 2026-09-04 en Provecchio (orderflow.provecchio.com) — demo end-to-end con KDS simulado, flag omnigastro, gate omni-catalog, mesa MESA-01",
       "demo_deploy": "Deploy Hetzner ejecutado 2026-09-03: commits c54cac16 + 111003c5, backend rebuilt + restarted, seed-demo-omnigastro.sql aplicado (tenant demo-omnigastro-001 + 5 productos + flag gastro.enabled=true), 8/8 smoke tests pasados (resolve QR + create order + claim + ready + paid + call-waiter + list calls + track). Manual de usuario: docs/manual/feat125_gastro.md (14 pasos + 11 endpoints + capturas vía Playwright). Próximo: deploy a Provecchio + rollplay en vivo 2026-09-04."
+    },
+    {
+      "id": "FEAT-151",
+      "category": "Core / OmniGastro / KDS Printing",
+      "title": "KDS Configurable Multi-Estación + Impresión Selectiva (ESC/POS, cola BullMQ)",
+      "status": "completed",
+      "assigned_module": "backend/src/kds/, backend/src/queues/, backend/prisma/schema.prisma",
+      "depends_on": [
+        "FEAT-147",
+        "FEAT-148"
+      ],
+      "blocking": [],
+      "qa_validation": "Producto aparece en 0..N estaciones según configuración | Ticket se genera por estación destino | Impresión ESC/POS funciona para NETWORK/BLUETOOTH/USB | Cola BullMQ reintenta hasta 3 veces | WebSocket por estación tenant:{tenantId}:station:{stationId}",
+      "design_doc": "docs/plans/omnigastro/DISENO_KDS_CONFIGURABLE_IMPRESION.md"
+    },
+    {
+      "id": "FEAT-152",
+      "category": "Core / OmniGastro / KDS Routing",
+      "title": "KDS Product-Station Links (N:N) + Routing Multi-Destino por pedido",
+      "status": "completed",
+      "assigned_module": "backend/src/kds/, backend/src/orders/, backend/prisma/schema.prisma",
+      "depends_on": [
+        "FEAT-151"
+      ],
+      "blocking": [],
+      "qa_validation": "ProductPreparationStation CRUD funcional | sendToKitchen genera tickets en múltiples estaciones | Fallback a routing por categoría cuando SELECTED sin vínculos | WebSocket aisla por estación"
+    },
+    {
+      "id": "FEAT-153",
+      "category": "Core / OmniGastro / POS",
+      "title": "POS Dedicated Fullscreen View + Category Navigation + Table Guests Management",
+      "status": "completed",
+      "assigned_module": "frontend/src/pages/admin/gastro-pos.tsx, backend/src/guest/guest-tables.controller.ts",
+      "depends_on": [
+        "FEAT-114",
+        "FEAT-116"
+      ],
+      "blocking": []
     }
   ],
-  "lastUpdated": "2026-09-03",
-  "last_id": "FEAT-125",
+  "lastUpdated": "2026-10-08",
+  "last_id": "FEAT-153",
   "next_pending_sc": null,
-  "active_plan": "docs/planes/pos-kds/PLAN_OMNIGASTRO.md",
+  "active_plan": "docs/plans/omnigastro/plan_actualizacion_1.38.14.md",
   "plan_progress": {
-    "Fase 1 - Core Backend & DB": "in_progress",
-    "Fase 2 - Marcador Asistencia": "pending",
-    "Fase 3 - Microservicio Standalone": "pending"
+    "Fase 1 - Core Backend & DB": "completed",
+    "Fase 2 - Salón y Mesas": "completed",
+    "Fase 3 - Cocina y Costos": "completed",
+    "Fase 3.1 - KDS Configurable + Impresión": "completed",
+    "Fase 3.2 - POS Dedicated Fullscreen": "completed",
+    "Fase 4 - Hardware y Escala": "pending"
   }
 }

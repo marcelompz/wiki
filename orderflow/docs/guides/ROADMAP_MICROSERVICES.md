@@ -31,6 +31,7 @@ OrderFlow opera con un modelo híbrido:
 | **11. OmniSites Standalone** | `services/omnisites-standalone` | `:3030` | `sites.pesallaccia.com` | ✅ **LISTO (v1.0.0)** | Diseñador web drag-and-drop SiteCraft Studio con generación asistida por IA Gemini y exportación responsive. |
 | **12. OmniFlow Data Editor Standalone** | `services/data-editor-standalone` | `:3029` | `data-editor.pesallaccia.com` | ✅ **LISTO (v1.0.0)** | Editor y validador universal de datos (JSON/CSV/XLSX) con tabla estilo Excel, vista de árbol, código raw y validación de esquemas Odoo (`res.partner`, `product.template`, `sale.order`). |
 | **13. OmniCRM Standalone** | `/opt/omnicrm` (`services/omnicrm-standalone`) | `:3031` | `crm.pesallaccia.com` | ✅ **LISTO (v1.0.0)** | Suite CRM omnicanal independiente con IA Gemini, gestión de contactos/leads, integración WhatsApp/mensajería y seguimiento de embudo de ventas. |
+| **14. OmniGastro Standalone (POS/KDS/Mozos & Mobile)** | `services/omnigastro-standalone` | `:3032` | `gastro.pesallaccia.com` | 📋 **PLANIFICADO** | Suite Gastro autónoma desacoplada: POS Mozo, Plano de Mesas 2D, KDS multi-estación, WebSockets LAN/Edge resilient (<10ms) y backend directo para `mobile/apps/app-waiter`. |
 
 ---
 

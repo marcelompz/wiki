@@ -2,6 +2,84 @@
 
 Todos los cambios notables en este proyecto se documentarán en este archivo.
 
+## [1.38.14] - 2026-10-08
+
+### 🚀 FEAT-153: POS Dedicated Fullscreen View + Category Navigation + Table Guests Management
+- **Nueva Vista POS Fullscreen (`frontend/src/pages/admin/gastro-pos.tsx`)** — Interfaz de pantalla completa para tablets y comandera de salón con sidebar de categorías, buscador de productos, panel central de líneas por asiento y resumen lateral por comensal.
+- **Acceso Directo desde Dashboard Mozo (`frontend/src/pages/admin/gastro.tsx`)** — Redirección fluida al hacer click en gestionar pedido a la vista POS dedicada (`/admin/gastro/pos/:tableId`).
+- **Enrutamiento Admin (`frontend/src/AdminApp.tsx`)** — Registrada nueva ruta `/admin/gastro/pos/:tableId` con lazy loading.
+- **API CRUD Comensales (`backend/src/guest/guest-tables.controller.ts`)** — Soporte para consultar comensales activos por mesa, asignación de asiento y nombres/alias para split billing por asiento.
+- **Reutilización de Componentes (`frontend/src/components/catalog/CategoryAccordion.tsx`)** — Integración nativa del acordeón de categorías con selección directa de productos al pedido activo.
+
+## [1.38.13] - 2026-10-08
+
+### 🐛 Fix: Missing Icon Import & E2E Local Execution
+- **Fix missing `EditOutlined` icon (`frontend/src/pages/admin/gastro-tables.tsx`)** — Added missing Ant Design icon import that was causing build/runtime error in table editing modal.
+- **E2E Local Execution Support (`scripts/qa_e2e_check.py`, `frontend/e2e/`)** — Added support for running Playwright E2E tests against local `provecchio.local` environment with production data restored.
+
+### Changed
+- Version sync (AGENTS.md §11) — Bumped 1.38.12 → 1.38.13 (patch) across VERSION, backend/package.json, frontend/package.json, mobile/package.json, packages.json, featurelist.json, README.md, docs/ROADMAP.md, docs/guides/CHANGELOG.md, and Swagger version in main.ts.
+
+## [1.38.12] - 2026-10-07
+
+### ✨ OmniGastro UX Improvements & Production Hardening
+- **QR con nombre de mesa incrustado (`backend/src/guest/guest-tables.controller.ts`, `frontend/src/pages/admin/gastro-tables.tsx`)** — QR response now includes table name/number embedded; fixed redirect login on `.local` domains to use correct origin.
+- **Restore `waiterOptions` in QR endpoint (`backend/src/guest/guest-tables.controller.ts`)** — Reverted removal of `waiterOptions` from QR response (added back with default `[]`) to maintain backward compatibility with existing client integrations.
+- **Fix employee contact FK error (`backend/src/hr/employee.service.ts`)** — Resolved 500 error when editing employee with orphaned `contactId` by validating contact existence before linking.
+
+### 🔧 Infrastructure & Deploy Fixes
+- **Mount uploads volume to backend container (`docker-compose.yml`)** — Fixed missing volume mount for `/app/uploads` in backend service to enable file uploads in local dev.
+- **Backup production file store scripts (`scripts/backup-production.sh`)** — Enhanced to backup Docker volume `orderflow_uploads_data` from remote server via SSH proxy jump.
+- **Pre-deploy local-first requirement (`scripts/deploy-local.sh`, `docs/guides/pre-deploy-local-first.md`)** — Added mandatory production data export/import step before local deployment validation (AGENTS.md §3.1.1).
+
+### 🧪 Testing Improvements
+- **E2E import validation (`frontend/e2e/omnigastro.spec.ts`)** — Updated test to handle tenants without configured suppliers; added validation for `GET /api/v1/product-imports/suppliers` and `GET /api/v1/product-imports/jobs` endpoints on provecchio.com.
+
+### Changed
+- Version sync (AGENTS.md §11) — Bumped 1.38.11 → 1.38.12 (patch) across VERSION, backend/package.json, frontend/package.json, mobile/package.json, packages.json, featurelist.json, README.md, docs/ROADMAP.md, docs/guides/CHANGELOG.md, and Swagger version in main.ts.
+
+## [1.38.11] - 2026-10-06
+
+### Added
+- **OmniGastro v1.38.11** — 4 cambios:
+  1. Sidebar: `/admin/products` movido del grupo OMNICRM al grupo INVENTARIO (`frontend/src/components/Sidebar.tsx`).
+  2. Nueva ruta `/social-catalog/menudigital` (`SocialCatalogPage`) con herencia de imagen de fondo de categoría (`frontend/src/main.tsx`, `frontend/src/pages/omni-catalog.tsx`).
+  3. QR de mesa: se omitió el campo `waiterOptions` de la respuesta del endpoint `GET /api/v1/guest/tables/:id/qr` porque los mozos toman pedidos directamente (`backend/src/guest/guest-tables.controller.ts`).
+  4. Modal POS / Comandera en el panel mozo (`frontend/src/pages/admin/gastro.tsx`): CRUD de líneas de pedido, búsqueda de productos, envío a cocina, listo y cierre con 3 modos de cobro.
+
+### Changed
+- Version sync (AGENTS.md §11) — Bumped 1.38.10 → 1.38.11 (patch) across VERSION, backend/package.json, frontend/package.json, mobile/package.json, packages.json, featurelist.json, README.md, docs/ROADMAP.md, docs/guides/CHANGELOG.md, and Swagger version in main.ts.
+
+## [1.38.10] - 2026-10-06
+
+### 🐛 Fix: 3 Production Bugs — Inventory Endpoint, Product Upload, Social Catalog Encoding
+- **Bug 1 — `Cannot GET /api/v1/inventory/products-with-stock` (backend/src/inventory/inventory.controller.ts:44)** — Endpoint code already existed but was missing from the compiled `dist/` because the NestJS build was failing due to pre-existing TypeScript errors in analytics spec files. Fixed 4 spec files (`decision-engine.service.spec.ts`, `analytics-export.service.spec.ts`, `inventory-analytics.service.spec.ts`, `wopi.service.spec.ts`) to unblock `nest build`, then rebuilt successfully. The endpoint now serves correctly.
+- **Bug 2 — Missing `/product` endpoint for create/bulk product (frontend/src/pages/admin/products.tsx:208)** — Changed the upload call from the non-existent `/api/v1/products/upload` to the correct `/api/v1/products/upload-image` endpoint.
+- **Bug 3 — `property fileEncoding should not exist` on social-catalog bulk upload (backend/src/social-catalog/dto/bulk-upload-catalog.dto.ts:19)** — Added `fileEncoding?: string` field to `BulkUploadCatalogDto` and a `getSheetJsCodepage()` helper in `social-catalog-admin.controller.ts` to map encoding names to SheetJS codepage numbers, passing `codepage` to `XLSX.read()`.
+- **Build fix (scripts/deploy-local.sh)** — Added `rm -rf dist` + `chown -R 1000:1000` before/after backend build to prevent root-owned dist permission issues.
+- **Version sync (AGENTS.md §11)** — Bumped 1.38.9 → 1.38.10 (patch) across VERSION, backend/package.json, frontend/package.json, mobile/package.json, packages.json, featurelist.json, README.md, docs/ROADMAP.md, docs/guides/CHANGELOG.md, and Swagger version in main.ts.
+
+## [1.38.9] - 2026-10-05
+
+### 🐛 Fix: Snake_case Migration for `positions` Table + 500 Error Resolution
+- **Schema fix (backend/prisma/schema.prisma)** — Removed `@map("tenant_id")` from `Position` model's `tenantId` field to align with legacy camelCase column in the database (AGENTS.md §2.4: tables created before 2026-09-12 use camelCase without `@map()`).
+- **Snake_case migration (backend/prisma/migrations/20261003180000_migrate_positions_to_snake_case/)** — Renamed `positions` table columns from camelCase to snake_case (`tenantId` → `tenant_id`, `departmentId` → `department_id`, `parentId` → `parent_id`, `createdAt` → `created_at`, `updatedAt` → `updated_at`, `baseRole` → `base_role`). Recreated indexes and foreign key constraints referencing the renamed columns.
+- **Schema Prisma update (backend/prisma/schema.prisma:2155)** — Updated `Position` model with `@map` annotations for all snake_case columns.
+- **Stale Docker volume cleanup** — Removed stale anonymous Docker volume containing old Prisma client with `type` field in `BirthdayLogUncheckedCreateInput`, which was causing TypeScript compilation failures.
+- **Version sync (AGENTS.md §11)** — Bumped from 1.38.0 → 1.38.2 (patch for KDS e2e tests empty state and version sync across all manifests).
+
+## [1.37.4] - 2026-10-03
+
+### 🐛 Fix: FK Constraint 500 Error en /api/v1/positions + Frontend HR
+- **FK constraint fix (backend/src/positions/position.service.ts:33-34)** — Added tenant existence check (`prisma.tenant.findFirst`) before `prisma.position.create()` to prevent `positions_tenantId_fkey` error when creating positions.
+- **TypeScript fix (backend/src/loyalty/birthday.service.ts:194)** — Restored `type: 'BIRTHDAY_BONUS'` field in `loyaltyTransaction.create()` call (LoyaltyTransaction model requires `type` field).
+- **Frontend error handling (frontend/src/pages/admin/hr-organization.tsx)** — Added try-catch in `saveDepartment` and `savePosition` functions to show real error messages instead of silent "OK does nothing" behavior.
+- **Test fix (backend/src/positions/position.service.spec.ts)** — Added `tenant.findFirst` mock in `beforeEach` to resolve 4 test failures from tenant existence check.
+- **Version sync (AGENTS.md §11)** — Fixed VERSION file formatting ("1: 1.37.4" → "1.37.4"), updated all 86 `*.manifest.json` files from 1.37.3 → 1.37.4, updated README.md, ROADMAP.md, docs/ROADMAP.md, docs/guides/CHANGELOG.md, Swagger version in main.ts, and mobile/package.json.
+- **Traefik local dev config (/opt/traefik-orderflow/dynamic/services.yml)** — Added `orderflow-local-frontend` and `orderflow-local-backend` services pointing to `172.17.0.1:3011/3000`; updated `provecchio-local-*` routers to use dev services.
+- **Vite config (frontend/vite.config.ts)** — Added `provecchio.local` to `allowedHosts`; fixed proxy target from `localhost:3010` to `localhost:3000`.
+- **Local deploy script (scripts/deploy-local.sh)** — Created comprehensive local validation script mirroring production checks (version sync, builds, tests, health checks, functional tests).
+
 ## [1.20.21] - 2026-08-25
 
 ### ✨ Visualización de Fecha de Nacimiento en Contactos y Participantes (FEAT-086)

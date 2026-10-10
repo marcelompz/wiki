@@ -94,11 +94,22 @@ services:
 
 ```env
 # .env.provecchio
-PRIMARY_HOST=178.105.226.175
+PRIMARY_HOST=178.105.226.175  # Temporalmente público; luego reemplazar por IP tailnet
 POSTGRES_USER=orderflow
 POSTGRES_PASSWORD=***
 POSTGRES_DB=orderflow_db
 ```
+
+### 3.4 Conexión Segura con Tailscale (Recomendado)
+
+El puerto 5432 **no debe exponerse públicamente**. Usar Tailscale para crear una red privada entre el primary y Provecchio:
+
+1. Instalar Tailscale en ambos servidores.
+2. Obtener las IPs de tailnet (`100.x.y.z`).
+3. Configurar `PRIMARY_HOST` en `.env.provecchio` con la IP tailnet del primary.
+4. Cerrar el puerto 5432 en el primary una vez validada la réplica.
+
+Ver plan completo: `docs/plans/omni-gastro/plans/tailscale-provecchio-replica.md`
 
 ### 3.4 Health Checks
 

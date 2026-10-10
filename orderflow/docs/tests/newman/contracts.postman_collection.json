@@ -1,0 +1,419 @@
+{
+  "info": {
+    "name": "OrderFlow API Contracts",
+    "description": "Colección de smoke tests y validación de contratos de API para OrderFlow. Ejecutar antes de Playwright para verificar endpoints críticos.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "https://api.pesallaccia.com"
+    },
+    {
+      "key": "tenantId",
+      "value": "provecchio-dimora-001"
+    },
+    {
+      "key": "adminEmail",
+      "value": "marcelo@pesallaccia.com"
+    },
+    {
+      "key": "adminPassword",
+      "value": "Provecchio2026!"
+    },
+    {
+      "key": "masterApiKey",
+      "value": "{{MASTER_API_KEY}}"
+    }
+  ],
+  "item": [
+    {
+      "name": "Health Check",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Health endpoint returns 200', function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "pm.test('Health response has version', function () {",
+              "    const json = pm.response.json();",
+              "    pm.expect(json).to.have.property('version');",
+              "    pm.expect(json).to.have.property('status', 'ok');",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/health",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "v1", "health"]
+        }
+      }
+    },
+    {
+      "name": "Auth - Login",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Login returns 200 with accessToken', function () {",
+              "    pm.response.to.have.status(200);",
+              "    const json = pm.response.json();",
+              "    pm.expect(json).to.have.property('accessToken');",
+              "    pm.environment.set('accessToken', json.accessToken);",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"{{adminEmail}}\",\n  \"password\": \"{{adminPassword}}\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/auth/login",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "v1", "auth", "login"]
+        }
+      }
+    },
+    {
+      "name": "Public Catalog",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Public catalog returns 200', function () {",
+              "    pm.response.to.have.status(200);",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/public/social-catalog/{{tenantId}}",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "v1", "public", "social-catalog", "{{tenantId}}"]
+        }
+      }
+    },
+    {
+      "name": "Webhook - Unauthenticated (should reject)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Unauthenticated webhook returns 401', function () {",
+              "    pm.response.to.have.status(401);",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"event\": \"invoice-posted\",\n  \"invoice\": {\n    \"invoice_id\": \"1\"\n  }\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/integrations/orderflow/webhook",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "v1", "integrations", "orderflow", "webhook"]
+        }
+      }
+    },
+    {
+      "name": "Webhook - With API Key (should accept)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Authenticated webhook returns 201', function () {",
+              "    pm.response.to.have.status(201);",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "x-api-key",
+            "value": "{{masterApiKey}}"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"event\": \"invoice-posted\",\n  \"invoice\": {\n    \"invoice_id\": \"1\"\n  }\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/integrations/orderflow/webhook",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "v1", "integrations", "orderflow", "webhook"]
+        }
+      }
+    },
+    {
+      "name": "KDS - Public endpoint",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('KDS endpoint returns 200 or 401/403', function () {",
+              "    pm.expect(pm.response.code).to.be.oneOf([200, 401, 403]);",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/admin/kds",
+          "host": ["{{baseUrl}}"],
+          "path": ["admin", "kds"]
+        }
+      }
+    },
+    {
+      "name": "Guest Orders - Draft",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Guest order draft returns 200 or 400', function () {",
+              "    pm.expect(pm.response.code).to.be.oneOf([200, 400]);",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"customerId\": \"cust-001\",\n  \"items\": [\n    {\n      \"productId\": \"prod-001\",\n      \"quantity\": 2\n    }\n  ],\n  \"serviceMode\": \"TABLE\",\n  \"tableId\": \"table-001\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/guest/orders",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "v1", "guest", "orders"]
+        }
+      }
+    },
+    {
+      "name": "Order Claim - Table",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Order claim returns 200 or 403', function () {",
+              "    pm.expect(pm.response.code).to.be.oneOf([200, 403]);",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "x-tenant-id",
+            "value": "{{tenantId}}"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"orderId\": \"order-001\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/orders/:id/claim",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "v1", "orders", ":id", "claim"]
+        }
+      }
+    },
+    {
+      "name": "Send to Kitchen",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Send to kitchen returns 200', function () {",
+              "    pm.response.to.have.status(200);",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "x-tenant-id",
+            "value": "{{tenantId}}"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"orderId\": \"order-001\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/orders/:id/send-to-kitchen",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "v1", "orders", ":id", "send-to-kitchen"]
+        }
+      }
+    },
+    {
+      "name": "POS Session",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('POS session returns 200', function () {",
+              "    pm.response.to.have.status(200);",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/pos/sessions",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "v1", "pos", "sessions"]
+        }
+      }
+    },
+    {
+      "name": "Sync Table Order - Odoo",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Sync table order returns 200', function () {",
+              "    pm.response.to.have.status(200);",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "x-tenant-id",
+            "value": "{{tenantId}}"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"orderUuid\": \"uuid-001\",\n  \"tableId\": \"table-001\",\n  \"items\": [\n    {\n      \"productId\": \"prod-001\",\n      \"quantity\": 2\n    }\n  ]\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/omniflow/sync_table_order",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "omniflow", "sync_table_order"]
+        }
+      }
+    },
+    {
+      "name": "Webhook - Order Paid",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Order paid webhook returns 201', function () {",
+              "    pm.response.to.have.status(201);",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "x-api-key",
+            "value": "{{masterApiKey}}"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"event\": \"order-paid\",\n  \"orderId\": \"order-001\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/integrations/odoo/order-paid",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "v1", "integrations", "odoo", "order-paid"]
+        }
+      }
+    }
+  ]
+}

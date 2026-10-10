@@ -1,0 +1,30 @@
+# Guardar como .github/workflows/community-boundary.yml en el repo Community
+name: community-boundary
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  boundary:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0   # historial completo para el escaneo de secretos
+
+      - name: Community no debe referenciar Enterprise
+        run: bash scripts/check-community-boundary.sh
+
+      - name: Escaneo de secretos (gitleaks)
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  # Opcional, útil para el SBOM / IP Audit (Fase 0):
+  # licenses:
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@v4
+  #     - run: npx license-checker --production --summary

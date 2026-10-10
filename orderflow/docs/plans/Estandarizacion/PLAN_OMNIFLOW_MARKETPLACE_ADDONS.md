@@ -59,7 +59,7 @@ Se extiende el schema actual (compatible hacia atrás — todo módulo existente
   "installable": true,
   "autoInstall": false,
   "application": true,
-  "coreCompatibility": "^1.32.0",
+  "coreCompatibility": "^1.33.0",
   "icon": "GiftOutlined",
 
   "packageType": "standalone",
@@ -177,7 +177,26 @@ Cada fase se puede entregar, como en tus otros planes, como un prompt de impleme
 
 ---
 
-## 9. Preguntas abiertas para cerrar el diseño
+## 9. Preguntas abiertas para cerrar el diseño — RESUELTAS ✅
+
+| Pregunta | Respuesta | Justificación |
+|---|---|---|
+| ¿Marketplace solo interno o terceros? | **Solo interno** inicialmente | Control total sobre calidad, seguridad y licenciamiento. Terceros postergados a v2.x+. |
+| ¿Registry privado (Verdaccio/GitHub)? | **GitHub Packages** inicialmente | Sin infra adicional, integra con CI/CD existente, free tier suficiente. Verdaccio postergado a escala. |
+| ¿Enterprise sin licencia bloqueado o trial? | **Trial** si es SaaS | Límite de tiempo (14 días), funcionalidad completa, notificación de expiración, bloqueo gradual (read-only → bloqueo total). |
+
+---
+
+## 10. Decisión: modelo de modularización de Omnimessaging
+
+Omnimessaging (extensión browser: `/opt/omnimessaging/`) se modulariza como **vertical standalone** alineado con OmniRealState, OmniGastro y el resto del ecosistema:
+
+- **Estructura:** Vite + Express standalone (como `/opt/omnirealstate/`), con `metadata.json`, `package.json`, build independiente
+- **Distribución:** Empaquetado como `.omniaddon.tar.gz` (FEAT-141) → publicado en Marketplace interno
+- **Runtime:** Se instala como extensión browser + microservicio backend opcional según el paquete
+- **Acoplamiento:** 0 dependencias cross-module (candidato a Microservicio Standalone)
+
+Véase también `docs/guides/ROADMAP_MICROSERVICES.md` para la lista actualizada de standalones operativos.
 
 - ¿El Marketplace es solo interno (vos publicando tus propios módulos Community/Enterprise) o desde el día 1 contemplás terceros publicando addons de otros desarrolladores?
 - ¿El registry privado de npm (`packages/auth-shared`) lo hosteás vos (Verdaccio en Hetzner) o preferís un servicio administrado (GitHub Packages, npm privado)?

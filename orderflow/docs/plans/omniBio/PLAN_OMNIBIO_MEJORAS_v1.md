@@ -1,3 +1,11 @@
+# Plan: Mejoras de OmniBio (Bio-Links) — v1 — **ARQUITECTURA SUPERADA**
+
+> ⚠️ **NOTA IMPORTANTE**: La arquitectura standalone para OmniBio fue **descartada en v1.34.0** (Gate 1 Landed Costs & Gastro/KDS Complete). El módulo **vive en el core monolito** como `backend/biolinks/` (módulo `BioLinksModule`), compartiendo la misma instancia PostgreSQL con aislamiento multi-tenant vía RLS. No hay planes de extracción a microservicio standalone con puerto 3022 ni BD dedicada.
+
+Este documento se conserva como referencia histórica del plan de mejoras sobre la base de código real, pero **la arquitectura standalone descrita aquí fue descartada**. Los fixes y mejoras propuestos aplican al módulo core `backend/biolinks/`.
+
+---
+
 # Plan: Mejoras de OmniBio (Bio-Links) — v1
 
 > **Módulo:** `biolinks` (monolito `backend/biolinks/`, standalone `services/biolinks-standalone/`)

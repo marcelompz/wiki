@@ -1,4 +1,12 @@
-# Plan de Ajuste: OmniBio Standalone (Bio-Links)
+# Plan de Ajuste: OmniBio Standalone (Bio-Links) — **ARQUITECTURA SUPERADA**
+
+> ⚠️ **NOTA IMPORTANTE**: La arquitectura standalone para OmniBio fue **descartada en v1.34.0** (Gate 1 Landed Costs & Gastro/KDS Complete). El módulo **vive en el core monolito** como `backend/biolinks/` (módulo `BioLinksModule`), compartiendo la misma instancia PostgreSQL con aislamiento multi-tenant vía RLS. No hay planes de extracción a microservicio standalone con puerto 3022 ni BD dedicada.
+
+Este documento se conserva como referencia histórica del intento de extracción standalone, pero **no refleja la arquitectura actual**.
+
+---
+
+# Plan de Ajuste: OmniBio Standalone (Bio-Links) — **ARQUITECTURA SUPERADA**
 
 **Servicio:** `@orderflow/omni-bio-standalone`  
 **Versión actual:** 1.20.9  
