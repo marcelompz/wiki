@@ -1,13 +1,28 @@
 # 🗺️ ROADMAP DE ORDERFLOW - v1.34.0 → v2.0.0 (Go-Live Definitivo)
-**Última Actualización:** 2026-09-30 (Release v1.37.3 — OmniGastro Sprint Field Fixes)
+**Última Actualización:** 2026-10-10 (Release v1.38.16 — Fix POS Categories + Table-by-ID + Orders)
 
-**Versión Actual:** **`v1.37.3`** 🔄 **PRODUCTION READY** | Marca pública: OmniFlow. Capa técnica interna: OrderFlow.  
-**Próximos Releases:** **v1.38.0** (Tauri Desktop & OmnIoT Edge) ➔ **v2.0.0** (🚀 **GO-Live Definitivo del Ecosistema — Target: 15 de Febrero de 2027**)
+**Versión Actual:** **`v1.38.16`** 🔄 **PRODUCTION READY** | Marca pública: OmniFlow. Capa técnica interna: OrderFlow.
+**Próximos Releases:** **v1.39.0** (Tauri Desktop & OmnIoT Edge) ➔ **v2.0.0** (🚀 **GO-Live Definitivo del Ecosistema — Target: 15 de Febrero de 2027**)
 **Plan Maestro Go-to-Live:** ver [docs/plans/PLAN_GO_LIVE_APLICACIONES_ECOSISTEMA.md](docs/plans/PLAN_GO_LIVE_APLICACIONES_ECOSISTEMA.md)
 **Roadmap Comercial:** ver [docs/planes/comercial/OmniFlow_Plan_Comercial_v1.md](docs/planes/comercial/OmniFlow_Plan_Comercial_v1.md) (FEAT-112 a FEAT-119)
-**Estado:** ✅ **STAGING & PRODUCTION OPERATIVE** | 🏆 **HARDENED v1.36.4** | OmniGastro Fases 0-3.1 Completadas | RBAC Hardening En PR | CI Guard Active | QA E2E Suite | Build Limpio & Cobertura Total
+**Estado:** ✅ **STAGING & PRODUCTION OPERATIVE** | 🏆 **HARDENED v1.38.16** | OmniGastro Fases 0-3.2 Completadas | RBAC Hardening En PR | CI Guard Active | QA E2E Suite | Build Limpio & Cobertura Total
 
-<!--CURRENT_VERSION-->1.37.3<!--/CURRENT_VERSION-->
+<!--CURRENT_VERSION-->1.38.16<!--/CURRENT_VERSION-->
+
+### 🚀 Release v1.38.16 — Fix POS Categories Endpoint + Table-by-ID + Orders (Octubre 2026)
+
+| Feature | Módulo | Estado |
+|---------|--------|--------|
+| **Fix Categories Endpoint** | `frontend/src/pages/admin/gastro-pos.tsx:66` | ✅ Production Ready |
+| Endpoint correcto: `/api/v1/catalog/categories/tree?includeProducts=true` | Reemplaza `/api/v1/categories?includeProducts=true&tree=true` (404) | ✅ Verificado 200 |
+| **Table-by-ID Endpoint** | `backend/src/tables/tables.controller.ts`, `tables.service.ts` | ✅ Production Ready |
+| `GET /api/v1/tables/:id` | Retorna mesa con piso, capacidad, zona | ✅ Verificado 200 |
+| **Orders Endpoint Verificado** | `GET /api/v1/orders?tableId=...` | ✅ Verificado 200 |
+| Error 500 previo fue transitorio | DRAFT orders con líneas | ✅ Verificado |
+| **Seguridad Mozo v1.38.15 (incluida)** | PIN estricta API-only, auto-asignación, nav POS | ✅ Production Ready |
+| Deploy provecchio.com v1.38.16 | Contenedores healthy, health endpoint OK | ✅ Completado |
+
+---
 
 ### 🚀 Release v1.36.4 — OmniGastro KDS Multi-Estación + RBAC Hardening (Septiembre 2026)
 
@@ -42,7 +57,7 @@
 
 ---
 
-<!--CURRENT_VERSION-->1.37.3<!--/CURRENT_VERSION-->
+<!--CURRENT_VERSION-->1.38.0<!--/CURRENT_VERSION-->
 
 El ecosistema **OmniFlow** contempla 10 aplicaciones y capas operativas. A continuación se presenta la evaluación de madurez técnica por componente y los puntos pendientes priorizados hacia el Go-Live final.
 
@@ -55,7 +70,7 @@ El ecosistema **OmniFlow** contempla 10 aplicaciones y capas operativas. A conti
 | **OmniGastro & KDS Multi-Estación** | Web / PWA / WebSockets | **95%** | ✅ Production Ready | Fases 0-3.1 completadas (FEAT-112 a FEAT-152). KDS configurable multi-estación + impresión ESC/POS + RBAC hardening en PR. | **v1.36.4** |
 | **OmnIoT Edge Hardware Gateway** | Tauri / Rust Native Daemon | **70%** | 🔄 Desarrollo Avanzado | Emulador Epson ePOS, lectura básculas RS-232, ESC/POS TCP/USB daemon systemd en Debian/Radxa. | **v1.35.0** |
 | **Tauri v2 Desktop Wrappers** | Tauri v2 / Rust Kiosk | **65%** | 🔄 Staging Web | Empaquetado binarios `.AppImage` (Linux) y `.msi` (Windows) para OmniPOS Retail, Gastro y KDS. | **v1.35.0** |
-| **Mobile Native (`@orderflow/mobile`)** | React Native / Expo | **60%** | 🔄 En desarrollo | Publicación APK/IPA para `OmniMozos Pocket`, flujo Tap-to-Pay y sincronización offline-first. | **v1.36.0** |
+| **OmniMobile Monorepo & Apps (`mobile/apps/*`)** | React Native / Expo Monorepo | **65%** | 🔄 En desarrollo (`FEAT-160`) | Estructuración Monorepo (`apps/app-waiter`, `app-customer`, `app-admin` + `packages/*`). `app-waiter` v1.0 en fase de preparación post-PWA. | **v1.36.0** |
 | **Alta Disponibilidad / Standby Replica** | PostgreSQL Streaming / Traefik | **75%** | ✅ Failover Activo | Réplica Provecchio operativa para failover; pendiente migración a Tailscale/NetBird para cerrar puerto 5432 públicamente. | **v1.37.0** |
 | **OmniRealState (Vertical PropTech)** | Standalone Service (`:3028`) | **35%** | 📋 Plan & Specs Completos | Fast-Track MVP (`services/real-estate-standalone/`), SideBar Refine, GeoJSON, contratos, expensas, mora y liquidaciones. | **v1.34.0 (MVP) → v1.36.0** |
 | **Scheduling Core (Feature Granular)** | NestJS Module / Core Service | **5%** | 📋 Documentación Iniciada | Motor de scheduling multi-tenant extraído de cal.diy: disponibilidad avanzada, calendar sync, video conferencing, webhooks. Consumido por bookings, OmniCRM, HR, POS. Docs: `docs/plans/scheduling/`. | **v1.36.0 → v1.41.0** |

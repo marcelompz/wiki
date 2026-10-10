@@ -5,6 +5,59 @@ Todos los cambios notables a este proyecto serán documentados en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 y este proyecto se adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.38.15] - 2026-10-09
+
+### 🔒 Seguridad & UX: PIN Verification Estricta + Auto-asignación Mozo + Navegación POS
+- **PIN Verification Estricta (`frontend/src/pages/admin/gastro-mozos.tsx`)** — Eliminado fallback de verificación PIN local; ahora solo permite autenticación vía API `/api/v1/auth/verify-pin`. Eliminado hint de PIN en modal de ingreso.
+- **Auto-asignación Mozo (`frontend/src/pages/admin/gastro.tsx`)** — Eliminado Select dropdown que permitía cambiar de mozo sin PIN. Ahora usa `activeWaiter` de localStorage (sesión iniciada con PIN) para reclamar pedidos y atender llamadas.
+- **Navegación a POS desde Llamadas** — Al atender una llamada de mozo (`handleTakeCallOrder`), navega automáticamente a la vista POS fullscreen (`/admin/gastro/pos/:tableId`) con la mesa correspondiente.
+- **Botón "Tomar pedido" Simplificado** — Reemplazado Dropdown con lista de mozos por botón directo "Tomar pedido como {activeWaiter.name}" solo visible si hay sesión activa.
+
+## [1.38.16] - 2026-10-09
+
+### 🐛 Fix: POS Categories Endpoint + Orders 500 Error
+- **Categories endpoint fix (`frontend/src/pages/admin/gastro-pos.tsx`)** — Corregido endpoint de categorías de `/api/v1/categories?includeProducts=true&tree=true` a `/api/v1/catalog/categories/tree?includeProducts=true` (coincide con `CatalogController.getCategoryTree`). Resuelto error 404 en carga de categorías en vista POS fullscreen.
+- **Orders endpoint verificado** — Endpoint `/api/v1/orders?tableId=...` funciona correctamente (200 con datos). Error 500 previo fue transitorio.
+
+## [1.38.14] - 2026-10-08
+
+### 🚀 FEAT-153: POS Dedicated Fullscreen View + Category Navigation + Table Guests Management
+- **Nueva Vista POS Fullscreen (`frontend/src/pages/admin/gastro-pos.tsx`)** — Interfaz de pantalla completa para tablets y comandera de salón con sidebar de categorías, buscador de productos, panel central de líneas por asiento y resumen lateral por comensal.
+- **Acceso Directo desde Dashboard Mozo (`frontend/src/pages/admin/gastro.tsx`)** — Redirección fluida al hacer click en gestionar pedido a la vista POS dedicada (`/admin/gastro/pos/:tableId`).
+- **Enrutamiento Admin (`frontend/src/AdminApp.tsx`)** — Registrada nueva ruta `/admin/gastro/pos/:tableId` con lazy loading.
+- **API CRUD Comensales (`backend/src/guest/guest-tables.controller.ts`)** — Soporte para consultar comensales activos por mesa, asignación de asiento y nombres/alias para split billing por asiento.
+- **Reutilización de Componentes (`frontend/src/components/catalog/CategoryAccordion.tsx`)** — Integración nativa del acordeón de categorías con selección directa de productos al pedido activo.
+
+## [1.38.1] - 2026-10-03
+
+### 🐛 Fix: Snake_case Migration for `positions` Table + 500 Error Resolution
+- **Schema fix (backend/prisma/schema.prisma)** — Removed `@map("tenant_id")` from `Position` model's `tenantId` field to align with legacy camelCase column in the database (AGENTS.md §2.4: tables created before 2026-09-12 use camelCase without `@map()`).
+- **Snake_case migration (backend/prisma/migrations/20261003180000_migrate_positions_to_snake_case/)** — Renamed `positions` table columns from camelCase to snake_case (`tenantId` → `tenant_id`, `departmentId` → `department_id`, `parentId` → `parent_id`, `createdAt` → `created_at`, `updatedAt` → `updated_at`, `baseRole` → `base_role`). Recreated indexes and foreign key constraints referencing the renamed columns.
+- **Schema Prisma update (backend/prisma/schema.prisma:2155)** — Updated `Position` model with `@map` annotations for all snake_case columns.
+- **Stale Docker volume cleanup** — Removed stale anonymous Docker volume containing old Prisma client with `type` field in `BirthdayLogUncheckedCreateInput`, which was causing TypeScript compilation failures.
+- **Version sync (AGENTS.md §11)** — Bumped from 1.38.0 → 1.38.1 (patch for existing-vertical schema migration), updated all version files and docs.
+
+## [1.37.4] - 2026-10-03
+
+### 🐛 Fix: FK Constraint 500 Error en /api/v1/positions + Frontend HR
+- **FK constraint fix (backend/src/positions/position.service.ts:33-34)** — Added tenant existence check (`prisma.tenant.findFirst`) before `prisma.position.create()` to prevent `positions_tenantId_fkey` error when creating positions.
+- **TypeScript fix (backend/src/loyalty/birthday.service.ts:194)** — Restored `type: 'BIRTHDAY_BONUS'` field in `loyaltyTransaction.create()` call (LoyaltyTransaction model requires `type` field).
+- **Frontend error handling (frontend/src/pages/admin/hr-organization.tsx)** — Added try-catch in `saveDepartment` and `savePosition` functions to show real error messages instead of silent "OK does nothing" behavior.
+- **Test fix (backend/src/positions/position.service.spec.ts)** — Added `tenant.findFirst` mock in `beforeEach` to resolve 4 test failures from tenant existence check.
+- **Version sync (AGENTS.md §11)** — Fixed VERSION file formatting ("1: 1.37.4" → "1.37.4"), updated all 86 `*.manifest.json` files from 1.37.3 → 1.37.4, updated README.md, ROADMAP.md, docs/ROADMAP.md, docs/guides/CHANGELOG.md, Swagger version in main.ts, and mobile/package.json.
+- **Traefik local dev config (/opt/traefik-orderflow/dynamic/services.yml)** — Added `orderflow-local-frontend` and `orderflow-local-backend` services pointing to `172.17.0.1:3011/3000`; updated `provecchio-local-*` routers to use dev services.
+- **Vite config (frontend/vite.config.ts)** — Added `provecchio.local` to `allowedHosts`; fixed proxy target from `localhost:3010` to `localhost:3000`.
+- **Local deploy script (scripts/deploy-local.sh)** — Created comprehensive local validation script mirroring production checks (version sync, builds, tests, health checks, functional tests).
+
+## [1.38.0] - 2026-10-01
+
+### 🍽️ OmniGastro — Sincronización Odoo 18 POS Local
+- **Módulo puente Odoo `pos_omniflow_sync`** — Endpoint `POST /api/omniflow/sync_table_order` en Odoo 18 CE para crear/actualizar `pos.order` draft y notificar por `bus.bus`.
+- **Worker `odoo-table-sync` en odoo-adapter** — Consume cola Redis `odoo-table-sync` y llama al módulo puente Odoo con sesión activa, mesa y líneas.
+- **Backend OrderFlow: cola BullMQ + listener** — `OdooTableSyncProducer`, `OdooTableSyncProcessor` y `OdooTableSyncListener` encolan sync desde `OrdersService.sendToKitchen`.
+- **Traefik local** — Router `odoo-18-local` expone Odoo 18 como `odoo.provecchio.local` y `odoo.provecchio.com` en laboratorio.
+- **Config local separada** — `.env.local` / `.env.local.example` aíslan variables de laboratorio de producción.
+
 ## [1.37.3] - 2026-09-30
 
 ### 🍽️ OmniGastro — Sprint Provecchio Field Fixes
