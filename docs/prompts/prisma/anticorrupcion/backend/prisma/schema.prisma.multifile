@@ -1,0 +1,28 @@
+// =============================================================================
+// OrderFlow / OmniFlow — Prisma entrypoint (multi-file)
+// =============================================================================
+// Estructura:
+//   prisma/
+//     schema.prisma          ← este archivo (generator + datasource)
+//     models/
+//       platform.prisma      ← Tenant, Auth, Billing, Audit, Infra
+//       commerce.prisma      ← Product, Order, Contact, Stock, Integrations
+//       giveaways.prisma     ← DEPRECATED: migrado a services/giveaways-standalone
+//
+// Tras extraer un módulo standalone, eliminar su archivo de models/ y
+// dejar de generarlo en el client del core.
+//
+// Prisma 5+ une automáticamente todos los .prisma del directorio y subdirs
+// cuando se apunta el schema path al directorio o se listan en package.json.
+// =============================================================================
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Los modelos viven en prisma/models/*.prisma

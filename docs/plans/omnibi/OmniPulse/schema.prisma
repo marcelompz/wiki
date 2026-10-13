@@ -1,0 +1,180 @@
+// =========================================================================
+// OmniPulse — Schema Prisma completo
+// Agregar a backend/prisma/schema.prisma
+// Pilar 1: Source Reliability Engine
+// Pilar 2: Corroboration Engine (cruce con ventas)
+// Pilar 3: Strategic Ops ajustado (solo información veraz, con aprobación)
+// =========================================================================
+
+// --- Enums ---
+
+enum IntelCategory {
+  COMPETITOR_PRICE
+  COMPETITOR_PROMO
+  SUPPLIER_INCREASE
+  PRODUCT_DEMAND
+  INTERNAL_RUMOR
+  MARKET_TREND
+}
+
+enum VerificationStatus {
+  UNVERIFIED
+  CORROBORATED_TRUE
+  CORROBORATED_FALSE
+  PARTIALLY_TRUE
+  DEBUNKED
+}
+
+enum RealEventType {
+  PRICE_CHANGE
+  PROMO_LAUNCH
+  PRODUCT_LAUNCH
+  STOCK_CHANGE
+  OTHER
+}
+
+enum ProbeStatus {
+  DRAFT
+  ACTIVE
+  TRIGGERED
+  CONCLUDED
+}
+
+enum ProbeApprovalStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+// --- Pilar 1: Fuentes de información y su score de confiabilidad ---
+
+model IntelSource {
+  id               String  @id @default(cuid())
+  tenantId         String
+  contactId        String? // Vinculado a contacto/partner existente en OmniFlow
+  name             String
+  role             String // "Vendedor", "Cliente", "Proveedor", "Amigo", etc.
+  reliabilityScore Float   @default(50.0) // 0.0 a 100.0
+  totalReports     Int     @default(0)
+  verifiedTrue     Int     @default(0)
+  verifiedFalse    Int     @default(0)
+  isToxicChannel   Boolean @default(false)
+  toxicFlagReason  String? // Obligatorio al marcar/desmarcar (validado en service)
+  toxicFlagSetBy   String? // userId de quien lo marcó
+
+  insights         MarketInsight[]
+  probes           ProbeRecipient[]
+  scoreAdjustments ScoreAdjustmentLog[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([tenantId, reliabilityScore])
+}
+
+// --- Pilar 2: Insight de campo + correlación con datos duros del ERP ---
+
+model MarketInsight {
+  id              String      @id @default(cuid())
+  tenantId        String
+  sourceId        String
+  source          IntelSource @relation(fields: [sourceId], references: [id], onDelete: Cascade)
+
+  category          IntelCategory
+  entityMentioned   String? // Nombre de competidor o proveedor
+  productId         String? // SKU o ID de producto vinculado
+  rawText           String // Texto original / transcripción de audio
+  claimedPrice      Decimal?           @db.Decimal(12, 2)
+  status            VerificationStatus @default(UNVERIFIED)
+  verificationNote  String?
+  salesImpactCorrel Float? // % de variación en ventas detectada por correlateWithSales
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([tenantId, category, status])
+}
+
+// --- Pilar 3 (ajustado): trazabilidad basada en hechos reales ---
+
+/// Hecho de negocio REAL ya existente en el sistema. Una StrategicProbe solo
+/// puede referenciar un RealEvent — nunca un texto libre inventado. Es la
+/// restricción estructural que reemplaza al antiguo `disseminatedFact`.
+model RealEvent {
+  id             String        @id @default(cuid())
+  tenantId       String
+  type           RealEventType
+  description    String
+  effectiveDate  DateTime
+  productId      String?
+  sourceRecordId String? // ID del registro real en el ERP (precio, promo, etc.)
+  createdBy      String
+
+  probes    StrategicProbe[]
+  createdAt DateTime         @default(now())
+
+  @@index([tenantId, type])
+}
+
+model StrategicProbe {
+  id          String    @id @default(cuid())
+  tenantId    String
+  title       String
+  realEventId String
+  realEvent   RealEvent @relation(fields: [realEventId], references: [id])
+
+  expectedReaction String?
+  status           ProbeStatus @default(DRAFT)
+
+  approvalStatus ProbeApprovalStatus @default(PENDING)
+  justification  String
+  approvedBy     String?
+  approvedAt     DateTime?
+  rejectedReason String?
+
+  riskFlag       Boolean @default(false)
+  riskFlagReason String?
+
+  recipients           ProbeRecipient[]
+  observedReaction     String?
+  detectedLeakSourceId String?
+
+  createdBy String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([tenantId, status, approvalStatus])
+}
+
+model ProbeRecipient {
+  id       String         @id @default(cuid())
+  probeId  String
+  sourceId String
+  probe    StrategicProbe @relation(fields: [probeId], references: [id], onDelete: Cascade)
+  source   IntelSource    @relation(fields: [sourceId], references: [id], onDelete: Cascade)
+
+  communicationTiming DateTime? // Momento en que se compartió el hecho real con esta fuente
+  deliveredAt         DateTime  @default(now())
+
+  @@index([probeId, sourceId])
+}
+
+// --- Auditoría transversal del scoring (Pilar 1 + Pilar 3) ---
+
+model ScoreAdjustmentLog {
+  id       String      @id @default(cuid())
+  tenantId String
+  sourceId String
+  source   IntelSource @relation(fields: [sourceId], references: [id], onDelete: Cascade)
+
+  previousScore    Float
+  newScore         Float
+  reason           String
+  relatedInsightId String?
+  isManualOverride Boolean @default(false)
+  adjustedBy       String // userId, o "SYSTEM" si es automático
+
+  createdAt DateTime @default(now())
+
+  @@index([tenantId, sourceId])
+}

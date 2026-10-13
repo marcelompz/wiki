@@ -1,0 +1,44 @@
+Puedes verificar por qué no puedo conectarme a la red Martin Router King 5A:08:95:A2:76:FD
+
+genial, ya instala el módulo y todo funciona perfectamente. Ahora vamos a los detalles:
+1. Excel Recipe import aparece en el menu principal de Odoo. Deberia estar dentro de mass_import_suite.
+2. La vista de mass_import_suite es directamente la vista del formulario de product_mass_import, que sigue fallando.
+
+mass_import_suite; product_mass_import y excel_recipe_import
+
+auto_lot_validation_picking
+uom_spanish_import
+
+Lo que necesito es que al instalar mass_import_suite sea el único que queda en el menu principal, como aplicación. Pero si instalo por separado excel_recipe_import queda como menu principal, así como product_mass_import. Esto es, si tengo instalado product_mass_import al instalar mass_import_suite, solamente mass_import_suite quda como menu principal y product_mass_import. Lo mismo sucede con excel_recipe_import, si lo tengo solo instalado está como menú principal, pero al instalar mass_product_import, este queda como menu principal y tanto excel_recipe_import como product_mass_import desaparecen del menu principal y quedan dentro de mass_import_suite.
+¿Puedes explicarme lo que te indiqué para verificar si me expresé bien antes de aplicar los cambios?
+
+Ahora el menú raíz de mass_import_suite queda sin parent, por lo que Odoo lo reconoce como aplicación principal.
+
+Importante: los menús raíz de product_mass_import y excel_recipe_import ya están comentados en sus XMLs, pero si ya estaban instalados antes, es posible que aún existan en la base de datos. Para que desaparezcan definitivamente, actualizá los tres módulos desde Odoo (product_mass_import, excel_recipe_import, mass_import_suite) o ejecutá:
+docker exec -it odoo_web_8084 odoo -d prod -u product_mass_import,excel_recipe_import,mass_import_suite --stop-after-init
+
+Excelente, ya funciona, el problema es que ahora mass_import_suite solamente muestra el formulario de excel_recipe_import y no abre un nuevo formulario para la importación de datos o importacion de excel. Quiero que ambos módulos estén disponibles desde el modulo mass_import_suite
+
+Actualicé la versión y esto es lo que ejecuta al abrir mass_import_suite:
+2026-07-21 16:25:58,381 1 DEBUG prod odoo.service.model: call mass.import.suite().onchange({}, [], {}) 
+2026-07-21 16:25:58,382 1 INFO prod werkzeug: 172.27.0.1 - - [21/Jul/2026 16:25:58] "POST /web/dataset/call_kw/mass.import.suite/onchange#mass.import.suite.onchange HTTP/1.1" 200 - 1 0.001 0.005
+
+Pero nuevamente abre la vista de importación de productos desde excel. Incluso es incompleto, en comparacion a excel_recipe_import. Si te fijas en el log de la version 18 que se ejecuta en odoo_web_8085 notaras que el modulo excel_recipe_import ofrece muchas mas opciones para importar desde excel, incluso ofrece plantillas para importar Plantilla Base (para productos).
+
+Ahora quiero tener una manera de crear productos masivamente dentro de un formulario de Odoo sencillo, al estilo de excel. Por eso cree el modulo product_mass_import. Necesito que sea funcional desde mass_import_suite y sea la vista principal. Que excel_recipe_import sea un wizard a partir de un botón y un menu. Entonces:
+1. Que mass_import_suite dirige a product_mass_import y dentro de este módulo tenemos un botón que redirige al popup de excel_recipe_import y que funcione como ya estaba.
+2, Que product_mass_import tenga una vista similar a una hoja de planilla de calculos, con cada columna fungiendo los campos y cada tupla una fila. Que las cateogrías las estire de las que ya existen o permita crear.
+
+Ninguno es que no rastrea inventario, pero si quiero rastrear inventario pero no quiero que sea ni lote ni numero de serie. Esa opción falta. En la captura de creación de producto nuevo en la sección "Inventario" hay una opción para rastrear inventario sin que sea por lote o número de serie.
+
+https://drive.google.com/file/d/180ebTLR2vsQbzOhWyxxaFIjzhVg72czf/view?usp=sharing
+
+Dentro de este directorio /opt/odoo tengo una serie de subdirectorios donde se ejecuta docker compose en diversas versiones. Quisiera reorganizar por version, para que quede por ejemplo asi: /opt/odoo/odoo19CE/odoo8084/; /opt/odoo/odoo18CE/odoo8085/; /opt/odoo/odoo18CE/odoo8038/; etc.
+
+Reorganicé el directorio /opt/odoo/ con subdirectorio de versiones y dentro de cada version un directorio con la implementación.
+Ahora pretendo colocar los addons en cada versión y que los subdirectorios lo referencien, para evitar redundancia de archivos repetidos.
+
+Si te fijas en los deploy, estos incluyen un script que instala Odoo, configura empreas, usuarios con perfiles, instala módulos y deja la instancia lista para producción. Quiero que eso se mantenga, incluso referenciando el repositorio con los addons y se mantenga también el path de producción que es /srv/odoo y no /opt/odoo.
+
+########################
+

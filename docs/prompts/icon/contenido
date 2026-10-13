@@ -1,0 +1,311 @@
+```python
+content = """# 🚀 SYSTEM PROMPT: Sincronización Local y Descarga de Íconos Oficiales desde CDN para OmniFlow
+
+## 🎯 Contexto y Objetivo
+Actúas como Principal Frontend Engineer en el ecosistema **OmniFlow** (`orderflow-frontend`). 
+El objetivo es implementar una arquitectura híbrida de gestión de íconos sociales y de mensajería oficial (WhatsApp, Instagram, Facebook, Telegram, TikTok, Google Maps, Messenger, etc.) que combine:
+1. **Resiliencia 100% Offline**: Servir los SVGs localmente desde la carpeta pública (`public/icons/social/`) para garantizar compatibilidad con el **POS Inmortal Desktop** (Tauri + Dexie.js) y carga instantánea.
+2. **Actualización Automatizada bajo Demanda**: Un script ejecutable (`npm run icons:sync`) que descargue y actualice los vectores oficiales directamente desde la red CDN de **Simple Icons** (`cdn.jsdelivr.net`).
+3. **Componentes React Reutilizables**: Un componente TypeScript agnóstico y tipado (`SocialBrandIcon.tsx`) para la barra de navegación (`Header`), el catálogo social y el módulo de Bio-Links (`OmniLinks`).
+
+---
+
+## 🛠️ PASO 1: Creación del Script de Descarga y Sincronización Automática
+
+Crea el archivo `scripts/sync-social-icons.mjs` en la raíz del proyecto `orderflow-frontend`:
+
+
+```
+
+```text
+File created: PROMPT_SYNC_SOCIAL_ICONS_OMNIFLOW.md
+
+```javascript
+// scripts/sync-social-icons.mjs
+import fs from 'fs';
+import path from 'path';
+import https from 'https';
+
+const OUTPUT_DIR = path.resolve('public/icons/social');
+
+// Mapeo de marcas requeridas en OmniFlow -> Nombre oficial en Simple Icons
+const ICONS = [
+  { name: 'whatsapp', file: 'whatsapp.svg', fallbackColor: '#25D366' },
+  { name: 'instagram', file: 'instagram.svg', fallbackColor: '#E4405F' },
+  { name: 'facebook', file: 'facebook.svg', fallbackColor: '#1877F2' },
+  { name: 'telegram', file: 'telegram.svg', fallbackColor: '#229ED9' },
+  { name: 'tiktok', file: 'tiktok.svg', fallbackColor: '#000000' },
+  { name: 'googlemaps', file: 'googlemaps.svg', fallbackColor: '#EA4335' },
+  { name: 'messenger', file: 'messenger.svg', fallbackColor: '#0084FF' },
+  { name: 'x', file: 'x.svg', fallbackColor: '#000000' },
+  { name: 'youtube', file: 'youtube.svg', fallbackColor: '#FF0000' }
+];
+
+// Asegurar existencia de directorio destino
+if (!fs.existsSync(OUTPUT_DIR)) {
+  fs.mkdirSync(OUTPUT_DIR, { recursive: true });
+}
+
+console.log('🔄 Iniciando descarga y sincronización de íconos oficiales desde Simple Icons CDN...');
+
+const downloadIcon = ({ name, file }) => {
+  return new Promise((resolve, reject) => {
+    // CDN oficial de Simple Icons
+    const url = `https://cdn.jsdelivr.net/npm/simple-icons@latest/icons/${name}.svg`;
+    const destPath = path.join(OUTPUT_DIR, file);
+
+    https.get(url, (res) => {
+      if (res.statusCode === 200) {
+        const fileStream = fs.createWriteStream(destPath);
+        res.pipe(fileStream);
+        fileStream.on('finish', () => {
+          fileStream.close();
+          console.log(`  ✅ [OK] ${file} descargado y actualizado en public/icons/social/`);
+          resolve(true);
+        });
+      } else {
+        console.error(`  ❌ [ERROR] Fallo al descargar ${name} (HTTP Status: ${res.statusCode})`);
+        resolve(false);
+      }
+    }).on('error', (err) => {
+      console.error(`  ❌ [RED] Error en la petición para ${name}:`, err.message);
+      reject(err);
+    });
+  });
+};
+
+async function run() {
+  for (const icon of ICONS) {
+    await downloadIcon(icon);
+  }
+  console.log('✨ Sincronización completada. Todos los íconos están listos para uso local/offline.');
+}
+
+run();
+
+```
+
+---
+
+## 📦 PASO 2: Actualización de `package.json`
+
+Agrega el comando script de sincronización en `orderflow-frontend/package.json`:
+
+```json
+{
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "icons:sync": "node scripts/sync-social-icons.mjs"
+  }
+}
+
+```
+
+---
+
+## ⚛️ PASO 3: Componente React para Consumo de Íconos
+
+Crea el componente `src/components/common/SocialBrandIcon.tsx`:
+
+```tsx
+import React, { useState } from 'react';
+
+export type BrandIconName =
+  | 'whatsapp'
+  | 'instagram'
+  | 'facebook'
+  | 'telegram'
+  | 'tiktok'
+  | 'googlemaps'
+  | 'messenger'
+  | 'x'
+  | 'youtube';
+
+interface SocialBrandIconProps {
+  name: BrandIconName;
+  size?: number;
+  className?: string;
+  alt?: string;
+  style?: React.CSSProperties;
+}
+
+// Colores oficiales de marca para fondos o badges
+export const BRAND_COLORS: Record<BrandIconName, string> = {
+  whatsapp: '#25D366',
+  instagram: '#E4405F',
+  facebook: '#1877F2',
+  telegram: '#229ED9',
+  tiktok: '#000000',
+  googlemaps: '#EA4335',
+  messenger: '#0084FF',
+  x: '#000000',
+  youtube: '#FF0000'
+};
+
+export const SocialBrandIcon: React.FC<SocialBrandIconProps> = ({
+  name,
+  size = 24,
+  className = '',
+  alt,
+  style
+}) => {
+  const [hasError, setHasError] = useState(false);
+
+  // Fallback si por algún motivo no existe el archivo local aún
+  const iconSrc = hasError
+    ? `https://cdn.jsdelivr.net/npm/simple-icons@latest/icons/${name}.svg`
+    : `/icons/social/${name}.svg`;
+
+  return (
+    <img
+      src={iconSrc}
+      alt={alt || `${name} icon`}
+      width={size}
+      height={size}
+      loading="lazy"
+      onError={() => setHasError(true)}
+      className={`omni-social-icon ${className}`}
+      style={{
+        display: 'inline-block',
+        verticalAlign: 'middle',
+        objectFit: 'contain',
+        transition: 'transform 0.2s ease',
+        ...style
+      }}
+    />
+  );
+};
+
+```
+
+---
+
+## 🧩 PASO 4: Implementación en la Cabecera de Catálogo (`HeaderSocialLinks.tsx`)
+
+Crea o actualiza `src/components/catalog/HeaderSocialLinks.tsx`:
+
+```tsx
+import React from 'react';
+import { Space, Tooltip } from 'antd';
+import { SocialBrandIcon } from '../common/SocialBrandIcon';
+
+interface HeaderSocialLinksProps {
+  config: {
+    whatsappNumber?: string;
+    instagramUrl?: string;
+    facebookUrl?: string;
+    telegramUrl?: string;
+    mapsUrl?: string;
+  };
+}
+
+export const HeaderSocialLinks: React.FC<HeaderSocialLinksProps> = ({ config }) => {
+  return (
+    <Space size={12} align="center" className="omni-header-socials">
+      {config.whatsappNumber && (
+        <Tooltip title="Chatear por WhatsApp">
+          <a
+            href={`https://wa.me/${config.whatsappNumber.replace(/\\D/g, '')}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hover:scale-110 transition-transform"
+          >
+            <SocialBrandIcon name="whatsapp" size={26} />
+          </a>
+        </Tooltip>
+      )}
+
+      {config.instagramUrl && (
+        <Tooltip title="Visitar Instagram">
+          <a
+            href={config.instagramUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hover:scale-110 transition-transform"
+          >
+            <SocialBrandIcon name="instagram" size={26} />
+          </a>
+        </Tooltip>
+      )}
+
+      {config.facebookUrl && (
+        <Tooltip title="Facebook Oficial">
+          <a
+            href={config.facebookUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hover:scale-110 transition-transform"
+          >
+            <SocialBrandIcon name="facebook" size={26} />
+          </a>
+        </Tooltip>
+      )}
+
+      {config.telegramUrl && (
+        <Tooltip title="Canal de Telegram">
+          <a
+            href={config.telegramUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hover:scale-110 transition-transform"
+          >
+            <SocialBrandIcon name="telegram" size={26} />
+          </a>
+        </Tooltip>
+      )}
+
+      {config.mapsUrl && (
+        <Tooltip title="Ver Ubicación">
+          <a
+            href={config.mapsUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hover:scale-110 transition-transform"
+          >
+            <SocialBrandIcon name="googlemaps" size={26} />
+          </a>
+        </Tooltip>
+      )}
+    </Space>
+  );
+};
+
+```
+
+---
+
+## 🔒 Reglas de Ejecución y Validación
+
+1. Ejecutar en consola la primera sincronización:
+```bash
+npm run icons:sync
+
+```
+
+
+2. Verificar que los archivos SVG existan en `public/icons/social/*.svg`.
+3. Ejecutar `npm run build` en el frontend para verificar que no existan errores de TypeScript ni empaquetado con Vite.
+"""
+
+file_name = "PROMPT_SYNC_SOCIAL_ICONS_OMNIFLOW.md"
+with open(file_name, "w", encoding="utf-8") as f:
+f.write(content)
+
+print(f"File created: {file_name}")
+
+```
+Tu archivo Markdown (.md) está listo para descargar:
+[file-tag: code-generated-file-0-1786821509568800170]
+
+---
+
+### Resumen del contenido incluido en el Prompt:
+
+1. **Script de Descarga Node (`scripts/sync-social-icons.mjs`):** Descarga directamente desde la CDN de *Simple Icons* (`cdn.jsdelivr.net`) los SVGs oficiales (WhatsApp, Instagram, Facebook, Telegram, TikTok, Google Maps, Messenger, X, YouTube) y los guarda en `public/icons/social/`.
+2. **Comando `package.json` (`npm run icons:sync`):** Permite actualizar todos los íconos locales con un solo comando cada vez que una marca renueve su logotipo.
+3. **Componente React Tipado (`SocialBrandIcon.tsx`):** Consume los íconos locales (100% offline-ready para el POS Desktop con Tauri) e incluye un fallback automático a CDN si no se hubiera ejecutado la sincronización.
+4. **Componente de Cabecera (`HeaderSocialLinks.tsx`):** Integración limpia y responsive con Tooltips de Ant Design y animaciones hover para la tienda y catálogo de OmniFlow.
+
+```

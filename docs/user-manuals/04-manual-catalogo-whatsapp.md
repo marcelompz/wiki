@@ -1,0 +1,106 @@
+# 💬 Manual de Usuario: Catálogo Social & Menú Digital Omnicanal (`v1.20.85+`)
+
+> **Módulos:** Catálogo Social / Menú Digital (`/admin/social-catalog` y `/admin/whatsapp-catalog`)  
+> **Rutas Públicas:** Catálogo Web (`/tienda`, `/social-catalog/:instanceKey`, `<subdominio>.pesallaccia.com`, `provecchio.com`)  
+> **Destinado a:** Administradores, Gerentes de Tienda, Vendedores y Clientes Finales  
+
+---
+
+## 1. Introducción
+
+El **Catálogo Social & Menú Digital** es una plataforma interactiva omnicanal diseñada para exhibir productos, servicios y cartas de menú digital con estética moderna, rendimiento optimizado y adaptación automática a múltiples canales de venta (WhatsApp, Pasarela de Pagos online o Carta digital informativa).
+
+---
+
+## 2. Modos de Venta Disponibles (`saleMode`)
+
+Desde la sección **🛒 Modo de Venta** en `/admin/social-catalog`, el administrador puede seleccionar la modalidad operativa del negocio:
+
+| Modo de Venta | Descripción | Comportamiento del Carrito |
+| :--- | :--- | :--- |
+| **Free (WhatsApp)** | Pre-venta manual con redirección a WhatsApp comercial. | El cliente arma su pedido y lo envía formateado con 1-Click al WhatsApp del negocio. |
+| **Premium (Online)** | Venta directa con checkout y pasarela de pago integrada. | Procesa pagos online (Stripe, Mercado Pago) y registra el pedido directamente en OrderFlow. |
+| **Static (Menú Digital / Precuenta)** | Carta digital o catálogo informativo sin recepción de pedidos. | El carrito se transforma automáticamente en **🧾 PRECUENTA**, mostrando el total estimado. El botón de envío se bloquea mostrando `🚫 Enviar Pedido Deshabilitado (Solo Precuenta)`. |
+
+> [!NOTE]
+> **Modo Estático (PRECUENTA):** En el modo `Static`, la vista del carrito cambia automáticamente su encabezado a **🧾 PRECUENTA**. Los clientes pueden explorar el catálogo, simular consumos y consultar el **Total Estimado**, pero el sistema bloquea los intentos de checkout para dejar totalmente claro al cliente que la función es informativa y no transaccional.
+
+---
+
+## 3. Experiencia de Compra del Cliente y Controles en Tarjeta
+
+### 3.1 Selector Dinámico de Cantidad en la Tarjeta (`[ - ] 1 [ + ]`)
+- **Agregado con 1-Click:** Al presionar el botón `[ + Agregar ]` por primera vez en cualquier tarjeta (en vista Grid o Lista), el producto se añade al carrito y el botón se transforma inmediatamente en un selector dinámico de unidades:
+  $$\text{Selector de Cantidad: } [\;\mathbf{-}\;] \quad \mathbf{N} \quad [\;\mathbf{+}\;]$$
+- **Incrementar/Decrementar sin abrir el Carrito:** El cliente puede ajustar la cantidad deseada (`1`, `2`, `3`...) tocando los botones `+` o `-` directamente sobre la tarjeta del producto.
+- **Remoción Automática:** Si la cantidad disminuye a `0`, el producto se elimina del carrito y la tarjeta retorna limpiamente a su estado inicial `[ + Agregar ]`.
+
+### 3.2 Control Visual de Inventario y Stock (`showStock`)
+- En `/admin/social-catalog` $\rightarrow$ *Página y configuración*, se puede activar o desactivar la casilla **Mostrar inventario (stock)**.
+- **Cuando está activada (`showStock: true`):** El catálogo muestra las etiquetas de disponibilidad (*"Última unidad"*, *"En Stock"*) y bloquea la compra de ítems agotados con el texto *"Sin stock"*.
+- **Cuando está desactivada (`showStock: false`):** Se ocultan todas las leyendas y avisos de *"Sin stock"*, permitiendo que el cliente visualice y arme su pedido sin bloqueos por inventario cero.
+
+### 3.3 Barra Flotante Sticky de Carrito / Precuenta en Móviles y Escritorio
+- **Acceso Permanente durante la Navegación:** Tan pronto como el cliente añade 1 o más productos al carrito o precuenta, aparece automáticamente una barra flotante fija (*Sticky Floating Bar*) en la parte inferior de la pantalla.
+- **Información Relevante en Vivo:** Muestra la insignia con el conteo de ítems (`🧾 3 ítems` o `🛒 3 ítems`), el **Total Estimado** acumulado en tiempo real y la llamada a la acción `Ver Precuenta ➔` o `Ver Pedido ➔`.
+- **Experiencia Móvil de Primer Nivel:** Al desplazarse verticalmente por la carta digital o catálogo, la barra permanece anclada al alcance del pulgar en smartphones y tablets, abriendo la precuenta al tocarla en cualquier lugar.
+
+---
+
+## 4. Gestión de Categorías, Jerarquías Multinivel y Auto-Detección (`v1.20.89+`)
+
+### 4.1 Jerarquía Estricta de 3 Niveles (Padre ➔ Hija ➔ Nieta)
+El catálogo admite una arquitectura de menú de hasta 3 niveles de profundidad para estructurar cartas extensas o catálogos complejos:
+- **Nivel 0 (Padre)**: `Categoria del producto` (ej. `BEBIDAS` o `COMIDAS`).
+- **Nivel 1 (Hija)**: Primera `Categoria de PDV` (ej. `Cafe` en BEBIDAS, o `Huevos benedictinos` en COMIDAS).
+- **Nivel 2 (Nieta)**: Segunda `Categoria de PDV` (ej. `Caliente` / `Frío` dentro de Cafe).
+- **Ubicación de Productos**: Los ítems (ej. `Espresso 45 ml`) se asignan automáticamente al nodo de nivel terminal correspondiente (Nieta si existe Nivel 2, o Hija si posee Nivel 1).
+
+### 4.2 Modos de Origen de Categorías (`categorySource`)
+Desde la configuración del módulo (`/admin/social-catalog`), se define cómo se mapea la estructura de categorías:
+- **`product_pos` (Combinado - 3 Niveles)**: Muestra la jerarquía completa desde la Categoría del Producto (Padre Level 0) hasta las subcategorías del PDV (Hija Level 1 ➔ Nieta Level 2).
+- **`pos` (Exclusivo PDV - 2 Niveles)**: Excluye la categoría general del producto y parte directamente de la primera categoría del PDV como Padre (Level 0) y la segunda como Hija (Level 1).
+- **`product` (Exclusivo Producto - 1 Nivel)**: Agrupa los productos únicamente por la Categoría general del Producto.
+
+### 4.3 Detección Automática de Nuevas Categorías (Blacklist-First)
+- **Visualización Inmediata al Importar:** Al subir nuevos productos manualmente o mediante carga masiva CSV/Excel (como `provecchio_productos_importacion.csv`), el catálogo opera con una lista negra defensiva (`hiddenCategoryIds`).
+- **Cero Intervención Manual:** Todas las categorías y productos recién creados son **detectados y mostrados automáticamente** sin requerir que el usuario ingrese al panel a guardar o reordenar categorías.
+
+### 4.4 Renombrado y Propagación Automática
+- Al cambiar el nombre de una categoría (ej. de *"COMIDAS"* a *"Para comer"*), el sistema ejecuta una propagación masiva en segundo plano:
+  1. Actualiza la columna `product.category` en todos los productos asociados del tenant.
+  2. Actualiza los metadatos JSON (`posCategory`, `productCategory`, `posSubcategory`).
+  3. Mantiene la visibilidad activa sin desconfigurar las preferencias visuales de la tienda.
+
+### 4.5 Purga Masiva de Categorías y Desduplicación por Nombre (`v1.20.90+`)
+- **Vaciado de Categorías (`⚠️ Vaciar Categorías`)**: En `/admin/social-catalog` (Pestaña *Categorías*), se dispone del botón de vaciado masivo que invoca el endpoint `DELETE /api/v1/social-catalog/admin/categories/purge`. Al ejecutar la purga, se eliminan todas las categorías del tenant y se limpian las referencias de categorías en los productos, **conservando intactos todos los productos e inventarios** para permitir una re-importación totalmente limpia.
+- **Reutilización y Desduplicación Estricta:** Durante la importación de productos (CSV/Excel o creación manual), el sistema evalúa si la categoría ya existe en la base de datos (búsqueda insensible a mayúsculas/minúsculas). Si la categoría existe, **se reutiliza el registro existente** y se ajusta su parentesco o nivel según la jerarquía, impidiendo la creación de categorías duplicadas.
+
+---
+
+## 5. Marca Blanca (White-Label) & Personalización SuperAdmin
+
+### 5.1 Panel de Marca Blanca por Tenant (`/admin/super-admin-dashboard`)
+Desde la tabla de tenants en el SuperAdmin Dashboard, el usuario con rol SuperAdmin cuenta con la opción **`🏷️ Marca Blanca`** para configurar:
+- **Nombre de la Marca/Plataforma:** Nombre público del servicio (ej. *OmniFlow*, *Provecchio*).
+- **Razón Social:** Identificación legal o comercial del negocio.
+- **Logotipo de Marca Blanca (`themeLogoUrl`):** URL de la imagen oficial del Isotipo/Logo.
+- **Créditos del Pie de Página (`footerCredits`):** Texto personalizado de derechos o créditos (ej. `⚡ OmniCatalog | Powered by OmniFlow © 2026`).
+- **Remover Marca por Defecto:** Interruptor toggle para activar o desactivar la leyenda predeterminada del sistema.
+
+---
+
+## 6. Dominio Personalizado y Aislamiento Multi-Tenant
+
+El sistema resuelve automáticamente el contexto del negocio a través de múltiples esquemas de acceso con aislamiento estricto nivel Row-Level Security (RLS):
+- **Dominio Personalizado:** `https://provecchio.com`
+- **Subdominio Exclusivo:** `https://dimora.pesallaccia.com`
+- **Ruta Multitenant:** `https://pesallaccia.com/social-catalog/provecchio`
+
+---
+
+## 7. Personalización Visual del Catálogo
+
+1. **Banner Promocional y Encabezado:** Selección de posición (`center`, `top`, `bottom`) y modo de ajuste (`cover` / `contain`).
+2. **Paleta de Colores Dinámica:** Configuración de color primario, fondo de encabezado y fondo del cuerpo con soporte automático para tema claro y oscuro (*Dark Mode*).
+3. **Botones de Redes Sociales:** Enlaces oficiales a WhatsApp, Instagram, Facebook, Telegram y Google Maps con íconos vectoriales de alta definición.

@@ -1,0 +1,33 @@
+1. schema.prisma del standalone (Giveaways)
+Ruta: services/giveaways-standalone/prisma/schema.prisma
+
+Modelos: Giveaway, Participant, GiveawayRegistration, GiveawayWinner
+Sin relación a Tenant ni Contact
+Client aislado en ../node_modules/.prisma/giveaways-client
+Listo para prisma migrate dev
+
+2. Script de migración
+Ruta: services/giveaways-standalone/scripts/migrate-from-core.ts
+
+Idempotente (upsert)
+Conserva UUIDs de sorteos
+Crea Participant desde los Contact referenciados
+Soporta DRY_RUN=true y batches
+Verificación de conteos al final
+
+Uso típico:
+BashCORE_DATABASE_URL=postgresql://.../orderflow_db?schema=public \
+GIVEAWAYS_DATABASE_URL=postgresql://.../orderflow_db?schema=giveaways \
+DRY_RUN=true npx ts-node scripts/migrate-from-core.ts
+3. Multi-file Prisma (Fase 0)
+Estructura creada:
+textbackend/prisma/
+├── schema.prisma.monolith.bak     # backup del schema original
+├── schema.prisma.multifile        # entrypoint propuesto (generator + datasource)
+├── MULTI_FILE_README.md           # guía de activación
+└── models/
+    ├── platform.prisma            # stub + lista de modelos Platform
+    ├── commerce.prisma            # stub + lista de modelos Commerce
+    └── _deprecated/
+        └── giveaways.prisma       # temporal hasta cut-over
+Los stubs indican exactamente qué modelos van en cada archivo (según el plan). El siguiente paso operativo en tu repo real es cortar/pegar los model blocks desde el .monolith.bak hacia platform.prisma / commerce.prisma y apuntar Prisma al directorio.

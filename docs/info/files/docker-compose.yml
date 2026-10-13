@@ -1,0 +1,173 @@
+services:
+  # Traefik reverse proxy
+  # NOTA: en desarrollo local usá el stack externo /opt/traefik-orderflow/ (ver docker-compose.traefik.yml)
+  # Levantalo con: docker compose --profile traefik-local up -d
+  traefik:
+    image: traefik:v3.4
+    container_name: orderflow_traefik
+    restart: "no"
+    profiles: ["traefik-local"]
+    ports:
+      - "80:80"
+      - "443:443"
+      - "8080:8080"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./traefik/traefik.yml:/etc/traefik/traefik.yml:ro
+      - ./traefik/dynamic:/etc/traefik/dynamic:ro
+      - traefik_letsencrypt:/letsencrypt
+    environment:
+      ACME_EMAIL: ${ACME_EMAIL:-marcelo@pesallaccia.com}
+    networks:
+      - orderflow-network
+
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: orderflow_db
+    restart: "no"
+    environment:
+      POSTGRES_USER: orderflow
+      POSTGRES_PASSWORD: orderflow
+      POSTGRES_DB: orderflow_db
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U orderflow -d orderflow_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - orderflow-network
+
+  # Redis Cache & PubSub
+  redis:
+    image: redis:7-alpine
+    container_name: orderflow_redis
+    restart: "no"
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - orderflow-network
+
+  # Backend API
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.dev
+    container_name: orderflow_backend
+    restart: "no"
+    ports:
+      - "3010:3010"
+    environment:
+      NODE_ENV: development
+      DATABASE_URL: postgresql://orderflow:orderflow@postgres:5432/orderflow_db?schema=public
+      PORT: 3010
+      API_KEY_HEADER: x-api-key
+      MASTER_API_KEY: dev-master-key-change-in-prod
+      WEBHOOK_TIMEOUT: 5000
+      WEBHOOK_RETRY_ATTEMPTS: 3
+      FRONTEND_URL: http://localhost:3011
+      ODOO_ADAPTER_URL: http://odoo_adapter:3005
+      SENTRY_DSN: ${SENTRY_DSN}
+      CLOUDFLARE_API_TOKEN: ${CLOUDFLARE_API_TOKEN}
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+    depends_on:
+      postgres:
+        condition: service_healthy
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://127.0.0.1:3010/api/v1/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - orderflow-network
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.backend-api.entrypoints=websecure"
+      - "traefik.http.routers.backend-api.rule=Host(`api.pesallaccia.com`) || Host(`localhost`)"
+      - "traefik.http.routers.backend-api.tls.certresolver=letsencrypt"
+      - "traefik.http.services.backend-api.loadbalancer.server.port=3010"
+    command: sh -c "npm install && npx prisma db push --accept-data-loss && npm run start:dev"
+
+  # Frontend Web
+  # NOTA: se sirve con "serve" (Node) en vez de Nginx para cumplir la Regla de
+  # Arquitectura "NO usar Nginx: Traefik administra SSL y subdominios" de AGENTS.md.
+  # "-s" replica el fallback SPA que antes daba nginx.spa.conf.
+  frontend:
+    image: node:20-alpine
+    container_name: orderflow_frontend
+    restart: "no"
+    working_dir: /app
+    volumes:
+      - ./frontend/dist:/app:ro
+    command: sh -c "npx --yes serve -s . -l 80"
+    depends_on:
+      - backend
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://127.0.0.1:80/ || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - orderflow-network
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.frontend.entrypoints=websecure"
+      - "traefik.http.routers.frontend.rule=Host(`pesallaccia.com`) || HostRegexp(`{subdomain:.+}.pesallaccia.com`)"
+      - "traefik.http.routers.frontend.tls.certresolver=letsencrypt"
+      - "traefik.http.services.frontend.loadbalancer.server.port=80"
+
+  # Odoo Adapter
+  odoo_adapter:
+    build:
+      context: ./odoo-adapter
+    container_name: orderflow_odoo_adapter
+    restart: "no"
+    environment:
+      PORT: 3005
+      ODOO_HOST: host.docker.internal
+      ODOO_PORT: 8083
+      ODOO_DB: wellnesscoffee
+      ODOO_USER: soporte@crossnexion.com
+      ODOO_PASSWORD: admin
+      ORDERFLOW_API_URL: http://backend:3010/api/v1
+    ports:
+      - "3005:3005"
+    volumes:
+      - ./odoo-adapter:/app
+      - /app/node_modules
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    depends_on:
+      - backend
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://127.0.0.1:3005/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - orderflow-network
+
+volumes:
+  postgres_data:
+  redis_data:
+  traefik_letsencrypt:
+
+networks:
+  orderflow-network:
+    name: orderflow-network
+    driver: bridge

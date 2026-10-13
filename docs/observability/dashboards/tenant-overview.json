@@ -1,0 +1,59 @@
+{
+  "dashboard": {
+    "title": "OrderFlow — Tenant Overview",
+    "tags": ["orderflow", "tenant"],
+    "timezone": "America/Asuncion",
+    "panels": [
+      {
+        "title": "HTTP Request Rate",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "sum by (tenant_id) (rate(http_requests_total[5m]))",
+            "legendFormat": "{{tenant_id}}"
+          }
+        ]
+      },
+      {
+        "title": "HTTP Error Rate",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "sum by (tenant_id, status_code) (rate(http_errors_total[5m]))",
+            "legendFormat": "{{tenant_id}} - {{status_code}}"
+          }
+        ]
+      },
+      {
+        "title": "Order Creation Rate",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "sum by (tenant_id, channel) (rate(orders_created_total[5m]))",
+            "legendFormat": "{{tenant_id}} - {{channel}}"
+          }
+        ]
+      },
+      {
+        "title": "BioLink Clicks",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "sum by (tenant_id, block_type) (rate(biolink_clicks_total[5m]))",
+            "legendFormat": "{{tenant_id}} - {{block_type}}"
+          }
+        ]
+      },
+      {
+        "title": "Webhook Queue Health",
+        "type": "gauge",
+        "targets": [
+          {
+            "expr": "sum by (tenant_id, status) (webhooks_active_total)",
+            "legendFormat": "{{tenant_id}} - {{status}}"
+          }
+        ]
+      }
+    ]
+  }
+}

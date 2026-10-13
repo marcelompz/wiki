@@ -1,0 +1,17 @@
+// =============================================================================
+// PLATFORM CORE
+// Tenant, Auth, RBAC, Billing SaaS, Audit, Infra de despliegue
+// =============================================================================
+// Mover aquí los modelos listados en docs/SCHEMA_DECOUPLING_PLAN.md §2.1
+// Desde schema.prisma.monolith.bak
+//
+// Modelos esperados:
+//   Tenant, Server, DeployInstance
+//   User, UserTenantAccess, Permission, RolePermission, UserTenantPermission
+//   ApiKeyRotation, ApiKeyAuditLog, AuditLog
+//   ModuleInstallation
+//   SubscriptionPlan, Subscription, Invoice, SubscriptionAddon, PaymentTransaction
+// =============================================================================
+
+// TODO: cortar y pegar los model blocks correspondientes desde
+//       schema.prisma.monolith.bak
