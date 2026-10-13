@@ -1,15 +1,31 @@
 # 🗺️ ROADMAP DE ORDERFLOW - v1.34.0 → v2.0.0 (Go-Live Definitivo)
-**Última Actualización:** 2026-10-10 (Release v1.38.16 — Fix POS Categories + Table-by-ID + Orders)
+**Última Actualización:** 2026-10-12 (Release v1.38.19 — FEAT-071 OmniBI Hardening: monolito proxy + extractor gaps fixed)
 
-**Versión Actual:** **`v1.38.16`** 🔄 **PRODUCTION READY** | Marca pública: OmniFlow. Capa técnica interna: OrderFlow.
+**Versión Actual:** **`v1.38.19`** 🔄 **PRODUCTION READY** | Marca pública: OmniFlow. Capa técnica interna: OrderFlow.
 **Próximos Releases:** **v1.39.0** (Tauri Desktop & OmnIoT Edge) ➔ **v2.0.0** (🚀 **GO-Live Definitivo del Ecosistema — Target: 15 de Febrero de 2027**)
 **Plan Maestro Go-to-Live:** ver [docs/plans/PLAN_GO_LIVE_APLICACIONES_ECOSISTEMA.md](docs/plans/PLAN_GO_LIVE_APLICACIONES_ECOSISTEMA.md)
 **Roadmap Comercial:** ver [docs/planes/comercial/OmniFlow_Plan_Comercial_v1.md](docs/planes/comercial/OmniFlow_Plan_Comercial_v1.md) (FEAT-112 a FEAT-119)
-**Estado:** ✅ **STAGING & PRODUCTION OPERATIVE** | 🏆 **HARDENED v1.38.16** | OmniGastro Fases 0-3.2 Completadas | RBAC Hardening En PR | CI Guard Active | QA E2E Suite | Build Limpio & Cobertura Total
+**Estado:** ✅ **STAGING & PRODUCTION OPERATIVE** | 🏆 **HARDENED v1.38.19** | OmniGastro Fases 0-3.2 Completadas | RBAC Hardening En PR | CI Guard Active | QA E2E Suite | Build Limpio & Cobertura Total
 
-<!--CURRENT_VERSION-->1.38.16<!--/CURRENT_VERSION-->
+<!--CURRENT_VERSION-->1.38.20<!--/CURRENT_VERSION-->
 
-### 🚀 Release v1.38.16 — Fix POS Categories Endpoint + Table-by-ID + Orders (Octubre 2026)
+### 🚀 Release v1.38.19 — FEAT-071 OmniBI Hardening: Monolito Proxy + Extractor Gaps (Octubre 2026)
+
+| Feature | Módulo | Estado |
+|---------|--------|--------|
+| **Monolito → omnibi-standalone proxy** | `backend/src/analytics/analytics.service.ts` | ✅ Production Ready |
+| `getYoYComparison()` / `getHistoricalSyncStatus()` / `triggerOmniBiSync()` | Reemplazan mock data por HTTP calls a standalone (port 3027) | ✅ Verificado |
+| **Proxy endpoint** | `backend/src/analytics/analytics.controller.ts:315` | ✅ Production Ready |
+| `POST /api/v1/analytics/omnibi/sync/odoo14` | `@RequirePermissions('analytics:write')`, despacha a standalone | ✅ |
+| **Extractor pagination + BOMs** | `services/omnibi-standalone/src/extractors/odoo-historical-extractor.ts` | ✅ Production Ready |
+| `paginateAll()` (500/page, 2000 pages max) + `extractBoms()` + `maxWriteDate` tracking | Corrige extracción directa sin paginación y BOMs nunca extraídos | ✅ |
+| **`omnibi.service.ts` rewrite** | Usa `paginateAll()` para 4 modelos, checkpoints con Odoo `write_date` | ✅ Production Ready |
+| Checkpoints `bi_sync_checkpoints` guardan `maxWriteDate` (no `new Date()`) | Permite sync incremental | ✅ |
+| **Frontend theme tokens** | `frontend/src/pages/admin/bi.tsx` | ✅ Production Ready |
+| `token.colorPrimary` / `token.colorBgContainer` | Sin colores hardcodeados `#1677ff`/`#fafafa` | ✅ |
+| **`docker-compose.prod.yml`** | Service `omnibi_standalone` (port 3027) | ✅ Production Ready |
+| Traefik `bi.provecchio.com` → `orderflow_omnibi_standalone:3027` | Routers verificados en `services.yml` | ✅ |
+| Deploy provecchio.com v1.38.19 | Contenedores healthy, health endpoint OK | ✅ Completado |
 
 | Feature | Módulo | Estado |
 |---------|--------|--------|
@@ -57,7 +73,7 @@
 
 ---
 
-<!--CURRENT_VERSION-->1.38.0<!--/CURRENT_VERSION-->
+<!--CURRENT_VERSION-->1.38.20<!--/CURRENT_VERSION-->
 
 El ecosistema **OmniFlow** contempla 10 aplicaciones y capas operativas. A continuación se presenta la evaluación de madurez técnica por componente y los puntos pendientes priorizados hacia el Go-Live final.
 

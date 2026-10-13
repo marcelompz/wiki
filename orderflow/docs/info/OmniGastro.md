@@ -1,10 +1,111 @@
 # OmniGastro
 
+## 2026-10-13
+
+-- I just deploy the v1.38.20
+
+1. The endpoint [https://provecchio.com/admin/gastro] on the modal: Gestión de Mesas y Códigos QR (OmniGastro)
+ does not show any table
+
+2. When I open POS on  Odoo's endpoint [http://192.168.69.246:8081/pos/ui?config_id=2#cids=1] i got this error message:
+ Server Error
+Traceback (most recent call last):
+  File "/usr/lib/python3/dist-packages/odoo/addons/base/models/ir_http.py", line 237, in _dispatch
+    result = request.dispatch()
+  File "/usr/lib/python3/dist-packages/odoo/http.py", line 696, in dispatch
+    result = self._call_function(**self.params)
+  File "/usr/lib/python3/dist-packages/odoo/http.py", line 370, in _call_function
+    return checked_call(self.db, *args, **kwargs)
+  File "/usr/lib/python3/dist-packages/odoo/service/model.py", line 94, in wrapper
+    return f(dbname, *args, **kwargs)
+  File "/usr/lib/python3/dist-packages/odoo/http.py", line 358, in checked_call
+    result = self.endpoint(*a, **kw)
+  File "/usr/lib/python3/dist-packages/odoo/http.py", line 919, in _call_
+    return self.method(*args, **kw)
+  File "/usr/lib/python3/dist-packages/odoo/http.py", line 544, in response_wrap
+    response = f(*args, **kw)
+  File "/usr/lib/python3/dist-packages/odoo/addons/web/controllers/main.py", line 1370, in call_kw
+    return self._call_kw(model, method, args, kwargs)
+  File "/usr/lib/python3/dist-packages/odoo/addons/web/controllers/main.py", line 1362, in _call_kw
+    return call_kw(request.env[model], method, args, kwargs)
+  File "/usr/lib/python3/dist-packages/odoo/api.py", line 400, in call_kw
+    result = _call_kw_model(method, model, args, kwargs)
+  File "/usr/lib/python3/dist-packages/odoo/api.py", line 373, in _call_kw_model
+    result = method(recs, *args, **kwargs)
+  File "/usr/lib/python3/dist-packages/odoo/addons/pos_restaurant/models/pos_order.py", line 167, in get_table_draft_orders
+    order['uid'] = search(r"\d{5,}-\d{3,}-\d{4,}", order['pos_reference']).group(0)
+  File "/usr/lib/python3.7/re.py", line 183, in search
+    return _compile(pattern, flags).search(string)
+Exception
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/usr/lib/python3/dist-packages/odoo/http.py", line 652, in _handle_exception
+    return super(JsonRequest, self)._handle_exception(exception)
+  File "/usr/lib/python3/dist-packages/odoo/http.py", line 317, in _handle_exception
+    raise exception.with_traceback(None) from new_cause
+TypeError: expected string or bytes-like object
+
+## 2026-10-12
+
+**FIX (v1.38.18): Sincronización de productos/categorías OrderFlow → Odoo 14 (sync-standalone) — 203/203 productos y 74 categorías sincronizadas correctamente.**
+
+Tres bugs de raíz encontrados y corregidos en `services/sync-standalone/src/odoo/`:
+
+1. **Falta de header `x-tenant-id`** en `product-sync.service.ts`: las llamadas a `/api/v1/catalog/categories` y `/api/v1/sync/products` solo enviaban `x-api-key`, con lo cual ApiKeyGuard resolvía `super-admin-global` y devolvía catálogos vacíos. Se agregó `'x-tenant-id': tenantId` a ambos fetch.
+2. **`searchRead()` pasaba `fields` duplicado** en `odoo.client.ts`: iba tanto en `args: [domain, fields]` como en `kwargs: { fields }`, y Odoo 14 lanzaba `TypeError: search_read() got multiple values for argument 'fields'`. Esto fallaba el
+
+## 2026-10-12
+
+**FIX (v1.38.18): Sincronización de productos/categorías OrderFlow → Odoo 14 (sync-standalone) — 203/203 productos y 74 categorías sincronizadas correctamente.**
+
+Tres bugs de raíz encontrados y corregidos en `services/sync-standalone/src/odoo/`:
+
+1. **Falta de header `x-tenant-id`** en `product-sync.service.ts`: las llamadas a `/api/v1/catalog/categories` y `/api/v1/sync/products` solo enviaban `x-api-key`, con lo cual ApiKeyGuard resolvía `super-admin-global` y devolvía catálogos vacíos. Se agregó `'x-tenant-id': tenantId` a ambos fetch.
+2. **`searchRead()` pasaba `fields` duplicado** en `odoo.client.ts`: iba tanto en `args: [domain, fields]` como en `kwargs: { fields }`, y Odoo 14 lanzaba `TypeError: search_read() got multiple values for argument 'fields'`. Esto fallaba el 100% de las búsquedas (categorías y productos). Corregido: `args: [domain]` + `kwargs` únicamente.
+3. **Creación de impuesto con campo incorrecto**: `account.tax` en Odoo 14 usa `amount_type`, no `type`. Corregido en `getTaxId` (creación de "IVA 0%").
+
+Verificación en Odoo 14 (192.168.69.246:8081, db prod): 48 categorías, 206 productos con `default_code` (203 sincronizados + 3 preexistentes), sin códigos duplicados. `product.product.create` escribe correctamente `categ_id` y `taxes_id` (write-through a `product.template`), no fue necesario cambiar a `product.template`.
+
+Notas operativas:
+- El contenedor `orderflow_sync_standalone` corre con bind-mount `./services/sync-standalone:/app`, así que el `dist/` del HOST tiene prioridad sobre el `dist` compilado en la imagen. Tras `docker compose build` hay que copiar el `dist` desde la imagen al host (o montar `node_modules` aparte) y hacer `docker compose restart sync_standalone`.
+- El backend almacena estado por categoría (`odooSyncStatus`, `odooProductCategoryId`) pero el sync actual solo lee; queda pendiente escribir el estado de retorno.
+- El catálogo del backend tiene nombres de categoría duplicados (74 items, 28 nombres repetidos 2-5 veces); el sync los deduplica por nombre vía `findCategoryByName`.
+- Limpieza: eliminada categoría duplicada "Para beber" (id 10, artefacto de test manual; la canónica es id 9 creada por el sync).
+
+¿El addon que instalamos en Odoo tiene alguna funcion para actualizar los pedidos que se generaron en OmniGastro, o solamente sirve para sincronizar contactos, usuarios, mesas y productos?
+
+## 2026-10-11
+
+-- Acabo de desplegar la version 1.38.17 en Provecchio provecchio.com
+
+1. En realidad los productos no estan sincronizados, tal vez ni siquiera encuentra el producto, no solamente el impuesto.
+
+    Necesito sincronizar productos con sus categorias con Odoo para eso. Requerimos ajustar el modulo de integracion de Odoo en OrderFlow.
+
 ## 2026-10-10
 
--- Acabo de desplegar la version 1.38.16 en localhost provecchio.local
+-- Acabo de desplegar la version 1.38.16 en Provecchio provecchio.com
 
-1. d
+1. Al ingrear a [https://provecchio.com/admin/integrations] para verificar las integraciones y probar la sincronizacion entre el endpoint del mozo y el POS de Odoo: 17:03:37.512 XHR GET
+[https://provecchio.com/api/v1/integrations]
+[HTTP/2 200  188ms]
+17:03:37.527 XHR GET
+[https://provecchio.com/api/v1/modules/installed?tenantId=provecchio-dimora-001]
+[HTTP/2 200  193ms]
+17:03:42.818 XHR GET
+[https://provecchio.com/api/v1/integrations/7a6688b6-2609-4719-9fb2-21a662f4abdf/odoo/users/compare]
+[HTTP/2 500  418ms]
+
+[https://provecchio.com/api/v1/integrations/7a6688b6-2609-4719-9fb2-21a662f4abdf/odoo/users/compare]
+Estado
+500
+VersiónHTTP/2
+Transferido1,28 KB (tamaño 52 B)
+Política de referenciastrict-origin-when-cross-origin
+Prioridad de la solicitudHighest
+Resolución DNSSistema
 
 ## 2026-10-09
 
@@ -23,7 +124,7 @@
  el endpoint que toma los pedidos es [https://provecchio.com/admin/gastro/pos/fa37f634-09b5-4743-8c56-baaab355a210] Creo que es una superposición de enpoints. Favor analiza la funcionalidad e interconección entre los endpoints.
 
 4.Mismo derror en el endpoint del mozo: [https://provecchio.com/admin/gastro/pos/bf0bd8b9-42a5-4119-be9c-da4108a09df3] /api/v1/categories?includeProducts=true&tree=true:1  Failed to load resource: the server responded with a status of 404 ()
-bf0bd8b9-42a5-4119-be9c-da4108a09df3:1 <meta name="apple-mobile-web-app-capable" content="yes"> is deprecated. Please include <meta name="mobile-web-app-capable" content="yes">
+bf0bd8b9-42a5-4119-be9c-da4108a09df3:1 (<meta_name="apple-mobile-web-app-capable" content="yes">) is deprecated. Please include (<metaname="mobile-web-app-capable"content="yes">)
 /api/v1/orders?tableId=bf0bd8b9-42a5-4119-be9c-da4108a09df3&status=DRAFT,CLAIMED,SENT_TO_KITCHEN,IN_PREPARATION,READY&limit=1:1  Failed to load resource: the server responded with a status of 500 ()
 
  Los endpoint: [https://provecchio.com/admin/gastro] [https://provecchio.com/admin/gastro/cashier] que tiene la administracion de los pedidos no debe ser visible por el mozo.
@@ -126,8 +227,8 @@ Agrega esta regla a @AGENTS.md
     - Mozo.
 2. En la administracion de usuarios: SISTEMA / AJUSTES -> Usuarios, roles & personal [[https://provecchio.com/admin/users]
 3. En la gestión de pisos / mesas
-[https://provecchio.com/admin/gastro/tabless]
-[super-admin:1 <meta name="apple-mobile-web-app-capable"content="yes">] is deprecated. Please include <meta name="mobile-web-app-capable"content="yes">]
+[https://provecchio.com/admin/gastro/tabless]]
+[super-admin:1 <meta name="apple-mobile-web-app-capable"content="yes">] is deprecated. Please include [<meta_name="mobile-web-app-capable"content="yes">]
 vendor-react-BL24cwRE.js:17 [Violation] 'message' handler took 282ms
 vendor-react-BL24cwRE.js:17 [Violation] 'message' handler took 248ms
 VM104:2 Uncaught TypeError: Cannot read properties of undefined (reading 'startTime')

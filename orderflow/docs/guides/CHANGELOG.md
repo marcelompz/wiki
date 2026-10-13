@@ -2,6 +2,23 @@
 
 Todos los cambios notables en este proyecto se documentarán en este archivo.
 
+## [1.38.21] - 2026-10-13
+
+### 🐛 Fix: Modal Gestión de Mesas QR vacío + Odoo POS TypeError en get_table_draft_orders
+
+- **`tables.controller.ts` endpoints de solo lectura** — `GET /api/v1/tables`, `GET /:id`, `GET /floor-map`, `GET /floors`, `GET /:id/guests`, `GET /:id/seat-summary` lanzaban `BadRequestException('Usuario no autenticado')` cuando `req.user?.id` era undefined. Esto ocurría cuando el frontend (`gastro.tsx` `loadTables()`) usaba solo `x-api-key` (sin JWT), que es el flujo normal del panel de mozo. Se eliminó la chequera de `userId` de estos endpoints; el `ApiKeyGuard` ya autentica la solicitud (API key del tenant o JWT). Los endpoints de escritura siguen exigiendo `req.user?.id` por RBAC.
+- **Odoo 14 `pos_restaurant/models/pos_order.py:167`** — `search(r"\d{5,}-\d{3,}-\d{4,}", order['pos_reference']).group(0)` crasheaba con `TypeError` cuando `pos_reference` era `None`/`False` (no es string) y con `AttributeError` cuando era un string que no cumplía la regex. Se parchó directamente en el contenedor `odoo_web_8081` (192.168.69.246:8081): `order["uid"] = search(r"\d{5,}-\d{3,}-\d{4,}", order["pos_reference"] or "").group(0) if order["pos_reference"] else None`.
+- **Addon OmniFlow `pos_omniflow_sync/controllers/main.py:38`** — generaba `pos_reference = f"OmniFlow-{external_order_ref[-6:]}" if external_order_ref else False`. Ambos valores incumplen la regex de Odoo. Se cambió a `f"{pos_session.id:05d}-{table.id:03d}-{order.id:04d}"` (formato `NNNNN-NNN-NNNN`). Sincronizado a `/opt/odoo/addons/pos_omniflow_sync/controllers/main.py` en 192.168.69.246 y Odoo reiniciado.
+- **Resultado** — El modal Gestión de Mesas y Códigos QR de Provecchio ahora devuelve las 13 mesas del tenant `provecchio-dimora-001`. El POS Odoo 14 no tire TypeError al abrir mesas con órdenes draft.
+
+## [1.38.20] - 2026-10-13
+
+### 🐛 Fix: HTTP 500 persistente en GET /api/v1/orders con status comma-separated (validación de enum)
+
+- **`orders.service.ts` `findAll()`** — Tras el deploy de v1.38.19, la consulta con `status=DRAFT,CLAIMED,SENT_TO_KITCHEN,IN_PREPARATION,READY` seguía devolviendo 500. La causa raíz: el service pasaba `status: { in: [...] }` directamente a Prisma, pero el enum `OrderStatus` solo contiene `DRAFT, CONFIRMED, PREPARING, READY, DELIVERED, CANCELLED`. Los valores `CLAIMED`, `SENT_TO_KITCHEN` e `IN_PREPARATION` no existen en el enum → Prisma lanzaba `Invalid value for argument in. Expected OrderStatus` → HTTP 500.
+- **Solución** — Filtrar los status contra `Object.values(OrderStatus)` antes de construir el `where`. Los valores que no pertenecen al enum se descartan silenciosamente; solo los válidos se incluyen en la consulta.
+- **Resultado** — `GET /api/v1/orders?tableId=<id>&status=DRAFT,CLAIMED,SENT_TO_KITCHEN,IN_PREPARATION,READY&limit=1` devuelve 200 en Provecchio.
+
 ## [1.38.14] - 2026-10-08
 
 ### 🚀 FEAT-153: POS Dedicated Fullscreen View + Category Navigation + Table Guests Management
