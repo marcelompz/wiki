@@ -1,6 +1,82 @@
 # OmniGastro
 
+## 2026-10-15
+
+- I just deploy the v1.38.22
+
+1.
+
+- I just deploy the v1.38.21
+
+1. When receiving the order from the table, I get these errors in the console:
+[https://provecchio.com/admin/gastro/mozos]
+Missing user or tenant context
+/api/v1/modules/installed?tenantId=provecchio-dimora-001:1  Failed to load resource: the server responded with a status of 403 ()
+index-BGLZsV2A.js:39 Error fetching installed modules AxiosError: Request failed with status code 403
+    at Da (index-BGLZsV2A.js:12:10565)
+    at XMLHttpRequest.b (index-BGLZsV2A.js:12:16973)
+(anonymous) @ index-BGLZsV2A.js:39
+/admin/gastro:1 <meta name="apple-mobile-web-app-capable" content="yes"> is deprecated. Please include <meta name="mobile-web-app-capable" content="yes">
+/api/v1/waiter/calls?waiterId=cmu498yae0001qgsy3azcyubg:1  Failed to load resource: the server responded with a status of 403 ()
+gastro-vkxwrbrq.js:1 Error cargando panel gastro: AxiosError: Request failed with status code 403
+    at Da (index-BGLZsV2A.js:12:10565)
+    at XMLHttpRequest.b (index-BGLZsV2A.js:12:16973)
+    at Dt.request (index-BGLZsV2A.js:14:2219)
+    at async Promise.all (index 1)
+    at async y (gastro-vkxwrbrq.js:1:3236)
+y @ gastro-vkxwrbrq.js:1
+/api/v1/orders/guest/pending:1  Failed to load resource: the server responded with a status of 403 ()
+/api/v1/modules/installed?tenantId=provecchio-dimora-001:1  Failed to load resource: the server responded with a status of 403 ()
+index-BGLZsV2A.js:39 Error fetching installed modules AxiosError: Request failed with status code 403
+    at Da (index-BGLZsV2A.js:12:10565)
+    at XMLHttpRequest.b (index-BGLZsV2A.js:12:16973)
+(anonymous) @ index-BGLZsV2A.js:39
+/api/v1/orders/guest/pending:1  Failed to load resource: the server responded with a status of 403 ()
+gastro-vkxwrbrq.js:1 Error cargando panel gastro: AxiosError: Request failed with status code 403
+    at Da (index-BGLZsV2A.js:12:10565)
+    at XMLHttpRequest.b (index-BGLZsV2A.js:12:16973)
+    at Dt.request (index-BGLZsV2A.js:14:2219)
+    at async Promise.all (index 1)
+    at async y (gastro-vkxwrbrq.js:1:3236)
+y @ gastro-vkxwrbrq.js:1
+/api/v1/waiter/calls?waiterId=cmu498yae0001qgsy3azcyubg:1  Failed to load resource: the server responded with a status of 403 ()
+/api/v1/waiter/calls?waiterId=cmu498yae0001qgsy3azcyubg:1  Failed to load resource: the server responded with a status of 403 ()
+gastro-vkxwrbrq.js:1 Error cargando panel gastro: AxiosError: Request failed with status code 403
+    at Da (index-BGLZsV2A.js:12:10565)
+    at XMLHttpRequest.b (index-BGLZsV2A.js:12:16973)
+    at Dt.request (index-BGLZsV2A.js:14:2219)
+    at async Promise.all (index 1)
+    at async Object.y [as onClick] (gastro-vkxwrbrq.js:1:3236)
+y @ gastro-vkxwrbrq.js:1
+/api/v1/orders/guest/pending:1  Failed to load resource: the server responded with a status of 403 ()
+/api/v1/orders/guest/pending:1  Failed to load resource: the server responded with a status of 403 ()
+gastro-vkxwrbrq.js:1 Error cargando panel gastro: AxiosError: Request failed with status code 403
+    at Da (index-BGLZsV2A.js:12:10565)
+    at XMLHttpRequest.b (index-BGLZsV2A.js:12:16973)
+    at Dt.request (index-BGLZsV2A.js:14:2219)
+    at async Promise.all (index 1)
+    at async y (gastro-vkxwrbrq.js:1:3236)
+y @ gastro-vkxwrbrq.js:1
+/api/v1/waiter/calls?waiterId=cmu498yae0001qgsy3azcyubg:1  Failed to load resource: the server responded with a status of 403 ()
+/api/v1/waiter/calls/4606dac5-bb0b-422e-94ec-4181ebfc9eab/take-order:1  Failed to load resource: the server responded with a status of 403 ()
+
+2. I received the order for "Table fa37f634-09b5-4743-8c56-baaab355a210" instead of "Table G10."
+
+## 2026-10-14
+
+-- I just deploy the v1.38.22
+
+1. I now have the biolinks endpoint instead of the digital menu for table G10 at the URL [https://provecchio.com/?t=7b0075a2-811e-440c-b426-26fbf2b52e33]
+
+2.
+
 ## 2026-10-13
+
+-- I just deploy the v1.38.21
+
+1. At the endpoint: [https://provecchio.com/admin/gastro/pos/fa37f634-09b5-4743-8c56-baaab355a210] the waiter can not see the products in the POS, just the name of the category.
+
+2. The endpoint [https://provecchio.com/?t=7b0075a2-811e-440c-b426-26fbf2b52e33] shows the index page of omni-links I just scanned it with my cellphone.
 
 -- I just deploy the v1.38.20
 
@@ -14,28 +90,28 @@ Traceback (most recent call last):
     result = request.dispatch()
   File "/usr/lib/python3/dist-packages/odoo/http.py", line 696, in dispatch
     result = self._call_function(**self.params)
-  File "/usr/lib/python3/dist-packages/odoo/http.py", line 370, in _call_function
-    return checked_call(self.db, *args, **kwargs)
+  File "/usr/lib/python3/dist-packages/odoo/http.py", line 370, in_call_function
+    return checked_call(self.db, *args,**kwargs)
   File "/usr/lib/python3/dist-packages/odoo/service/model.py", line 94, in wrapper
-    return f(dbname, *args, **kwargs)
+    return f(dbname,*args, **kwargs)
   File "/usr/lib/python3/dist-packages/odoo/http.py", line 358, in checked_call
-    result = self.endpoint(*a, **kw)
+    result = self.endpoint(*a,**kw)
   File "/usr/lib/python3/dist-packages/odoo/http.py", line 919, in _call_
     return self.method(*args, **kw)
   File "/usr/lib/python3/dist-packages/odoo/http.py", line 544, in response_wrap
-    response = f(*args, **kw)
+    response = f(*args,**kw)
   File "/usr/lib/python3/dist-packages/odoo/addons/web/controllers/main.py", line 1370, in call_kw
     return self._call_kw(model, method, args, kwargs)
-  File "/usr/lib/python3/dist-packages/odoo/addons/web/controllers/main.py", line 1362, in _call_kw
+  File "/usr/lib/python3/dist-packages/odoo/addons/web/controllers/main.py", line 1362, in_call_kw
     return call_kw(request.env[model], method, args, kwargs)
   File "/usr/lib/python3/dist-packages/odoo/api.py", line 400, in call_kw
-    result = _call_kw_model(method, model, args, kwargs)
+    result =_call_kw_model(method, model, args, kwargs)
   File "/usr/lib/python3/dist-packages/odoo/api.py", line 373, in _call_kw_model
-    result = method(recs, *args, **kwargs)
+    result = method(recs,*args, **kwargs)
   File "/usr/lib/python3/dist-packages/odoo/addons/pos_restaurant/models/pos_order.py", line 167, in get_table_draft_orders
     order['uid'] = search(r"\d{5,}-\d{3,}-\d{4,}", order['pos_reference']).group(0)
   File "/usr/lib/python3.7/re.py", line 183, in search
-    return _compile(pattern, flags).search(string)
+    return_compile(pattern, flags).search(string)
 Exception
 
 The above exception was the direct cause of the following exception:
@@ -56,8 +132,6 @@ Tres bugs de raíz encontrados y corregidos en `services/sync-standalone/src/odo
 1. **Falta de header `x-tenant-id`** en `product-sync.service.ts`: las llamadas a `/api/v1/catalog/categories` y `/api/v1/sync/products` solo enviaban `x-api-key`, con lo cual ApiKeyGuard resolvía `super-admin-global` y devolvía catálogos vacíos. Se agregó `'x-tenant-id': tenantId` a ambos fetch.
 2. **`searchRead()` pasaba `fields` duplicado** en `odoo.client.ts`: iba tanto en `args: [domain, fields]` como en `kwargs: { fields }`, y Odoo 14 lanzaba `TypeError: search_read() got multiple values for argument 'fields'`. Esto fallaba el
 
-## 2026-10-12
-
 **FIX (v1.38.18): Sincronización de productos/categorías OrderFlow → Odoo 14 (sync-standalone) — 203/203 productos y 74 categorías sincronizadas correctamente.**
 
 Tres bugs de raíz encontrados y corregidos en `services/sync-standalone/src/odoo/`:
@@ -69,9 +143,12 @@ Tres bugs de raíz encontrados y corregidos en `services/sync-standalone/src/odo
 Verificación en Odoo 14 (192.168.69.246:8081, db prod): 48 categorías, 206 productos con `default_code` (203 sincronizados + 3 preexistentes), sin códigos duplicados. `product.product.create` escribe correctamente `categ_id` y `taxes_id` (write-through a `product.template`), no fue necesario cambiar a `product.template`.
 
 Notas operativas:
-- El contenedor `orderflow_sync_standalone` corre con bind-mount `./services/sync-standalone:/app`, así que el `dist/` del HOST tiene prioridad sobre el `dist` compilado en la imagen. Tras `docker compose build` hay que copiar el `dist` desde la imagen al host (o montar `node_modules` aparte) y hacer `docker compose restart sync_standalone`.
+El contenedor orderflow_sync_standalone corre con bind-mount ./services/sync-standalone:/app, así que el directorio dist/ del host tiene prioridad sobre el directorio dist compilado en la imagen. Tras ejecutar docker compose build, es necesario copiar el directorio dist desde la imagen al host (o montar node_modules en un volumen aparte) y reiniciar el servicio con docker compose restart sync_standalone.
+
 - El backend almacena estado por categoría (`odooSyncStatus`, `odooProductCategoryId`) pero el sync actual solo lee; queda pendiente escribir el estado de retorno.
+
 - El catálogo del backend tiene nombres de categoría duplicados (74 items, 28 nombres repetidos 2-5 veces); el sync los deduplica por nombre vía `findCategoryByName`.
+
 - Limpieza: eliminada categoría duplicada "Para beber" (id 10, artefacto de test manual; la canónica es id 9 creada por el sync).
 
 ¿El addon que instalamos en Odoo tiene alguna funcion para actualizar los pedidos que se generaron en OmniGastro, o solamente sirve para sincronizar contactos, usuarios, mesas y productos?
@@ -231,14 +308,15 @@ Agrega esta regla a @AGENTS.md
 [super-admin:1 <meta name="apple-mobile-web-app-capable"content="yes">] is deprecated. Please include [<meta_name="mobile-web-app-capable"content="yes">]
 vendor-react-BL24cwRE.js:17 [Violation] 'message' handler took 282ms
 vendor-react-BL24cwRE.js:17 [Violation] 'message' handler took 248ms
-VM104:2 Uncaught TypeError: Cannot read properties of undefined (reading 'startTime')
+VM104:2 Uncaught TypeError: Cannot read properties of ```undefined (reading 'startTime')
     at X.reportAllChanges (<anonymous>:2:19627)
     at <anonymous>:2:14832
     at <anonymous>:2:313
     at d (<anonymous>:2:6931)
     at <anonymous>:2:7118
     at <anonymous>:2:2912
-    at n.timeout (<anonymous>:2:6432)
+    at n.timeout (<anonymous>:2:6432)```
+
 X.reportAllChanges @ VM104:2
 (anonymous) @ VM104:2
 (anonymous) @ VM104:2
@@ -274,7 +352,7 @@ ro @ vendor-react-BL24cwRE.js:29
 _u @ vendor-react-BL24cwRE.js:29
 ld @ vendor-react-BL24cwRE.js:29
 
-## OmniFlow general:
+## OmniFlow general
 
 4.En la gestión de Capital humano.
 [https://provecchio.com/admin/hr/api/v1/hr/attendance/records:1]  Failed to load resource: the server responded with a status of 403 ()
@@ -286,7 +364,7 @@ T @ hr-CF0xsNe2.js:1
 5. En la gestion de usuarios
 [https://provecchio.com/admin/users]
 tengo roles como ADMIN, MANAGER, SELLER, EMPLOYEE, VIEWER. - Necesito una descripcion de cada rol general. - También necesito nivel de acceso a secciones del sistema por empleado. Ademas del nivel de acceso como usuario, a cada Empleado puedo asignarle un nivel de acceso para que puedan o no ver caja, compras, etc. Por ejemplo el mozo solamente tiene que tener acceso a 👨‍🍳 Panel de Acceso Mozos — OmniGastro
-y a su vez al Panel Mozo — OmniGastro. El cocinero solamente al KDS, y así por consiguiente, permitir una administracion dinámica del acceso a los módulos y sus secciones. 
+y a su vez al Panel Mozo — OmniGastro. El cocinero solamente al KDS, y así por consiguiente, permitir una administracion dinámica del acceso a los módulos y sus secciones.
 
 Ivan Castillo
 
@@ -322,58 +400,71 @@ No puedo editar el Empleado, debería tener la gestión CRUD en esa sección.
 
 13.El buscador de social-catalog no funciona
 
-Puedes iniciar el desarrollo de la vertical OmniGastro, siguiendo los lineamientos de [AGENTS.md](file;file:///opt/orderflow/AGENTS.md) y actualizar la documentación. 
-Mantener viva la documentación en el roadmap detallado de cada vertical en @directory:docs/plans/omnigastro
+Column    |              Type              | Collation | Nullable |        Default -----------+--------------------------------+-----------+----------+-----------------------
+ id        | text                           |           | not null |
+ tenantId  | text                           |           | not null |
+ floorId   | text                           |           |          | tableNum  | text                           |           | not null |
+ name      | text                           |           |          |
+ seats     | integer                        |           | not null | 4
+ positionX | integer                        |           | not null | 0
+ positionY | integer                        |           | not null | 0
+ shape     | text                           |           | not null | 'SQUARE'::text
+ status    | "TableStatus"                  |           | not null | 'FREE'::"TableStatus"
+ ownerId   | text                           |           |          |
+ token     | text                           |           | not null |
+ rfidTag   | text                           |           |          |
+ active    | boolean                        |           | not null | true
+ isDeleted | boolean                        |           | not null | false
+ deletedAt | timestamp(3) without time zone |           |          |
+ createdAt | timestamp(3) without time zone |           | not null | CURRENT_TIMESTAMP
+ updatedAt | timestamp(3) without time zone |           | not null |
 
-/context cada 20 minutos el informe de estado de la actividad.
+Índices:
 
-                              Table "public.restaurant_tables"
-   Column    |              Type              | Collation | Nullable |        Default        
--------------+--------------------------------+-----------+----------+-----------------------
- id          | text                           |           | not null | 
- tenantId    | text                           |           | not null | 
- floorId     | text                           |           |          | 
- tableNumber | text                           |           | not null | 
- name        | text                           |           |          | 
- seats       | integer                        |           | not null | 4
- positionX   | integer                        |           | not null | 0
- positionY   | integer                        |           | not null | 0
- shape       | text                           |           | not null | 'SQUARE'::text
- status      | "TableStatus"                  |           | not null | 'FREE'::"TableStatus"
- ownerId     | text                           |           |          | 
- token       | text                           |           | not null | 
- rfidTag     | text                           |           |          | 
- active      | boolean                        |           | not null | true
- isDeleted   | boolean                        |           | not null | false
- deletedAt   | timestamp(3) without time zone |           |          | 
- createdAt   | timestamp(3) without time zone |           | not null | CURRENT_TIMESTAMP
- updatedAt   | timestamp(3) without time zone |           | not null | 
-Indexes:
-    "restaurant_tables_pkey" PRIMARY KEY, btree (id)
-    "restaurant_tables_floorId_idx" btree ("floorId")
-    "restaurant_tables_ownerId_idx" btree ("ownerId")
-    "restaurant_tables_rfidTag_key" UNIQUE, btree ("rfidTag")
-    "restaurant_tables_tenantId_active_idx" btree ("tenantId", active)
-    "restaurant_tables_tenantId_floorId_tableNumber_key" UNIQUE, btree ("tenantId", "floorId", "tableNumber")
-    "restaurant_tables_token_key" UNIQUE, btree (token)
+restaurant_tables_pkey PRIMARY KEY, btree (id)
 
+restaurant_tables_floorId_idx btree (floorId)
+
+restaurant_tables_ownerId_idx btree (ownerId)
+
+restaurant_tables_rfidTag_key UNIQUE, btree (rfidTag)
+
+restaurant_tables_tenantId_active_idx btree (tenantId, active)
+
+restaurant_tables_tenantId_floorId_tableNumber_key UNIQUE, btree (tenantId, floorId, tableNumber)
+
+restaurant_tables_token_key UNIQUE, btree (token)
+
+🛠️ Comandos de Despliegue y Diagnóstico
+Bash
 git tag v1.25.0-alpha-omnigastro && git push origin main --tags 2>&1 | tail -10
 ps aux | grep -i site-inspect; netstat -tuln || ss -tuln
+Contexto / Clon: clone-wars
 
-clone-wars
+⚙️ Tareas de Desarrollo Pendientes
+Gestión de Usuarios y Seguridad (BTW):
 
-/btw haz un incremento menor en cada feat nuevo, para validar el correcto deploy.
+El Super Admin debe poder editar globalmente desde su perfil los PINs y contraseñas de los usuarios.
 
-Verifica que esté la nueva directriz @AGENTS.md de crear un proyecto en @docs/plans/"Nombre_de_la_vertical" con su documentación individual (ROADMAP, Plan, Prompts, etc.). En su ausencia creala.
+Los usuarios deben poder modificar su propia contraseña y PIN.
 
-/btw debo poder editar globalmente desde el perfil del Super Admin los pines y contraseñas de los usuarios y los usuarios modificar su propia contraseña y pin.
+Actualizar el controlador de usuarios (users controller) para incluir positionId en create y update.
 
-I need to update the users controller to include positionId in create and update, and update the findAll to return position info. Also need to update the user-tenant-access service to handle positionId.
+Actualizar el método findAll para que retorne la información de la posición (position info).
 
-obs: toma nota de que tenemos que trabajar en el POS mas adelante, para que el módulo padre (general) tenga apertura, cierre de caja e ingreso / egreso de dinero.
+Actualizar el servicio de acceso de usuario por tenant (user-tenant-access service) para gestionar el campo positionId.
 
-Shannon -> Open Source para validar la seguridad 
-bash-it
+Observaciones del POS (Futuro):
+
+Trabajar más adelante en el módulo POS para que el módulo padre (general) incorpore:
+
+Apertura y cierre de caja.
+
+Registro de ingresos y egresos de dinero.
+
+Seguridad:
+
+Shannon -> Open Source para validar la seguridad con bash-it.
 
 Obs: necesito multiples KDS, cocina, pastelería, café, etc. No hardcodeados, sinó dinámicos, con endpoints exclusivos. Los productos que estan en el PDV pueden configurarse para aparecer en los KDS por categoria de pdv o individualmente. Pueden aparecer en mas de un KDS. Es una feature que neesito para la siguiente release, ahora voy a trabajar con un solo KDS en la cocina.
 

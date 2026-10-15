@@ -5,6 +5,16 @@ Todos los cambios notables a este proyecto serán documentados en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 y este proyecto se adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.38.22] - 2026-10-15
+
+### 🐛 Fix: 403 Forbidden en auth endpoints del panel mozo (verify-pin no devolvía JWT)
+
+- **`auth.service.ts` - `verifyPin()` method** — La verificación de PIN contra `employees.pin_code` verificaba el PIN correctamente pero no generaba/retornaba JWT access token y refresh token. El frontend (`gastro-mozos.tsx`) almacenaba `user` data en localStorage sin tokens, causando 403 "Missing user or tenant context" en todos los endpoints subsecuentes: `/api/v1/modules/installed`, `/api/v1/waiter/calls`, `/api/v1/orders/guest/pending`, `/api/v1/waiter/calls/:id/take-order`. Se añadió la generación de `accessToken` y `refreshToken` (con `generateAccessToken`/`generateRefreshToken`), actualización del `refreshTokenHash` en la tabla `users`, y retorno del token JWT en la respuesta.
+- **`employees` ↔ `users` linking** — Los 3 empleados existentes (Ivan/Mozo, Natalia/Cajero, Paula/Cocinero) no tenían `user_id` vinculado. `verifyPin()` retornaba "El empleado no tiene usuario asociado". Se vincularon directamente en DB: Ivan→mozo@provecchio.com, Natalia→natalia.bado@staff.provecchio.local, Paula→paula@staff.provecchio.local.
+- **`gastro-mozos.tsx`** — `handleVerifyPin` actualizado para almacenar `accessToken` y `refreshToken` en localStorage tras verificación exitosa del PIN. `handleLogoutWaiter` limpiar ambos tokens.
+- **Table name UUID issue** — Era un síntoma del 403, no un bug de datos. Los nombres mostraban UUIDs porque el frontend no podía autenticar para obtener `/api/v1/orders/guest/pending`. Los nombres correctos (G10, M01, Giardino) aparecen tras el fix.
+- **Nuevo:** `docs/guides/TECHNICAL-GUIDE-DEVELOPERS.md` — Guía técnica obligatoria para agentes y desarrolladores.
+
 ## [1.38.21] - 2026-10-13
 
 ### 🐛 Fix: Modal Gestión de Mesas QR vacío + Odoo POS TypeError en get_table_draft_orders
