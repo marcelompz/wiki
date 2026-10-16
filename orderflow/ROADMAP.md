@@ -1,15 +1,31 @@
 # 🗺️ ROADMAP DE ORDERFLOW - v1.34.0 → v2.0.0 (Go-Live Definitivo)
-**Última Actualización:** 2026-10-16 (Release v1.39.1 — Sprint Fixes Provecchio: POS Empty Grid, KDS Categories, KDS Pre-selection)
+**Última Actualización:** 2026-10-16 (Release v1.39.2 — OmniGastro Fixes: KDS categorías independientes, sync de mesas, cargar pedidos takeout, modal responsivo)
 
-**Versión Actual:** **`v1.39.1`** 🔄 **PRODUCTION READY** | Marca pública: OmniFlow. Capa técnica interna: OrderFlow.
+**Versión Actual:** **`v1.39.2`** 🔄 **PRODUCTION READY** | Marca pública: OmniFlow. Capa técnica interna: OrderFlow.
 **Próximos Releases:** **v1.40.0** (Tauri Desktop & OmnIoT Edge) ➔ **v2.0.0** (🚀 **GO-Live Definitivo del Ecosistema — Target: 15 de Febrero de 2027**)
 **Plan Maestro Go-to-Live:** ver [docs/plans/PLAN_GO_LIVE_APLICACIONES_ECOSISTEMA.md](docs/plans/PLAN_GO_LIVE_APLICACIONES_ECOSISTEMA.md)
 **Roadmap Comercial:** ver [docs/planes/comercial/OmniFlow_Plan_Comercial_v1.md](docs/planes/comercial/OmniFlow_Plan_Comercial_v1.md) (FEAT-112 a FEAT-119)
-**Estado:** ✅ **STAGING & PRODUCTION OPERATIVE** | 🏆 **HARDENED v1.39.1** | OmniGastro Fases 0-3.3 Completadas | RBAC Hardening En PR | CI Guard Active | QA E2E Suite | Build Limpio & Cobertura Total
+**Estado:** ✅ **STAGING & PRODUCTION OPERATIVE** | 🏆 **HARDENED v1.39.2** | OmniGastro Fases 0-3.3 Completadas | RBAC Hardening En PR | CI Guard Active | QA E2E Suite | Build Limpio & Cobertura Total
 
-<!--CURRENT_VERSION-->1.39.1<!--/CURRENT_VERSION-->
+<!--CURRENT_VERSION-->1.39.2<!--/CURRENT_VERSION-->
 
-### 🚀 Release v1.38.19 — FEAT-071 OmniBI Hardening: Monolito Proxy + Extractor Gaps (Octubre 2026)
+### 🚀 Release v1.39.2 — OmniGastro Bug Fixes Post-v1.39.1 (Octubre 2026)
+
+| Feature | Módulo | Estado |
+|---------|--------|--------|
+| **Bug 1 — KDS Stations categorías padre/hoja independientes + excluir subcategorías** | `frontend/src/pages/admin/gastro-kds-stations.tsx` | ✅ Production Ready |
+| Tres Selects multivalor independientes; acción "Seleccionar todas las hojas de padres"; persiste `categories` combinado | | ✅ |
+| **Bug 2 — Tables sync: unificar fuente a `/api/v1/tables/floor-map`** | `frontend/src/pages/admin/gastro.tsx` | ✅ Production Ready |
+| Modal y listado muestran mismas mesas activas; refetch tras CRUD | | ✅ |
+| **Bug 4 — Cargar pedidos por mesa / sin mesa (takeout)** | `frontend/src/pages/admin/gastro.tsx`, `backend/src/orders/orders.controller.ts`, `backend/src/orders/orders.service.ts` | ✅ Production Ready |
+| Botón "Cargar Pedido"; `tableId=null` + `orderType=TAKEOUT`; navegar al POS | | ✅ |
+| **Bug 5 — Modal responsivo en panel de mozos sin overflow** | `frontend/src/pages/admin/gastro.tsx` | ✅ Production Ready |
+| `width` breakpoints, `bodyStyle` overflowY, `ellipsis`, `scroll x`, tokens de tema | | ✅ |
+| **Bump versión** | `VERSION`, `backend/package.json`, `frontend/package.json`, `featurelist.json` | ✅ 1.39.2 |
+| **E2E Playwright** | `frontend/e2e/` (4 specs) | ✅ Production Ready |
+
+---
+
 
 | Feature | Módulo | Estado |
 |---------|--------|--------|

@@ -1,9 +1,20 @@
 # Línea de Tiempo y Evolución de OmniFlow
 
-**Última actualización:** 2026-09-30  
-**Versión actual:** `v1.37.3`  
-**Próximo hito:** `v1.38.0` — Tauri Desktop & OmnIoT Edge
+**Última actualización:** 2026-10-16  
+**Versión actual:** `v1.39.2`  
+**Próximo hito:** `v1.40.0` — Tauri Desktop & OmnIoT Edge
 **Documento fuente:** `CHANGELOG.md`, `ROADMAP.md`, `featurelist.json`
+
+---
+
+### 2026-10-16 : v1.39.2 — OmniGastro Bug Fixes Post-v1.39.1 (Provecchio)
+- Bug 1: KDS Stations categorías padre/hoja independientes + excluir subcategorías (`gastro-kds-stations.tsx`)
+- Bug 2: Unificar fuente de mesas a `/api/v1/tables/floor-map` (modal y listado sincronizados) (`gastro.tsx`)
+- Bug 4: Modal "Cargar Pedido" por mesa / sin mesa (takeout) + backend `tableId=null` y `orderType=TAKEOUT` (`orders.controller.ts`, `orders.service.ts`)
+- Bug 5: Modal responsivo en panel de mozos, sin overflow de texto (width breakpoints, bodyStyle, ellipsis, scroll x) (`gastro.tsx`)
+- Bump versión a 1.39.2 en VERSION, package.json, featurelist.json
+- E2E Playwright: 4 nuevas specs en `frontend/e2e/`
+- `./scripts/init.sh` pasa; `/api/v1/health` → v1.39.2
 
 ---
 

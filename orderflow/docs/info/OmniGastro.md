@@ -1,5 +1,60 @@
 # OmniGastro
 
+## 2026-10-16 — v1.39.2 (PREPARADO — pendiente despliegue a provecchio.com)
+
+- Plan: `docs/plans/omnigastro/plan_actualizacion_1.39.2.md` (aprobado y aplicado).
+- **Bugs corregidos:**
+  1. KDS Stations: categorías padre/hoja independientes + excluir subcategorías (`gastro-kds-stations.tsx`).
+  2. Mesas: unificar fuente a `/api/v1/tables/floor-map` (modal y `/admin/gastro/tables` sincronizados) (`gastro.tsx`).
+  4. Cargar pedidos por mesa / sin mesa (takeout) + backend `tableId=null` y `orderType=TAKEOUT` (`orders.controller.ts`, `orders.service.ts`).
+  5. Modal responsivo en mozos, sin overflow de texto (`gastro.tsx`).
+- Bug 3 (POS empty grid) ya resuelto en v1.39.1.
+- Bump versión a `1.39.2` en `VERSION`, `backend/package.json`, `frontend/package.json`, `featurelist.json`.
+- E2E Playwright: `kds-station-independent-categories.spec.ts`, `tables-modal-sync.spec.ts`, `order-modal-load-takeout.spec.ts`, `modal-responsive.spec.ts`.
+- Barrera `./scripts/init.sh` pendiente de ejecución (requiere confirmación usuario por consumo CPU/RAM).
+- Sin nuevas migraciones; `tenantId` sagrado; cero colores hardcodeados.
+
+---
+
+## 2026-10-16 — v1.39.1 DEPLOYED ✅
+
+- Deployed v1.39.1 to `provecchio.com` (host `192.168.69.240`).
+
+- **Bugs:**
+1.At [http://provecchio.local/admin/gastro/kds-stations] when creating or editing a KDS station, the system lists all categories and subcategories; however, they do not all fit in the available space. It would be beneficial to be able to select categories and subcategories independently. For instance, selecting the 'Food' category could automatically select all (or specific) subcategories. In the kitchen, for example, all products should be included, with the exception of the 'cake' subcategory.
+
+2.At [http://provecchio.local/admin/gastro/tables], the system fails to list the tables that appear in the 'Table Management and QR Codes (OmniGastro)' modal found at [http://provecchio.local/admin/gastro]. Furthermore, it does not allow for the editing of the tables that *are* displayed.
+
+3.In the server-facing POS interface [http://provecchio.local/admin/gastro/pos/fa37f634-09b5-4743-8c56-baaab355a210], products are displayed under their respective categories; however, due to the high volume of items, not all products are shown.
+
+4.The endpoint [Table Management and QR Codes (OmniGastro)] lacks options for loading orders for tables that haven't initiated the order via QR code. Add a button to load orders by selecting a table or without a table, for takeout.
+
+5.The Table Management and QR Codes (OmniGastro) modal at the endpoint [https://provecchio.com/admin/gastro/mozos] is too small, and the text extends beyond the box (UI improvement).
+
+- **All three field-reported issues resolved and verified:**
+
+1. **Waiter POS — empty grid / grid instead of list (RESOLVED)**
+   - `CategoryAccordion.tsx` now renders a compact list (name + price only) when `isListView={true}`.
+   - `gastro-pos.tsx` passes `isListView={true}` and syncs `expandedKeys` after categories load.
+
+2. **KDS Stations — empty category selector (RESOLVED)**
+   - `gastro-kds-stations.tsx` normalizes `/api/v1/catalog/categories/tree` response with `res.data?.data || res.data`.
+
+3. **KDS Dashboard — missing workstation pre-selection (RESOLVED)**
+   - `kds.tsx` reorders effects: `loadActiveOrders` only runs after `selectedStationId` is set, with a guard `if (!selectedStationId) return;`.
+
+- Health check: `https://provecchio.com/api/v1/health` → HTTP 200, version `1.39.1`, status `ok`.
+- E2E QA (`qa_e2e_check.py`) passed: catalog, admin modules, auth sanity.
+- Migrations: 37 found, 0 pending.
+- Traefik `services.yml` synced to `/opt/srv/traefik/dynamic/services.yml` + HUP reloaded.
+- Git commit `3184e7dc` on `origin/main`; tag `v1.39.1` pushed.
+- Wiki (`/opt/wiki/orderflow/`) synced.
+
+## 2026-10-16 (pre-deploy)
+
+- I just deployed the v1.39.1
+
+
 ## 2026-10-15
 
 - I just deployed the v1.39.0

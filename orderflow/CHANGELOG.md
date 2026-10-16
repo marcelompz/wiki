@@ -5,7 +5,33 @@ Todos los cambios notables a este proyecto serán documentados en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 y este proyecto se adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [1.38.22] - 2026-10-15
+## [1.39.2] - 2026-10-16
+
+### 🐛 Fix: OmniGastro v1.39.2 — Bugs post-despliegue v1.39.1 en Provecchio
+
+- **Bug 1 — KDS Stations: categorías padre/hoja independientes + excluir subcategorías** (`frontend/src/pages/admin/gastro-kds-stations.tsx`)
+  - Refactor del formulario de estación KDS: tres `Select` multivalor independientes (categorías padre con hijos, subcategorías hoja, excluir subcategorías).
+  - Acción rápida "Seleccionar todas las hojas de padres seleccionados" y "Limpiar exclusión".
+  - Persiste categorías combinadas (padres + hojas recursivas) en `categories: string[]`; retrocompatible con estaciones existentes.
+- **Bug 2 — Tables: listado/edición incoherente entre `/admin/gastro/tables` y modal "Gestión de Mesas y Códigos QR"** (`frontend/src/pages/admin/gastro.tsx`)
+  - `loadTables` unificado a `GET /api/v1/tables/floor-map` aplanando `floors` + `unassignedTables`; ambas vistas muestran el mismo conjunto de mesas activas/no eliminadas del tenant.
+  - Refetch tras CRUD (crear/editar/eliminar mesa).
+- **Bug 4 — Modal "Cargar Pedido": pedidos por mesa y sin mesa (takeout)** (`frontend/src/pages/admin/gastro.tsx`, `backend/src/orders/orders.controller.ts`, `backend/src/orders/orders.service.ts`)
+  - Botón "Cargar Pedido" abre modal con `Select` de mesas + opción "Sin mesa (takeout)".
+  - Llama a `GET /api/v1/orders` con `tableId` (o `null` para takeout) y `status=DRAFT,CONFIRMED,PREPARING,READY`.
+  - Backend `OrdersService.findAll` soporta `tableId=null` (filtra `tableId IS NULL`) y `orderType=TAKEOUT`; `tenantId` sagrado en todas las consultas.
+  - Acción "Gestionar Pedido" navega a `/admin/gastro/pos/<tableId>`.
+- **Bug 5 — Modal responsivo en panel de mozos (`/admin/gastro/mozos`) sin overflow de texto** (`frontend/src/pages/admin/gastro.tsx`)
+  - `width` responsivo: `xs: 95vw, sm: 90vw, md: 800px, lg: 900px, xl: 1000px`.
+  - `bodyStyle` con `maxHeight: calc(90dvh - 120px)` y `overflowY: auto`.
+  - `ellipsis: true` en columnas largas, `scroll={{ x: true }}` en tablas, tokens de tema Ant Design (cero colores hardcodeados).
+
+### ✅ Validación
+- `./scripts/init.sh` pasa (backend tests + build, frontend build, Traefik sync, E2E QA).
+- Nueva suite Playwright en `frontend/e2e/`: `kds-station-independent-categories.spec.ts`, `tables-modal-sync.spec.ts`, `order-modal-load-takeout.spec.ts`, `modal-responsive.spec.ts`.
+- `/api/v1/health` devuelve versión `1.39.2`.
+
+---
 
 ### 🐛 Fix: 403 Forbidden en auth endpoints del panel mozo (verify-pin no devolvía JWT)
 
