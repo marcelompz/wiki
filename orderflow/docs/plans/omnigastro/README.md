@@ -1,8 +1,8 @@
 # OmniGastro — Suite Gastronómica para OmniFlow
 
-> **Estado:** Fase 0–3.1 completada · Hardening RBAC empleados **pendiente implementación** (ver `diseno-rbac-empleados.md`).
-> **Versión base:** OmniFlow / OrderFlow v1.24.04
-> **Última actualización:** 2026-09-27
+> **Estado:** Fase 0–3.3 completada · Hardening RBAC empleados **completado** (v1.38.20) · Sprint Fixes Campo Provecchio **completado** (v1.39.1, 2026-10-16).
+> **Versión base:** OmniFlow / OrderFlow v1.39.1
+> **Última actualización:** 2026-10-16
 
 OmniGastro convierte OmniFlow en el **Sistema Operativo Restaurantero** completo, alcanzando paridad operativa con Toast POS y superándola en offline-first nativo, soberanía multi-tier, Live Escandallo atómico y Seat-level ordering.
 
@@ -32,19 +32,31 @@ OmniGastro convierte OmniFlow en el **Sistema Operativo Restaurantero** completo
 | **2 — Salón + Guest Experience** | FEAT-114, 115, 116, 119, 125 | ✅ **completed** | [`features/FEAT-125-guest-menu-claim-waiter.md`](./features/FEAT-125-guest-menu-claim-waiter.md), [`features/FEAT-116-split-payments.md`](./features/FEAT-116-split-payments.md) |
 | **3 — Cocina + Costos** | FEAT-117, 118 | ✅ **completed** | [`PLAN_MAESTRO.md`](./PLAN_MAESTRO.md) §3 + §4 |
 | **3.1 — KDS Configurable + Impresión** | FEAT-147, 148, 151, 152 | ✅ **completed** | [`DISENO_KDS_CONFIGURABLE_IMPRESION.md`](./DISENO_KDS_CONFIGURABLE_IMPRESION.md) |
+| **3.2 — Hardening RBAC Empleados** | — | ✅ **completed** (v1.38.20) | [`diseno-rbac-empleados.md`](./diseno-rbac-empleados.md) |
+| **3.3 — Fixes de Campo Provecchio** | FEAT-161, 163, 164, 165, **FEAT-166** | ✅ **completed** (v1.39.1) | [`field-fixes-v1.39.0.md`](./field-fixes-v1.39.0.md) |
 | **4 — Hardware + Escala** | FEAT-120 → 124 | ⚪ planned | [`PLAN_MAESTRO.md`](./PLAN_MAESTRO.md) §5 |
 
 ---
 
 ## 📋 Próximos pasos inmediatos
 
-1. 🟡 **Hardening RBAC empleados** — Cerrar brechas de permisos en POS, mesas y waiter calls.
-   - Diseño: [`diseno-rbac-empleados.md`](./diseno-rbac-empleados.md)
+1. 🟢 **Hardening RBAC empleados** — Completado en v1.38.20 (2026-09-21).
    - Permisos nuevos: `tables:status`, `tables:guests`, `tables:gift`, `pos:config`
    - Cierre de bypass por API key en `PermissionsGuard`
    - Step-up PIN para acciones críticas (gift, cierre Z, anulación)
-   - Rama sugerida: `feat/gastro-rbac-empleados`
-2. **Post-implementación**: tag `v1.27.0-omnigastro-rbac` + merge a `develop`
+   - Documentación: [`diseno-rbac-empleados.md`](./diseno-rbac-empleados.md)
+   - Rama: `feat/gastro-rbac-empleados`
+2. 🟢 **Sprint Fixes Campo Provecchio (FEAT-166)** — Completado en v1.39.1 (2026-10-16).
+   - POS Mozo: lista compacta en vez de grid vacío (`CategoryAccordion.isListView`)
+   - KDS Stations: selector categorías normalizado (`res.data?.data || res.data`)
+   - KDS Dashboard: pre-selección estación trabajo al cargar (reordenar useEffects)
+   - Documentación: [`field-fixes-v1.39.0.md`](./field-fixes-v1.39.0.md)
+   - Rama: `fix/gastro-pos-list-kds-stations`
+3. 🟡 **FEAT-160 — OmniMobile Monorepo** (`in_progress`): Estructura + app-waiter v1.0.
+4. 🟡 **FEAT-105 — OmniLedger Standalone** (`in_progress`): Contabilidad partida doble, FastAPI + PostgreSQL RLS.
+5. 🟡 **FEAT-107 — OmniCapitalHumano** (`in_progress`): RRHH core (Employee, legajo digital, contratos).
+6. 🟡 **FEAT-108 — OmniAsistencia** (`in_progress`): Marcación multi-método (NFC, QR, PIN kiosk, mobile + biometría).
+7. ⚪ **Fase 4 — Hardware + Escala** (FEAT-120 → 124): planned.
 
 ---
 

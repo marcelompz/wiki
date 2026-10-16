@@ -2,9 +2,76 @@
 
 ## 2026-10-15
 
-- I just deploy the v1.38.22
+- I just deployed the v1.39.0
 
-1.
+1. Verify if this plan was fully applied /opt/orderflow/docs/plans/omnigastro/README.md
+
+2. bumpt the version to 1.39.1 after complete the fixes and update the documentation @/opt/orderflow/AGENTS.md 
+
+- Still on the v1.38.23 version
+
+1. The product list on the waiter's POS:
+- It appears empty; it doesn't display any text, only a box.
+
+- I see them in grid format, not a list. On the waiter's POS, I need it to be a list so it takes up less space. It should even only show the name, without a description.
+
+
+2. At the end [https://provecchio.com/admin/gastro/kds-stations], when adding a new station, the field is correct; it's already a list of categories, however, it's empty.
+
+3. In the final section [https://provecchio.com/admin/kds], it already displays table orders, but it doesn't have the pre-selection of the workstation that it should show.
+
+After completing the adjustments, please upload the version so we have a checkpoint.
+
+- I just deployed the v1.38.23
+
+1. Just change the status of the table from "Reclamado por Natalia Bado" with "Tomado por Natalia Bado" at the endopint [https://provecchio.com/admin/gastro/mozos]
+
+- I just deployed the v1.38.22
+
+1. The fixes worked.
+2. Now I have a problem in the waiter's POS, it only has categories and subcategories of products to select, but it does not list the products.
+3. Question: could the product list be hidden/shown to save space on the waiter's tablet?
+4. In the KDS configuration, selecting the categories allows you to write the text in plain text, it does not select the available categories.
+At the waiter's end point [https://provecchio.com/admin/gastro/mozos] two orders from the same table appear. I would think it is a previous order that was left open from the previous deployment. Add table status verification, so that it does not allow placing orders if the table is still open. Note: the cashier could close the table if customers placed an order but left without eating.
+5. On the odoo endpoint [http://192.168.69.246:8081/pos/ui?config_id=2#cids=1] I get this error:
+Odoo Server Error
+Traceback (most recent call last):
+File "/usr/lib/python3/dist-packages/odoo/addons/base/models/ir_http.py", line 237, in _dispatch
+result = request.dispatch()
+File "/usr/lib/python3/dist-packages/odoo/http.py", line 696, in dispatch
+result = self._call_function(**self.params)
+File "/usr/lib/python3/dist-packages/odoo/http.py", line 370, in _call_function
+return checked_call(self.db, *args,**kwargs)
+File "/usr/lib/python3/dist-packages/odoo/service/model.py", line 94, in wrapper
+return f(dbname,*args, **kwargs)
+File "/usr/lib/python3/dist-packages/odoo/http.py", line 358, in checked_call
+result = self.endpoint(*a,**kw)
+File "/usr/lib/python3/dist-packages/odoo/http.py", line 919, in __call__
+return self.method(*args, **kw)
+File "/usr/lib/python3/dist-packages/odoo/http.py", line 544, in response_wrap
+response = f(*args,**kw)
+File "/usr/lib/python3/dist-packages/odoo/addons/web/controllers/main.py", line 1370, in call_kw 
+return self._call_kw(model, method, args, kwargs) 
+File "/usr/lib/python3/dist-packages/odoo/addons/web/controllers/main.py", line 1362, in _call_kw 
+return call_kw(request.env[model], method, args, kwargs) 
+File "/usr/lib/python3/dist-packages/odoo/api.py", line 400, in call_kw 
+result = _call_kw_model(method, model, args, kwargs) 
+File "/usr/lib/python3/dist-packages/odoo/api.py", line 373, in _call_kw_model 
+result = method(recs, *args, **kwargs) 
+File "/usr/lib/python3/dist-packages/odoo/addons/pos_restaurant/models/pos_order.py", line 167, in get_table_draft_orders 
+order["uid"] = search(r"\d{5,}-\d{3,}-\d{4,}", order["pos_reference"] or "").group(0) if order["pos_reference"] else None
+Exception
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+File "/usr/lib/python3/dist-packages/odoo/http.py", line 652, in _handle_exception
+return super(JsonRequest, self)._handle_exception(exception)
+File "/usr/lib/python3/dist-packages/odoo/http.py", line 317, in _handle_exception
+raise exception.with_traceback(None) from new_cause
+AttributeError: 'NoneType' object has no attribute 'group.
+6. Version error on endpoint [https://provecchio.com/admin/super-admin] Super Admin Dashboard
+v1.38.21
+This error is repeated repeatedly, please take note in troubleshooting and add this endpoint to the version update list in @/opt/orderflow/AGENTS.md
 
 - I just deploy the v1.38.21
 

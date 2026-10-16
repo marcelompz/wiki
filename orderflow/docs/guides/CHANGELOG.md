@@ -2,6 +2,15 @@
 
 Todos los cambios notables en este proyecto se documentarán en este archivo.
 
+## [1.39.1] - 2026-10-16
+
+### 🐛 Fix: Sprint Fixes Provecchio Deploy — POS Mozo Empty Grid, KDS Stations Empty Categories, KDS Pre-selection
+
+- **POS Mozo (`gastro-pos.tsx`) — Empty grid instead of product list** — Fixed by adding `isListView` prop to `CategoryAccordion` rendering compact list (name + price only, no Card/image/description). `gastro-pos.tsx` passes `isListView={true}`. Added `useEffect` to sync `expandedKeys` when categories load asynchronously.
+- **KDS Stations (`gastro-kds-stations.tsx`) — Empty category Select** — Normalized `/api/v1/catalog/categories/tree` response with `res.data?.data || res.data` (matching `gastro-pos.tsx` pattern). Added console logging for debugging category loads.
+- **KDS Dashboard (`kds.tsx`) — Missing workstation pre-selection on load** — Reordered `useEffect` so `loadActiveOrders` only runs after `selectedStationId` is set from `loadStations` auto-selection (first active station). Added guard `if (!selectedStationId) return;` to prevent premature loads with null station.
+- All fixes use Ant Design tokens (`theme.useToken()`, `var(--ant-*)`) — no hardcoded colors.
+
 ## [1.38.21] - 2026-10-13
 
 ### 🐛 Fix: Modal Gestión de Mesas QR vacío + Odoo POS TypeError en get_table_draft_orders

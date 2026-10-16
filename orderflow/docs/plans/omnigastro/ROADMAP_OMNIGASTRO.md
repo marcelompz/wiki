@@ -2,12 +2,12 @@
 
 > **Proyecto:** OrderFlow / OmniFlow → OmniGastro
 > **Módulo comercial:** OmniDineIn (add-on instalable vía `ModuleInstallation`)
-> **Fecha:** 2026-09-27
-> **Fuente de verdad:** `PLAN_MAESTRO.md` + `AUDITORIA_OMNIGASTRO_2026-09-18.md` + `DISENO_KDS_CONFIGURABLE_IMPRESION.md`
+> **Fecha:** 2026-10-16
+> **Fuente de verdad:** `PLAN_MAESTRO.md` + `AUDITORIA_OMNIGASTRO_2026-09-18.md` + `DISENO_KDS_CONFIGURABLE_IMPRESION.md` + `CHANGELOG.md` (v1.38.20 → v1.39.1) + `field-fixes-v1.39.0.md`
 
 ---
 
-## 1. Estado Actual (2026-09-27)
+## 1. Estado Actual (2026-10-16)
 
 | FEAT | Título | Estado | Bloqueantes |
 |------|--------|--------|-------------|
@@ -27,8 +27,14 @@
 | **FEAT-125** | Guest Digital Menu + Table Claim + Waiter Call | ✅ **COMPLETADO** | FEAT-113, FEAT-114 |
 | **FEAT-147** | KDS Dynamic Routing por PreparationStation | ✅ **COMPLETADO** | FEAT-121, FEAT-130 |
 | **FEAT-148** | Product.showInKDS — Visibilidad por producto en KDS | ✅ **COMPLETADO** | FEAT-147 |
-| **FEAT-151** | KDS Configurable Multi-Estación + Impresión Selectiva | ✅ **COMPLETADO** | FEAT-147, FEAT-148 |
-| **FEAT-152** | KDS Product-Station Links (N:N) + Routing Multi-Destino | ✅ **COMPLETADO** | FEAT-151 |
+| **FEAT-151** | KDS Configurable Multi-Estación + Impresión Selectiva | ✅ **COMPLETADO** (v1.38.20) | FEAT-147, FEAT-148 |
+| **FEAT-152** | KDS Product-Station Links (N:N) + Routing Multi-Destino | ✅ **COMPLETADO** (v1.38.20) | FEAT-151 |
+| **RBAC Empleados** | Hardening permisos POS/Mesas/Waiter + StepUp PIN | ✅ **COMPLETADO** (v1.38.20) | — |
+| **FEAT-161** | PIN Verification Estricta + Auto-asignación Mozo | ✅ **COMPLETADO** (v1.38.16) | — |
+| **FEAT-163** | Fix HTTP 500 en GET /api/v1/orders (status enum) | ✅ **COMPLETADO** (v1.38.20) | — |
+| **FEAT-164** | Fix Modal Gestión Mesas QR + Odoo POS TypeError | ✅ **COMPLETADO** (v1.38.21) | — |
+| **FEAT-165** | Fix 403 Forbidden en auth endpoints del panel mozo | ✅ **COMPLETADO** (v1.38.22) | — |
+| **FEAT-166** | Sprint Fixes Provecchio: POS Grid, KDS Categories, KDS Pre-selection | ✅ **COMPLETADO** (v1.39.1) | — |
 
 ---
 
@@ -56,7 +62,9 @@ FEAT-147 (routing por categoría) ──► FEAT-148 (showInKDS) ──► FEAT-
 | **1 – Cimientos + Caja** | FEAT-113 | 3-4 semanas | ✅ **COMPLETED** |
 | **2 – Salón + Guest Experience** | FEAT-114, 115, 116, 119, 125 | 8-10 semanas | ✅ **COMPLETED** |
 | **3 – Cocina + Costos** | FEAT-117, 118 | 5-7 semanas | ✅ **COMPLETED** |
-| **3.1 – KDS Configurable + Impresión** | FEAT-147, 148, 151, 152 | 3-4 semanas | 🟡 **DISEÑADO** |
+| **3.1 – KDS Configurable + Impresión** | FEAT-147, 148, 151, 152 | 3-4 semanas | ✅ **COMPLETED** (v1.38.20) |
+| **3.2 – Hardening RBAC Empleados** | — | 1-2 semanas | ✅ **COMPLETED** (v1.38.20) |
+| **3.3 – Fixes de Campo Provecchio** | FEAT-161, 163, 164, 165 | 2-3 semanas | ✅ **COMPLETED** (v1.38.16–1.38.22) |
 | **4 – Hardware + Escala** | FEAT-120 → 124 | 10-14 semanas | ⏳ Pendiente |
 
 ---
@@ -66,7 +74,8 @@ FEAT-147 (routing por categoría) ──► FEAT-148 (showInKDS) ──► FEAT-
 1. ~~**FEAT-125 demo**: Persistencia temporal en `Tenant.config` (JSON)~~ → **RESUELTO 2026-09-18**: migración completada a tablas DB (`RestaurantTable.token`, `WaiterCall`, `WaiterCallOption`).
 2. ~~**Lógica de negocio**: FEAT-114/115/116/117/118/119 requieren servicios y controladores sobre modelos ya deployados.~~ → **RESUELTO 2026-09-24**: todos los servicios y controladores implementados.
 3. ~~**KDS routing base**: FEAT-147/148 completaron routing por categoría y visibilidad `showInKDS`.~~ → **RESUELTO**.
-4. **Pendiente**: FEAT-151/152 requieren migración Prisma + servicio de impresión ESC/POS + UI admin.
+4. ~~**FEAT-151/152**: migración Prisma + servicio de impresión ESC/POS + UI admin.~~ → **RESUELTO 2026-09-28**: `20260927193000_kds_multi_station_printing` aplicada, `ProductPreparationStation` + `KitchenPrintService` + UI `/admin/kds/stations`.
+5. **Pendiente**: Fase 4 (FEAT-120 → 124) — Hardware Bridge, Offline Store-and-Forward, Delivery Connectors, Sindicación Menús, Menu Engineering.
 
 ---
 
@@ -79,8 +88,10 @@ FEAT-147 (routing por categoría) ──► FEAT-148 (showInKDS) ──► FEAT-
 5. ✅ Implementar servicios FEAT-117 (KitchenTicketService, BumpBarService, Coursíng KDS) — completado 2026-09-24.
 6. ✅ Implementar servicios FEAT-118 (BomEngine, BomController, integración en OrdersService) — completado 2026-09-24.
 7. ✅ Implementar servicios FEAT-119 (Seat-level Ordering + Cross-Table Gifting) — completado 2026-09-24.
-8. 🟡 **FEAT-151/152** — KDS Configurable Multi-Estación + Impresión Selectiva: migración `YYYYMMDDHHMMSS_kds_multi_station_printing`, `ProductPreparationStation`, `KitchenPrintService`, routing multi-destino, UI admin estaciones/productos. Ver `DISENO_KDS_CONFIGURABLE_IMPRESION.md`.
-9. Tag `v1.25.0-alpha-omnigastro` + push tags.
+8. ✅ FEAT-151/152 — KDS Configurable Multi-Estación + Impresión Selectiva: migración `20260927193000_kds_multi_station_printing`, `ProductPreparationStation`, `KitchenPrintService`, routing multi-destino, UI admin estaciones/productos. Ver `DISENO_KDS_CONFIGURABLE_IMPRESION.md` — completado 2026-09-28.
+9. ✅ Hardening RBAC empleados — `PermissionsGuard`, `StepUpGuard`, nuevos permisos `tables:status`, `tables:guests`, `tables:gift`, `pos:config` — completado 2026-09-21 (v1.38.20).
+10. ✅ Fixes de campo Provecchio (FEAT-161/163/164/165) — 403 verify-pin, 500 orders enum, Modal QR vacío, Odoo POS TypeError — completados v1.38.16–1.38.22.
+11. 🟡 **Fase 4 (FEAT-120 → 124)** — Hardware Bridge Tauri/Rust, Pagos Offline Store-and-Forward, Delivery Connectors, Sindicación Menús Multi-Sucursal, Menu Engineering + Auditoría Mermas. Ver `PLAN_MAESTRO.md` §5.
 
 ---
 
@@ -100,4 +111,4 @@ FEAT-147 (routing por categoría) ──► FEAT-148 (showInKDS) ──► FEAT-
 
 ---
 
-*Actualizado el 2026-09-27. Fuente: `PLAN_MAESTRO.md` + `AUDITORIA_OMNIGASTRO_2026-09-18.md` + `DISENO_KDS_CONFIGURABLE_IMPRESION.md`.*
+*Actualizado el 2026-10-16. Fuente: `PLAN_MAESTRO.md` + `AUDITORIA_OMNIGASTRO_2026-09-18.md` + `DISENO_KDS_CONFIGURABLE_IMPRESION.md` + `CHANGELOG.md` (v1.38.20 → v1.38.22).*
