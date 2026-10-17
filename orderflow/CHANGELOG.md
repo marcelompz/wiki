@@ -5,6 +5,16 @@ Todos los cambios notables a este proyecto serán documentados en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 y este proyecto se adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.39.5] - 2026-10-17
+
+### 🐛 Fix: OmniGastro v1.39.5 — Verificación actualizaciones doc + swagger/config
+
+- **Actualización VERSION, README.md, CHANGELOG.md, ROADMAP.md, docs/timeline.md, backend/src/main.ts:87 (Swagger), y featurelist.json a 1.39.5**
+- **Actualizar script deploy-production.sh para verificar sync traefik** (Regla AGENTS.md #4)
+- **Confirmar despliegue a producción** con `./scripts/init.sh` (Regla AGENTS.md #3)
+- **Generar tag v1.39.5** (`git tag v1.39.5 && git push --tags`)
+- **Sincronizar documentación con Wiki** (`/opt/wiki/orderflow/`) (Regla AGENTS.md #7)
+
 ## [1.39.2] - 2026-10-16
 
 ### 🐛 Fix: OmniGastro v1.39.2 — Bugs post-despliegue v1.39.1 en Provecchio
@@ -18,7 +28,7 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.
   - Refetch tras CRUD (crear/editar/eliminar mesa).
 - **Bug 4 — Modal "Cargar Pedido": pedidos por mesa y sin mesa (takeout)** (`frontend/src/pages/admin/gastro.tsx`, `backend/src/orders/orders.controller.ts`, `backend/src/orders/orders.service.ts`)
   - Botón "Cargar Pedido" abre modal con `Select` de mesas + opción "Sin mesa (takeout)".
-  - Llama a `GET /api/v1/orders` con `tableId` (o `null` para takeout) y `status=DRAFT,CONFIRMED,PREPARING,READY`.
+  - Llama a `GET /api/v1/orders` con `tableId` (o `null` para takeout) y `status=DRAFT,CLAIMED,SENT_TO_KITCHEN,IN_PREPARATION,READY`.
   - Backend `OrdersService.findAll` soporta `tableId=null` (filtra `tableId IS NULL`) y `orderType=TAKEOUT`; `tenantId` sagrado en todas las consultas.
   - Acción "Gestionar Pedido" navega a `/admin/gastro/pos/<tableId>`.
 - **Bug 5 — Modal responsivo en panel de mozos (`/admin/gastro/mozos`) sin overflow de texto** (`frontend/src/pages/admin/gastro.tsx`)
