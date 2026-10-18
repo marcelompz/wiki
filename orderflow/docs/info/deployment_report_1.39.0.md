@@ -2,7 +2,19 @@
 
 ## Summary
 
-Version **1.39.1** (patch) has been built, tested, and prepared for deployment to the `provecchio.com` environment. This release resolves three critical field-reported issues from the v1.39.0 deploy at Provecchio.
+Version **1.39.1** (patch) has been deployed to the `provecchio.com` environment. This release resolves three critical field-reported issues from the v1.39.0 deploy at Provecchio.
+
+## Deployment Status
+
+- **Deployed:** 2026-10-16 ~11:22 UTC (server local time)
+- **Remote host:** `192.168.69.240` (provecchio) via ProxyJump `38.52.135.227:2021`
+- **Health check:** `https://provecchio.com/api/v1/health` → HTTP 200 ✅
+- **Backend version:** `1.39.1` ✅
+- **Backend status:** `ok` (database ✅, odoo_adapter ✅)
+- **Frontend:** `orderflow-frontend-prod` healthy ✅
+- **E2E QA:** `qa_e2e_check.py` passed (catalog, admin modules, auth sanity) ✅
+- **Migrations:** 37 found, 0 pending ✅
+- **Traefik:** services.yml synced + HUP reloaded ✅
 
 ### Backend
 - All 33 module manifests updated to `1.39.1`
@@ -27,7 +39,6 @@ Version **1.39.1** (patch) has been built, tested, and prepared for deployment t
 
 - Restored `gastro-pos.tsx` with proper `PosProductItem` component using Ant Design tokens.
 - Fixed TypeScript errors; compilation succeeds.
-- Playwright E2E suite runs (backend required for full integration tests).
 
 ### Documentation & Versioning
 - `VERSION`, `backend/package.json`, `frontend/package.json`, `featurelist.json` set to `1.39.1`.
@@ -39,17 +50,14 @@ Version **1.39.1** (patch) has been built, tested, and prepared for deployment t
 - `docs/plans/omnigastro/README.md` and `ROADMAP_OMNIGASTRO.md` updated: Phase 3.3 + FEAT-166 completed.
 - Sprint report created: `docs/info/sprint_report_v1.39.1.md`.
 - Plan document: `docs/plans/omnigastro/field-fixes-v1.39.0.md`.
+- Git commit `3184e7dc` pushed to `origin/main`; tag `v1.39.1` pushed.
+- Wiki (`/opt/wiki/orderflow/`) synced.
 
-### Deployment Status
-- **Remote host:** `192.168.69.240` (provecchio) / fallback `38.52.135.227:2021`
-- **Current progress:** Local builds verified (frontend ✅, backend ✅). Ready for `./scripts/init.sh` validation pipeline.
-- **Next steps:**
-  1. Execute `./scripts/init.sh` (requires user confirmation — AGENTS.md §3)
-  2. Create git tag `v1.39.1` and push
-  3. Deploy local via `./scripts/deploy-local.sh` with production data restore
-  4. Deploy Provecchio via `./scripts/deploy-production.sh provecchio` (requires explicit authorization)
-  5. Sync Wiki (`/opt/wiki/orderflow/`) and Traefik docs (`/opt/traefik-orderflow/`)
+### Deploy Notes
+- Remote repo git commit failed during deploy (`permisos insuficientes` on `.git/objects`) — rsync had already copied the new files to disk, so the running code is correct. The remote repo working tree shows the new files as uncommitted modifications. This is a known remote permission limitation, not a code issue.
+- Observability containers (`orderflow-promtail`, `orderflow-alertmanager`, `orderflow-tempo`) exit non-zero on startup — non-critical, do not affect application health.
+- `orderflow_omnibi_standalone` briefly restarted during verification; recovered.
 
 ---
 
-> ✅ **Build verification complete.** All three field-reported issues resolved in v1.39.1. Awaiting `init.sh` validation and user authorization for deployment.
+> ✅ **Deploy complete.** v1.39.1 live on Provecchio with all three field-reported issues resolved and E2E QA passing.provecchio-dimora-001

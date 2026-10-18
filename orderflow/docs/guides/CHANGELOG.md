@@ -2,6 +2,62 @@
 
 Todos los cambios notables en este proyecto se documentarán en este archivo.
 
+## [1.39.8] - 2026-10-17
+
+### ✨ Feature: OmniGastro Payment Routing Configuration (v1.39.7)
+
+- **OmniGastro Config Module** (`backend/src/modules/omnigastro-config/`)
+  - Standalone tenant-aware module for payment routing configuration
+  - Custom endpoints and Odoo integration configuration
+  - Business logic layer for payment processing
+  - REST API endpoints following existing project patterns
+  - Comprehensive security and tenant isolation
+  - Complete data validation and error handling
+
+- **OmniGastro Monitoring Service** (`backend/src/modules/omnigastro-config/monitoring/`)
+  - Health checks and metrics for payment routing operations
+  - Performance monitoring and logging
+
+- **API Endpoints**
+  - `POST /api/v1/omnigastro-config/payment-settings` - Configure payment methods
+  - `POST /api/v1/omnigastro-config/odoo-mapping` - Odoo integration mapping
+  - `POST /api/v1/omnigastro-config/routing-rules` - Define routing rules
+
+- **Architecture**
+  - Tenant-aware module with isolated database access
+  - Multi-tier isolation for dedicated database per tenant
+  - Compatible with microservicios standalone
+
+---
+
+## [1.39.5] - 2026-10-17
+
+### 🔧 Fix: Public QR / Bio-Link endpoints blocked by auth guards
+
+- **Guest QR endpoints (`guest-tables.controller.ts`, `guest-orders.controller.ts`, `guest-call-waiter.controller.ts`)** — Removed class-level `@UseGuards(ApiKeyGuard)` that blocked public QR scanning (`GET /api/v1/guest/tables/by-token/:token`, `POST /api/v1/guest/orders`, `GET /api/v1/guest/orders/:id`, `POST /api/v1/guest/tables/:tableId/call-waiter`). Public endpoints now resolve tenant from the QR token itself (`restaurantTable.token` → `tenantId`) using `this.prisma` instead of `@TenantPrisma()`. CRUD endpoints (`listGuests`, `createGuest`, `updateGuest`, `deleteGuest`) retain `@UseGuards(ApiKeyGuard)`.
+- **Bio-Link public endpoints (`biolinks.controller.ts`)** — Removed `@TenantPrisma()` from `getPublicBySlug`, `getPublicByTenantId`, `registerClick`, `createOrderFromBioLink`; they now use the injected `PrismaService`.
+- **AGENTS.md Rule 4** — Added explicit rule: public QR / Bio-Link endpoints must NOT use `@TenantPrisma()` or `@UseGuards(ApiKeyGuard)`.
+- **`scripts/check-public-endpoints.sh`** — New automated CI check (runs as step 0 in `scripts/init.sh`) enforcing Rule 4.
+- **`docs/troubleshooting/143-public-qr-endpoints-must-not-use-tenantprisma.md`** — New troubleshooting doc.
+
+## [1.39.4] - 2026-10-17
+
+### 🐛 Fix: KDS station filter and OmniCatalog menudigital config
+
+- **Orders (`orders.service.ts`) — KDS station filter 500** — Replaced invalid `where.meta` filter with a Prisma relation filter on `orderLines.product.posCategoryId` using the selected station's configured categories.
+- **Tables (`tables.controller.ts`) — static route shadowing** — Moved `/tables/floor-map` and `/tables/floors` before `:id`.
+- **KDS Stations (`gastro-kds-stations.tsx`) — category Select overlap** — Removed forced `open` props from category Selects.
+- **Social Catalog (`omni-catalog.tsx`) — menudigital category filters** — Uses the `menudigital` instance config instead of falling back to `default`, honoring disabled filters.
+
+## [1.39.3] - 2026-10-16
+
+### 🐛 Fix: Sprint Fixes Provecchio
+
+- **POS (`gastro-pos.tsx`) — Empty grid instead of product list** — Fixed by adding `isListView` prop to `CategoryAccordion` rendering compact list (name + price only, no Card/image/description). `gastro-pos.tsx` passes `isListView={true}`. Added `useEffect` to sync `expandedKeys` when categories load asynchronously.
+- **KDS Stations (`gastro-kds-stations.tsx`) — Empty category Select** — Normalized `/api/v1/catalog/categories/tree` response with `res.data?.data || res.data` (matching `gastro-pos.tsx` pattern). Added console logging for debugging category loads.
+- **KDS Dashboard (`kds.tsx`) — Missing workstation pre-selection on load** — Reordered `useEffect` so `loadActiveOrders` only runs after `selectedStationId` is set from `loadStations` auto-selection (first active station). Added guard `if (!selectedStationId) return;` to prevent premature loads with null station.
+- All fixes use Ant Design tokens (`theme.useToken()`, `var(--ant-*)`) — no hardcoded colors.
+
 ## [1.39.1] - 2026-10-16
 
 ### 🐛 Fix: Sprint Fixes Provecchio Deploy — POS Mozo Empty Grid, KDS Stations Empty Categories, KDS Pre-selection

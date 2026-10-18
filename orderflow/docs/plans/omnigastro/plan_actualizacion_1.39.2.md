@@ -1,7 +1,7 @@
 # Plan de Actualización OmniGastro v1.39.2
 
 ## Objetivo
-Corregir los bugs reportados tras el despliegue v1.39.1 en `provecchio.com` que aún afectan a OmniGastro:
+Corregir los bugs reportados tras el despliegue v1.39.1 en `provecchio.com` que aún afectan a OmniGastro.
 
 - Selector de categorías/subcategorías independiente para estaciones KDS (Bug 1).
 - Incoherencia entre el listado/edición de mesas en `/admin/gastro/tables` y el modal “Table Management and QR Codes (OmniGastro)” (Bug 2).
@@ -15,7 +15,7 @@ Mantener cumplimiento del protocolo OmniGastro (AGENTS.md), no romper flujos exi
 ## Alcance
 
 ### Frontend (React + Vite + Ant Design)
-- `frontend/src/pages/admin/gastro.tsx` – modal de gestión de mesas y QR, unificar fuente de tablas, botón de “Cargar Pedido”, modal de selección de órdenes, aumentar ancho del modal.
+- `frontend/src/pages/admin/gastro.tsx` modal de gestión de mesas y QR, unificar fuente de tablas, botón de “Cargar Pedido”, modal de selección de órdenes, aumentar ancho del modal.
 - `frontend/src/pages/admin/gastro-kds-stations.tsx` – UI independiente para categorías/padres y subcategorías (hojas), selectores “Excluir subcategorías”.
 - `frontend/src/pages/admin/gastro-tables.tsx` – (sin cambios directos; las actualizaciones del modal afectan a su listado).
 - `frontend/src/components/admin/CategoryAccordion.tsx` – (ya actualizado por el bug 3; sin cambios).

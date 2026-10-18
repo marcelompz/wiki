@@ -1,13 +1,13 @@
 # 🗺️ ROADMAP DE ORDERFLOW - v1.34.0 → v2.0.0 (Go-Live Definitivo)
-**Última Actualización:** 2026-10-16 (Release v1.39.1 — Sprint Fixes Provecchio: POS Empty Grid, KDS Categories, KDS Pre-selection)
+**Última Actualización:** 2026-10-17 (Release v1.39.7 — OmniGastro Payment Routing Configuration)
 
-**Versión Actual: v1.39.1 🔄 **PRODUCTION READY** | Marca pública: OmniFlow. Capa técnica interna: OrderFlow.  
+**Versión Actual: v1.39.8 🔄 **PRODUCTION READY** | Marca pública: OmniFlow.  Capa técnica interna: OrderFlow.  
 **Próximos Releases:** **v1.40.0** (Tauri Desktop & OmnIoT Edge) ➔ **v2.0.0** (🚀 **GO-LIVE Definitivo del Ecosistema — Target: 15 de Febrero de 2027**)
 **Plan Maestro Go-to-Live:** ver [docs/plans/PLAN_GO_LIVE_APLICACIONES_ECOSISTEMA.md](docs/plans/PLAN_GO_LIVE_APLICACIONES_ECOSISTEMA.md)
 **Roadmap Comercial:** ver [docs/planes/comercial/OmniFlow_Plan_Comercial_v1.md](docs/planes/comercial/OmniFlow_Plan_Comercial_v1.md) (FEAT-112 a FEAT-119)
-**Estado:** ✅ **STAGING & PRODUCTION OPERATIVE** | 🏆 **HARDENED v1.39.1** | OmniGastro Fases 0-3.3 Completadas | RBAC Hardening En PR | CI Guard Active | QA E2E Suite | Build Limpio & Cobertura Total
+**Estado:** ✅ **STAGING & PRODUCTION OPERATIVE** | 🏆 **HARDENED v1.39.6** | OmniGastro Fases 0-3.3 Completadas | RBAC Hardening En PR | CI Guard Active | QA E2E Suite | Build Limpio & Cobertura Total
 
-<!--CURRENT_VERSION-->1.39.1<!--/CURRENT_VERSION-->
+<!--CURRENT_VERSION-->1.39.7<!--/CURRENT_VERSION-->
 
 ### 🚀 Release v1.36.4 — OmniGastro KDS Multi-Estación + RBAC Hardening (Septiembre 2026)
 

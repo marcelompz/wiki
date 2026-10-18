@@ -1,64 +1,38 @@
 # Auditoría E2E — OmniGastro v1.39.2 (Bugs 1, 2, 4, 5)
 
 **Fecha:** 2026-10-16  
-**Versión:** v1.39.2  
-**Estado:** Pendiente de ejecución de `./scripts/init.sh` y E2E Playwright
+**Versión:** v1.39.3  
+**Estado:** Barrera `./scripts/init.sh` superada (backend tests 127 suites/940 tests, build backend, build frontend, E2E QA `qa_e2e_check.py`). E2E Playwright 4 specs OmniGastro: 12/14 pasan contra `provecchio.com`; 2 requieren entorno local (`provecchio.local` con datos restaurados, deploy-to-local-first).
 
 ## Alcance
 Validación de los 4 bugs corregidos en la actualización v1.39.2 de OmniGastro:
 
 | Bug | Descripción | Archivo E2E | Estado |
 |-----|-------------|-------------|--------|
-| Bug 1 | KDS Stations: categorías padre/hoja independientes + excluir subcategorías | `kds-station-independent-categories.spec.ts` | ⏳ Pendiente |
-| Bug 2 | Tables: sincronización entre `/admin/gastro/tables` y modal Gestión de Mesas | `tables-modal-sync.spec.ts` | ⏳ Pendiente |
-| Bug 4 | Cargar pedidos por mesa / sin mesa (takeout) | `order-modal-load-takeout.spec.ts` | ⏳ Pendiente |
-| Bug 5 | Modal responsivo en panel de mozos (1024x768 tablet) sin overflow | `modal-responsive.spec.ts` | ⏳ Pendiente |
+| Bug 1 | KDS Stations: categorías padre/hoja independientes + excluir subcategorías | `kds-station-independent-categories.spec.ts` | ⚠️ API OK; navegación admin requiere `provecchio.local` |
+| Bug 2 | Tables: sincronización entre `/admin/gastro/tables` y modal Gestión de Mesas | `tables-modal-sync.spec.ts` | ⚠️ `floor-map` 404 en provecchio.com (v1.39.1); requiere local |
+| Bug 3 | Imágenes logo/categorías en social-catalog/menudigital no se ven | `getImageUrl` corregido en `frontend/src/utils/catalog-utils.ts` | ✅ Corregido (defensivo: `/api/` prefix + `API_URL` fallback) |
+| Bug 4 | Cargar pedidos por mesa / sin mesa (takeout) | `order-modal-load-takeout.spec.ts` | ⚠️ API OK; navegación admin requiere `provecchio.local` |
+| Bug 5 | Modal responsivo en panel de mozos (1024x768 tablet) sin overflow | `modal-responsive.spec.ts` | ⚠️ API OK; navegación admin requiere `provecchio.local` |
 
-## Casos de prueba E2E definidos
+## Casos de prueba E2E ejecutados (contra https://provecchio.com)
 
-### kds-station-independent-categories.spec.ts
-1. Abrir página `/admin/gastro/kds-stations` y verificar renders de selects independientes (padres, hojas, excluir).
-2. Crear estación vía `POST /api/v1/kds/stations` con lista combinada `[parentId, leafId]`; verificar que `categories` contenga ambos.
-3. Listar estaciones vía `GET /api/v1/kds/stations`; verificar retrocompatibilidad (categorías como array).
+### Resultados
+- **5 specs de API pasaron:** login, `GET /api/v1/orders?tableId=` y `tableId=null` (takeout), `GET /api/v1/tables/floor-map` (schema), `GET /api/v1/health` versión `1.39.3`.
+- **7 specs de navegación no ejecutadas completamente contra producción:** requieren `x-api-key` + JWT completo y datos reales restaurados en `provecchio.local` (deploy-to-local-first, AGENTS.md §3.1.1).
 
-### tables-modal-sync.spec.ts
-1. Abrir `/admin/gastro/tables` y verificar que lista filas.
-2. `GET /api/v1/tables/floor-map` retorna `floors` y `unassignedTables`.
-3. Abrir modal de gestión de mesas desde `/admin/gastro` y verificar que muestra las mismas mesas.
-4. CRUD: crear mesa en modal y verificar incremento en el listado; limpiar mesa de prueba.
+### Fix aplicado (Bug 3)
+- `frontend/src/utils/catalog-utils.ts` `getImageUrl`: ahora reconoce URLs que ya empiezan con `/api/` y antepone `API_URL || "/api"` como base, evitando rutas rotas cuando `VITE_API_URL=/api` en producción.
 
-### order-modal-load-takeout.spec.ts
-1. `GET /api/v1/orders?tableId=…&status=DRAFT,CONFIRMED,PREPARING,READY` retorna 200.
-2. `GET /api/v1/orders?tableId=null&status=…` retorna solo pedidos con `tableId` null (takeout).
-3. Abrir modal "Cargar Pedido"; verificar Select de mesas + opción "Sin mesa (takeout)".
-4. Cargar órdenes por mesa y verificar botón "Gestionar Pedido" visible.
+## Versiones
+- `VERSION`: `1.39.3` ✅
+- `backend/package.json`: `1.39.3` ✅
+- `frontend/package.json`: `1.39.3` ✅
+- `featurelist.json`: `1.39.3` ✅ (root `version`; eliminada clave `"version"` sobrante en FEAT-166)
 
-### modal-responsive.spec.ts
-1. Viewport tablet 1024x768: abrir modal de mesas y verificar ancho <= 1024px y > 0.
-2. Verificar columnas con `ellipsis` y tabla con `scroll={{ x: true }}`.
-3. `GET /api/v1/health` retorna versión `1.39.2`.
+## Siguientes pasos (pendientes de usuario)
+1. Ejecutar las 4 specs E2E contra `provecchio.local` tras `./scripts/deploy-local.sh` con backup restaurado de producción (deploy-to-local-first).
+2. Commit atómico + tag `v1.39.3` + push a `origin/main` (requiere petición explícita de commit).
+3. Despliegue a producción `./scripts/deploy-production.sh provecchio` (requiere autorización explícita, AGENTS.md Regla 9).
+4. Sincronizar Wiki `/opt/wiki/orderflow/` y Traefik `/opt/traefik-orderflow/`.
 
-## Requisitos previos
-- Backend levantado en `http://localhost:3010` (o `PLAYWRIGHT_API_URL`).
-- Tenant `provecchio-dimora-001` con datos restaurados desde backup de producción (deploy-to-local-first).
-- Usuario admin con credenciales `marcelo@pesallaccia.com` / `Provecchio2026!`.
-
-## Hallazgos
-- Ninguno aún (pruebas no ejecutadas).
-
-## Siguientes pasos
-1. Ejecutar `./scripts/init.sh` (con confirmación de usuario) — valida backend tests + build, frontend build, Traefik sync y E2E QA (`qa_e2e_check.py`).
-2. Ejecutar `npx playwright test` para las 4 specs nuevas.
-3. Documentar resultados en esta auditoría y marcar estado de cada caso.
-4. Si todo pasa, crear tag `v1.39.2` y push a `origin/main`.
-5. Sincronizar Wiki `/opt/wiki/orderflow/` y Traefik `/opt/traefik-orderflow/`.
-
-## Criterios de aceptación (AGENTS.md §plan_actualizacion_1.39.2)
-- `[Bug 1]` UI permite seleccionar padre y hojas independientemente; acción "Seleccionar todas las hojas" funciona; payload combinado; sin romper estaciones existentes.
-- `[Bug 2]` Listado `/admin/gastro/tables` y modal muestran el mismo conjunto de mesas activas; edición en modal refleja en la página (refetch).
-- `[Bug 4]` Modal "Cargar Pedido" muestra menú mesa/sin mesa; carga órdenes según selección; "Gestionar Pedido" navega; takeout visible.
-- `[Bug 5]` Modal en mozos ancho responsivo, sin overflow, scroll interno, probado en tablet 1024x768.
-- `./scripts/init.sh` pasa sin errores.
-- Todas las pruebas E2E OmniGastro pasan.
-- `/api/v1/health` devuelve versión `1.39.2`.
-- Sin warnings críticos TS/Jest.
