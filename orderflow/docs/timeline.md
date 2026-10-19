@@ -7,6 +7,16 @@
 
 ---
 
+### 2026-10-19 : v1.39.10 — Vertical OpenCore: análisis del schema Prisma (documentación)
+- Se abre `docs/plans/opencore/` con el análisis verificado del schema core (161 modelos, 56 enums, 4.471 líneas, 38 carpetas de migración) y los 11 schemas standalone
+- Documentos: `Plan_analisis_schema_prisma_v4.md`, `PLAN_2_SCHEMA_SPLITTING_SUMMARY.md`, `PROJECT_STATUS_REPORT.md`, `DEPLOYMENT_PLAN.md`, `README.md`, `ROADMAP_OPENCORE.md`, `PLAN_MAESTRO.md`, `AUDITORIA_OPENCORE_20261019.md`, `featurelist.json`
+- FEAT-177 a FEAT-182 registradas en estado `planned` (Fase 0 baseline, Plan 1 revisión, Plan 3 diagrama, Plan 2 división, standalone/RLS, gates de salida)
+- Fuente de verdad operativa: `provecchio.local`; nada se ejecuta contra `provecchio.com` sin autorización explícita
+- **Sin cambios de código ni de versión** (se mantiene 1.39.10; el 1.40.0 queda reservado para Tauri Desktop & OmnIoT Edge)
+- Auditoría de ramas: `staging` (30 commits, v0.5.0) **no es fusionable** (borraría 132.556 líneas de `main`); la parte de código de `feat/schema-prisma-analysis-v3` tampoco (revierte fixes de deploy)
+
+---
+
 ### 2026-10-16 : v1.39.2 — OmniGastro Bug Fixes Post-v1.39.1 (Provecchio)
 - Bug 1: KDS Stations categorías padre/hoja independientes + excluir subcategorías (`gastro-kds-stations.tsx`)
 - Bug 2: Unificar fuente de mesas a `/api/v1/tables/floor-map` (modal y listado sincronizados) (`gastro.tsx`)

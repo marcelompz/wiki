@@ -49,6 +49,25 @@ Documentado en `docs/troubleshooting/183-deploy-provecchio-root-ssh-frontend-fix
 - `scripts/qa_e2e_check.py` contra `provecchio.com`: catálogo público, dominios y 7 rutas de administración sin errores JS ni HTTP 5xx.
 - Sin cambios de esquema, sin migraciones, `tenantId` intacto.
 
+### 📚 Docs: vertical OpenCore (análisis y refactor del schema Prisma)
+
+Se abre la vertical `docs/plans/opencore/` con el análisis verificado del schema Prisma del core
+y los 11 schemas standalone, promovido desde la rama `feat/schema-prisma-analysis-v3`:
+
+- `Plan_analisis_schema_prisma_v4.md` — estado real del schema (161 modelos, 56 enums, 4.471 líneas,
+  38 carpetas de migración), decisiones del dueño, 5 gates y riesgos de despliegue.
+- `PLAN_2_SCHEMA_SPLITTING_SUMMARY.md` — división del schema en dominios (`platform/`, `commerce/`,
+  `pos/`, `inventory/`, `crm/`, `hr/`, `fiscal/`, `modules/`, `intel/`).
+- `PROJECT_STATUS_REPORT.md` — estado por fases de los Planes 0A/0B/1/2/3.
+- `DEPLOYMENT_PLAN.md` — plan de despliegue histórico de la rama de trabajo.
+- `README.md`, `ROADMAP_OPENCORE.md`, `PLAN_MAESTRO.md`, `AUDITORIA_OPENCORE_20261019.md` y
+  `featurelist.json` de la vertical.
+- FEAT-177 a FEAT-182 registradas en `featurelist.json` (global y vertical) en estado `planned`.
+
+**Sin cambios de código:** ni `schema.prisma`, ni `docker-compose.yml`, ni `package.json`, ni
+`VERSION` (se mantiene **1.39.10**). El `1.40.0` queda reservado para el próximo hito mayor
+(Tauri Desktop & OmnIoT Edge).
+
 ## [1.39.9] - 2026-10-19
 
 ### 🐛 Fix: OmniGastro v1.39.9 — POS mozo responsivo en tablet + QR de mesa con menú digital

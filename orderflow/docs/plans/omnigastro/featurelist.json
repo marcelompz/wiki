@@ -3,6 +3,18 @@
   "version": "1.20.85",
   "last_updated": "2026-10-19",
   "features": [
+{
+      "id": "FEAT-183",
+      "category": "OmniGastro / KDS / POS / Mesas / Cliente",
+      "title": "Backlog OmniGastro reportado por el cliente en provecchio.com (9 bugs v1.39.9)",
+      "description": "Reporte del cliente del 2026-10-19 sobre https://provecchio.com, recuperado del checkout /opt/orderflow-branch-schema-prisma (docs/info/OmniGastro.md sin commitear) para no perderlo al descartar la rama de schema. Detalle completo en docs/plans/omnigastro/BACKLOG_CLIENTE_20261019.md. Puntos abiertos: (1) la alerta de 'llamar al mozo' suena en el movil del comensal en vez de en la tablet del mozo; (2a) al pedir desde la mesa por QR la opcion takeaway debe omitirse y quedar por defecto 'consumir en mesa'; (2b) al confirmar el pedido debe llegar notificacion al mozo igual que con el boton 'llamar al mozo'; (3) en la pantalla del mozo se muestra el UUID de la mesa en vez del nombre; (4) al volver al menu se pierde el resumen del pedido y el carrito abre vacio; (5) CRITICO: el pedido enviado a cocina no aparece en el KDS hasta pulsar 'Sincronizar todo' (debe ser automatico); (6) en el KDS el pedido desaparece al confirmar en vez de quedar en el historial Pendiente/Cocinando/Listo; (7) el cierre de cuenta del mozo no carga en el POS de Odoo 14 y el pago del mozo deberia ser opcional y configurable en /admin/settings; (8a) en /admin/gastro/tables solo funciona el crear, no se actualiza ni borra; (8b) CRITICO: el cobro de la mesa G5 pide PIN y devuelve HTTP 400 en POST /api/v1/public/hr/kiosk/pin/verify; (9) tras enviar a cocina el pedido desaparece del POS y el mozo no puede reabrirlo para modificarlo. Los 2 bugs de v1.39.8 (solapamiento del total en tablet y QR de la mesa G10) ya estan resueltos por FEAT-174.",
+      "status": "planned",
+      "assigned_module": "frontend/src/pages/admin/gastro-mozo.tsx, frontend/src/pages/admin/gastro-pos.tsx, frontend/src/pages/admin/gastro-kds.tsx, frontend/src/pages/admin/gastro-tables.tsx, frontend/src/pages/public-storefront-page.tsx, backend/src/modules/omnigastro, backend/src/public/hr, frontend/e2e/, docs/plans/omnigastro/BACKLOG_CLIENTE_20261019.md",
+      "depends_on": [],
+      "blocking": "",
+      "qa_validation": "Un punto por rama y PR, con auditoria en docs/plans/omnigastro/auditoria-<tema>.md y casos E2E en frontend/e2e/. Los puntos 5 y 8b exigen E2E en provecchio.local con datos reales y autorizacion explicita para el deploy.",
+      "version": "1.39.10"
+    },
     {
       "id": "FEAT-001",
       "category": "Core / Multi-Tenant",
@@ -1333,7 +1345,7 @@
     }
   ],
   "lastUpdated": "2026-10-19",
-  "last_id": "FEAT-174",
+  "last_id": "FEAT-183",
   "next_pending_sc": null,
   "active_plan": "docs/plans/omnigastro/plan_actualizacion_1.38.14.md",
   "plan_progress": {
