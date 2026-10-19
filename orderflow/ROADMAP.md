@@ -1,13 +1,29 @@
 # 🗺️ ROADMAP DE ORDERFLOW - v1.34.0 → v2.0.0 (Go-Live Definitivo)
-**Última Actualización:** 2026-10-16 (Release v1.39.2 — OmniGastro Fixes: KDS categorías independientes, sync de mesas, cargar pedidos takeout, modal responsivo)
+**Última Actualización:** 2026-10-19 (Release v1.39.10 — Backend crash-loop: Socket.IO + Redis adapter (`unhandledRejection`) + config Redis en compose local)
 
-**Versión Actual:** **`v1.39.2`** 🔄 **PRODUCTION READY** | Marca pública: OmniFlow. Capa técnica interna: OrderFlow.
+**Versión Actual:** **`v1.39.10`** 🔄 **PRODUCTION READY** | Marca pública: OmniFlow. Capa técnica interna: OrderFlow.
 **Próximos Releases:** **v1.40.0** (Tauri Desktop & OmnIoT Edge) ➔ **v2.0.0** (🚀 **GO-Live Definitivo del Ecosistema — Target: 15 de Febrero de 2027**)
 **Plan Maestro Go-to-Live:** ver [docs/plans/PLAN_GO_LIVE_APLICACIONES_ECOSISTEMA.md](docs/plans/PLAN_GO_LIVE_APLICACIONES_ECOSISTEMA.md)
 **Roadmap Comercial:** ver [docs/planes/comercial/OmniFlow_Plan_Comercial_v1.md](docs/planes/comercial/OmniFlow_Plan_Comercial_v1.md) (FEAT-112 a FEAT-119)
 **Estado:** ✅ **STAGING & PRODUCTION OPERATIVE** | 🏆 **HARDENED v1.39.2** | OmniGastro Fases 0-3.3 Completadas | RBAC Hardening En PR | CI Guard Active | QA E2E Suite | Build Limpio & Cobertura Total
 
-<!--CURRENT_VERSION-->1.39.9<!--/CURRENT_VERSION--> <!-- Actualizado: 2026-10-19 v1.39.9 por Kilo -->
+<!--CURRENT_VERSION-->1.39.10<!--/CURRENT_VERSION--> <!-- Actualizado: 2026-10-19 v1.39.10 por Kilo -->
+
+### 🚀 Release v1.39.10 — Backend crash-loop: Socket.IO + Redis adapter (Octubre 2026)
+
+| Feature | Módulo | Estado |
+|---------|--------|--------|
+| **Fix `unhandledRejection` en adapter de Socket.IO/Redis** (`Stream isn't writeable`) | `backend/src/common/redis-io.adapter.ts` | ✅ Production Ready |
+| `await subClient.connect()` antes de `createAdapter`; password enmascarada en logs; `safeQuit()` en fallback | | ✅ |
+| **Guard acotado de `unhandledRejection` (solo Redis)** | `backend/src/main.ts` | ✅ Production Ready |
+| Pub/sub no crítico no tumba el proceso; el resto conserva `process.exit(1)` | | ✅ |
+| **Config de Redis en compose local + `env_file`** | `docker-compose.yml` | ✅ |
+| `REDIS_URL` / `REDIS_PASSWORD` / `ENABLE_REDIS_WS` / `env_file: .env` (fix `JWT_SECRET` ausente) | | ✅ |
+| **Documentación** | `docs/troubleshooting/182-*.md` + índice | ✅ |
+| **Bump versión** | `VERSION`, `backend/package.json`, `frontend/package.json`, `featurelist.json` | ✅ 1.39.10 |
+| **E2E Playwright** | `frontend/e2e/` | ✅ 64/64 OK vs `provecchio.local` |
+
+---
 
 ### 🚀 Release v1.39.2 — OmniGastro Bug Fixes Post-v1.39.1 (Octubre 2026)
 
@@ -89,7 +105,7 @@
 
 ---
 
-<!--CURRENT_VERSION-->1.39.9<!--/CURRENT_VERSION--> <!-- Actualizado: 2026-10-19 v1.39.9 por Kilo -->
+<!--CURRENT_VERSION-->1.39.10<!--/CURRENT_VERSION--> <!-- Actualizado: 2026-10-19 v1.39.10 por Kilo -->
 
 El ecosistema **OmniFlow** contempla 10 aplicaciones y capas operativas. A continuación se presenta la evaluación de madurez técnica por componente y los puntos pendientes priorizados hacia el Go-Live final.
 

@@ -1,7 +1,7 @@
 # Línea de Tiempo y Evolución de OmniFlow
 
 **Última actualización:** 2026-10-19  
-**Versión actual:** `v1.39.9`  
+**Versión actual:** `v1.39.10`  
 **Próximo hito:** `v1.40.0` — Tauri Desktop & OmnIoT Edge
 **Documento fuente:** `CHANGELOG.md`, `ROADMAP.md`, `featurelist.json`
 
@@ -15,6 +15,17 @@
 - Bump versión a 1.39.2 en VERSION, package.json, featurelist.json
 - E2E Playwright: 4 nuevas specs en `frontend/e2e/`
 - `./scripts/init.sh` pasa; `/api/v1/health` → v1.39.2
+
+---
+
+### 2026-10-19 : v1.39.10 — Backend: crash-loop por adapter de Socket.IO + Redis (`unhandledRejection`)
+- `backend/src/common/redis-io.adapter.ts`: el cliente `sub` creado con `duplicate()` (hereda `lazyConnect`/`enableOfflineQueue:false`) nunca se conectaba; `@socket.io/redis-adapter` dispara `psubscribe`/`subscribe` sin `await` → rechazo sin manejar → Node 22 terminaba el proceso
+  - Fix: `await subClient.connect()` antes de `createAdapter`, password enmascarada en logs, `safeQuit()` en el fallback
+- `backend/src/main.ts`: guard acotado de `unhandledRejection` (solo rechazos de Redis; el resto mantiene `process.exit(1)`)
+- `docker-compose.yml`: `env_file: .env` (fix `Configuration key "JWT_SECRET" does not exist`) + `REDIS_URL`/`REDIS_PASSWORD`/`ENABLE_REDIS_WS` en el servicio `backend`
+- Documentado en `docs/troubleshooting/182-socketio-redis-adapter-unhandled-rejection-crash.md` + índice
+- Validación: backend `healthy` (`RestartCount=0`), `/api/v1/health` → 200 v1.39.10, unit tests 940/940, E2E Playwright 64/64 vs `provecchio.local`
+- Bump de versión a 1.39.10 (VERSION, package.json, main.ts Swagger, README/ROADMAP/timeline, featurelist.json, 37 manifiestos)
 
 ---
 

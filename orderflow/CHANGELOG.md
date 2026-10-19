@@ -5,6 +5,38 @@ Todos los cambios notables a este proyecto serán documentados en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 y este proyecto se adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.39.10] - 2026-10-19
+
+### 🐛 Fix: Backend en crash-loop por el adapter de Socket.IO + Redis (`unhandledRejection`)
+
+**Síntoma:** el contenedor `orderflow_backend` reiniciaba en loop (`RestartCount` creciente, health check nunca `healthy`) con:
+
+```
+Error: Stream isn't writeable and enableOfflineQueue options is false
+    at EventEmitter.psubscribe (ioredis/built/utils/Commander.js:90:25)
+    at new RedisAdapter (@socket.io/redis-adapter/dist/index.js:99:28)
+    at RedisIoAdapter.createIOServer (dist/common/redis-io.adapter.js:54:20)
+```
+
+**Causa raíz** (`docs/troubleshooting/182-socketio-redis-adapter-unhandled-rejection-crash.md`):
+
+- `backend/src/common/redis-io.adapter.ts` creaba el cliente de pub/sub con `pubClient.duplicate()`, que hereda `lazyConnect: true` y `enableOfflineQueue: false`, y **nunca lo conectaba**. `@socket.io/redis-adapter` dispara `psubscribe`/`subscribe` de forma fire-and-forget al construir el namespace: con el stream no escribible la promesa se rechaza y, al no estar manejada, Node 22 termina el proceso. El `try/catch` no podía capturarla (rechazo interno del adapter). El bug solo se manifestaba **con Redis accesible**: con password inválida caía al fallback in-memory y el proceso "arrancaba sano" pero sin pub/sub.
+- `docker-compose.yml` (servicio `backend`) no heredaba el `.env` (`TypeError: Configuration key "JWT_SECRET" does not exist`) ni propagaba `REDIS_URL` / `REDIS_PASSWORD` / `ENABLE_REDIS_WS`.
+
+**Solución:**
+
+- `backend/src/common/redis-io.adapter.ts`: `await subClient.connect()` antes de `createAdapter`, password enmascarada en logs (`redis://***@redis:6379`), `safeQuit()` de pub/sub en el fallback y cierre seguro de clientes.
+- `backend/src/main.ts`: guard de `unhandledRejection` **acotado a Redis** (pub/sub es no crítico); cualquier otro rechazo mantiene el comportamiento por defecto de Node (`process.exit(1)`).
+- `docker-compose.yml`: `env_file: .env` + `REDIS_URL` / `REDIS_PASSWORD` / `ENABLE_REDIS_WS` en el servicio `backend` (con `environment` por encima de `env_file` para los hosts de red `postgres` / `redis`).
+
+### ✅ Validación
+- `docker compose up -d --no-deps backend` → `RestartCount=0`, `Status=running`, `Health=healthy`.
+- `GET /api/v1/health` → `200 {"version":"1.39.10","status":"ok"}`; log `✅ Socket.io Redis Adapter initialized successfully` y `Analytics Cache initialized on Redis redis:6379`.
+- Unit tests backend: **127 suites / 940 tests OK**.
+- E2E Playwright contra `provecchio.local`: **64/64 OK** (22/22 en `omnigastro.spec.ts`, incluida la validación de importación de datos de provecchio.com).
+- `scripts/qa_e2e_check.py` contra `provecchio.com`: catálogo público, dominios y 7 rutas de administración sin errores JS ni HTTP 5xx.
+- Sin cambios de esquema, sin migraciones, `tenantId` intacto.
+
 ## [1.39.9] - 2026-10-19
 
 ### 🐛 Fix: OmniGastro v1.39.9 — POS mozo responsivo en tablet + QR de mesa con menú digital

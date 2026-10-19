@@ -1,8 +1,24 @@
 {
   "project": "OrderFlow SaaS Omnicanal",
-  "version": "1.39.9",
+  "version": "1.39.10",
   "last_updated": "2026-10-19",
   "features": [
+    {
+      "id": "FEAT-175",
+      "category": "Core / Redis / Socket.IO WebSockets / Deploy",
+      "title": "Fix crash-loop del backend: unhandledRejection del adapter de Socket.IO + Redis (Stream isn't writeable)",
+      "description": "El contenedor orderflow_backend reiniciaba en loop (RestartCount creciente, health nunca healthy) al arrancar con Redis accesible. Causa raiz: backend/src/common/redis-io.adapter.ts creaba el cliente de pub/sub con pubClient.duplicate() (hereda lazyConnect:true y enableOfflineQueue:false) y NUNCA lo conectaba; @socket.io/redis-adapter ejecuta psubscribe/subscribe de forma fire-and-forget al construir el namespace, por lo que el comando se rechazaba (stream no escribible) y la promesa quedaba sin manejar -> unhandledRejection -> Node 22 termina el proceso. El try/catch de connectToRedis() no podia capturarlo porque el rechazo ocurre en la cadena interna del adapter. El bug solo se manifestaba con Redis accesible: con password invalida caia al fallback in-memory y el proceso arrancaba 'sano' pero sin pub/sub. Fix: (1) await subClient.connect() antes de createAdapter; (2) password enmascarada en los logs (redis://***@redis:6379) y safeQuit() de pub/sub en el fallback; (3) guard acotado de unhandledRejection en backend/src/main.ts que absorbe solo rechazos de Redis (pub/sub es no critico) y mantiene process.exit(1) para el resto; (4) docker-compose.yml: env_file .env (fix de 'Configuration key JWT_SECRET does not exist') + REDIS_URL/REDIS_PASSWORD/ENABLE_REDIS_WS en el servicio backend. Documentado en docs/troubleshooting/182-socketio-redis-adapter-unhandled-rejection-crash.md. Sin cambios de esquema, sin migraciones, tenantId intacto.",
+      "status": "completed",
+      "version": "1.39.10",
+      "assigned_module": "backend/src/common/redis-io.adapter.ts, backend/src/main.ts, docker-compose.yml, docs/troubleshooting/182-socketio-redis-adapter-unhandled-rejection-crash.md, docs/troubleshooting/README.md, CHANGELOG.md, ROADMAP.md",
+      "deploy_target": "provecchio",
+      "next_steps": [
+        "Ejecutar scripts/init.sh (requiere confirmacion del usuario por consumo de CPU/RAM)",
+        "Desplegar a produccion con autorizacion explicita (scripts/deploy-production.sh provecchio)",
+        "Sincronizar Wiki /opt/wiki/orderflow/ con docs/",
+        "Crear tag v1.39.10 y push"
+      ]
+    },
     {
       "id": "FEAT-167",
       "category": "OmniGastro / Seguridad & Auth",
@@ -1949,7 +1965,7 @@
     }
   ],
   "lastUpdated": "2026-10-19",
-  "last_id": "FEAT-174",
+  "last_id": "FEAT-175",
   "next_pending_sc": null,
   "active_plan": "docs/plans/omnigastro/PLAN_MAESTRO.md",
   "plan_progress": {
