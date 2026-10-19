@@ -7,7 +7,7 @@
 **Roadmap Comercial:** ver [docs/planes/comercial/OmniFlow_Plan_Comercial_v1.md](docs/planes/comercial/OmniFlow_Plan_Comercial_v1.md) (FEAT-112 a FEAT-119)
 **Estado:** ✅ **STAGING & PRODUCTION OPERATIVE** | 🏆 **HARDENED v1.39.2** | OmniGastro Fases 0-3.3 Completadas | RBAC Hardening En PR | CI Guard Active | QA E2E Suite | Build Limpio & Cobertura Total
 
-<!--CURRENT_VERSION-->1.39.5<!--/CURRENT_VERSION--> <!-- Actualizado: 2026-10-17 v1.39.5 por Kilo -->
+<!--CURRENT_VERSION-->1.39.9<!--/CURRENT_VERSION--> <!-- Actualizado: 2026-10-19 v1.39.9 por Kilo -->
 
 ### 🚀 Release v1.39.2 — OmniGastro Bug Fixes Post-v1.39.1 (Octubre 2026)
 
@@ -89,7 +89,7 @@
 
 ---
 
-<!--CURRENT_VERSION-->1.39.5<!--/CURRENT_VERSION--> <!-- Actualizado: 2026-10-17 v1.39.5 por Kilo -->
+<!--CURRENT_VERSION-->1.39.9<!--/CURRENT_VERSION--> <!-- Actualizado: 2026-10-19 v1.39.9 por Kilo -->
 
 El ecosistema **OmniFlow** contempla 10 aplicaciones y capas operativas. A continuación se presenta la evaluación de madurez técnica por componente y los puntos pendientes priorizados hacia el Go-Live final.
 

@@ -1,8 +1,51 @@
 {
   "project": "OrderFlow SaaS Omnicanal",
-  "version": "1.38.21",
-  "last_updated": "2026-10-13",
+  "version": "1.39.9",
+  "last_updated": "2026-10-19",
   "features": [
+    {
+      "id": "FEAT-167",
+      "category": "OmniGastro / Seguridad & Auth",
+      "title": "Fix 401 en endpoints públicos QR / Bio-Link — eliminación de @UseGuards(ApiKeyGuard) y @TenantPrisma() de flujos públicos",
+      "description": "Root cause: los controladores guest (guest-tables, guest-orders, guest-call-waiter) llevaban @UseGuards(ApiKeyGuard) a nivel de clase, bloqueando el escaneo QR de mesa (by-token, createDraft, track, call-waiter) antes de autenticación. Además, los métodos públicos usaban @TenantPrisma() que lanza UnauthorizedException cuando request.tenantPrisma es undefined. Fix: 1) Eliminados guards de clase en los 3 controladores guest. 2) Eliminado @TenantPrisma() de todos los endpoints públicos; ahora usan this.prisma (singleton) y resuelven tenant desde el QR token (restaurantTable.token -> tenantId). 3) Agregados @UseGuards(ApiKeyGuard) a los endpoints de CRUD que sí requieren auth (listGuests, createGuest, updateGuest, deleteGuest). 4) Eliminado @TenantPrisma() de los 4 endpoints públicos de BioLinks (getPublicBySlug, getPublicByTenantId, registerClick, createOrderFromBioLink). 5) Agregada Regla 4 en AGENTS.md: endpoints públicos QR/Bio-Link no deben usar @TenantPrisma() ni @UseGuards(ApiKeyGuard). 6) Creado scripts/check-public-endpoints.sh (check automático en init.sh paso 0). 7) Creado docs/troubleshooting/143-public-qr-endpoints-must-not-use-tenantprisma.md.",
+      "status": "completed",
+      "version": "1.39.6",
+      "assigned_module": "backend/src/guest/guest-tables.controller.ts, backend/src/guest/guest-orders.controller.ts, backend/src/guest/guest-call-waiter.controller.ts, backend/src/biolinks/biolinks.controller.ts, AGENTS.md, scripts/check-public-endpoints.sh, scripts/init.sh, docs/troubleshooting/143-public-qr-endpoints-must-not-use-tenantprisma.md",
+      "deploy_target": "provecchio",
+      "next_steps": [
+        "Ejecutar scripts/init.sh (requiere confirmación usuario)",
+        "Sincronizar Wiki /opt/wiki/orderflow/ con docs/",
+        "Crear tag v1.39.5 y push"
+      ]
+    },
+    {
+      "id": "FEAT-166",
+      "category": "OmniGastro / POS & KDS Field Fixes",
+      "title": "Sprint Fixes Provecchio Deploy: POS Mozo Empty Grid, KDS Stations Empty Categories, KDS Pre-selection",
+      "description": "Three critical field-reported issues from Provecchio production (v1.39.0 deploy): 1) Waiter POS (gastro-pos.tsx) showed empty grid instead of product list — fixed by adding isListView prop to CategoryAccordion rendering compact list (name + price), passed isListView={true} from gastro-pos.tsx, and added useEffect to sync expandedKeys when categories load async. 2) KDS Stations (/admin/gastro/kds-stations) category Select was empty — fixed by normalizing API response with res.data?.data || res.data pattern (matching gastro-pos.tsx) and added logging. 3) KDS Dashboard (/admin/kds) missing workstation pre-selection on load — fixed by reordering useEffects so loadActiveOrders only runs after selectedStationId is set from loadStations auto-selection, added guard if (!selectedStationId) return. All fixes use Ant Design tokens (no hardcoded colors).",
+      "status": "completed",
+      "assigned_module": "frontend/src/components/catalog/CategoryAccordion.tsx, frontend/src/pages/admin/gastro-pos.tsx, frontend/src/pages/admin/gastro-kds-stations.tsx, frontend/src/pages/admin/kds.tsx",
+      "deploy_target": "provecchio",
+      "next_steps": [
+        "Sincronizar Wiki /opt/wiki/orderflow/ con docs/",
+        "Crear tag v1.39.3 y push"
+      ]
+    },
+    {
+      "id": "FEAT-165",
+      "category": "OmniGastro / Seguridad & Auth",
+      "title": "Fix 403 Forbidden en auth endpoints del panel mozo (verify-pin no devolvía JWT access token)",
+      "description": "1) verifyPin() en auth.service.ts verificaba PIN contra employees.pin_code pero no generaba JWT access/refresh tokens — el frontend solo guardaba user data en localStorage sin tokens, causando 403 en /api/v1/modules/installed, /api/v1/waiter/calls, /api/v1/orders/guest/pending, /api/v1/waiter/calls/:id/take-order. 2) Employee-user linking: employees sin user_id vinculado devolvían 'El empleado no tiene usuario asociado'; se vincularon los 3 employees existentes (Ivan/Mozo, Natalia/Cajero, Paula/Cocinero) con sus users correspondientes. 3) Frontend gastro-mozos.tsx actualizado para almacenar accessToken/refreshToken y limpiarlos en logout. 4) Table name issue era un síntoma del 403 — los datos mostraban UUIDs por falta de auth, los nombres correctos (G10, M01, Giardino) aparecen tras el fix.",
+      "status": "completed",
+      "version": "1.39.6",
+      "assigned_module": "backend/src/auth/auth.service.ts, frontend/src/pages/admin/gastro-mozos.tsx, docs/guides/TECHNICAL-GUIDE-DEVELOPERS.md",
+      "deploy_target": "provecchio",
+      "next_steps": [
+        "Ejecutar scripts/init.sh (requiere confirmación usuario)",
+        "Sincronizar Wiki /opt/wiki/orderflow/ con docs/",
+        "Crear tag v1.38.22 y push"
+      ]
+    },
     {
       "id": "FEAT-162",
       "category": "OmniGastro / Integración Odoo",
@@ -1867,10 +1910,46 @@
       "depends_on": [],
       "blocking": [],
       "qa_validation": "Backend build clean (exit 0) | dist/src/inventory/inventory.controller.js tiene endpoint products-with-stock | dist/src/social-catalog/social-catalog-admin.controller.js tiene codepage logic | Version 1.38.10 synced across 9 files"
+    },
+    {
+      "id": "FEAT-173",
+      "category": "OmniGastro / Integración Odoo",
+      "title": "OmniGastro Payment Routing Configuration (v1.39.7)",
+      "description": "Módulo standalone tenant-aware con configuración de routing de pago para endpoints personalizados y Odoo. Arquitectura aislada multi-db con database per tenant. Endpoints RESTful: /api/v1/omnigastro-config/payment-settings, /api/v1/omnigastro-config/odoo-mapping, /api/v1/omnigastro-config/routing-rules. Integración con Odoo 14 y 18 CE. Validación completa de negocio y seguridad.",
+      "status": "completed",
+      "version": "1.39.7",
+      "assigned_module": "backend/src/modules/omnigastro-config/omnigastro-config.module.ts, backend/src/modules/omnigastro-config/services/omnigastro-config.service.ts, backend/src/modules/omnigastro-config/controllers/omnigastro-config.controller.ts, backend/src/modules/omnigastro-config/dto/omnigastro-settings.dto.ts, backend/src/modules/omnigastro-config/monitoring/omnigastro-config-monitoring.service.ts, backend/src/modules/omnigastro-config/monitoring/omnigastro-config-monitoring.controller.ts",
+      "deploy_target": "provecchio",
+      "next_steps": [],
+      "qa_validation": "init.sh completed: public-endpoint auth checks passed (0 violations) | 936/940 unit tests passed (4 pre-existing failures unrelated to omnigastro-config) | 4 minor test failures in architecture guardrails and BioLinksController expectations (pre-existing)",
+      "troubleshooting_docs": [
+        "docs/troubleshooting/06-postgresql-camelcase-column-names.md",
+        "docs/troubleshooting/132-rls-migration-snakecase-columns.md"
+      ]
+    },
+    {
+      "id": "FEAT-174",
+      "category": "OmniGastro / POS & QR Field Fixes",
+      "title": "POS mozo responsivo en tablet (sin solapamiento total/productos) y QR de mesa con menú digital en vez de BioLinks",
+      "description": "Fix de los 2 bugs reportados en el despliegue v1.39.8. BUG 1 (POS tablet): la regla global de admin-mobile.css `@media (max-width:768px){ .ant-layout-sider{ position:fixed!important; z-index:999!important; height:100vh!important } }` aplicaba también a los dos Sider del POS del mozo (catálogo 300px y resumen 210px con el TOTAL) en gastro-pos.tsx: ambos pasaban a position:fixed y se apilaban en el mismo origen, por lo que el bloque del TOTAL se solapaba sobre la lista de productos. Fix: (1) scope de la regla a `.admin-sider` (el sider real del shell admin); (2) gastro-pos.tsx usa Grid.useBreakpoint() para layout responsivo: >=1200px 3 columnas (catálogo 300 + líneas + resumen 210), 768-1199px 2 columnas (catálogo 260 + líneas, con el resumen compacto arriba de las líneas), <768px catálogo en Drawer overlay; (3) header del POS con height:auto + flexWrap para que los controles no desborden sobre el catálogo; (4) la ruta /admin/gastro/pos/* renderiza a sangre en AdminApp (sin padding ni bottom-nav móvil) para usar todo el viewport; (5) minWidth:0 en la columna de líneas y wrap en las filas. BUG 2 (QR de mesa): public-storefront-page.tsx decidía la página por tenant.config.homepagePreset antes de considerar el token de mesa ?t=; el tenant Provecchio tiene homepagePreset='omnilinks' por lo que el QR /?t=<token> abría BioLinks ('¡Bienvenido a nuestra Bio!') en vez del menú digital con 'Llamar al mozo'. Fix: si la URL trae ?t= se renderiza SocialCatalogPage (modo restaurante) tanto en App.tsx como en PublicStorefrontPage, con independencia del homepagePreset. Adicional: featurelist.json era JSON inválido (FEAT-173 fuera del array features) y rompía scripts/check-version.sh; reparado. Sin cambios de backend ni migraciones.tenantId intacto, sin colores hardcodeados (solo tokens theme.useToken()).",
+      "status": "completed",
+      "version": "1.39.9",
+      "priority": "HIGH",
+      "assigned_module": "frontend/src/styles/admin-mobile.css, frontend/src/pages/admin/gastro-pos.tsx, frontend/src/AdminApp.tsx, frontend/src/pages/public-storefront-page.tsx, frontend/src/App.tsx, frontend/e2e/pos-tablet-responsive.spec.ts, featurelist.json, docs/troubleshooting/181-pos-tablet-overlap-and-qr-biolinks.md",
+      "depends_on": [],
+      "blocking": [],
+      "deploy_target": "provecchio",
+      "next_steps": [
+        "Ejecutar ./scripts/init.sh (requiere confirmación del usuario)",
+        "Desplegar a provecchio con ./scripts/deploy-production.sh provecchio (requiere autorización)",
+        "Sincronizar Wiki /opt/wiki/orderflow/ con docs/",
+        "Crear tag v1.39.9 y push"
+      ],
+      "qa_validation": "Build frontend (tsc + vite) OK | Playwright frontend/e2e/pos-tablet-responsive.spec.ts 5/5 OK contra provecchio.local (768x1024, 810x1080, 1024x768 sin intersección catálogo/TOTAL, sin scroll horizontal, sin siders fixed, sin overflow de header; QR /?t=<token> muestra MODO RESTAURANTE + Llamar al mozo y no BioLinks)"
     }
   ],
-  "lastUpdated": "2026-10-06",
-  "last_id": "FEAT-154",
+  "lastUpdated": "2026-10-19",
+  "last_id": "FEAT-174",
   "next_pending_sc": null,
   "active_plan": "docs/plans/omnigastro/PLAN_MAESTRO.md",
   "plan_progress": {
@@ -1880,6 +1959,7 @@
     "Sprint 3 - OmniGastro Data Migration & Promotions API (v1.35.5)": "completed",
     "Sprint 3.1 - KDS Configurable + Impresión (FEAT-151/152)": "planned",
     "Sprint 4 - Engineering Fixes & DB Convention (FEAT-147..150)": "completed",
-    "Sprint 5 - Hardware y Escala (FEAT-120..124)": "pending"
+    "Sprint 5 - Hardware y Escala (FEAT-120..124)": "pending",
+    "Sprint 6 - Omnigastro-config Payment Routing (FEAT-173)": "completed"
   }
 }

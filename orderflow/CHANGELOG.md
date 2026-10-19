@@ -5,14 +5,72 @@ Todos los cambios notables a este proyecto serán documentados en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 y este proyecto se adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [1.39.5] - 2026-10-17
+## [1.39.9] - 2026-10-19
 
-### 🐛 Fix: OmniGastro v1.39.5 — Verificación actualizaciones doc + swagger/config
+### 🐛 Fix: OmniGastro v1.39.9 — POS mozo responsivo en tablet + QR de mesa con menú digital
 
-- **Actualización VERSION, README.md, CHANGELOG.md, ROADMAP.md, docs/timeline.md, backend/src/main.ts:87 (Swagger), y featurelist.json a 1.39.5**
+**Bugs reportados en el despliegue v1.39.8 (provecchio.com):**
+
+1. **POS del mozo en tablet: el TOTAL se solapaba con la lista de productos** (`/admin/gastro/pos/:tableId`).
+2. **El QR de la mesa G10 (`/?t=<token>`) abría BioLinks en vez del menú digital** con la opción de llamar al mozo.
+
+**Causas raíz y soluciones**
+
+- **Solapamiento en tablet** (`docs/troubleshooting/181-pos-tablet-overlap-and-qr-biolinks.md`):
+  - `frontend/src/styles/admin-mobile.css` — la regla `@media (max-width:768px){ .ant-layout-sider{ position:fixed!important; z-index:999!important; height:100vh!important } }` (pensada para el sider del shell admin) alcanzaba también a los dos `Sider` del POS (catálogo 300px y resumen 210px con el TOTAL) en `gastro-pos.tsx`: ambos pasaban a `position:fixed` y se apilaban en el mismo origen, superponiendo el bloque del TOTAL sobre la lista de productos. **Fix:** selector scopeado a `.admin-sider`.
+  - `frontend/src/pages/admin/gastro-pos.tsx` — layout responsivo con `Grid.useBreakpoint()`: `≥1200px` 3 columnas (catálogo 300 + líneas + resumen 210), `768–1199px` 2 columnas (catálogo 260 + líneas, con el resumen compacto sobre las líneas), `<768px` catálogo en `Drawer` overlay. Header con `height:auto` + `flexWrap` (los controles ya no desbordan sobre el catálogo), `minWidth:0` en la columna de líneas y wrap en las filas de producto.
+  - `frontend/src/AdminApp.tsx` — la ruta `/admin/gastro/pos/*` renderiza a sangre (sin padding de 24px ni bottom-nav móvil) para ocupar todo el viewport (`calc(100vh - 64px)`) en lugar de `100vh` dentro de una caja con padding.
+- **QR de mesa con BioLinks**:
+  - `frontend/src/pages/public-storefront-page.tsx` — la página se elegía por `tenant.config.homepagePreset` **antes** de considerar el token de mesa `?t=`; el tenant Provecchio tiene `homepagePreset: "omnilinks"`, por lo que el QR abría "¡Bienvenido a nuestra Bio!". **Fix:** si la URL trae `?t=` se renderiza `SocialCatalogPage` (modo restaurante + "Llamar al mozo"), con independencia del preset.
+  - `frontend/src/App.tsx` — misma garantía a nivel de routing: `?t=` resuelve al catálogo social antes de la detección de dominio/subdominio.
+
+**Adicional**
+
+- `featurelist.json` era **JSON inválido** (FEAT-173 quedó fuera del array `features`), lo que rompía `scripts/check-version.sh`; reparado y normalizado el JSON.
+- 37 `*.manifest.json` de módulos core re-sincronizados a la versión del core (venían en 1.39.5/1.39.6).
+- Marcador de versión de `README.md` reparado (`<!--CURRENT_VERSION-->1.39.9<!--`).
+
+### ✅ Validación
+- Build frontend (`tsc` + `vite`) limpio.
+- Playwright `frontend/e2e/pos-tablet-responsive.spec.ts`: **5/5 OK** contra `provecchio.local` (768x1024, 810x1080, 1024x768 sin intersección catálogo/TOTAL, sin scroll horizontal, sin siders en `position:fixed`, sin overflow del header; QR `/?t=<token>` muestra "MODO RESTAURANTE" + "Llamar al mozo" y no BioLinks).
+- Suite E2E completa: **64/64 OK** contra `provecchio.local` (antes 61/64: 3 tests preexistentes rotos en `omnigastro.spec.ts` por selectores que no matcheaban —`text=Buscar producto` sobre un `<input>`, `[class*="collapse"]` que matcheaba el sider del admin, `text=TOTAL` con strict-mode violation— y por creación de comensales no idempotente; corregidos en esta release).
+- Sin cambios de backend, sin migraciones, `tenantId` intacto, sin colores hardcodeados (solo `theme.useToken()`).
+
+## [1.39.8] - 2026-10-18
+
+### 🐛 Fix: OmniGastro v1.39.8 — Localhost Restoration & POS Flow Complete
+
+- **Infraestructura Local** — Conectados `orderflow_db` y `orderflow_omnisync_redis` a `orderflow-network`; actualizadas `DATABASE_URL` y `REDIS_URL` en `.env` y `backend/.env` para usar nombres de host Docker (`orderflow_db:5432`, `orderflow_omnisync_redis:6379`).
+- **Traefik Routing** (`docs/troubleshooting/#175, #176`) — Fix precedencia operadores en `provecchio-router.yml`: `(Host \|\| HostRegexp) && PathPrefix`; agregado router `ws-provecchio-local` (priority 200) para `/socket.io/` → WebSocket KDS/POS funcional.
+- **OmniGastro POS — "Cargar Pedido"** (`docs/troubleshooting/#177`) — Modal ahora muestra "Crear Nuevo Pedido para esta Mesa" cuando no hay pedidos existentes; POST `/api/v1/orders` con `tableId` crea orden DRAFT y navega a POS (`/admin/gastro/pos/{tableId}`).
+- **Backend Orders** — `tableId` guardado en `create()` (`orders.service.ts`); nuevo método `updateItems()` unificado (guest + POS regular); controller usa servicio unificado.
+- **Frontend POS** — Fallback endpoint: `/api/v1/guest/orders/:id` → `/api/v1/orders/:id` para órdenes POS regulares.
+- **Backups — Página Dedicada** — Nueva `/admin/backups` (no modal): config SFTP, lista remota, trigger manual, restore, delete; link en Sidebar "Copias de Seguridad (SFTP)" 💾.
+- **Automated Backup/Restore Alignment** — Cambiado `pg_dump -F c` → plain SQL (`pg_dump -f`); `pg_restore` → `psql -f`; compatible con `backup-production.sh` / `restore-with-info.sh`.
+- **AGENTS.md** — §3.1.1 punto 7: validar SFTP backup/restore antes de deploy completo.
+- **Arquitectura / Tests** — `biolinks/biolinks.controller.ts` agregado a allowlist en `architecture.spec.ts` (endpoints públicos usan `this.prisma` sin `@TenantPrisma`); tests biolinks actualizados.
+- **Odoo 14 Adapter** (`docs/troubleshooting/#178`) — Fix conexión en localhost:
+  - `restart: unless-stopped` en todos los servicios docker-compose
+  - `odoo_adapter`: ODOO_HOST=192.168.69.246, ODOO_PORT=8081, ODOO_PASSWORD=Cross1983_ (coincide con producción)
+  - `odoo_adapter`: REDIS_HOST=redis, REDIS_PASSWORD configurado; `depends_on: redis`
+  - Contenedor `orderflow_odoo_adapter` ahora inicia automáticamente y conecta a Odoo/Redis correctamente
+
+### ✅ Validación
+- `./scripts/init.sh` pasa (940 backend tests + build, frontend build, Traefik sync, E2E QA).
+- Health check: `{"version":"1.39.8","services":{"database":{"status":"ok"}}}`.
+- Flujo completo verificado: QR → mesa G7 → Cargar Pedido → POS → agregar productos → enviar cocina.
+- Biolinks públicos: `/bio/dimora`, `/api/v1/bio/dimora`, `/social-catalog/menudigital` funcionando.
+- WebSocket `wss://provecchio.local/socket.io/` conecta correctamente.
+- Odoo 14 adapter health: `http://localhost:3005/health` → OK.
+
+## [1.39.6] - 2026-10-17
+
+### 🐛 Fix: OmniGastro v1.39.6 — Verificación actualizaciones doc + swagger/config
+
+- **Actualización VERSION, README.md, CHANGELOG.md, ROADMAP.md, docs/timeline.md, backend/src/main.ts:87 (Swagger), y featurelist.json a 1.39.6**
 - **Actualizar script deploy-production.sh para verificar sync traefik** (Regla AGENTS.md #4)
 - **Confirmar despliegue a producción** con `./scripts/init.sh` (Regla AGENTS.md #3)
-- **Generar tag v1.39.5** (`git tag v1.39.5 && git push --tags`)
+- **Generar tag v1.39.6** (`git tag v1.39.6 && git push --tags`)
 - **Sincronizar documentación con Wiki** (`/opt/wiki/orderflow/`) (Regla AGENTS.md #7)
 
 ## [1.39.2] - 2026-10-16

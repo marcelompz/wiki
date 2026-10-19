@@ -2,11 +2,38 @@
 
 ## Before deploy on provecchio you need to backup the data on production, restore at localhost, deploy there and test all the stuff
 
+## 2026-10-19 — v1.39.9 (FIXED LOCALLY ⏳ PENDING DEPLOY TO PROVECCHIO.COM)
+
+- **v1.39.8 bugs reportados en provecchio.com** (fixes implementados y validados en `https://provecchio.local`)
+
+1. **POS del mozo en tablet: el total y la lista de productos se solapan** — `https://provecchio.com/admin/gastro/pos/6bc4042f-4840-4b79-8ab4-457bae9a5978`
+
+   **Causa raíz:** `frontend/src/styles/admin-mobile.css` aplicaba `position: fixed !important` a **todo** `.ant-layout-sider` en viewports ≤768px. El POS del mozo usa dos `Sider` de Ant Design (catálogo 300px y resumen 210px con el TOTAL) en `gastro-pos.tsx`; ambos se fijaban y se apilaban en el mismo origen, de modo que el bloque del TOTAL se dibujaba encima de la lista de productos. Agravantes: fila de 3 anchos fijos, `Header` de 56px con `Space` que hace wrap (desbordaba sobre el catálogo) y `height: '100vh'` del POS dentro del shell admin (~140px fuera de pantalla).
+
+   **Fix:**
+   - `admin-mobile.css`: la regla mobile `position: fixed` queda scopeada a `.admin-sider` (el sider real del shell admin).
+   - `gastro-pos.tsx`: layout responsivo con `Grid.useBreakpoint()` — ≥1200px 3 columnas (catálogo 300 + líneas + resumen 210), 768–1199px 2 columnas (catálogo 260 + líneas con el resumen compacto arriba), <768px catálogo en `Drawer` overlay. `Header` con `height: auto` + `flexWrap`, `minWidth: 0` en la columna de líneas y wrap en las filas de producto.
+   - `AdminApp.tsx`: la ruta `/admin/gastro/pos/*` renderiza a sangre (sin padding ni bottom-nav móvil) para ocupar todo el viewport.
+
+2. **El QR de la mesa G10 abre bio-links en vez del menú digital** — `https://provecchio.com/?t=7b0075a2-811e-440c-b426-26fbf2b52e33`
+
+   **Causa raíz:** `frontend/src/pages/public-storefront-page.tsx` elegía la página por `tenant.config.homepagePreset` **antes** de mirar el token de mesa `?t=`. El tenant Provecchio (`provecchio-dimora-001`) tiene `homepagePreset: "omnilinks"`, por lo que el QR renderizaba `PublicBioLinkPage` ("¡Bienvenido a nuestra Bio!") en lugar del menú digital con "Llamar al mozo". El bug no se reprodujo en localhost porque el hostname `provecchio.local` no resuelve tenant y el `BrandingProvider` cae al fallback por `apiKey` (config sin preset).
+
+   **Fix:** si la URL trae `?t=` se renderiza `SocialCatalogPage` (modo restaurante) con independencia del `homepagePreset`, tanto en `PublicStorefrontPage` como en `App.tsx` (a nivel de routing).
+
+- **Hallazgo de infra:** el bundle desplegado en `provecchio.com` tiene `VITE_ROOT_DOMAIN=pesallaccia.com` bakeado (14 ocurrencias, 0 de `provecchio.com`) aunque `/srv/orderflow/.env.prod` declara `VITE_ROOT_DOMAIN=provecchio.com`. No es la causa de estos bugs, pero deja inconsistente la detección de subdominios de tenant. Verificar tras el deploy con:
+  `docker exec orderflow_frontend grep -o 'provecchio.com' /app/dist/assets/index-*.js | head`
+
+- **Adicional:** `featurelist.json` era JSON inválido (FEAT-173 fuera del array `features`) y rompía `scripts/check-version.sh` → reparado. FEAT-174 registrada. 37 `*.manifest.json` re-sincronizados a la versión del core.
+
+- **Validación:** `frontend/e2e/pos-tablet-responsive.spec.ts` 5/5 OK; suite E2E completa **64/64 OK** (antes 61/64 con 3 fallos preexistentes de selectores/idempotencia en `omnigastro.spec.ts`, corregidos); build frontend OK. Detalle completo en `docs/plans/omnigastro/auditoria-feat-174-pos-tablet-qr-20261019.md` y `docs/troubleshooting/181-pos-tablet-overlap-and-qr-biolinks.md`.
+
 ## 2026-10-18
 
 - **v1.39.7 bugs on localhost [https://provecchio.local]**
 
-1. When the waiter takes the order in the endpoint modal [https://provecchio.local/admin/gastro] and selects the G7 table, the POS does not open to load the products. The console reports these errors:
+1. When the waiter takes the or
+der in the endpoint modal [https://provecchio.local/admin/gastro] and selects the G7 table, the POS does not open to load the products. The console reports these errors:
 LibreWolf can’t establish a connection to the server at wss://provecchio.local/socket.io/?EIO=4&transport=websocket. 19 index-dm1FmSOd.js:1:13222
 The connection to wss://provecchio.local/socket.io/?EIO=4&transport=websocket was interrupted while the page was loading. index-dm1FmSOd.js:1:13222
 LibreWolf can’t establish a connection to the server at wss://provecchio.local/socket.io/?EIO=4&transport=websocket. 2 index-dm1FmSOd.js:1:13222

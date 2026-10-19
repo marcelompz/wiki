@@ -1,7 +1,7 @@
 # Línea de Tiempo y Evolución de OmniFlow
 
-**Última actualización:** 2026-10-17  
-**Versión actual:** `v1.39.5`  
+**Última actualización:** 2026-10-19  
+**Versión actual:** `v1.39.9`  
 **Próximo hito:** `v1.40.0` — Tauri Desktop & OmnIoT Edge
 **Documento fuente:** `CHANGELOG.md`, `ROADMAP.md`, `featurelist.json`
 
@@ -15,6 +15,19 @@
 - Bump versión a 1.39.2 en VERSION, package.json, featurelist.json
 - E2E Playwright: 4 nuevas specs en `frontend/e2e/`
 - `./scripts/init.sh` pasa; `/api/v1/health` → v1.39.2
+
+---
+
+### 2026-10-19 : v1.39.9 — OmniGastro: POS mozo responsivo en tablet + QR de mesa con menú digital
+- Bug 1: POS del mozo en tablet — el TOTAL se solapaba con la lista de productos (`gastro-pos.tsx` + `admin-mobile.css`)
+  - `admin-mobile.css`: regla global `.ant-layout-sider{position:fixed!important}` scopeada a `.admin-sider`
+  - `gastro-pos.tsx`: layout responsivo con `Grid.useBreakpoint()` (3/2/1 columnas + Drawer), header wrap-safe, `minWidth:0`
+  - `AdminApp.tsx`: ruta `/admin/gastro/pos/*` a sangre (viewport completo)
+- Bug 2: QR de mesa G10 (`/?t=<token>`) abría BioLinks en vez del menú digital (`public-storefront-page.tsx` + `App.tsx`)
+  - `?t=` fuerza `SocialCatalogPage` (modo restaurante + "Llamar al mozo") con independencia de `homepagePreset`
+- `featurelist.json` reparado (JSON inválido) + FEAT-174 registrada; 37 manifiestos re-sincronizados a 1.39.9
+- E2E Playwright: `frontend/e2e/pos-tablet-responsive.spec.ts` 5/5 OK contra provecchio.local
+- Bump de versión a 1.39.9 (VERSION, package.json, main.ts Swagger, README/ROADMAP/timeline, featurelist.json)
 
 ---
 
