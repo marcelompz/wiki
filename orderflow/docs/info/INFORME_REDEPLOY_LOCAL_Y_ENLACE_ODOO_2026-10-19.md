@@ -245,9 +245,70 @@ webhook con `x-api-key` → 201, KDS público → 200, guest order draft → 200
 7. Volver a ejecutar la colección contra **local** y **provecchio.com**, y registrar el resultado
    en el informe de auditoría de la vertical afectada.
 
-## 8. Referencias
+## 8. Certificado válido (Let's Encrypt) para `odoo14.provecchio.com`
+
+### 8.1 Síntoma reportado
+
+Firefox bloqueaba `https://odoo14.provecchio.com/` con
+`MOZILLA_PKIX_ERROR_SELF_SIGNED_CERT` (HSTS impide añadir la excepción).
+
+### 8.2 Causa raíz
+
+1. El router `odoo14-provecchio` agrupaba **`.com` y `.local`** en un mismo bloque con `tls: {}`:
+
+   ```yaml
+   rule: "Host(`odoo14.provecchio.local`) || Host(`odoo14.provecchio.com`)"
+   tls: {}
+   ```
+
+   Con `tls: {}` Traefik sirve el `TRAEFIK DEFAULT CERT`. Además, aunque se pidiera Let's Encrypt,
+   Traefik lo haría para **todos** los nombres del router y `.local` (sin DNS público) abortaría la
+   emisión completa.
+
+2. `odoo14.provecchio.com` **no existía en la zona Cloudflare** (`provecchio.com`): sin DNS público
+   no había token ACME que presentar. El DNS interno de la oficina resuelve cualquier
+   `*.provecchio.com` a `192.168.69.240` (split-horizon), por eso en intranet "funcionaba" pero con
+   cert inválido.
+
+### 8.3 Cambios aplicados
+
+| Ámbito | Cambio |
+|---|---|
+| Cloudflare (zona `provecchio.com`) | Nuevo `CNAME odoo14.provecchio.com → provecchio.com`, `proxied: true` (mismo patrón que `odoo.provecchio.com`) |
+| Traefik (`dynamic/services.yml`) | Router `.com` con `certResolver: letsencrypt` + routers `.local` aparte con `tls: {}` (auto-firmado, solo intranet) |
+| `192.168.69.240` (LAN, Traefik v3.4) | `scp` a `/opt/srv/traefik/dynamic/services.yml` + `docker kill -s HUP traefik` |
+| `38.52.135.227` (público, Traefik v3.3) | `scp` a `/srv/traefik/` y `/opt/srv/traefik/` + `docker kill -s HUP traefik` |
+| Repo Traefik | Commit `6ba2df0` en `marcelompz/traefik-orderflow` (push a `main`) + README actualizado |
+
+> Ambas instancias de Traefik reciben el cambio: Cloudflare alcanza a `38.52.135.227` y el DNS
+> interno de la oficina a `192.168.69.240`.
+
+### 8.4 Verificación
+
+| Prueba | Resultado |
+|---|---|
+| DNS público (1.1.1.1) | `odoo14.provecchio.com` → 104.21.3.206 / 172.67.131.46 (Cloudflare) |
+| Certificado en el almacén ACME | `CN=odoo14.provecchio.com` (26 certs en el store) |
+| Servido por el Traefik LAN | `issuer=Let's Encrypt, CN=YR2` · 2026-10-19 → 2027-01-17 |
+| Servido por el Traefik público | `issuer=Let's Encrypt, CN=YR2` · idéntico |
+| `https://odoo14.provecchio.com/web/login` (validando cadena, sin `-k`) | **HTTP 200** · `ssl_verify=0` · `<title>Odoo</title>` |
+| Acceso interno (DNS split-horizon) | HTTP 303 (redirect a login) · `ssl_verify=0` |
+| `https://odoo14.provecchio.local` (intranet) | 200 con auto-firmado (esperado: sin DNS público) |
+
+### 8.5 Hallazgos preexistentes (no causados por este cambio)
+
+En los logs de ambos Traefik aparecen errores anteriores a la intervención:
+
+- Los routers `aieer-prod`, `aieer-staging`, `aieer-prod-api` y `aieer-staging-api` referencian el
+  resolver `letsencrypt-http`, **que no existe** en el `traefik.yml` de los servidores de
+  producción (solo está `letsencrypt` con DNS-01) → esos routers caen al `DEFAULT CERT`.
+- `capacitaciones.psicovital.com.py` falla en ACME: la zona `psicovital.com.py` no está en la cuenta
+  de Cloudflare del `CF_DNS_API_TOKEN`.
+
+## 9. Referencias
 
 - Troubleshooting: `docs/troubleshooting/184-odoo14-nginx-test-page-and-odoo-db-name-mismatch.md`
+- Troubleshooting: `docs/troubleshooting/185-odoo14-letsencrypt-self-signed-cert.md`
 - Vertical OpenCore: `docs/plans/opencore/`
 - Backlog del cliente: `docs/plans/omnigastro/BACKLOG_CLIENTE_20261019.md`
 - Colección Newman: `docs/tests/newman/contracts.postman_collection.json` (AGENTS.md §3.3)
