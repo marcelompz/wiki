@@ -1,7 +1,7 @@
 {
   "project": "OrderFlow SaaS Omnicanal",
   "version": "1.20.85",
-  "last_updated": "2026-09-03",
+  "last_updated": "2026-10-19",
   "features": [
     {
       "id": "FEAT-001",
@@ -1319,10 +1319,21 @@
         "FEAT-116"
       ],
       "blocking": []
+    },
+    {
+      "id": "FEAT-174",
+      "category": "OmniGastro / POS & QR público",
+      "title": "POS mozo responsivo en tablet (sin solapamiento total/productos) + QR de mesa con menú digital en vez de BioLinks",
+      "status": "completed",
+      "version": "1.39.9",
+      "assigned_module": "frontend/src/styles/admin-mobile.css, frontend/src/pages/admin/gastro-pos.tsx, frontend/src/AdminApp.tsx, frontend/src/pages/public-storefront-page.tsx, frontend/src/App.tsx, frontend/e2e/pos-tablet-responsive.spec.ts",
+      "depends_on": [],
+      "blocking": [],
+      "qa_validation": "E2E Playwright pos-tablet-responsive.spec.ts 5/5 OK + suite completa 64/64 OK contra provecchio.local | build frontend OK | scripts/check-version.sh OK"
     }
   ],
-  "lastUpdated": "2026-10-08",
-  "last_id": "FEAT-153",
+  "lastUpdated": "2026-10-19",
+  "last_id": "FEAT-174",
   "next_pending_sc": null,
   "active_plan": "docs/plans/omnigastro/plan_actualizacion_1.38.14.md",
   "plan_progress": {
