@@ -29,6 +29,18 @@ Error: Stream isn't writeable and enableOfflineQueue options is false
 - `backend/src/main.ts`: guard de `unhandledRejection` **acotado a Redis** (pub/sub es no crítico); cualquier otro rechazo mantiene el comportamiento por defecto de Node (`process.exit(1)`).
 - `docker-compose.yml`: `env_file: .env` + `REDIS_URL` / `REDIS_PASSWORD` / `ENABLE_REDIS_WS` en el servicio `backend` (con `environment` por encima de `env_file` para los hosts de red `postgres` / `redis`).
 
+
+### 🔧 Fix: Deploy a Provecchio (SSH root, build del frontend, servicios standalone)
+
+Documentado en `docs/troubleshooting/183-deploy-provecchio-root-ssh-frontend-fix.md`:
+
+- **`scripts/deploy-production.sh`**: todas las invocaciones SSH usan `root@${REMOTE_HOST}` (antes usaban el usuario local y fallaban con `open /srv/orderflow/.env.provecchio: permission denied`, dejando provecchio.com sin backend); `REMOTE_ENV_FILE` por target (`.env.provecchio`); se elimina el `docker volume prune`; `chmod +x scripts/*.sh` tras el rsync; **nuevo paso de build del frontend** en el servidor (`node:20-alpine` + `npm ci --include=dev` + `vite build --mode provecchio`) porque el servicio `frontend` sirve `./frontend/dist` y el rsync excluye `**/dist` (producción seguía sirviendo el bundle de v1.39.8).
+- **`docker-compose.provecchio.yml`**: `REDIS_URL`/`DATABASE_URL` con interpolación en vez del placeholder `cambiar_redis_password_produccion_aleatorio` (que rompía la autenticación de Redis del backend en producción) y `sync_standalone` con `volumes: !reset []` + `REDIS_URL` con password.
+- **`docker-compose.yml`**: healthcheck de `sync_standalone` con `node -e "fetch(...)"` (la imagen `node:20-slim` no tiene `wget`).
+- **Servicios standalone** (`omnibi-standalone`, `sync-standalone`): el mapping `"@orderflow/auth-shared" → ./auth-shared-dist/index.d.ts` se elimina (TypeScript reescribía el `require` a un `.d.ts` que Node no puede ejecutar), el Dockerfile compila el paquete `file:` dentro de `node_modules/@orderflow/auth-shared/dist` (el `package.json` declara `main: dist/index.js`) y el runner copia `auth-shared-dist` en la subcarpeta `dist/`.
+- **Producción**: base `orderflow_bi` creada y migración `20261013000107_init_omnibi_standalone` aplicada (Prisma 5.22 del servicio; el `npx prisma` de la imagen descargaba Prisma 7, incompatible con el schema).
+- **Resultado**: los 9 contenedores de producción quedan `healthy` (antes `sync_standalone` y `omnibi_standalone` estaban en crash-loop) y el backend reporta `✅ Socket.io Redis Adapter initialized successfully` (el pub/sub de Redis queda habilitado en producción).
+
 ### ✅ Validación
 - `docker compose up -d --no-deps backend` → `RestartCount=0`, `Status=running`, `Health=healthy`.
 - `GET /api/v1/health` → `200 {"version":"1.39.10","status":"ok"}`; log `✅ Socket.io Redis Adapter initialized successfully` y `Analytics Cache initialized on Redis redis:6379`.

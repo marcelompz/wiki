@@ -4,6 +4,21 @@
   "last_updated": "2026-10-19",
   "features": [
     {
+      "id": "FEAT-176",
+      "category": "Deploy / Infraestructura / Standalone",
+      "title": "Deploy a Provecchio v1.39.10: SSH como root, build del frontend en el servidor y standalone services operativos",
+      "description": "Despliegue de v1.39.10 a provecchio.com (autorizado por el usuario) con correcciones de infraestructura detectadas durante el proceso (docs/troubleshooting/183-deploy-provecchio-root-ssh-frontend-build-standalone-fix.md): (1) scripts/deploy-production.sh conectaba por SSH con el usuario local en vez de root@ -> 'open /srv/orderflow/.env.provecchio: permission denied' abortaba el 'up -d' dejando el sitio sin backend; se unifican las 17 invocaciones en root@${REMOTE_HOST}, se añade REMOTE_ENV_FILE por target (.env.provecchio), se elimina el docker volume prune y se hace chmod +x de scripts tras el rsync; (2) el servicio frontend sirve ./frontend/dist y el rsync excluye '**/dist', por lo que produccion seguía sirviendo el bundle v1.39.8 (los fixes de POS/QR de v1.39.9 nunca llegaban al sitio) -> nuevo paso de build del frontend en el servidor con node:20-alpine (npm ci --include=dev + vite build --mode provecchio); (3) scripts/replica-entrypoint.sh estaba en modo 644 en git -> la replica de PostgreSQL moria con 'exec: /entrypoint.sh: permission denied'; (4) sync_standalone y omnibi_standalone estaban en crash-loop: el mapping de tsconfig '@orderflow/auth-shared' -> './auth-shared-dist/index.d.ts' hacia que TypeScript reescribiera el require a un .d.ts que Node no puede ejecutar, el Dockerfile copiaba auth-shared-dist en la raiz de node_modules (el package.json declara main: dist/index.js), sync_standalone montaba el codigo fuente sobre /app ocultando el dist de la imagen, usaba REDIS_URL sin password y su healthcheck usaba wget (inexistente en node:20-slim); (5) se creo la base orderflow_bi en el PostgreSQL de produccion y se aplico la migracion 20261013000107_init_omnibi_standalone con Prisma 5.22 del servicio. Resultado: 9/9 contenedores healthy, /api/v1/health 200 v1.39.10, bundle frontend 1.39.10, 'Socket.io Redis Adapter initialized successfully' (pub/sub de Redis habilitado en produccion), E2E Playwright 64/64 contra provecchio.com y qa_e2e_check.py sin errores JS ni 5xx.",
+      "status": "completed",
+      "version": "1.39.10",
+      "assigned_module": "scripts/deploy-production.sh, docker-compose.yml, docker-compose.provecchio.yml, services/omnibi-standalone, services/sync-standalone, frontend/e2e/omnigastro.spec.ts, frontend/e2e/pos-tablet-responsive.spec.ts, docs/troubleshooting/183-deploy-provecchio-root-ssh-frontend-build-standalone-fix.md",
+      "deploy_target": "provecchio",
+      "next_steps": [
+        "Ejecutar scripts/init.sh (requiere confirmacion del usuario por consumo de CPU/RAM)",
+        "Verificar en el siguiente deploy que el paso de build del frontend queda cacheado y que el script ya no necesita el chmod manual",
+        "Documentar en el runbook que los bind mounts ./services/<svc>:/app son solo de desarrollo"
+      ]
+    },
+    {
       "id": "FEAT-175",
       "category": "Core / Redis / Socket.IO WebSockets / Deploy",
       "title": "Fix crash-loop del backend: unhandledRejection del adapter de Socket.IO + Redis (Stream isn't writeable)",
@@ -1965,7 +1980,7 @@
     }
   ],
   "lastUpdated": "2026-10-19",
-  "last_id": "FEAT-175",
+  "last_id": "FEAT-176",
   "next_pending_sc": null,
   "active_plan": "docs/plans/omnigastro/PLAN_MAESTRO.md",
   "plan_progress": {

@@ -21,7 +21,19 @@
 | `REDIS_URL` / `REDIS_PASSWORD` / `ENABLE_REDIS_WS` / `env_file: .env` (fix `JWT_SECRET` ausente) | | ✅ |
 | **Documentación** | `docs/troubleshooting/182-*.md` + índice | ✅ |
 | **Bump versión** | `VERSION`, `backend/package.json`, `frontend/package.json`, `featurelist.json` | ✅ 1.39.10 |
-| **E2E Playwright** | `frontend/e2e/` | ✅ 64/64 OK vs `provecchio.local` |
+| **E2E Playwright** | `frontend/e2e/` | ✅ 64/64 OK vs `provecchio.local` y vs `provecchio.com` |
+
+### 🚀 Release v1.39.10 — Deploy a producción Provecchio (Octubre 2026)
+
+| Feature | Módulo | Estado |
+|---------|--------|--------|
+| **Deploy a provecchio.com** (autorizado por el usuario) | `scripts/deploy-production.sh` | ✅ En producción |
+| SSH del deploy con `root@` (17 invocaciones) — evita `permission denied` sobre `.env.provecchio` | | ✅ |
+| **Build del frontend en el servidor** (`node:20-alpine` + `vite build --mode provecchio`) | | ✅ |
+| `docker-compose.provecchio.yml`: `REDIS_URL`/`DATABASE_URL` con interpolación (fin del placeholder) | | ✅ |
+| `sync_standalone` / `omnibi_standalone` operativos (auth-shared, bind mount, Redis, healthcheck, base `orderflow_bi`) | | ✅ 9/9 healthy |
+| **E2E Playwright en producción** | `frontend/e2e/` | ✅ 64/64 OK vs `provecchio.com` |
+| **Documentación** | `docs/troubleshooting/183-*.md` + índice | ✅ |
 
 ---
 

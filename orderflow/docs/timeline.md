@@ -18,6 +18,19 @@
 
 ---
 
+### 2026-10-19 : v1.39.10 — Deploy a producción (provecchio.com)
+- Deploy de v1.39.10 a provecchio con `./scripts/deploy-production.sh provecchio` (autorizado por el usuario)
+- Correcciones de infraestructura detectadas en el deploy (ver `docs/troubleshooting/183-*.md`):
+  - SSH del script de deploy sin `root@` → `permission denied` sobre `.env.provecchio` (600) y `.git/objects`
+  - El frontend servía `./frontend/dist` sin reconstruir (rsync excluye `**/dist`) → producción seguía en el bundle v1.39.8
+  - `scripts/replica-entrypoint.sh` en modo 644 → réplica de PostgreSQL no arrancaba
+  - `sync_standalone` / `omnibi_standalone` en crash-loop (mapping `@orderflow/auth-shared` a `.d.ts`, `main: dist/index.js` sin subcarpeta, bind mount de desarrollo sobre `/app`, Redis sin password, healthcheck con `wget` inexistente)
+  - Base `orderflow_bi` creada y migración de OmniBI aplicada en producción
+- Estado final: 9/9 contenedores `healthy`, `/api/v1/health` → `200 v1.39.10`, bundle frontend `1.39.10`, `✅ Socket.io Redis Adapter initialized successfully`
+- E2E Playwright contra provecchio.com: **64/64 OK**; `qa_e2e_check.py`: sin errores JS ni 5xx
+
+---
+
 ### 2026-10-19 : v1.39.10 — Backend: crash-loop por adapter de Socket.IO + Redis (`unhandledRejection`)
 - `backend/src/common/redis-io.adapter.ts`: el cliente `sub` creado con `duplicate()` (hereda `lazyConnect`/`enableOfflineQueue:false`) nunca se conectaba; `@socket.io/redis-adapter` dispara `psubscribe`/`subscribe` sin `await` → rechazo sin manejar → Node 22 terminaba el proceso
   - Fix: `await subClient.connect()` antes de `createAdapter`, password enmascarada en logs, `safeQuit()` en el fallback
