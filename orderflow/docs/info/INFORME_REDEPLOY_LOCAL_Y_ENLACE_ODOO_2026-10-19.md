@@ -187,8 +187,67 @@ ODOO_DB: prod        # antes: wellnesscoffee (inexistente)
 | 5 | Mapear `getProductCategories` contra este Odoo 14 | Análisis de la API del ERP |
 | 6 | Commitear los cambios locales de esta sesión en `feat/opencore-plan0-baseline` | Aprobación del usuario |
 
-## 7. Referencias
+## 7. Pruebas de contrato con Newman (AGENTS.md §3.3)
+
+Newman **sí forma parte del protocolo** (`AGENTS.md` §3.3, "Pruebas de API con Newman
+(Complemento a Playwright)": obligatorio cuando se modifican endpoints públicos, integraciones,
+webhooks o contratos REST/WebSocket, sin reemplazar la suite Playwright).
+
+Estado del tooling encontrado:
+
+- Colección: `docs/tests/newman/contracts.postman_collection.json` (12 requests, **última
+  actualización 2026-10-04**).
+- Ambientes: `production.postman_environment.json` (baseUrl `https://api.pesallaccia.com`, sin
+  secretos) y `provecchio.postman_environment.json` (baseUrl `https://provecchio.com`, con
+  `MASTER_API_KEY`; `adminPassword` vacío).
+- Newman instalado globalmente: **6.2.3**. No hay ambiente ni colección para **local**.
+
+### 7.1 Ejecución contra el stack local recien desplegado
+
+Se creó un ambiente local efímero (`/tmp/kilo/local.postman_environment.json`, fuera del repo
+para no versionar secretos) con `baseUrl=https://provecchio.local`, `tenantId=provecchio-dimora-001`,
+`MASTER_API_KEY` del `.env` local y las credenciales de admin. Resultado:
+
+```
+requests        12 | 0 failed
+test-scripts    12 | 0 failed
+assertions      13 | 6 failed
+```
+
+Los 6 fallos son **falsos negativos por colección desactualizada**, no fallas del sistema:
+
+| # | Request de la colección | Status | Causa raíz | Endpoint real verificado |
+|---|---|---|---|---|
+| 1 | `GET /api/v1/public/social-catalog/{{tenantId}}` | 404 | Ruta que ya no existe | `GET /api/v1/public/social-catalog/products?tenantId={{tenantId}}` → **200** (devuelve productos reales: Americano, …) |
+| 2 | `POST /api/v1/orders/:id/claim` | 401 | La colección no propaga el `accessToken` del login (solo manda `x-tenant-id`) y usa `:id` literal | La ruta existe: `api/v1/orders/:id/claim` |
+| 3 | `POST /api/v1/orders/:id/send-to-kitchen` | 401 | Ídem (falta `Authorization`) | La ruta existe |
+| 4 | `GET /api/v1/pos/sessions` | 404 | Ruta desactualizada | `GET /api/v1/pos-sessions/active` (401 sin token) · `POST /api/v1/pos-sessions/open` |
+| 5 | `POST /api/omniflow/sync_table_order` | 404 | **Apunta al servicio equivocado**: la ruta vive en el `odoo-adapter` (`odoo-adapter/src/index.js:306`), no en el core | `POST http://<odoo-adapter>:3005/api/omniflow/sync_table_order` |
+| 6 | `POST /api/v1/integrations/odoo/order-paid` | 404 | Ruta que no existe en el core | `GET /api/v1/integrations` (401 sin token) |
+
+Requests que sí pasaron: health (2 asserts), login con `accessToken`, webhook sin API key → 401,
+webhook con `x-api-key` → 201, KDS público → 200, guest order draft → 200/400.
+
+### 7.2 Plan de actualización de la colección (pendiente de aprobación)
+
+1. **Propagar autenticación**: script `prerequest` a nivel de colección que toma
+   `pm.response.json().accessToken` del login y lo guarda en `accessToken`; las requests
+   autenticadas pasan a enviar `Authorization: Bearer {{accessToken}}`.
+2. **Corregir la ruta del catálogo público** a `/api/v1/public/social-catalog/products?tenantId={{tenantId}}`.
+3. **Corregir POS sessions** a `/api/v1/pos-sessions/active` (o `POST /api/v1/pos-sessions/open`).
+4. **Reapuntar el sync de Odoo** al `odoo-adapter` con una variable `adapterBaseUrl`
+   (`http://localhost:3005` en local, `http://orderflow_odoo_adapter:3005` en red Docker) y
+   validar además `GET /health` del adapter.
+5. **Reemplazar `order-paid`** por el contrato real de integraciones (`GET /api/v1/integrations`).
+6. **Agregar el ambiente local** `docs/tests/newman/local.postman_environment.json` (sin secretos
+   versionados: referencia a variables de entorno) y documentar el comando en
+   `docs/tests/newman/README.md`.
+7. Volver a ejecutar la colección contra **local** y **provecchio.com**, y registrar el resultado
+   en el informe de auditoría de la vertical afectada.
+
+## 8. Referencias
 
 - Troubleshooting: `docs/troubleshooting/184-odoo14-nginx-test-page-and-odoo-db-name-mismatch.md`
 - Vertical OpenCore: `docs/plans/opencore/`
 - Backlog del cliente: `docs/plans/omnigastro/BACKLOG_CLIENTE_20261019.md`
+- Colección Newman: `docs/tests/newman/contracts.postman_collection.json` (AGENTS.md §3.3)
