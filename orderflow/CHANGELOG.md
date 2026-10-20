@@ -1,3 +1,45 @@
+## [1.39.14] - 2026-10-20
+
+### ✨ Feature: Cuenta abierta — liberar la mesa manteniendo la cuenta cobrable (FEAT-190)
+
+Propuesta del cliente: *«Pasar la cuenta a "una persona" para que la cuenta a cobrar
+quede abierta... así es como podemos liberar la mesa pero mantener la cuenta abierta
+para el cobro»*. Es el patrón de **cuenta abierta** (tab).
+
+**Backend**
+
+- `POST /api/v1/orders/:id/transfer-to-person`: resuelve o crea el `Customer` (la
+  persona), resuelve la sesión de caja, libera la mesa (comensales `CHECKED_OUT`,
+  mesa `FREE` y sin dueño) y desasocia la mesa del pedido. La transacción conserva
+  su ID, su persona, su mozo y su sesión de caja en `guestDraft.openAccount`.
+- `POST /api/v1/pos/sessions/:id/collect`: **cobro real** (antes solo actualizaba la
+  lista en memoria y guardaba las propinas en el `localStorage`). Marca el pedido
+  como pagado y registra el `CashMovement` de venta y de propina en la sesión de caja.
+- `GET /api/v1/orders/guest/pending`: distingue cuentas de mesa y **cuentas abiertas**
+  (persona, mesa de origen y sesión de caja).
+
+**ERP (Odoo 14)**
+
+- Odoo 14 CE no tiene la "transferencia a cliente" del POS Enterprise (comprobado
+  en el core), pero su modelo lo permite: el addon asigna el `res.partner` y libera
+  la mesa (`table_id = False`). Así la mesa queda libre en el ERP y la cuenta sigue
+  abierta a nombre del cliente.
+- Nueva ruta del adapter `POST /api/omniflow/transfer_table_order` y nuevo handler
+  `odoo.transfer_table_order` en la cola `odoo-table-sync` (con telemetría).
+
+**Frontend**
+
+- `/admin/gastro/tables`: acción "Cerrar cuenta y liberar mesa" con la persona a la
+  que se traspasa (nombre, RUC, teléfono) y conmutador de traspaso al ERP.
+- `/admin/gastro/cashier`: sección de cuentas abiertas y cobro real (exige sesión de
+  caja abierta).
+
+**Sin tablas nuevas**: se apoya en `Order.customerId`, `Order.posSessionId`,
+`Order.waiterId`, `Order.tableId` (nullable) y `metadata.guestDraft.openAccount`.
+
+**Documentación:** `docs/plans/omnigastro/PLAN_CUENTA_ABIERTA_2026-10-20.md`,
+`flujo_cuenta-abierta.md`, `auditoria-cuenta-abierta-2026-10-20.md`.
+
 ## [1.39.13] - 2026-10-20
 
 ### 🐛 Fix: El cobro en `/admin/gastro/tables` pedía PIN y devolvía HTTP 400 (bug #8b)

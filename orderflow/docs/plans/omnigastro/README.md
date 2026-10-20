@@ -17,6 +17,7 @@ OmniGastro convierte OmniFlow en el **Sistema Operativo Restaurantero** completo
 | [`PLAN_OPERATIVO_Y_PROMPTS.md`](./PLAN_OPERATIVO_Y_PROMPTS.md) | **Roadmap priorizado por sprints (P0/P1/P2) + prompts individuales por FEAT** listos para delegar a un agente Implementador |
 | [`AUDITORIA_Y_SOCIAL_CATALOG_COMO_MENU.md`](./AUDITORIA_Y_SOCIAL_CATALOG_COMO_MENU.md) | Auditoría de coherencia OmniFlow → OmniGastro + Social Catalog como menú digital del restaurante (FEAT-125 detallado) |
 | [`PLAN_ODOO_POS_SYNC_2026-10-19.md`](./PLAN_ODOO_POS_SYNC_2026-10-19.md) | **Plan maestro de la sincronización OrderFlow → Odoo 14 POS** (bug #7 del reporte del cliente, FEAT-184…188, v1.39.11) |
+| [`PLAN_CUENTA_ABIERTA_2026-10-20.md`](./PLAN_CUENTA_ABIERTA_2026-10-20.md) | **Plan maestro de la cuenta abierta**: traspaso de la cuenta a una persona y liberación de la mesa manteniendo la cuenta cobrable (FEAT-190, v1.39.14) |
 | [`flujo_odoo-pos-sync.md`](./flujo_odoo-pos-sync.md) | Diagrama de secuencia Mermaid, contratos REST y hitos de telemetría `t0…t5` del sync a Odoo |
 | [`BACKLOG_CLIENTE_20261019.md`](./BACKLOG_CLIENTE_20261019.md) | Reporte de los 9 bugs del cliente en la v1.39.9 (origen de FEAT-184…188) |
 | [`featurelist.json`](./featurelist.json) | FEAT-001 a FEAT-00124+ con estado y módulo |
@@ -38,6 +39,7 @@ OmniGastro convierte OmniFlow en el **Sistema Operativo Restaurantero** completo
 | **3.2 — Hardening RBAC Empleados** | — | ✅ **completed** (v1.38.20) | [`diseno-rbac-empleados.md`](./diseno-rbac-empleados.md) |
 | **3.3 — Fixes de Campo Provecchio** | FEAT-161, 163, 164, 165, **FEAT-166** | ✅ **completed** (v1.39.1) | [`field-fixes-v1.39.0.md`](./field-fixes-v1.39.0.md) |
 | **3.4 — Sincronización con Odoo 14 POS** | FEAT-184, 185, 186, 187, **188** | 🟡 **en curso** (v1.39.11) | [`PLAN_ODOO_POS_SYNC_2026-10-19.md`](./PLAN_ODOO_POS_SYNC_2026-10-19.md), [`flujo_odoo-pos-sync.md`](./flujo_odoo-pos-sync.md) |
+| **3.5 — Cuenta abierta (liberar mesa con la cuenta cobrable)** | FEAT-190 | ✅ **completed** (v1.39.14) | [`PLAN_CUENTA_ABIERTA_2026-10-20.md`](./PLAN_CUENTA_ABIERTA_2026-10-20.md), [`flujo_cuenta-abierta.md`](./flujo_cuenta-abierta.md) |
 | **4 — Hardware + Escala** | FEAT-120 → 124 | ⚪ planned | [`PLAN_MAESTRO.md`](./PLAN_MAESTRO.md) §5 |
 
 ---

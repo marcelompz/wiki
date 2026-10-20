@@ -1,6 +1,6 @@
 {
   "project": "OrderFlow SaaS Omnicanal",
-  "version": "1.39.13",
+  "version": "1.39.14",
   "last_updated": "2026-10-20",
   "features": [
     {
@@ -2195,10 +2195,30 @@
         "Decidir con el cliente si la mesa se libera en la preconfirmacion del cobro o al confirmarlo en la caja (la promesa 'Mesa libre en breve' del frontend no la cumple el backend por si solo)"
       ],
       "qa_validation": "Local: POST /api/v1/public/hr/kiosk/pin/verify con Bearer y SIN x-tenant-id -> 200 con el empleado (antes 400); POST /api/v1/orders/:id/payment-preconfirm -> 200 | tsc backend y frontend sin errores | Suite completa 129 suites / 960 tests en verde | Auditoria: docs/plans/omnigastro/auditoria-gastro-tables-payment-pin-400.md"
+    },
+    {
+      "id": "FEAT-190",
+      "category": "OmniGastro / Sala y caja",
+      "title": "Cuenta abierta: traspaso de la cuenta a una persona y liberacion de la mesa",
+      "description": "Propuesta del cliente (2026-10-20): pasar la cuenta a 'una persona' para que la cuenta a cobrar quede abierta, manteniendo su ID, su persona, su mozo y su cajero con la sesion de caja abierta, y liberar la mesa para el siguiente comensal. Implementacion: POST /api/v1/orders/:id/transfer-to-person (crea/reutiliza el Customer, resuelve la sesion OPENED, pone los comensales en CHECKED_OUT, la mesa en FREE y sin dueno, desasocia la mesa del pedido y escribe guestDraft.openAccount con la persona, el mozo, la sesion y la mesa de origen); POST /api/v1/pos/sessions/:id/collect (cobro real: pedido pagado + CashMovement de venta y propina en la sesion, que hasta ahora solo existia en el frontend); GET /api/v1/orders/guest/pending distingue cuentas de mesa y cuentas abiertas. En el ERP, Odoo 14 CE no tiene la transferencia a cliente del POS Enterprise pero su modelo lo permite: el addon asigna el res.partner y libera la mesa (table_id = False), con nueva ruta del adapter y nuevo handler odoo.transfer_table_order en la cola con telemetria. Sin tablas nuevas: se apoya en Order.customerId, Order.posSessionId, Order.waiterId, Order.tableId y metadata.guestDraft.openAccount.",
+      "status": "completed",
+      "version": "1.39.14",
+      "priority": "HIGH",
+      "assigned_module": "backend/src/orders/orders.service.ts, backend/src/orders/orders.controller.ts, backend/src/orders/dto/transfer-to-person.dto.ts, backend/src/orders/odoo-table-sync.listener.ts, backend/src/queues/odoo-table-sync.processor.ts, backend/src/pos-sessions/pos-sessions.service.ts, backend/src/pos-sessions/pos-sessions.controller.ts, backend/src/pos-sessions/dto/collect-account.dto.ts, odoo-adapter/src/index.js, odoo-adapter/odoo-addons/pos_omniflow_sync/controllers/main.py, frontend/src/pages/admin/gastro-tables.tsx, frontend/src/pages/admin/gastro-cashier.tsx",
+      "depends_on": [
+        "FEAT-189"
+      ],
+      "blocking": [],
+      "deploy_target": "provecchio",
+      "next_steps": [
+        "Validar en produccion el flujo completo con un pedido real: traspaso -> mesa libre -> cuenta en la cola de la caja -> cobro",
+        "Lista de cuentas abiertas huerfanas (sin sesion de caja asignada)"
+      ],
+      "qa_validation": "Jest: 5 casos del cobro en caja (pos-sessions.collect.spec.ts) + 5 del traspaso a persona (orders.service.spec.ts) | Suite completa 130 suites / 970 tests en verde | tsc backend y frontend sin errores | vite build + PWA correctos | Documentacion: PLAN_CUENTA_ABIERTA_2026-10-20.md, flujo_cuenta-abierta.md, auditoria-cuenta-abierta-2026-10-20.md"
     }
   ],
   "lastUpdated": "2026-10-20",
-  "last_id": "FEAT-189",
+  "last_id": "FEAT-190",
   "next_pending_sc": null,
   "active_plan": "docs/plans/omnigastro/PLAN_MAESTRO.md",
   "plan_progress": {
