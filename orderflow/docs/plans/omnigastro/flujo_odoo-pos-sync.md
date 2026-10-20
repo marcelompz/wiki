@@ -164,6 +164,8 @@ Se guardan en `order.metadata.odooSync.milestones` con la nomenclatura exacta de
 | D5 | Plugins por env fallaban | `ODOO_DB=wellnesscoffee` (base inexistente) | `docker-compose.yml` → `ODOO_DB=prod` |
 | D6 | Worker legacy competed por el nombre de cola | `TableSyncWorker` leía `odoo-table-sync` (Redis plano) mientras el backend usa BullMQ | Worker eliminado del `odoo-adapter` |
 | D7 | Los fallos no se veían | Sin métricas ni trazabilidad | `odoo-sync-telemetry.service.ts` + `/metrics` |
+| **D8** | **El job nunca se encolaba: `queue.add()` se quedaba colgado** | `BullModule.forRootAsync` solo leía `REDIS_HOST` (que no existe en ningún `.env`) y caía a `localhost:6379` → dentro del contenedor es el propio backend, no Redis. ioredos reintentaba en silencio y `add()` nunca resolvía | `queues.module.ts` deriva la conexión de `REDIS_URL` (con fallback a `REDIS_HOST`) |
+| **D9** | El contenedor arrancaba con un Prisma Client viejo | El volumen anónimo `/app/node_modules` tapaba el `node_modules` de la imagen → se ignoraba el cliente generado en el build ("Unknown field `odooTableId`") | Se elimina el volumen anónimo del backend + `ARG CACHE_BUST` en el Dockerfile |
 
 > **Nota de compatibilidad del addon:** Odoo 14 no expone `pos.config._get_bus_channel_name`
 > ni `bus.bus._sendone` ( APIs de Odoo 18/19 ). La notificación al POS es *best-effort*

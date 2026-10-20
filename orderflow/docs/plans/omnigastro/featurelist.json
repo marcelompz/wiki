@@ -1404,8 +1404,8 @@
     {
       "id": "FEAT-187",
       "category": "OmniGastro / Integración Odoo POS",
-      "title": "Unificación de la configuración del odoo-adapter y retirada del worker legacy",
-      "description": "D5: ODOO_DB estaba fijado a 'wellnesscoffee', una base que no existe (la única de negocio es 'prod'), lo que rompía los plugins que resuelven la base por entorno. Ahora ODOO_DB=prod está parametrizado en docker-compose.yml. D6: el TableSyncWorker del adapter leía la lista Redis plana 'odoo-table-sync' mientras el backend usa BullMQ ('bull:odoo-table-sync'): era un camino muerto que competía por el nombre de la cola; se elimina del adapter. ODOO_ADAPTER_URL pasa a variable de entorno con valor por defecto, documentado en .env.local.example.",
+      "title": "Unificacion de la configuracion del odoo-adapter, de la cola BullMQ y retirada del worker legacy",
+      "description": "D5: ODOO_DB estaba fijado a 'wellnesscoffee', una base que no existe (la unica de negocio es 'prod'), lo que rompia los plugins que resuelven la base por entorno. Ahora ODOO_DB=prod esta parametrizado en docker-compose.yml. D6: el TableSyncWorker del adapter leia la lista Redis plana 'odoo-table-sync' mientras el backend usa BullMQ ('bull:odoo-table-sync'): era un camino muerto que competia por el nombre de la cola; se elimina. D8 (descubierto en la validacion local): BullModule.forRootAsync solo leia REDIS_HOST, que no existe en ningun .env, por lo que caia a 'localhost:6379' - dentro del contenedor eso es el propio backend, no Redis. ioredis reintentaba en silencio y queue.add() NUNCA resolvia: el job de sync a Odoo no se encolaba nunca (afecta a todas las colas: webhooks, follow-up, impresion de cocina y sync Odoo). La conexion ahora se deriva de REDIS_URL, que si esta presente en todos los entornos, con fallback a REDIS_HOST. D9: el volumen anonimo /app/node_modules del backend tapaba el node_modules de la imagen, de modo que el contenedor arrancaba con un Prisma Client viejo ('Unknown field `odooTableId` for select statement') despues de un cambio de schema; se elimina ese volumen y se anade ARG CACHE_BUST al Dockerfile para invalidar la capa de 'prisma generate' en cada release (el deploy script lo inyecta con la version). ODOO_ADAPTER_URL pasa a variable de entorno con valor por defecto, documentado en .env.local.example.",
       "status": "completed",
       "version": "1.39.11",
       "priority": "MEDIUM",
@@ -1416,7 +1416,7 @@
       "next_steps": [
         "Verificar ODOO_ADAPTER_URL en el .env del servidor de provecchio en el deploy"
       ],
-      "qa_validation": "Adapter arrancado sin el worker legacy | ODOO_DB=prod presente en el compose | Contrato de /api/omniflow/odoo_tables verificado contra el ERP"
+      "qa_validation": "Cadena end-to-end validada en local: cierre de mesa -> evento -> listener -> BullMQ -> processor -> odoo-adapter -> Odoo 14, con los hitos t1/t2/t3/t5 registrados en order.metadata.odooSync y las metricas odoo_sync_enqueued_total / odoo_sync_failed_total en /metrics | Sin escrituras en el ERP durante la validacion (tabla mapeada a un id inexistente: Odoo responde 'Table not found' y el error se propaga) | Cliente Prisma del contenedor regenerado: 'odooTableId' presente en el cliente"
     },
     {
       "id": "FEAT-188",
