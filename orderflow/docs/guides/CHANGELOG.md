@@ -1,3 +1,33 @@
+## [1.39.13] - 2026-10-20
+
+### 🐛 Fix: El cobro en `/admin/gastro/tables` pedía PIN y devolvía HTTP 400 (bug #8b)
+
+**Síntoma:** la mesa G5 tenía un pedido listo para cobrar, pero al procesar el
+cobro el sistema pedía el PIN del empleado y devolvía
+`HTTP 400` en `POST /api/v1/public/hr/kiosk/pin/verify`.
+
+**Causa raíz:** `HrKioskPublicController` resolvía el tenant **solo** desde el
+encabezado `x-tenant-id`, que el cliente HTTP del frontend nunca envía (el
+interceptor solo añade `Bearer` o `x-api-key`, y en rutas `/public/**` ni
+siquiera la key). El tenant **ya estaba resuelto** por el `ApiKeyGuard` en
+`request.tenant`: el controlador no lo consultaba y respondía 400.
+
+**Correcciones:**
+
+- `resolveTenantId()` usa el contexto de la petición (`req.tenantId` →
+  `req.tenant?.id` → `req.user?.tenantId`), dejando `x-tenant-id` como override
+  explícito. Aplica a `pin/verify` y `pin/mark-attendance`.
+- El frontend envía la `x-api-key` en `/api/v1/public/hr/kiosk/**` (endpoints
+  públicos **por tenant**): las tablets del salón sin sesión pueden verificar el PIN.
+- El mensaje "Mesa asignada a `<nombre>`" usaba `employee.name`, que el endpoint
+  no devuelve (`firstName`/`lastName`).
+- `guestPending` (cola de la caja) expone `paymentPreconfirmedAt` y
+  `paymentPreconfirmData`: el dato se escribía pero **nadie lo leía**, así que la
+  caja no podía saber que el mozo ya había cobrado en mesa. La caja muestra ahora
+  una etiqueta verde con el mozo y la hora de la preconfirmación.
+
+**Auditoría:** `docs/plans/omnigastro/auditoria-gastro-tables-payment-pin-400.md`.
+
 # Changelog
 
 Todos los cambios notables en este proyecto se documentarán en este archivo.

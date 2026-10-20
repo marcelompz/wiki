@@ -1,6 +1,6 @@
 {
   "project": "OrderFlow SaaS Omnicanal",
-  "version": "1.39.12",
+  "version": "1.39.13",
   "last_updated": "2026-10-20",
   "features": [
     {
@@ -2178,10 +2178,27 @@
         "Configurar la alerta de odoo_sync_failed_total en el stack de observabilidad"
       ],
       "qa_validation": "Jest backend/src/queues/odoo-sync-telemetry.service.spec.ts 6/6 OK (nomenclatura, persistencia en metadata, latencia t0->t5, no romper el flujo ante fallo)"
+    },
+    {
+      "id": "FEAT-189",
+      "category": "OmniGastro / HR Kiosko",
+      "title": "Cobro en /admin/gastro/tables: la verificacion de PIN devolvia HTTP 400 (bug #8b)",
+      "description": "El cliente reporto que al procesar el cobro de una mesa con pedido listo (G5) el sistema pedia el PIN del empleado y devolvia HTTP 400 en POST /api/v1/public/hr/kiosk/pin/verify. Causa raiz: HrKioskPublicController resolvia el tenant EXCLUSIVAMENTE desde el encabezado x-tenant-id, que el interceptor del frontend nunca envia; el tenant ya estaba resuelto por el ApiKeyGuard en request.tenant. Correcciones: resolveTenantId() con la cadena tenantId -> tenant.id -> user.tenantId (x-tenant-id queda como override explicito) en pin/verify y pin/mark-attendance; el frontend envia x-api-key en /api/v1/public/hr/kiosk/** (endpoints publicos por tenant) para que las tablets sin sesion puedan verificar el PIN; el mensaje de asignacion usa firstName/lastName (antes employee.name, undefined); guestPending expone paymentPreconfirmedAt y paymentPreconfirmData (el dato se escribia pero nadie lo leia) y la caja muestra la etiqueta de cobro preconfirmado.",
+      "status": "completed",
+      "version": "1.39.13",
+      "priority": "HIGH",
+      "assigned_module": "backend/src/hr/hr-kiosk-public.controller.ts, backend/src/orders/orders.service.ts, frontend/src/services/api.ts, frontend/src/pages/admin/gastro-tables.tsx, frontend/src/pages/admin/gastro-cashier.tsx",
+      "depends_on": [],
+      "blocking": [],
+      "deploy_target": "provecchio",
+      "next_steps": [
+        "Decidir con el cliente si la mesa se libera en la preconfirmacion del cobro o al confirmarlo en la caja (la promesa 'Mesa libre en breve' del frontend no la cumple el backend por si solo)"
+      ],
+      "qa_validation": "Local: POST /api/v1/public/hr/kiosk/pin/verify con Bearer y SIN x-tenant-id -> 200 con el empleado (antes 400); POST /api/v1/orders/:id/payment-preconfirm -> 200 | tsc backend y frontend sin errores | Suite completa 129 suites / 960 tests en verde | Auditoria: docs/plans/omnigastro/auditoria-gastro-tables-payment-pin-400.md"
     }
   ],
   "lastUpdated": "2026-10-20",
-  "last_id": "FEAT-188",
+  "last_id": "FEAT-189",
   "next_pending_sc": null,
   "active_plan": "docs/plans/omnigastro/PLAN_MAESTRO.md",
   "plan_progress": {

@@ -24,7 +24,7 @@
 | 6 | En el KDS, al confirmar, el pedido **desaparece** en vez de quedar en el historial (Pendiente/Cocinando/Listo) | ⬜ open | Alto |
 | 7 | El cierre de cuenta del mozo **no carga en el POS de Odoo 14**; el pago del mozo debería ser opcional/configurable | ✅ **resuelto v1.39.12** | Alto |
 | 8a | En `/admin/gastro/tables` solo funciona el **"C"** del CRUD (no se actualiza ni borra) | ✅ **resuelto v1.39.11** | Medio |
-| 8b | El cobro de la mesa G5 pide **PIN** y devuelve **HTTP 400** en `POST /api/v1/public/hr/kiosk/pin/verify` | ⬜ open | **Crítico** |
+| 8b | El cobro de la mesa G5 pide **PIN** y devuelve **HTTP 400** en `POST /api/v1/public/hr/kiosk/pin/verify` | ✅ **resuelto v1.39.13** | **Crítico** |
 | 9 | Tras enviar a cocina desde el POS, el pedido **desaparece** y el mozo no puede reabrirlo para modificarlo | ⬜ open | Alto |
 
 > **8b y 5 son los dos bloqueantes de operación**: sin cobro (8b) y sin entrada automática en el KDS
