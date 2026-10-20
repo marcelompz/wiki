@@ -1475,10 +1475,27 @@
         "Lista de cuentas abiertas huerfanas (sin sesion de caja asignada)"
       ],
       "qa_validation": "Jest: 5 casos del cobro en caja (pos-sessions.collect.spec.ts) + 5 del traspaso a persona (orders.service.spec.ts) | Suite completa 130 suites / 970 tests en verde | tsc backend y frontend sin errores | vite build + PWA correctos | Documentacion: PLAN_CUENTA_ABIERTA_2026-10-20.md, flujo_cuenta-abierta.md, auditoria-cuenta-abierta-2026-10-20.md"
+    },
+    {
+      "id": "FEAT-191",
+      "category": "OmniGastro / KDS",
+      "title": "El KDS se actualiza solo cuando el mozo envia el pedido a cocina (bug #5)",
+      "description": "Bug #5 del cliente (critico de sala): la comanda enviada a cocina desde el POS del mozo no aparecia en /admin/kds y habia que pulsar 'Sincronizar Todo'. Causa raiz: dos fallos encadenados. (1) El backend emitia 'kds:ticket_new' solo a la sala 'tenant:{tenantId}:station:{stationId}', a la que NADIE se une: el KDS se une a 'tenant:{tenantId}' mediante 'join:tenant'. (2) El KDS escuchaba 'order:new' y 'order:status_updated' (que se emiten al crear o confirmar el pedido por QR), no 'kds:ticket_new', que es el evento del envio a cocina: no habia ningun suscriptor en el frontend. Correcciones: OrdersGateway.emitKdsTicket() emite a la sala del tenant (donde esta el KDS) y a la de la estacion (para setups multi-KDS); sendToKitchen usa el gateway; el KDS escucha 'kds:ticket_new' y se recarga solo con debounce de 400 ms usando la misma llamada que el boton 'Sincronizar Todo', mas aviso y sonido.",
+      "status": "completed",
+      "version": "1.39.15",
+      "priority": "HIGH",
+      "assigned_module": "backend/src/orders/orders.gateway.ts, backend/src/orders/orders.service.ts, backend/src/orders/orders.gateway.spec.ts, frontend/src/pages/admin/kds.tsx, frontend/e2e/kds-ticket-notification.cjs",
+      "depends_on": [],
+      "blocking": [],
+      "deploy_target": "provecchio",
+      "next_steps": [
+        "Revisar el punto #6 del backlog (el historial de estados Pendiente/Cocinando/Listo se pierde al confirmar en cocina)"
+      ],
+      "qa_validation": "E2E local (frontend/e2e/kds-ticket-notification.cjs): el socket recibe kds:ticket_new con orderId, station, tableNumber y lineas al enviar a cocina, sin pulsar 'Sincronizar Todo' | Unitarios del gateway: 2 casos nuevos, 14/14 en verde | Suite completa en verde"
     }
   ],
   "lastUpdated": "2026-10-20",
-  "last_id": "FEAT-190",
+  "last_id": "FEAT-191",
   "next_pending_sc": null,
   "active_plan": "docs/plans/omnigastro/plan_actualizacion_1.38.14.md",
   "plan_progress": {

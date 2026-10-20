@@ -20,7 +20,7 @@
 | 2b | Al confirmar el pedido debe llegar **notificación al mozo**, igual que con "llamar al mozo" | ⬜ open | Alto |
 | 3 | Al llamar al mozo se muestra el **ID de mesa** en vez del **nombre** de la mesa | ⬜ open | Bajo |
 | 4 | "Volver al menú" **borra el resumen del pedido** y el carrito aparece vacío | ⬜ open | Alto |
-| 5 | El pedido enviado a cocina **no aparece en el KDS** hasta pulsar "Sincronizar todo" | ⬜ open | **Crítico** |
+| 5 | El pedido enviado a cocina **no aparece en el KDS** hasta pulsar "Sincronizar todo" | ✅ **resuelto v1.39.15** | **Crítico** |
 | 6 | En el KDS, al confirmar, el pedido **desaparece** en vez de quedar en el historial (Pendiente/Cocinando/Listo) | ⬜ open | Alto |
 | 7 | El cierre de cuenta del mozo **no carga en el POS de Odoo 14**; el pago del mozo debería ser opcional/configurable | ✅ **resuelto v1.39.12** | Alto |
 | 8a | En `/admin/gastro/tables` solo funciona el **"C"** del CRUD (no se actualiza ni borra) | ✅ **resuelto v1.39.11** | Medio |

@@ -1,3 +1,33 @@
+## [1.39.15] - 2026-10-20
+
+### 🐛 Fix: El KDS no se actualizaba solo al enviar el pedido a cocina (bug #5, crítico de sala)
+
+**Síntoma:** al enviar el pedido a cocina desde el POS del mozo, la comanda **no
+aparecía** en `/admin/kds`: había que pulsar "🔄 Sincronizar Todo". En sala, la
+cocina no tiene tiempo de interactuar con la pantalla.
+
+**Causa raíz (dos fallos encadenados):**
+
+1. **Sala equivocada:** el backend emitía `kds:ticket_new` solo a
+   `tenant:{tenantId}:station:{stationId}`, **a la que nadie se une** (el KDS se
+   une a `tenant:{tenantId}` con `join:tenant`).
+2. **Evento sin suscriptor:** el KDS escuchaba `order:new` y
+   `order:status_updated` (que se emiten al crear/confirmar el pedido por QR), no
+   `kds:ticket_new`, que era el evento del envío a cocina.
+
+**Correcciones:**
+
+- `OrdersGateway.emitKdsTicket()`: emite `kds:ticket_new` a **la sala del tenant**
+  (donde está el KDS) **y** a la de la estación (para setups multi-KDS).
+- `sendToKitchen` usa el gateway en lugar del `emit` directo.
+- El KDS escucha `kds:ticket_new` y se **recarga solo** (debounce de 400 ms) con
+  la misma llamada que el botón "Sincronizar Todo", con aviso y sonido.
+
+**Validación:** E2E `frontend/e2e/kds-ticket-notification.cjs` (socket → API →
+socket): la comanda llega sin pulsar nada. Unitarios del gateway: 2 casos nuevos.
+
+**Auditoría:** `docs/plans/omnigastro/auditoria-gastro-kds-auto-refresh.md`.
+
 ## [1.39.14] - 2026-10-20
 
 ### ✨ Feature: Cuenta abierta — liberar la mesa manteniendo la cuenta cobrable (FEAT-190)
