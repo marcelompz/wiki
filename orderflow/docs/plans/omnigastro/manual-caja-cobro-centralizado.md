@@ -8,20 +8,29 @@
 
 ---
 
-## 1. Estado actual (2026-10-20)
+## 1. Estado actual (2026-10-20) — ✅ CAJAS CONFIGURADAS
 
-La tabla `cash_registers` está **vacía** en producción:
+Las 4 cajas reales están configuradas en `provecchio.com`:
 
-```sql
-SELECT count(*) FROM cash_registers;  -- 0
-```
+| Caja | Code | Location | Cajeros con acceso |
+|---|---|---|---|
+| **Caja Principal** | `CASHIER_1` | Salón Principal | Natalia, Ninfa, Giovanni, Giuliana (todos con open+close+refund+discount) |
+| **Barra** | `CASHIER_2` | Barra | Ninfa, Giovanni |
+| **Terraza** | `CASHIER_3` | Terraza | Ninfa, Giuliana |
+| **Caja Auxiliar** | `CASHIER_4` | Salón | Natalia, Giovanni |
 
-Por lo tanto:
-- El Select de "Seleccioná una caja" muestra **0 opciones**.
-- El botón **"Abrir Caja"** no puede usarse (no hay caja que abrir).
-- El cobro de la cuenta abierta **queda bloqueado**: el mozo no puede imputar el pago a ninguna caja.
+**Cajeros (empleados + PIN):**
 
-No hay datos de prueba que eliminar — ya no hay nada.
+| Cajero | Employee ID | Contact ID | PIN | CI (nationalId) |
+|---|---|---|---|---|
+| Natalia Bogado | `cmubavw8b0003vop3i8h6oahw` | `5e13f755-794a-48ed-97be-0967ef281d97` | `9876` | (original) |
+| Ninfa Lecoque | `cmvh4tbwp000113xkfecp1ne5` | `8fc58663-68b1-4830-8ebb-6dcab094c8f9` | `1234` | `3398859` |
+| Giovanni Benedetti | `cmvh4tc5i000313xkdd80elzz` | `940d309c-1496-4437-9176-d87dbed970af` | `5678` | ⚠️ **PLACEHOLDER-GIOVANNI** (inventada, completar) |
+| Giuliana Benedetti | `cmvh4tchk000513xk5q59xyfh` | `f3aa21d0-90cd-4ba5-91fb-ae8da58dcfe1` | `9012` | ⚠️ **PLACEHOLDER-GIULIANA** (inventada, completar) |
+
+> ⚠️ Las CI de Giovanni y Giuliana son **placeholder** (la BD exige `@@unique([tenantId, nationalId])`). Completalas con las cédulas reales con `PUT /api/v1/hr/employees/:id` antes de que el sync a Odoo las use.
+
+**Historial:** la tabla `cash_registers` estaba vacía (0 rows) antes de esta configuración — no había datos de prueba que eliminar.
 
 ---
 
@@ -90,9 +99,9 @@ Con la sessión activa:
 
 ## 6. Próximos pasos
 
-1. **Creator las cajas reales** por API (ver §2) — ejemplo: "Caja Principal" (`CASHIER_1`), "Barra" (`CASHIER_2`), "Terraza" (`CASHIER_3`).
-2. **Asignar accessos** (`POST /api/v1/cash-registers/access`) a los cajeros con `canOpen`/`canClose`/`canRefund`/`canDiscount`.
-3. **Revisar el permiso `cash:manage`** del usuario admin si el POST falla con 403.
+1. ✅ **Crear las cajas reales** por API (ver §2) — **COMPLETADO 2026-10-20**: Caja Principal, Barra, Terraza, Caja Auxiliar.
+2. ✅ **Asignar accessos** (`POST /api/v1/cash-registers/access`) a los 4 cajeros — **COMPLETADO**: 10 accessos (4 en Principal, 2 en Barra, 2 en Terraza, 2 en Auxiliar).
+3. ⚠️ **Completar las CI placeholder** de Giovanni y Giuliana Benedetti con `PUT /api/v1/hr/employees/:id` (`nationalId`) antes de que el sync a Odoo las use.
 4. Volver a correr el spec para regenerar las capturas con cajas configuradas y verificar el flujo completo de cobro.
 
 ---
