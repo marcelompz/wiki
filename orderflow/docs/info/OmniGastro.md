@@ -2,6 +2,32 @@
 
 ## Before deploy on provecchio you need to backup the data on production, restore at localhost, deploy there and test all the stuff
 
+## 2026-10-20 — v1.39.16 (DEPLOYED ✅ TO PROVECCHIO.COM) — Lote 2 de bugs del cliente (FEAT-192)
+
+Cierra los **7 bugs restantes** del backlog del cliente v1.39.9, agrupados en **un solo lote y un solo despliegue** (FEAT-192). Los 5 críticos (#5, #7, #8a, #8b, #9) ya estaban resueltos en v1.39.11–v1.39.15.
+
+| # | Síntoma | Causa raíz | Corrección |
+|---|---|---|---|
+| **9** | Tras enviar a cocina el pedido **desaparece del POS** | El POS consultaba `CLAIMED, SENT_TO_KITCHEN, IN_PREPARATION`: estados **inexistentes** en el enum `OrderStatus` (`DRAFT, CONFIRMED, PREPARING, READY, DELIVERED, CANCELLED`). Al enviar a cocina el pedido pasa a `PREPARING`, no entraba en el filtro | `gastro-pos.tsx`: consulta `DRAFT,CONFIRMED,PREPARING,READY` |
+| **3** | El aviso al mozo mostraba el **UUID** del producto | El texto se componía con `${l productId}` | Backend: se usa `metadata.snapshotName` (o el nombre resuelto del producto). Frontend: el aviso usa `call.tableNumber` (G5) en vez de `call.tableId` |
+| **2b** | Al confirmar el pedido el mozo **no se enteraba** | Se creaba el `WaiterCall` en BD pero **no se emitía ningún evento** (solo en "llamar al mozo") | `guest-orders.controller.ts` emite `waiterCallNew` a `tenant:{tenantId}` con la misma carga que "llamar al mozo" |
+| **2a** | Al pedir desde el QR de mesa se ofrecía **"Para llevar / Barra"** | El modal de `serviceMode` se abría siempre en el checkout | `omni-catalog.tsx`: si el QR es de mesa (`tableInfo.tableId`), se envía directo con `serviceMode: 'TABLE'`; el modal queda para los QR sin mesa |
+| **1** | La alerta sonaba en el **móvil del cliente** y no en la tablet del mozo | (a) La página pública reproducía `playNotificationSound('call')` al llamar al mozo. (b) La tablet del mozo (`gastro-pos.tsx`, `gastro-mozos.tsx`) **no tenía WebSocket** | (a) El cliente ya no reproduce sonidos. (b) Nuevo hook `useWaiterAlerts` (sonido + pop-up) en las tres pantallas de mozo; el panel `gastro.tsx` añade el sonido que le faltaba |
+| **6** | Al confirmar en cocina la comanda **desaparecía** y se perdía el historial Pendiente/Cocinando/Listo | El handler `order:status_updated` **filtraba** la comanda de la lista al llegar a `DELIVERED` | `kds.tsx`: las comandas servidas pasan a una sección **"🗂️ Historial de la sesión"** (con su estado final) en lugar de desaparecer |
+| **4** | Tras "Volver al menú" no se veía el resumen y el carrito parecía vacío | El carrito se vacía al confirmar (correcto) y la vista de seguimiento sustituye al catáculo, sin ninguna señal de que el pedido seguía en curso | `omni-catalog.tsx`: al volver al menú se informa *"Tu pedido #xxxx sigue en curso. Te avisaremos cuando esté ready."* |
+
+**Validación:**
+- 3 casos nuevos en `guest-orders.controller.spec.ts` (nombre del producto, emisión de `waiterCallNew`, y que no se emite en servicio BAR).
+- Suite completa: **131 suites / 975 tests** en verde · `tsc` backend+frontend sin errores · `vite build` + PWA OK · `init.sh` completo en verde (QA E2E 4/4 contra provecchio.com).
+- **Despliegue a provecchio:** 9/9 contenedores healthy · health 200 · endpoints públicos responden · imagen backend nueva.
+- **PR #8** mergeado a `main` · tag `v1.39.16` · `check-version-sync` 9/9 · wiki sincronizada (`3f8fbc9`).
+
+**Bonus: el diagnostic ya no mata el Traefik.** `pre-deploy-diagnostic.sh` ejecutaba `docker rm -f traefik` al final y allevantaba un contenedor vacío que rompía el ruteo de edge/Cloudflare. Ahora solo inspecciona `traefik` y lo restaura si lo ha matado — en este despliegue sobrevivió intacto (2h up).
+
+**Pendiente operativo:** las cajas (`cash_registers`) están vacías en `provecchio.com`, por lo que el mozo no puede imputar los cobros de la cuenta abierta (FEAT-190). Ver `docs/plans/omnigastro/BACKLOG_CLIENTE_20261019.md` §8.
+
+---
+
 ## 2026-10-19 — v1.39.9 (FIXED LOCALLY ⏳ PENDING DEPLOY TO PROVECCHIO.COM)
 
 - **v1.39.8 bugs reportados en provecchio.com** (fixes implementados y validados en `https://provecchio.local`)
