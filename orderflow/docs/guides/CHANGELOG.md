@@ -2,6 +2,36 @@
 
 Todos los cambios notables en este proyecto se documentarán en este archivo.
 
+## [1.39.12] - 2026-10-20
+
+### 🐛 Fix: El producto del pedido no se resolvíe en el POS de Odoo 14 (D11)
+
+**Síntoma:** tras desplegar la v1.39.11, la cadena de sincronización llegaba hasta
+Odoo (`t0`→`t5` completos, `odoo_table_id=77` correcto) pero el ERP respondía:
+
+```
+invalid literal for int() with base 10: 'b0b55949-b1a7-4f8d-be27-9bd981e759e9'
+```
+
+**Causa raíz:** el listener enviaba `odooProductId = line.productId`, y el
+`productId` de OrderFlow es un **UUID**, no el id numérico de `product.product`
+de Odoo. El campo `Product.odooProductId` nunca existió en el schema: el mapeo
+real de productos es por **SKU** (`Product.skuInterno` == `product.default_code`
+en Odoo), que es la convención que ya usa el sincronizador de productos del
+adapter (`findProductBySkuOrBarcode`).
+
+**Solución:**
+
+- El listener envía `sku` (`skuInterno`), `barcode` y el `productId` de OrderFlow
+  para trazabilidad, y solo marca `odooProductId` si ya existe un id **numérico**.
+- El adapter resuelve el `product.product` de Odoo por SKU o código de barras
+  (`findProductBySkuOrBarcode`) y salta las líneas sin equivalente, informándolas
+  en `skipped_lines` y en el log.
+- Verificado contra el ERP: `BEB004 → id 1626 "Americano"` (18.000, el mismo
+  precio que en OrderFlow), `BEB011 → 1644`, `BEB012 → 1647`.
+
+**Documentación:** `docs/plans/omnigastro/flujo_odoo-pos-sync.md` §6 (D11).
+
 ## [1.39.11] - 2026-10-20
 
 ### 🐛 Fix: Sincronización OrderFlow → Odoo 14 POS (bug #7 del reporte del cliente)

@@ -192,6 +192,18 @@ OrderFlow (POS mozo / QR mesa)
 - [x] Playwright `odoo-pos-sync.spec.ts`
 - [x] Actualizar colección Newman (AGENTS.md §3.3): contrato `/api/omniflow/sync_table_order`
       + diagnóstico de mesas + opciones de cobro
+- [x] **D8**: `BullModule` nunca conectaba (`REDIS_HOST` inexistente → `localhost:6379`
+      = el propio contenedor) → el job **nunca se encolaba**. Ahora la conexión se
+      deriva de `REDIS_URL`. Afecta a todas las colas (webhooks, follow-up, KDS, sync)
+- [x] **D9**: el volumen anónimo `/app/node_modules` tapaba el `node_modules` de la
+      imagen → Prisma Client viejo en runtime. Volumen eliminado + `ARG CACHE_BUST`
+      en el Dockerfile (el deploy lo inyecta con la versión)
+- [x] **D10**: la tabla `omnigastro_settings` **no existe ni en producción**
+      (167 tablas en el dump, sin ella) → la migración la crea de forma idempotente
+- [x] `scripts/backup-production.sh`: resolución dinámica del contenedor de BD
+      (fallaba con "service 'database' is not running")
+- [x] El adapter deja de reportar `success: true` cuando el addon devuelve
+      `status: error` (BullMQ no reintentaba y la métrica contaba un fallo como acierto)
 
 ### Fase 5 — Barrera, release y despliegue
 

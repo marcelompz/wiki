@@ -162,15 +162,96 @@ Se guardan en `order.metadata.odooSync.milestones` con la nomenclatura exacta de
 | D3-bis | HTTP 500 `Field: Subtotal w/o Tax (price_subtotal)` | `pos.order.line.price_subtotal` / `price_subtotal_incl` también son `required=True` sin `compute` | Addon `pos_omniflow_sync` (`_omniflow_line_amounts`) |
 | D4 | El cierre de mesa no llegaba a Odoo | Solo "enviar a cocina" emitía el evento | `orders.service.guestClose` (trigger `TABLE_CLOSED`) |
 | D5 | Plugins por env fallaban | `ODOO_DB=wellnesscoffee` (base inexistente) | `docker-compose.yml` → `ODOO_DB=prod` |
-| D6 | Worker legacy competed por el nombre de cola | `TableSyncWorker` leía `odoo-table-sync` (Redis plano) mientras el backend usa BullMQ | Worker eliminado del `odoo-adapter` |
+| D6 | Worker legacy compitió por el nombre de cola | `TableSyncWorker` leía `odoo-table-sync` (Redis plano) mientras el backend usa BullMQ | Worker eliminado del `odoo-adapter` |
 | D7 | Los fallos no se veían | Sin métricas ni trazabilidad | `odoo-sync-telemetry.service.ts` + `/metrics` |
-| **D8** | **El job nunca se encolaba: `queue.add()` se quedaba colgado** | `BullModule.forRootAsync` solo leía `REDIS_HOST` (que no existe en ningún `.env`) y caía a `localhost:6379` → dentro del contenedor es el propio backend, no Redis. ioredos reintentaba en silencio y `add()` nunca resolvía | `queues.module.ts` deriva la conexión de `REDIS_URL` (con fallback a `REDIS_HOST`) |
-| **D9** | El contenedor arrancaba con un Prisma Client viejo | El volumen anónimo `/app/node_modules` tapaba el `node_modules` de la imagen → se ignoraba el cliente generado en el build ("Unknown field `odooTableId`") | Se elimina el volumen anónimo del backend + `ARG CACHE_BUST` en el Dockerfile |
+| **D8** | **El job nunca se encolaba** | `BullModule.forRootAsync` solo leía `REDIS_HOST` (inexistente en todos los `.env`) → caía a `localhost:6379` = el propio contenedor, no Redis. `queue.add()` no resolvía nunca | `backend/src/queues/queues.module.ts` deriva la conexión de `REDIS_URL` |
+| **D9** | **El contenedor arrancaba con un Prisma Client viejo** | El volumen anónimo `/app/node_modules` tapaba el `node_modules` de la imagen → se ignoraba el cliente generado en el build | `docker-compose.yml` (se elimina el volumen) + `Dockerfile.dev` (`ARG CACHE_BUST`) |
+| **D10** | La tabla `omnigastro_settings` no existía en ninguna base | El módulo `omnigastro-config` (v1.39.7) se despliega sin migración Prisma: la tabla se creó a mano y no existe ni en producción (167 tablas en el dump, sin ella) | La migración `20261019233000_odoo_pos_sync_mapping` la crea de forma idempotente |
+| **D11** | `invalid literal for int() with base 10: '<uuid>'` al enviar las líneas | El listener enviaba `odooProductId = line.productId` (UUID de OrderFlow). El campo `Product.odooProductId` no existe: el mapeo real es por **SKU** (`skuInterno` == `default_code`) | El listener envía `sku`/`barcode`; el adapter resuelve el `product.product` por SKU o código de barras (`findProductBySkuOrBarcode`) y omite las líneas sin equivalente (`skipped_lines`) |
 
 > **Nota de compatibilidad del addon:** Odoo 14 no expone `pos.config._get_bus_channel_name`
 > ni `bus.bus._sendone` ( APIs de Odoo 18/19 ). La notificación al POS es *best-effort*
 > y nunca invalida la sincronización; en Odoo 14 el POS refresca por polling
 > (`pos.config.get_tables_order_count`).
+
+---
+
+## 6.1 Ajustes de infraestructura aplicados (v1.39.11)
+
+Estos ajustes son **independientes del addon de Odoo** ycorrían también en
+provecchio: sin ellos, el sync no llega a encolarse aunque todo lo demás
+esté bien.
+
+### A) `backend/src/queues/queues.module.ts` — conexión BullMQ desde `REDIS_URL`
+
+```ts
+// Antes: solo REDIS_HOST -> 'localhost' (dentro del contenedor = el propio backend)
+const redisHost = configService.get<string>('REDIS_HOST') || 'localhost';
+```
+
+Ahora se parsea `REDIS_URL` (que sí está en todos los `.env`) y se usa
+`REDIS_HOST`/`REDIS_PORT`/`REDIS_PASSWORD` solo como fallback. Sin este cambio,
+`queue.add()` se quedaba colgado en silencio: **ninguna** cola del backend
+(webhooks, follow-up, impresión de cocina, sync Odoo) recibía trabajos.
+
+### B) `docker-compose.yml` — se elimina el volumen anónimo `/app/node_modules`
+
+```yaml
+volumes:
+  # Sin volumen anónimo en /app/node_modules: el volumen tapa el node_modules
+  # de la imagen y el contenedor arranca con un Prisma Client viejo
+  - ./uploads:/app/uploads
+```
+
+Un volumen anónimo sobre `/app/node_modules` **oculta** el `node_modules` de la
+imagen: el contenedor arrancaba siempre con el cliente Prisma del primer build,
+ignorando el recién generado. Se manifiesta como
+`Unknown field 'odooTableId' for select statement` tras cualquier cambio de schema.
+
+> Los volúmenes anónimos de `odoo_adapter` y `sync_standalone` **se mantienen**:
+> esos servicios sí montan su código por bind mount y en producción el volumen
+> anónimo es lo que aporta el `node_modules` (el host no lo tiene).
+
+### C) `backend/Dockerfile.dev` — `ARG CACHE_BUST`
+
+```dockerfile
+ARG CACHE_BUST=1
+RUN echo "prisma cache-bust=${CACHE_BUST}" > /tmp/prisma-cache-bust
+RUN npx prisma generate
+```
+
+Sin un ARG que cambie, buildkit reutiliza la capa de `prisma generate` de un
+build anterior. `scripts/deploy-production.sh` inyecta `CACHE_BUST=$(cat VERSION)`
+antes del `build`, de forma que **cada release regenera el cliente**.
+
+### D) `scripts/backup-production.sh` — resolución dinámica del contenedor de BD
+
+El backup fallaba con `service 'database' is not running` porque la línea
+original invocaba `docker compose -f docker-compose.prod.yml ... exec -T database`,
+pero en provecchio la pila se levanta con `docker-compose.yml` +
+`docker-compose.provecchio.yml` y el servicio se llama `postgres`
+(contenedor `orderflow_db`). Ahora se resuelve el contenedor en caliente sobre
+los contenedores en ejecución, sin atar el backup a un compose o servicio concreto.
+
+### E) Migración autocontenida (`20261019233000_odoo_pos_sync_mapping`)
+
+```sql
+CREATE TABLE IF NOT EXISTS "omnigastro_settings" ( ... );   -- si no existe
+ALTER TABLE "omnigastro_settings" ADD COLUMN IF NOT EXISTS "waiter_can_collect_payment" ...;
+ALTER TABLE "omnigastro_settings" ADD COLUMN IF NOT EXISTS "odoo_pos_config_id" INTEGER;
+```
+
+Es idempotente y segura tanto en producción (donde la tabla puede existir) como
+en bases nuevas o derivadas (donde no existe). Las columnas nuevas usan
+`snake_case` con `@map` (AGENTS.md §2.4); la tabla preexistente conserva sus
+nombres camelCase porque forma parte de la zona legacy (§2.4.2).
+
+### F) `odoo-adapter/src/index.js` — los errores de Odoo ya no se reportan como éxito
+
+El addon devuelve `{status: 'error', message}` sin lanzar excepción. El adapter
+lo traducía a `success: true`, de modo que BullMQ no reintentaba y la métrica
+contaba un sync fallido como correcto. Ahora se devuelve HTTP 502 y el fallo se
+propaga al processor (reintentos + `odoo_sync_failed_total`).
 
 ---
 

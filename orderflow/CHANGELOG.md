@@ -5,6 +5,26 @@ Todos los cambios notables a este proyecto serán documentados en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 y este proyecto se adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.39.12] - 2026-10-20
+
+### 🐛 Fix: El producto del pedido no se resolvíe en el POS de Odoo 14 (D11)
+
+**Síntoma:** con la v1.39.11 desplegada, la cadena llegaba a Odoo (`t0`→`t5`,
+`odoo_table_id=77` correcto) pero el ERP respondía
+`invalid literal for int() with base 10: '<uuid de OrderFlow>'`.
+
+**Causa raíz:** el listener enviaba `odooProductId = line.productId` (un **UUID**
+de OrderFlow) donde Odoo espera el id numérico de `product.product`. El campo
+`Product.odooProductId` nunca existió: el mapeo real es por **SKU**
+(`Product.skuInterno` == `product.default_code`), la misma convención que usa el
+sincronizador de productos del adapter.
+
+**Solución:** el listener envía `sku`/`barcode`/`productId` (trazabilidad) y solo
+`odooProductId` si ya es numérico; el adapter resuelve el producto de Odoo por
+SKU o código de barras y omite (reportando en `skipped_lines`) las líneas sin
+equivalente. Verificado contra el ERP: `BEB004 → 1626 "Americano"` (18.000),
+`BEB011 → 1644`, `BEB012 → 1647`.
+
 ## [1.39.11] - 2026-10-20
 
 ### 🐛 Fix: Sincronización OrderFlow → Odoo 14 POS (bug #7 del reporte del cliente v1.39.9)

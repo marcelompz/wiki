@@ -1359,7 +1359,7 @@
         "Ejecutar el seed del mapeo de mesas con datos reales de producción",
         "Validar en /admin/gastro/tables que todas las mesas tienen equivalente en Odoo"
       ],
-      "qa_validation": "Jest backend/src/orders/odoo-table-sync.listener.spec.ts 8/8 OK | TypeScript backend y frontend sin errores | Migración aplicada en local"
+      "qa_validation": "Jest backend/src/orders/odoo-table-sync.listener.spec.ts 8/8 OK | TypeScript backend y frontend sin errores | Migración aplicada en local | D11: resolucion de SKU verificada contra el ERP real (BEB004 -> 1626 'Americano' 18.000, BEB011 -> 1644, BEB012 -> 1647) | Despliegue en produccion v1.39.11: cadena completa t0->t5 en el pedido real de la mesa G5 con odooTableId=77 y odooConfigId=2, y mapeo de 8/13 mesas aplicado en la base de produccion."
     },
     {
       "id": "FEAT-185",

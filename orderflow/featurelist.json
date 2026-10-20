@@ -1,9 +1,9 @@
 {
   "project": "OrderFlow SaaS Omnicanal",
-  "version": "1.39.10",
-  "last_updated": "2026-10-19",
+  "version": "1.39.12",
+  "last_updated": "2026-10-20",
   "features": [
-{
+    {
       "id": "FEAT-183",
       "category": "OmniGastro / KDS / POS / Mesas / Cliente",
       "title": "Backlog OmniGastro reportado por el cliente en provecchio.com (9 bugs v1.39.9)",
@@ -16,7 +16,7 @@
       "qa_validation": "Un punto por rama y PR, con auditoria en docs/plans/omnigastro/auditoria-<tema>.md y casos E2E en frontend/e2e/. Los puntos 5 y 8b exigen E2E en provecchio.local con datos reales y autorizacion explicita para el deploy.",
       "version": "1.39.10"
     },
-{
+    {
       "id": "FEAT-177",
       "category": "OpenCore / Schema Prisma / Diagnóstico",
       "title": "Plan 0 — Diagnóstico de schema y baseline de migraciones contra provecchio.local",
@@ -29,7 +29,7 @@
       "qa_validation": "Baseline documentado en docs/plans/opencore/AUDITORIA_OPENCORE_<fecha>.md con conteos reproducibles; cero escrituras en produccion.",
       "version": "1.39.10"
     },
-{
+    {
       "id": "FEAT-178",
       "category": "OpenCore / Schema Prisma / Revisión",
       "title": "Plan 1 — Revisión del schema: aislamiento multi-tenant, tipos numéricos, índices, cascadas, @map y duplicados",
@@ -44,7 +44,7 @@
       "qa_validation": "Informe priorizado con una migracion propuesta por hallazgo critico; validacion con prisma validate y prisma format sin drift.",
       "version": "1.39.10"
     },
-{
+    {
       "id": "FEAT-179",
       "category": "OpenCore / Schema Prisma / Diagrama",
       "title": "Plan 3 — Diagrama de relaciones core vs standalone y metricas de acoplamiento",
@@ -57,7 +57,7 @@
       "qa_validation": "Diagramas versionados en docs/plans/opencore/ con tabla de acoplamiento; el conteo de modelos debe dar 161 en el core.",
       "version": "1.39.10"
     },
-{
+    {
       "id": "FEAT-180",
       "category": "OpenCore / Schema Prisma / Refactor",
       "title": "Plan 2 — Division del schema en dominios con script de migracion y chequeo de deriva en CI",
@@ -73,7 +73,7 @@
       "qa_validation": "prisma migrate diff entre migraciones y schema devuelve vacio (Gate 3); el cliente generado sigue resolviendo los mismos modelos.",
       "version": "1.39.10"
     },
-{
+    {
       "id": "FEAT-181",
       "category": "OpenCore / Standalone / RLS / Limpieza",
       "title": "Standalone, RLS y limpieza: duplicados exactos, birthday_logs.type, RLS versionada y credencial ODOO_PASSWORD",
@@ -89,7 +89,7 @@
       "qa_validation": "Migraciones idempotentes aplicadas sin error en provecchio.local sobre base existente (migrate resolve --applied) y base vacia (migrate deploy); sin credenciales en claro en el repo.",
       "version": "1.39.10"
     },
-{
+    {
       "id": "FEAT-182",
       "category": "OpenCore / Schema Prisma / Release",
       "title": "Gates de salida 1-5 y merge/deploy de la vertical OpenCore con autorizacion explicita",
@@ -2082,10 +2082,106 @@
         "Crear tag v1.39.9 y push"
       ],
       "qa_validation": "Build frontend (tsc + vite) OK | Playwright frontend/e2e/pos-tablet-responsive.spec.ts 5/5 OK contra provecchio.local (768x1024, 810x1080, 1024x768 sin intersección catálogo/TOTAL, sin scroll horizontal, sin siders fixed, sin overflow de header; QR /?t=<token> muestra MODO RESTAURANTE + Llamar al mozo y no BioLinks)"
+    },
+    {
+      "id": "FEAT-184",
+      "category": "OmniGastro / Integración Odoo POS",
+      "title": "Mapeo de mesas OrderFlow ↔ Odoo POS (restaurant_tables.odoo_table_id) con validación de sesión POS abierta",
+      "description": "El sync a Odoo fallaba porque no existía correspondencia entre las mesas de OrderFlow y las restaurant.table del ERP (D2). Se añade la columna odoo_table_id (Int, nullable, snake_case con @map) al modelo RestaurantTable, con migración 20261019233000_odoo_pos_sync_mapping (AGENTS.md 2.4). El listener deja de usar el número de mesa legible y resuelve el id NUMÉRICO de Odoo (D1: int('G5') reventaba con ValueError -> HTTP 500). Se añaden GET /api/v1/tables/odoo-tables (listado de restaurant.table + pos.session abiertas vía odoo-adapter) y PATCH /api/v1/tables/:id/odoo-table (asignar/limpiar el mapeo validando contra el ERP). UI: selector de mesa Odoo en /admin/gastro/tables. Script de siembra backend/prisma/seed-odoo-table-mapping.ts (empareja por nombre, DRY-RUN por defecto).",
+      "status": "completed",
+      "version": "1.39.11",
+      "priority": "HIGH",
+      "assigned_module": "backend/prisma/schema.prisma, backend/prisma/migrations/20261019233000_odoo_pos_sync_mapping/migration.sql, backend/src/tables/tables.service.ts, backend/src/tables/odoo-tables.service.ts, backend/src/tables/tables.controller.ts, backend/src/orders/odoo-table-sync.listener.ts, backend/prisma/seed-odoo-table-mapping.ts, frontend/src/pages/admin/gastro-tables.tsx",
+      "depends_on": [],
+      "blocking": [],
+      "deploy_target": "provecchio",
+      "next_steps": [
+        "Ejecutar el seed del mapeo de mesas con datos reales de producción",
+        "Validar en /admin/gastro/tables que todas las mesas tienen equivalente en Odoo"
+      ],
+      "qa_validation": "Jest backend/src/orders/odoo-table-sync.listener.spec.ts 8/8 OK | TypeScript backend y frontend sin errores | Migración aplicada en local | D11: resolucion de SKU verificada contra el ERP real (BEB004 -> 1626 'Americano' 18.000, BEB011 -> 1644, BEB012 -> 1647) | Despliegue en produccion v1.39.11: cadena completa t0->t5 en el pedido real de la mesa G5 con odooTableId=77 y odooConfigId=2, y mapeo de 8/13 mesas aplicado en la base de produccion."
+    },
+    {
+      "id": "FEAT-185",
+      "category": "OmniGastro / Integración Odoo POS",
+      "title": "Parche del addon Odoo 14 pos_omniflow_sync: pos.order creable por RPC",
+      "description": "Defecto del lado ERP (D3) que bloqueaba la cadena completa: en el core de Odoo 14, pos.order.amount_tax / amount_total / amount_paid / amount_return y pos.order.line.price_subtotal / price_subtotal_incl son campos required=True SIN compute (los rellena el onchange del formulario, que no se ejecuta en escrituras RPC). Por eso pos.order.create() por RPC fallaba siempre con 'Field: Taxes (amount_tax)' y la cadena nunca produjo un solo pedido. El addon pos_omniflow_sync (versionado ahora en el repo) aporta los importes explícitos, replica el onchange del core para el subtotal de las líneas (_omniflow_line_amounts) y recalcula la cabecera con _compute_batch_amount_all(). Además corrige la notificación al bus, que usaba APIs de Odoo 18/19 (_get_bus_channel_name / _sendone) inexistentes en Odoo 14: ahora es best-effort y nunca invalida la sincronización. El core de Odoo NO se modifica.",
+      "status": "completed",
+      "version": "1.39.11",
+      "priority": "HIGH",
+      "assigned_module": "odoo-adapter/odoo-addons/pos_omniflow_sync/, odoo-adapter/test-pos-order-contract.js, scripts/deploy-odoo-addon.sh",
+      "depends_on": [
+        "FEAT-184"
+      ],
+      "blocking": [],
+      "deploy_target": "provecchio",
+      "next_steps": [
+        "Acordar ventana de mantenimiento con el cliente para el reinicio de odoo_web_8081",
+        "Desplegar el addon con scripts/deploy-odoo-addon.sh --apply (requiere autorización)"
+      ],
+      "qa_validation": "Prueba de contrato contra el ERP real: caso A reproduce el fallo 'campo obligatorio' (D3) y caso B crea el pos.order con línea e importes correctos; la ruta del addon responde {status:success, odoo_order_id, amount_total} | 0 pedidos de prueba residuales en la DB prod"
+    },
+    {
+      "id": "FEAT-186",
+      "category": "OmniGastro / Integración Odoo POS",
+      "title": "Disparo del sync a Odoo en el cierre de mesa y cobro en mesa configurable por tenant",
+      "description": "D4: el flujo de cierre de cuenta / envío a caja NO emitía odoo.table_order_sync (el único emisor estaba en 'enviar a cocina'), por lo que el pedido nunca llegaba al POS de Odoo — que es exactamente lo que reporta el cliente en el punto 7. guestClose() emite ahora el evento con trigger=TABLE_CLOSED y el id de la mesa de OrderFlow. El cobro en mesa (WAITER_CUSTODY) pasa a ser opcional y configurable por tenant mediante omnigastro_settings.waiterCanCollectPayment (por defecto false: en Provecchio todo el pago se gestiona desde la caja), con enforcement en backend y ocultación de la opción en el POS del mozo. El pos.config de Odoo también es configurable por tenant (odoo_pos_config_id) con fallback a ODOO_POS_CONFIG_ID.",
+      "status": "completed",
+      "version": "1.39.11",
+      "priority": "HIGH",
+      "assigned_module": "backend/src/orders/orders.service.ts, backend/src/modules/omnigastro-config/, frontend/src/pages/admin/gastro-pos.tsx, backend/prisma/schema.prisma",
+      "depends_on": [
+        "FEAT-184",
+        "FEAT-185"
+      ],
+      "blocking": [],
+      "deploy_target": "provecchio",
+      "next_steps": [
+        "Habilitar el cobro en mesa solo para los tenants que lo requieran"
+      ],
+      "qa_validation": "Jest backend/src/orders/orders.service.spec.ts 25/25 OK (incluye guestClose: emite el sync, nunca envía el tableNumber como id, rechaza WAITER_CUSTODY si está deshabilitado)"
+    },
+    {
+      "id": "FEAT-187",
+      "category": "OmniGastro / Integración Odoo POS",
+      "title": "Unificacion de la configuracion del odoo-adapter, de la cola BullMQ y retirada del worker legacy",
+      "description": "D5: ODOO_DB estaba fijado a 'wellnesscoffee', una base que no existe (la unica de negocio es 'prod'), lo que rompia los plugins que resuelven la base por entorno. Ahora ODOO_DB=prod esta parametrizado en docker-compose.yml. D6: el TableSyncWorker del adapter leia la lista Redis plana 'odoo-table-sync' mientras el backend usa BullMQ ('bull:odoo-table-sync'): era un camino muerto que competia por el nombre de la cola; se elimina. D8 (descubierto en la validacion local): BullModule.forRootAsync solo leia REDIS_HOST, que no existe en ningun .env, por lo que caia a 'localhost:6379' - dentro del contenedor eso es el propio backend, no Redis. ioredis reintentaba en silencio y queue.add() NUNCA resolvia: el job de sync a Odoo no se encolaba nunca (afecta a todas las colas: webhooks, follow-up, impresion de cocina y sync Odoo). La conexion ahora se deriva de REDIS_URL, que si esta presente en todos los entornos, con fallback a REDIS_HOST. D9: el volumen anonimo /app/node_modules del backend tapaba el node_modules de la imagen, de modo que el contenedor arrancaba con un Prisma Client viejo ('Unknown field `odooTableId` for select statement') despues de un cambio de schema; se elimina ese volumen y se anade ARG CACHE_BUST al Dockerfile para invalidar la capa de 'prisma generate' en cada release (el deploy script lo inyecta con la version). ODOO_ADAPTER_URL pasa a variable de entorno con valor por defecto, documentado en .env.local.example.",
+      "status": "completed",
+      "version": "1.39.11",
+      "priority": "MEDIUM",
+      "assigned_module": "docker-compose.yml, odoo-adapter/src/index.js, odoo-adapter/src/workers/, .env.local.example",
+      "depends_on": [],
+      "blocking": [],
+      "deploy_target": "provecchio",
+      "next_steps": [
+        "Verificar ODOO_ADAPTER_URL en el .env del servidor de provecchio en el deploy"
+      ],
+      "qa_validation": "Cadena end-to-end validada en local: cierre de mesa -> evento -> listener -> BullMQ -> processor -> odoo-adapter -> Odoo 14, con los hitos t1/t2/t3/t5 registrados en order.metadata.odooSync y las metricas odoo_sync_enqueued_total / odoo_sync_failed_total en /metrics | Sin escrituras en el ERP durante la validacion (tabla mapeada a un id inexistente: Odoo responde 'Table not found' y el error se propaga) | Cliente Prisma del contenedor regenerado: 'odooTableId' presente en el cliente"
+    },
+    {
+      "id": "FEAT-188",
+      "category": "OmniGastro / Integración Odoo POS",
+      "title": "Telemetría t0…t5, métricas Prometheus y E2E del sync a Odoo POS",
+      "description": "D7: los fallos del sync no eran visibles (solo logger.error disperso) y el pos.order creado no era trazable. Se declara la nomenclatura de hitos t0_table_closed, t1_sync_enqueued, t2_job_started, t3_adapter_called, t4_odoo_order_created, t5_sync_completed en el diagrama Mermaid de docs/plans/omnigastro/flujo_odoo-pos-sync.md (AGENTS.md 13) y se guardan en order.metadata.odooSync.milestones con esa nomenclatura exacta. Métricas Prometheus: odoo_sync_enqueued_total, odoo_sync_success_total, odoo_sync_failed_total, odoo_sync_skipped_total y odoo_sync_duration_seconds (histograma). El KPI es la latencia p95 t0 -> t4 por debajo de 5 s.",
+      "status": "completed",
+      "version": "1.39.11",
+      "priority": "MEDIUM",
+      "assigned_module": "backend/src/queues/odoo-sync-telemetry.service.ts, backend/src/metrics/metrics.controller.ts, backend/src/queues/odoo-table-sync.processor.ts, docs/plans/omnigastro/flujo_odoo-pos-sync.md",
+      "depends_on": [
+        "FEAT-184",
+        "FEAT-185",
+        "FEAT-186"
+      ],
+      "blocking": [],
+      "deploy_target": "provecchio",
+      "next_steps": [
+        "Configurar la alerta de odoo_sync_failed_total en el stack de observabilidad"
+      ],
+      "qa_validation": "Jest backend/src/queues/odoo-sync-telemetry.service.spec.ts 6/6 OK (nomenclatura, persistencia en metadata, latencia t0->t5, no romper el flujo ante fallo)"
     }
   ],
-  "lastUpdated": "2026-10-19",
-  "last_id": "FEAT-183",
+  "lastUpdated": "2026-10-20",
+  "last_id": "FEAT-188",
   "next_pending_sc": null,
   "active_plan": "docs/plans/omnigastro/PLAN_MAESTRO.md",
   "plan_progress": {

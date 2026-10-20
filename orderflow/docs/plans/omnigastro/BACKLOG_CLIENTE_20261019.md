@@ -22,8 +22,8 @@
 | 4 | "Volver al menú" **borra el resumen del pedido** y el carrito aparece vacío | ⬜ open | Alto |
 | 5 | El pedido enviado a cocina **no aparece en el KDS** hasta pulsar "Sincronizar todo" | ⬜ open | **Crítico** |
 | 6 | En el KDS, al confirmar, el pedido **desaparece** en vez de quedar en el historial (Pendiente/Cocinando/Listo) | ⬜ open | Alto |
-| 7 | El cierre de cuenta del mozo **no carga en el POS de Odoo 14**; el pago del mozo debería ser opcional/configurable | ⬜ open | Alto |
-| 8a | En `/admin/gastro/tables` solo funciona el **"C"** del CRUD (no se actualiza ni borra) | ⬜ open | Medio |
+| 7 | El cierre de cuenta del mozo **no carga en el POS de Odoo 14**; el pago del mozo debería ser opcional/configurable | ✅ **resuelto v1.39.12** | Alto |
+| 8a | En `/admin/gastro/tables` solo funciona el **"C"** del CRUD (no se actualiza ni borra) | ✅ **resuelto v1.39.11** | Medio |
 | 8b | El cobro de la mesa G5 pide **PIN** y devuelve **HTTP 400** en `POST /api/v1/public/hr/kiosk/pin/verify` | ⬜ open | **Crítico** |
 | 9 | Tras enviar a cocina desde el POS, el pedido **desaparece** y el mozo no puede reabrirlo para modificarlo | ⬜ open | Alto |
 
@@ -114,3 +114,36 @@
 4. El punto 7 tiene componente de **integración con Odoo 14**: verificar contra
    `http://192.168.69.246:8081` antes de cerrar.
 5. Ningún cambio puede tocar `tenantId` ni el aislamiento multi-tenant (AGENTS.md §2, regla 1).
+
+## Validación en producción (v1.39.12) — punto 7
+
+Cadena completa verificada con un pedido real en `provecchio.com` (mesa **G5**,
+tenant `provecchio-dimora-001`):
+
+```text
+cierre de mesa (mozo) → evento → listener → BullMQ → processor → odoo-adapter → Odoo 14
+t0_table_closed → t1_sync_enqueued → t2_job_started → t3_adapter_called
+→ t4_odoo_order_created → t5_sync_completed
+```
+
+Resultado en el ERP (Odoo 14, `pos.config` 2 = Giardino, sesión 1594):
+
+| Campo | Valor |
+|---|---|
+| `pos.order.id` | 31971 |
+| `pos_reference` | `OmniFlow-<uuid del pedido de OrderFlow>` (trazabilidad) |
+| `table_id` | 77 (`G5`) |
+| `session_id` | 1594 (POS/01594) |
+| `state` | `draft` (pedido de mesa abierto, listo para cobrar en el ERP) |
+| `amount_total` | 36.000 (2 × 18.000) |
+| `amount_tax` | 0 |
+| línea | `product_id` 1626 `[BEB004] Americano`, `qty` 2, `price_unit` 18.000 |
+
+**Mapeo de mesas aplicado en producción** (8 de 13, por nombre):
+`G2→40, G3→75, G4→76, G5→77, G6→78, G7→79, G8→80, G9→81`.
+Las 5 restantes (`G02`, `G10`, `Giardino`, `M01`, `T11`) **no tienen equivalente en
+Odoo** y quedan sin mapear a propósito: su sync se omite y se contabiliza en
+`odoo_sync_skipped_total{reason="missing_table_mapping"}`. Requieren una decisión
+del cliente (crear la mesa en el ERP o renombrarla en OrderFlow).
+
+> Los pedidos de prueba se eliminaron del ERP y se cancelaron en OrderFlow.
