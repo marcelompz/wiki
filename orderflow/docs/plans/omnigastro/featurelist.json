@@ -1492,10 +1492,28 @@
         "Revisar el punto #6 del backlog (el historial de estados Pendiente/Cocinando/Listo se pierde al confirmar en cocina)"
       ],
       "qa_validation": "E2E local (frontend/e2e/kds-ticket-notification.cjs): el socket recibe kds:ticket_new con orderId, station, tableNumber y lineas al enviar a cocina, sin pulsar 'Sincronizar Todo' | Unitarios del gateway: 2 casos nuevos, 14/14 en verde | Suite completa en verde"
+    },
+    {
+      "id": "FEAT-192",
+      "category": "OmniGastro / Sala",
+      "title": "Lote 2 de bugs del cliente: alertas del mozo, KDS, POS y catálogo (#1, #2a, #2b, #3, #4, #6, #9)",
+      "description": "Cierra los 7 bugs restantes del reporte del cliente v1.39.9 en un unico lote. #9: el POS consultaba estados inexistentes (CLAIMED, SENT_TO_KITCHEN, IN_PREPARATION) en vez de los del enum OrderStatus, por lo que al enviar a cocina el pedido (PREPARING) desaparecia de la pantalla y el mozo no podia reabrirlo. #3: el aviso al mozo se componia con el UUID del producto; ahora usa metadata.snapshotName y el numero de mesa. #2b: al confirmar el pedido se creaba el WaiterCall en BD pero no se emitia el evento waiterCallNew, asi que la tablet del mozo no se enteraba. #2a: el modal 'Para llevar / Barra' se abria siempre; con QR de mesa se envia directo con serviceMode TABLE. #1: la pagina publica reproducia el sonido de la llamada en el movil del CLIENTE y la tablet del mozo no tenia WebSocket; ahora el cliente no suena y un hook useWaiterAlerts (sonido + pop-up) se conecta en el POS, la pantalla de mozos y el panel. #6: al confirmar en cocina la comanda se filtraba de la lista del KDS; ahora pasa a la seccion 'Historial de la sesion'. #4: al volver al menu el cliente veia el carrito vacio sin señal; ahora se informa que el pedido sigue en curso.",
+      "status": "completed",
+      "version": "1.39.16",
+      "priority": "HIGH",
+      "assigned_module": "backend/src/guest/guest-orders.controller.ts, backend/src/guest/guest-orders.controller.spec.ts, frontend/src/hooks/useWaiterAlerts.ts, frontend/src/pages/admin/gastro-pos.tsx, frontend/src/pages/admin/gastro-mozos.tsx, frontend/src/pages/admin/gastro.tsx, frontend/src/pages/admin/kds.tsx, frontend/src/pages/omni-catalog.tsx",
+      "depends_on": [],
+      "blocking": [],
+      "deploy_target": "provecchio",
+      "next_steps": [
+        "Unificar el helper de 'nombre de linea' (snapshotName) en un unico sitio: el patron 'l.name || l.productId' aparece en tres ficheros y cae al UUID cuando falta el snapshotName",
+        "Configurar las cajas en produccion (cash_registers vacio) para poder imputar los cobros de la cuenta abierta"
+      ],
+      "qa_validation": "Unitarios: 3 casos nuevos en guest-orders.controller.spec.ts (#3 nombre del producto, #2b emision de waiterCallNew, y que no se emita en servicio BAR) | Suite completa 131 suites / 975 tests en verde | tsc backend y frontend sin errores | vite build + PWA correctos | Auditoria: docs/plans/omnigastro/auditoria-gastro-lote-2-bugs.md"
     }
   ],
   "lastUpdated": "2026-10-20",
-  "last_id": "FEAT-191",
+  "last_id": "FEAT-192",
   "next_pending_sc": null,
   "active_plan": "docs/plans/omnigastro/plan_actualizacion_1.38.14.md",
   "plan_progress": {

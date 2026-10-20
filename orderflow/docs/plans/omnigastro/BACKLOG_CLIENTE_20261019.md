@@ -15,17 +15,17 @@
 
 | # | Reporte del cliente (texto original) | Estado | Riesgo |
 |---|---|---|---|
-| 1 | La alerta suena en el móvil del **cliente** en vez de en la tablet del **mozo** | ⬜ open | Alto |
-| 2a | Al pedir desde la mesa por QR, la opción **"takeaway" debe omitirse** (por defecto "dine-in") | ⬜ open | Medio |
-| 2b | Al confirmar el pedido debe llegar **notificación al mozo**, igual que con "llamar al mozo" | ⬜ open | Alto |
-| 3 | Al llamar al mozo se muestra el **ID de mesa** en vez del **nombre** de la mesa | ⬜ open | Bajo |
-| 4 | "Volver al menú" **borra el resumen del pedido** y el carrito aparece vacío | ⬜ open | Alto |
+| 1 | La alerta suena en el móvil del **cliente** en vez de en la tablet del **mozo** | ✅ **resuelto v1.39.16** | Alto |
+| 2a | Al pedir desde la mesa por QR, la opción **"takeaway" debe omitirse** (por defecto "dine-in") | ✅ **resuelto v1.39.16** | Medio |
+| 2b | Al confirmar el pedido debe llegar **notificación al mozo**, igual que con "llamar al mozo" | ✅ **resuelto v1.39.16** | Alto |
+| 3 | Al llamar al mozo se muestra el **ID de mesa** en vez del **nombre** de la mesa | ✅ **resuelto v1.39.16** | Bajo |
+| 4 | "Volver al menú" **borra el resumen del pedido** y el carrito aparece vacío | ✅ **resuelto v1.39.16** | Alto |
 | 5 | El pedido enviado a cocina **no aparece en el KDS** hasta pulsar "Sincronizar todo" | ✅ **resuelto v1.39.15** | **Crítico** |
-| 6 | En el KDS, al confirmar, el pedido **desaparece** en vez de quedar en el historial (Pendiente/Cocinando/Listo) | ⬜ open | Alto |
+| 6 | En el KDS, al confirmar, el pedido **desaparece** en vez de quedar en el historial (Pendiente/Cocinando/Listo) | ✅ **resuelto v1.39.16** | Alto |
 | 7 | El cierre de cuenta del mozo **no carga en el POS de Odoo 14**; el pago del mozo debería ser opcional/configurable | ✅ **resuelto v1.39.12** | Alto |
 | 8a | En `/admin/gastro/tables` solo funciona el **"C"** del CRUD (no se actualiza ni borra) | ✅ **resuelto v1.39.11** | Medio |
 | 8b | El cobro de la mesa G5 pide **PIN** y devuelve **HTTP 400** en `POST /api/v1/public/hr/kiosk/pin/verify` | ✅ **resuelto v1.39.13** | **Crítico** |
-| 9 | Tras enviar a cocina desde el POS, el pedido **desaparece** y el mozo no puede reabrirlo para modificarlo | ⬜ open | Alto |
+| 9 | Tras enviar a cocina desde el POS, el pedido **desaparece** y el mozo no puede reabrirlo para modificarlo | ✅ **resuelto v1.39.16** | Alto |
 
 > **8b y 5 son los dos bloqueantes de operación**: sin cobro (8b) y sin entrada automática en el KDS
 > (5) el flujo de sala no cierra en provecchio.com.

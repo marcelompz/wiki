@@ -41,6 +41,7 @@ OmniGastro convierte OmniFlow en el **Sistema Operativo Restaurantero** completo
 | **3.4 — Sincronización con Odoo 14 POS** | FEAT-184, 185, 186, 187, **188** | 🟡 **en curso** (v1.39.11) | [`PLAN_ODOO_POS_SYNC_2026-10-19.md`](./PLAN_ODOO_POS_SYNC_2026-10-19.md), [`flujo_odoo-pos-sync.md`](./flujo_odoo-pos-sync.md) |
 | **3.5 — Cuenta abierta (liberar mesa con la cuenta cobrable)** | FEAT-190 | ✅ **completed** (v1.39.14) | [`PLAN_CUENTA_ABIERTA_2026-10-20.md`](./PLAN_CUENTA_ABIERTA_2026-10-20.md), [`flujo_cuenta-abierta.md`](./flujo_cuenta-abierta.md) |
 | **3.6 — KDS en tiempo real (actualización automática)** | FEAT-191 | ✅ **completed** (v1.39.15) | [`auditoria-gastro-kds-auto-refresh.md`](./auditoria-gastro-kds-auto-refresh.md) |
+| **3.7 — Lote 2 de bugs del cliente (alertas, KDS, POS, catálogo)** | FEAT-192 | ✅ **completed** (v1.39.16) | [`auditoria-gastro-lote-2-bugs.md`](./auditoria-gastro-lote-2-bugs.md), [`DIAGNOSTICO_BUGS_RESTANTES_2026-10-20.md`](./DIAGNOSTICO_BUGS_RESTANTES_2026-10-20.md) |
 | **4 — Hardware + Escala** | FEAT-120 → 124 | ⚪ planned | [`PLAN_MAESTRO.md`](./PLAN_MAESTRO.md) §5 |
 
 ---

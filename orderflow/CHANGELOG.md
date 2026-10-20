@@ -1,3 +1,25 @@
+## [1.39.16] - 2026-10-20
+
+### 🐛 Fix: Lote 2 de bugs del cliente — alertas del mozo, KDS, POS y catálogo (#1, #2a, #2b, #3, #4, #6, #9)
+
+Cierra los **7 bugs restantes** del reporte del cliente v1.39.9, agrupados en un
+único despliegue (FEAT-192).
+
+| # | Síntoma | Causa raíz | Corrección |
+|---|---|---|---|
+| **9** | Tras enviar a cocina el pedido **desaparece del POS** | El POS consultaba `CLAIMED, SENT_TO_KITCHEN, IN_PREPARATION`, estados **inexistentes** en el enum `OrderStatus`; el `PREPARING` no entraba en el filtro | Consulta `DRAFT,CONFIRMED,PREPARING,READY` |
+| **3** | El aviso al mozo mostraba el **UUID** del producto | El texto se componía con `${l.productId}` | Se usa `metadata.snapshotName`; el aviso usa `tableNumber` (G5) |
+| **2b** | Al confirmar el pedido el mozo **no se enteraba** | Se creaba el `WaiterCall` en BD sin emitir evento | Se emite `waiterCallNew` a la sala del tenant |
+| **2a** | En el QR de mesa se ofrecía **"Para llevar / Barra"** | El modal de `serviceMode` se abría siempre | Con QR de mesa se envía directo con `serviceMode: 'TABLE'` |
+| **1** | La alerta sonaba en el **móvil del cliente** | La página pública reproducía el sonido y la tablet del mozo no tenía WebSocket | El cliente ya no suena; nuevo hook `useWaiterAlerts` (sonido + pop-up) en POS, mozos y panel |
+| **6** | Al confirmar en cocina la comanda **desaparecía** | El handler `order:status_updated` la filtraba de la lista | Se conserva en la sección **"🗂️ Historial de la sesión"** |
+| **4** | Al volver al menú el carrito **parecía vacío** | Sin señal de que el pedido seguía en curso | Aviso *"Tu pedido #xxxx sigue en curso"* |
+
+**Validación:** 3 casos nuevos en `guest-orders.controller.spec.ts` · suite completa
+**131 suites / 975 tests** en verde · `tsc` sin errores · `vite build` + PWA OK.
+
+**Auditoría:** `docs/plans/omnigastro/auditoria-gastro-lote-2-bugs.md`.
+
 ## [1.39.15] - 2026-10-20
 
 ### 🐛 Fix: El KDS no se actualizaba solo al enviar el pedido a cocina (bug #5, crítico de sala)
