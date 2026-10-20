@@ -1,13 +1,26 @@
 # 🗺️ ROADMAP DE ORDERFLOW - v1.34.0 → v2.0.0 (Go-Live Definitivo)
-**Última Actualización:** 2026-10-19 (Release v1.39.10 — Backend crash-loop: Socket.IO + Redis adapter (`unhandledRejection`) + config Redis en compose local)
+**Última Actualización:** 2026-10-20 (Release v1.39.11 — Sincronización OrderFlow → Odoo 14 POS: el pedido cerrado por el mozo llega al POS del ERP)
 
-**Versión Actual:** **`v1.39.10`** 🔄 **PRODUCTION READY** | Marca pública: OmniFlow. Capa técnica interna: OrderFlow.
+**Versión Actual:** **`v1.39.11`** 🔄 **PRODUCTION READY** | Marca pública: OmniFlow. Capa técnica interna: OrderFlow.
 **Próximos Releases:** **v1.40.0** (Tauri Desktop & OmnIoT Edge) ➔ **v2.0.0** (🚀 **GO-Live Definitivo del Ecosistema — Target: 15 de Febrero de 2027**)
 **Plan Maestro Go-to-Live:** ver [docs/plans/PLAN_GO_LIVE_APLICACIONES_ECOSISTEMA.md](docs/plans/PLAN_GO_LIVE_APLICACIONES_ECOSISTEMA.md)
-**Roadmap Comercial:** ver [docs/planes/comercial/OmniFlow_Plan_Comercial_v1.md](docs/planes/comercial/OmniFlow_Plan_Comercial_v1.md) (FEAT-112 a FEAT-119)
+**Roadmap Comercial:** ver [docs/planes/comercial/OmniFlow_PLAN_COMERCIAL_v1.md](docs/planes/comercial/OmniFlow_PLAN_COMERCIAL_v1.md) (FEAT-112 a FEAT-119)
 **Estado:** ✅ **STAGING & PRODUCTION OPERATIVE** | 🏆 **HARDENED v1.39.2** | OmniGastro Fases 0-3.3 Completadas | RBAC Hardening En PR | CI Guard Active | QA E2E Suite | Build Limpio & Cobertura Total
 
-<!--CURRENT_VERSION-->1.39.10<!--/CURRENT_VERSION--> <!-- Actualizado: 2026-10-19 v1.39.10 por Kilo -->
+<!--CURRENT_VERSION-->1.39.11<!--/CURRENT_VERSION--> <!-- Actualizado: 2026-10-20 v1.39.11 por Kilo -->
+
+### 🚀 Release v1.39.11 — Sincronización OrderFlow → Odoo 14 POS (Octubre 2026)
+
+| Feature | Módulo | Estado |
+|---------|--------|--------|
+| **FEAT-184 — Mapeo de mesas OrderFlow ↔ Odoo** (`odoo_table_id`, listener con id numérico, UI de mapeo) | `backend/prisma/`, `backend/src/tables/`, `backend/src/orders/odoo-table-sync.listener.ts` | ✅ Production Ready |
+| **FEAT-185 — Addon Odoo 14 `pos_omniflow_sync` parcheado** (`pos.order` creable por RPC) | `odoo-adapter/odoo-addons/pos_omniflow_sync/`, `scripts/deploy-odoo-addon.sh` | ✅ Desplegado con backup + rollback |
+| **FEAT-186 — Sync en el cierre de mesa** + cobro en mesa configurable por tenant | `backend/src/orders/orders.service.ts`, `backend/src/modules/omnigastro-config/` | ✅ Production Ready |
+| **FEAT-187 — Config unificada del adapter** (`ODOO_DB=prod`) y retirada del worker legacy | `docker-compose.yml`, `odoo-adapter/src/` | ✅ |
+| **FEAT-188 — Telemetría t0…t5 + 5 métricas Prometheus** | `backend/src/queues/odoo-sync-telemetry.service.ts`, `backend/src/metrics/` | ✅ |
+| **Modal de editar mesa restaurado** (bug #8a del reporte del cliente) | `frontend/src/pages/admin/gastro-tables.tsx` | ✅ |
+| **Documentación** | `docs/plans/omnigastro/PLAN_ODOO_POS_SYNC_2026-10-19.md`, `flujo_odoo-pos-sync.md` | ✅ |
+| **Bump versión** | `VERSION`, `backend/package.json`, `frontend/package.json`, `featurelist.json`, 60+ manifiestos | ✅ 1.39.11 |
 
 ### 🚀 Release v1.39.10 — Backend crash-loop: Socket.IO + Redis adapter (Octubre 2026)
 
@@ -117,7 +130,7 @@
 
 ---
 
-<!--CURRENT_VERSION-->1.39.10<!--/CURRENT_VERSION--> <!-- Actualizado: 2026-10-19 v1.39.10 por Kilo -->
+<!--CURRENT_VERSION-->1.39.11<!--/CURRENT_VERSION--> <!-- Actualizado: 2026-10-20 v1.39.11 por Kilo -->
 
 El ecosistema **OmniFlow** contempla 10 aplicaciones y capas operativas. A continuación se presenta la evaluación de madurez técnica por componente y los puntos pendientes priorizados hacia el Go-Live final.
 

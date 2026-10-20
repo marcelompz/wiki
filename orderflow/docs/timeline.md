@@ -1,9 +1,22 @@
 # Línea de Tiempo y Evolución de OmniFlow
 
-**Última actualización:** 2026-10-19  
-**Versión actual:** `v1.39.10`  
+**Última actualización:** 2026-10-20  
+**Versión actual:** `v1.39.11`  
 **Próximo hito:** `v1.40.0` — Tauri Desktop & OmnIoT Edge
 **Documento fuente:** `CHANGELOG.md`, `ROADMAP.md`, `featurelist.json`
+
+---
+
+### 2026-10-20 : v1.39.11 — Sincronización OrderFlow → Odoo 14 POS (bug #7 del cliente)
+- Diagnóstico end-to-end de la cadena OrderFlow → BullMQ → odoo-adapter → Odoo 14: **la cadena nunca había funcionado** (0 `pos.order` `OmniFlow%` en la DB del ERP)
+- **D1**: se enviaba el número de mesa legible (`"G5"`) como id de Odoo → `int("G5")` → HTTP 500
+- **D2**: no existía correspondencia mesa ↔ mesa Odoo → nueva columna `restaurant_tables.odoo_table_id` (snake_case) + UI de mapeo
+- **D3**: `pos.order.amount_tax` y `pos.order.line.price_subtotal` son `required=True` **sin `compute`** en el core de Odoo 14 → ninguna creación por RPC era posible (addon `pos_omniflow_sync` parcheado, **sin tocar el core**)
+- **D4**: el cierre de mesa no disparaba el sync (solo "enviar a cocina") → `guestClose` emite con `trigger=TABLE_CLOSED`
+- **D5/D6/D7**: `ODOO_DB=prod` parametrizado, worker legacy del adapter eliminado, telemetría `t0…t5` + 5 métricas Prometheus
+- Cobro en mesa configurable por tenant (`waiterCanCollectPayment`); modal de **editar mesa** restaurado (bug #8a)
+- Addon Odoo y script de despliegue versionados en el repo (`odoo-adapter/odoo-addons/pos_omniflow_sync/`, `scripts/deploy-odoo-addon.sh` con backup y rollback)
+- Documentación: `docs/plans/omnigastro/PLAN_ODOO_POS_SYNC_2026-10-19.md` y `flujo_odoo-pos-sync.md` (diagrama Mermaid + hitos de telemetría)
 
 ---
 

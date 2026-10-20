@@ -2,6 +2,43 @@
 
 Todos los cambios notables en este proyecto se documentarán en este archivo.
 
+## [1.39.11] - 2026-10-20
+
+### 🐛 Fix: Sincronización OrderFlow → Odoo 14 POS (bug #7 del reporte del cliente)
+
+**Síntoma:** al cerrar la mesa y enviarla a la caja desde el POS del mozo, el pedido
+**nunca aparecía en el POS de Odoo 14** (`http://192.168.69.246:8081/pos/ui?config_id=2`).
+La cadena de sincronización **nunca había funcionado**: 0 `pos.order` con
+`pos_reference like 'OmniFlow%'` en toda la base de datos.
+
+**Causas raíz corregidas (4 defectos independientes):**
+
+- **D1** — `orders.service.ts` emitía `odooTableId: dto.tableNumber` (p. ej. `"G5"`).
+  Odoo hace `int(table_id)` → `ValueError` → HTTP 500. Ahora se envía el **id de la
+  mesa de OrderFlow** y el listener resuelve el **id numérico** del ERP.
+- **D2** — No existía correspondencia entre `restaurant_tables` y `restaurant.table`
+  de Odoo. Nueva columna `restaurant_tables.odoo_table_id` (snake_case) + UI de
+  mapeo en `/admin/gastro/tables` + endpoints de diagnóstico y validación.
+- **D3** — En el core de Odoo 14, `pos.order.amount_tax` y
+  `pos.order.line.price_subtotal` / `price_subtotal_incl` son `required=True`
+  **sin `compute`**: los rellena el onchange del formulario, que no se ejecuta en
+  las escrituras RPC. El addon `pos_omniflow_sync` los aporta explícitamente y
+  recalcula la cabecera con `_compute_batch_amount_all()`.
+- **D4** — El cierre de mesa **no emitía** el evento de sync (solo "enviar a cocina").
+  `guestClose` dispara ahora `odoo.table_order_sync` con `trigger=TABLE_CLOSED`.
+
+**Además:**
+
+- Cobro en mesa opcional y configurable por tenant (`waiterCanCollectPayment`).
+- `pos.config` de Odoo por tenant (`odoo_pos_config_id`) con fallback de entorno.
+- Telemetría `t0…t5` en `order.metadata.odooSync` + 5 métricas Prometheus.
+- Addon Odoo y script de despliegue versionados en el repo
+  (`odoo-adapter/odoo-addons/pos_omniflow_sync/`, `scripts/deploy-odoo-addon.sh`).
+- Modal de **editar mesa** restaurado (bug #8a del reporte del cliente).
+
+**Documentación:** `docs/plans/omnigastro/PLAN_ODOO_POS_SYNC_2026-10-19.md`,
+`docs/plans/omnigastro/flujo_odoo-pos-sync.md`.
+
 ## [1.39.8] - 2026-10-17
 
 ### ✨ Feature: OmniGastro Payment Routing Configuration (v1.39.7)

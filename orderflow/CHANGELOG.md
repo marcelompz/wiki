@@ -5,6 +5,37 @@ Todos los cambios notables a este proyecto serán documentados en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 y este proyecto se adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.39.11] - 2026-10-20
+
+### 🐛 Fix: Sincronización OrderFlow → Odoo 14 POS (bug #7 del reporte del cliente v1.39.9)
+
+**Síntoma:** el pedido que el mozo cierra y envía a la caja **nunca llega al POS de
+Odoo 14** (`http://192.168.69.246:8081/pos/ui?config_id=2`). La cadena entera
+nunca había funcionado (0 `pos.order` `OmniFlow%` en la DB).
+
+**Causas raíz (4 defectos independientes + 3 de soporte):**
+
+| ID | Defecto | Corrección |
+|---|---|---|
+| D1 | Se enviaba el número de mesa legible (`"G5"`) como id de Odoo → `int("G5")` → 500 | `orders.service.ts` emite el `tableId` de OrderFlow; el listener resuelve el id **numérico** del ERP |
+| D2 | Sin correspondencia mesa ↔ mesa Odoo | Nueva columna `restaurant_tables.odoo_table_id` (snake_case, AGENTS §2.4) + UI de mapeo + endpoints de diagnóstico |
+| D3 | `pos.order.amount_tax` es `required=True` **sin `compute`** en el core de Odoo 14 (y `pos.order.line.price_subtotal` igual) → ninguna creación por RPC es posible | Addon `pos_omniflow_sync`: aporta los importes, replica el onchange del core y recalcula con `_compute_batch_amount_all()` |
+| D4 | El cierre de mesa no disparaba el sync (solo "enviar a cocina") | `guestClose` emite `odoo.table_order_sync` con `trigger=TABLE_CLOSED` |
+| D5 | `ODOO_DB=wellnesscoffee` (base inexistente) | `ODOO_DB=prod` parametrizado en compose |
+| D6 | `TableSyncWorker` (Redis plano) era un camino muerto frente a BullMQ | Worker eliminado del `odoo-adapter` |
+| D7 | Sin trazabilidad ni métricas | Hitos `t0…t5` + 5 métricas Prometheus + alerta por tenant |
+
+**Además:** cobro en mesa configurable por tenant (`waiterCanCollectPayment`),
+`pos.config` por tenant, modal de **editar mesa** restaurado (bug #8a).
+
+**Validación:** prueba de contrato contra el ERP real
+(`odoo-adapter/test-pos-order-contract.js`): reproduce el fallo, valida el fix y
+limpia el pedido de prueba. Addon desplegado con backup + rollback
+(`scripts/deploy-odoo-addon.sh`).
+
+**Documentación:** `docs/plans/omnigastro/PLAN_ODOO_POS_SYNC_2026-10-19.md`,
+`docs/plans/omnigastro/flujo_odoo-pos-sync.md`.
+
 ## [1.39.10] - 2026-10-19
 
 ### 🐛 Fix: Backend en crash-loop por el adapter de Socket.IO + Redis (`unhandledRejection`)
