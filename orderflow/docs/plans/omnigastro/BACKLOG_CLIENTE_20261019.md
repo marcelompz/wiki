@@ -5,9 +5,12 @@
 > `/opt/orderflow-branch-schema-prisma` (`docs/info/OmniGastro.md`, cambio sin commitear) para que
 > no se pierda al descartar esa rama.
 >
-> **Estado del release:** v1.39.9 ya está desplegado en `provecchio.com` (v1.39.10 en producción
-> desde el 2026-10-19). Los dos bugs de la sección v1.39.8 están **corregidos** (FEAT-174). Los
-> **9 puntos de la sección v1.39.9 siguen abiertos**.
+> **Estado del release:** v1.39.9 era la versión reportada. Los dos bugs de la sección v1.39.8
+> están **corregidos** (FEAT-174) y los **9 puntos de la sección v1.39.9 también**.
+>
+> **✅ CERRADO el 2026-10-22:** los 9 puntos están implementados y desplegados en `provecchio.com`
+> **v1.40.2**. Evidencia completa en
+> [AUDITORIA_FEAT-183_20261022.md](./AUDITORIA_FEAT-183_20261022.md). FEAT-183 quedó en `completed`.
 
 ---
 

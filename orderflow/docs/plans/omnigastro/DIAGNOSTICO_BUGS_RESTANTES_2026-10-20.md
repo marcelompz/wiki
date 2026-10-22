@@ -3,6 +3,9 @@
 > **Origen:** [backlog del cliente](./BACKLOG_CLIENTE_20261019.md) (v1.39.9)
 > **Fecha:** 2026-10-20 · **Alcance:** solo lectura (sin código ni versiones)
 > **Estado:** diagnóstico cerrado para #1, #2a, #2b, #3, #4, #6 y #9
+>
+> **✅ Cerrado el 2026-10-22:** verificación final de los 9 puntos en `provecchio.com` v1.40.2 en
+> [AUDITORIA_FEAT-183_20261022.md](./AUDITORIA_FEAT-183_20261022.md).
 
 Los puntos **#5** (KDS en tiempo real), **#7** (sync Odoo), **#8a** (CRUD de mesas) y
 **#8b** (PIN) ya están resueltos y desplegados (v1.39.11 → v1.39.15).

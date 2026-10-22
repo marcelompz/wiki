@@ -161,3 +161,40 @@ punta a punta en `provecchio.com`:
   se resuelven en la misma transacción.
 - Mapeo a Odoo **único**: dos mesas no pueden apuntar al mismo `restaurant.table`.
 - Los 10 mapeos productivos (`G2→40`, `G3–G9→75-81`, `G10→2`, `T11→1`) sobreviven al deploy intactos.
+
+---
+
+## 7. Re-deploy de verificación — 2026-10-22 19:38 (-03)
+
+Segundo despliegue de la **misma** v1.40.2 (protocolo §3.1.1 completo) para validar el pipeline
+end-to-end y cerrar FEAT-183 sobre el código ya verificado.
+
+| Fase | Resultado |
+|---|---|
+| Backup pre-deploy | `backups/pre_deploy_provecchio_20261022_190249.sql` (2,2 MB) + uploads (28,9 MB) |
+| Restore local | 168 tablas · 1 tenant · 7 empleados · 4 cajas · 0 migraciones pendientes |
+| `deploy-local.sh` | ✅ 135 suites / **1020 tests**, health 1.40.2, frontend 200, QA funcional OK |
+| `pre-deploy-diagnostic.sh provecchio` | 11 OK, solo warnings (huérfanos/volúmenes) |
+| Commit remoto | `e24102ff` · `VERSION 1.40.2` |
+| Migraciones | 39 aplicadas · **0 pendientes** |
+| Contenedores | `db`, `redis`, `backend`, `frontend`, `odoo_adapter`, `omnibi`, `sync` → **healthy** |
+| Health público | `https://provecchio.com/api/v1/health` → **200** (`1.40.2`, `database: ok`, `odoo_adapter: ok`) |
+| Frontend / Admin | `/` → 200 · `/admin` → 200 |
+| QA E2E post-deploy | catálogo 4 imágenes sin roturas · 0 errores JS · 8 rutas admin OK |
+
+**Código desplegado idéntico a `main`** (md5 igual en `gastro-tables.tsx`, `tables.service.ts`,
+`kds.tsx`, `useWaiterAlerts.ts`).
+
+Artefactos de rollback de esta ejecución:
+
+| Artefacto | Ruta |
+|---|---|
+| Env de rollback (post-deploy) | `deploy-artifacts/rollback-provecchio-20261022_190809.env` |
+| Dump pre-deploy | `backups/pre_deploy_provecchio_20261022_190249.sql` |
+| File store pre-deploy | `backups/pre_deploy_provecchio_20261022_190249_uploads.tar.gz` |
+
+**Aviso operativo:** `/var` del servidor al **86 %** (3,0 GB libres) al finalizar. Limpiar imágenes
+y caché de build antes del siguiente deploy.
+
+**Cierre FEAT-183:** los 9 puntos del reporte del cliente quedaron verificados en producción →
+[AUDITORIA_FEAT-183_20261022.md](./AUDITORIA_FEAT-183_20261022.md).
