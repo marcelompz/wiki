@@ -1,13 +1,257 @@
 # 🗺️ ROADMAP DE ORDERFLOW - v1.34.0 → v2.0.0 (Go-Live Definitivo)
-**Última Actualización:** 2026-10-20 (Release v1.39.11 — Sincronización OrderFlow → Odoo 14 POS)
+**Última Actualización:** 2026-10-22 (Release v1.40.0 — fix de marca blanca: endpoint `GET /api/v1/tenants/:id/config` + sanitización de `customDomain` — **desplegada en `provecchio.com`**)
+**Release anterior:** 2026-10-22 (Release v1.39.28 — fix de `/admin/hr`: `positions` 404 y `hr/employees` 500 tras el restore)
 
-**Versión Actual: v1.39.11 🔄 **PRODUCTION READY** | Marca pública: OmniFlow.  Capa técnica interna: OrderFlow.  
-**Próximos Releases:** **v1.40.0** (Tauri Desktop & OmnIoT Edge) ➔ **v2.0.0** (🚀 **GO-LIVE Definitivo del Ecosistema — Target: 15 de Febrero de 2027**)
+**Versión Actual:** **`v1.40.0`** ✅ **DESPLEGADA EN PRODUCCIÓN** (`provecchio.com`, 2026-10-22 13:09) | Marca pública: OmniFlow. Capa técnica interna: OrderFlow.
+**Próximos Releases:** **v1.40.0** (Tauri Desktop & OmnIoT Edge) ➔ **v2.0.0** (🚀 **GO-Live Definitivo del Ecosistema — Target: 15 de Febrero de 2027**)
 **Plan Maestro Go-to-Live:** ver [docs/plans/PLAN_GO_LIVE_APLICACIONES_ECOSISTEMA.md](docs/plans/PLAN_GO_LIVE_APLICACIONES_ECOSISTEMA.md)
-**Roadmap Comercial:** ver [docs/planes/comercial/OmniFlow_Plan_Comercial_v1.md](docs/planes/comercial/OmniFlow_Plan_Comercial_v1.md) (FEAT-112 a FEAT-119)
-**Estado:** ✅ **STAGING & PRODUCTION OPERATIVE** | 🏆 **HARDENED v1.39.6** | OmniGastro Fases 0-3.3 Completadas | RBAC Hardening En PR | CI Guard Active | QA E2E Suite | Build Limpio & Cobertura Total
+**Roadmap Comercial:** ver [docs/planes/comercial/OmniFlow_PLAN_COMERCIAL_v1.md](docs/planes/comercial/OmniFlow_PLAN_COMERCIAL_v1.md) (FEAT-112 a FEAT-119)
+**Estado:** ✅ **STAGING & PRODUCTION OPERATIVE** | 🏆 **HARDENED v1.39.2** | OmniGastro Fases 0-3.3 Completadas | RBAC Hardening En PR | CI Guard Active | QA E2E Suite | Build Limpio & Cobertura Total
 
-<!--CURRENT_VERSION-->1.39.11<!--/CURRENT_VERSION-->
+<!--CURRENT_VERSION-->1.40.0<!--/CURRENT_VERSION--> <!-- Actualizado: 2026-10-21 v1.39.24 por Kilo -->
+
+### 📋 Próximas actualizaciones planificadas — OmniGastro (plan aprobado 2026-10-22)
+
+> **Plan maestro:** [docs/plans/omnigastro/plan-actualizacion-v1.39.25-historial-pedidos-bandera-mozo.md](docs/plans/omnigastro/plan-actualizacion-v1.39.25-historial-pedidos-bandera-mozo.md)
+> **Flujo y telemetría:** [docs/plans/omnigastro/flujo-historial-pedidos.md](docs/plans/omnigastro/flujo-historial-pedidos.md)
+> **Estado:** 🟡 plan documentado y trazable — **esperando aprobación del usuario para iniciar la F1**.
+
+**Decisiones tomadas por el cliente (2026-10-22):**
+
+| # | Decisión | Consecuencia |
+|---|---|---|
+| **D3** | El historial del **comensal** queda **solo en la memoria del dispositivo**; el listado público de pedidos por mesa se **descarta** (quien escanee el QR de la mesa no accede a ningún pedido) | No habrá `GET /api/v1/guest/orders/by-table/:tableId` |
+| **D2'** | El comensal **no** necesita recuperar su pedido desde otro dispositivo | La Capa 2 (código corto `publicCode`) pasa a **opcional**; la migración `public_code` no bloquea la F1 |
+| **D3'** | La "memoria del sistema" es para **mozo y cajeros** (usuarios que inician sesión), en endpoints propios y autenticados | Se añade la **Capa 3b** (histórico de turnos de caja) |
+
+| Fase | Versión | Feature | Alcance | Estado |
+|---|---|---|---|---|
+| **F1** | v1.39.25 | **FEAT-197** (Capa 1) | El comensal ve **"Mis pedidos"** en la memoria del dispositivo y no lo pierde al recargar, navegar o volver al menú (el carrito sí se vacía). Sin migración | ✅ **COMPLETADO** (v1.39.25) — store `public-orders-store` + botón 🕘 en el header + drawer con refresco cada 10 s |
+| **F1** | v1.39.25 | **FEAT-197-d** (fix) | El cierre desde el panel de mozos nunca setea `paidAt`: `orders.controller.ts:271,276` espera `body.mode` pero el frontend envía `closeMode`/`method` → normalizar los 3 formatos | ✅ **COMPLETADO** (v1.39.25) — `order-close-mode.util.ts` + 7 unitarios + E2E |
+| **F2** | v1.39.26 | **FEAT-194** ✅ **COMPLETADO** | **Bandera de Mozo**: solo los empleados con `Employee.canUseMozoPos` pueden iniciar sesión en el POS de mozo. Migración `20261022HHMMSS` + `getMozoStaff` + `GET /api/v1/users/mozo-staff` + `verify-pin` con `scope:'mozo'` + sección "Empleados Mozo" en `/admin/settings → OmniGastro` | 🟡 planificado |
+| **F4** | v1.39.27 | **FEAT-197** (Capa 3 · mozo) ✅ **COMPLETADO** | El mozo **no pierde pedidos al cambiar de dispositivo**: `GET /api/v1/orders/guest/history` + `Order.waiterId` + `claimedById` persistido + pestaña "Atendidos" | 🟡 planificado |
+| **F4b** | v1.39.27 | **FEAT-197** (Capa 3b · cajero) ✅ **COMPLETADO** | El cajero puede volver a ver los turnos ya cerrados: `GET /api/v1/pos-sessions` (listado, hoy inexistente) + pestaña "Historial de turnos" en `/admin/gastro/cashier`, reutilizando `Order.posSessionId` y el Reporte Z | 🟡 planificado |
+| **F3** | v1.39.27 | FEAT-197 (Capa 2) | 🟡 **opcional** — recuperación del pedido del comensal desde otro dispositivo con un código corto | ⚪ opcional |
+
+**Decisiones abiertas:** D1 backfill de la bandera para los mozos actuales (recomendado: sí) · D4 incluir el fix de `paidAt` en la F1 (recomendado: sí) · D5 implementar la Capa 2 ahora o esperar (recomendado: esperar) · D6 Capa 3b en fase propia o integrada en la F4 (recomendado: fase propia).
+
+**Telemetría declarada** (`Order.metadata.guestDraft`): `t0_order_created`, `t1_table_claimed`, `t2_cart_saved`, `t3_order_confirmed`, `t4_sent_to_kitchen`, `t5_order_ready`, `t6_waiter_viewed_history`, `t7_paid`, `t11_table_closed`.
+
+### 🚀 Release v1.39.28 — Fix de `/admin/hr` (500 en empleados, 404 en cargos) (Octubre 2026)
+
+| Feature | Módulo | Estado |
+|---------|--------|--------|
+| **`PositionModule` registrado** en el `imports` del `AppModule` → `GET /api/v1/positions` deja de dar 404 | `backend/src/app.module.ts` | ✅ |
+| **El restore aplica migraciones pendientes** (`prisma migrate deploy`) → el entorno local queda fiel al código y `GET /api/v1/hr/employees` deja de dar 500 | `scripts/restore-provecchio.sh` | ✅ |
+| **E2E de regresión** de los tres endpoints de HR | `frontend/e2e/hr-endpoints.spec.ts` | ✅ 3 passed |
+| **Troubleshooting #186** con el análisis del falso positivo de `_prisma_migrations` | `docs/troubleshooting/186-admin-hr-500-empleados-y-404-posiciones.md` | ✅ |
+
+### 🚀 Release v1.39.27 — FEAT-197 (Capas 3 y 3b): historial en servidor para mozo y cajero (Octubre 2026)
+
+| Feature | Módulo | Estado |
+|---------|--------|--------|
+| **`GET /api/v1/orders/guest/history`** (filtros por estado, mesa, mozo y límite) | `backend/src/orders/orders.controller.ts`, `orders.service.ts` | ✅ |
+| **El mozo queda imputado al pedido**: `claimedById` en `metadata.guestDraft` y `waiterId` en `Order` al reclamar, marcar listo y cerrar | `backend/src/orders/orders.service.ts` | ✅ |
+| **Vista "✅ Atendidos"** en el panel de mozos (+ filtro "solo los míos") | `frontend/src/pages/admin/gastro.tsx` | ✅ |
+| **`GET /api/v1/pos-sessions`** (listado de turnos con estado, caja, cajero y nº de pedidos) | `backend/src/pos-sessions/` | ✅ |
+| **Card "🗂️ Historial de Turnos"** con el Reporte Z en el panel de caja | `frontend/src/pages/admin/gastro-cashier.tsx` | ✅ |
+| **Tests** | `frontend/e2e/order-history-server.spec.ts` (4) | ✅ suite 86 passed / 5 skipped / 0 failed · jest 130 |
+| **Bump versión** | `VERSION`, `package.json` ×3, `featurelist.json`, Swagger, 55 manifiestos | ✅ 1.39.27 |
+
+### 🚀 Release v1.39.26 — FEAT-194: bandera de Mozo (Octubre 2026)
+
+| Feature | Módulo | Estado |
+|---------|--------|--------|
+| **Migración `Employee.canUseMozoPos`** (`can_use_mozo_pos`, snake_case) con **backfill D1** de los mozos de sala activos | `backend/prisma/migrations/20261022120000_add_can_use_mozo_pos_to_employees` | ✅ |
+| **`GET /api/v1/users/mozo-staff`**: solo empleados con la bandera activa (deja de filtrar por texto de cargo) | `backend/src/users/services/users.service.ts`, `backend/src/users/users.controller.ts` | ✅ |
+| **`verify-pin` con `scope:'mozo'`**: exige la bandera y responde *"no está habilitado para el POS de Mozo"* sin emitir token | `backend/src/auth/auth.service.ts`, `backend/src/auth/auth.controller.ts` | ✅ |
+| **Sección "Empleados Mozo"** en `/admin/settings → OmniGastro` (tabla con switch por empleado) | `frontend/src/pages/admin/settings.tsx` | ✅ |
+| **Switch "Puede abrir sesión en el POS de Mozo"** en el formulario de empleado | `frontend/src/pages/admin/hr.tsx` | ✅ |
+| **Selector de mozos** consume el listado con bandera + aviso "Sin habilitación de Mozo" en el panel | `frontend/src/pages/admin/gastro-mozos.tsx`, `frontend/src/pages/admin/gastro.tsx` | ✅ |
+| **Tests** | `frontend/e2e/mozo-flag.spec.ts` (3), `users.service.mozo-staff.spec.ts` (3), `auth.service.mozo-pin.spec.ts` (4) | ✅ |
+| **Bump versión** | `VERSION`, `package.json` ×3, `featurelist.json`, Swagger, 55 manifiestos | ✅ 1.39.26 |
+
+### 🚀 Release v1.39.25 — "Mis pedidos" del comensal + fix del `paidAt` al cerrar el pedido (Octubre 2026)
+
+| Feature | Módulo | Estado |
+|---------|--------|--------|
+| **Store `public-orders-store`** (Zustand + `persist`, clave `gaia-spa-orders`, máx. 20 pedidos): el pedido se recuerda **antes** de vaciar el carrito | `frontend/src/store/public-orders-store.ts` | ✅ |
+| **Botón 🕘 "Mis pedidos"** en el header del catálogo (con contador) + **drawer** con la lista, el estado, la mesa y el total; al tocar un pedido se abre su seguimiento | `frontend/src/pages/omni-catalog.tsx` | ✅ |
+| **Refresco del historial** cada 10 s contra `GET /api/v1/guest/orders/:id` (el UUID lo conserva el propio comensal) | `frontend/src/pages/omni-catalog.tsx` | ✅ |
+| **FEAT-197-d**: `normalizeOrderCloseMode` normaliza `mode` / `closeMode` / `method` / banderas → el cierre con cobro en mesa o pago digital **sí** escribe `paidAt` | `backend/src/orders/order-close-mode.util.ts`, `backend/src/orders/orders.controller.ts` | ✅ |
+| **Privacidad (decisión D3)**: el historial es **local del dispositivo**; no existe endpoint público que liste pedidos por mesa | — | ✅ |
+| **Tests**: 3 E2E nuevos (`frontend/e2e/order-tracking.spec.ts`), 7 unitarios backend, 6 unitarios frontend | — | ✅ E2E 79 passed / 5 skipped / 0 failed · jest 81 · vitest 26 |
+| **Bump versión** | `VERSION`, `backend/package.json`, `frontend/package.json`, `mobile/package.json`, `featurelist.json`, Swagger, 55 manifiestos | ✅ 1.39.25 |
+| **🚀 Deploy a `provecchio.com`** (2026-10-22 05:32, commit `52d6a4af`) | `scripts/deploy-production.sh provecchio` | ✅ health `1.39.25 ok`, 5 contenedores healthy, 8 rutas admin en verde — [reporte](docs/plans/omnigastro/DEPLOY_REPORT_2026-10-22.md) |
+| **🚀 Deploy a `provecchio.com`** (v1.39.26 + v1.39.27, 2026-10-22 07:52, commits `141fa9dd` + `73d783d2`) | `scripts/deploy-production.sh provecchio` | ✅ health `1.39.27 ok`, 39 migraciones, 5 contenedores healthy, 8 rutas admin en verde — [reporte](docs/plans/omnigastro/DEPLOY_REPORT_2026-10-22-v1.39.26-27.md) |
+
+### 🚀 Release v1.39.24 — POS del mozo (tablet): botón ☰ para mostrar y ocultar el catálogo (Octubre 2026)
+
+| Feature | Módulo | Estado |
+|---------|--------|--------|
+| **Botón ☰ (hamburguesa) con etiqueta "Productos"** en el header del POS del mozo — en pantallas de menos de 768 px el catálogo solo existía dentro de un drawer cerrado y el mozo veía el POS sin productos | `frontend/src/pages/admin/gastro-pos.tsx` | ✅ |
+| **El catálogo se muestra lateralmente** (drawer) en anchos estrechos y se alterna inline en anchos ≥768 px; el control deja de ser un ambiguo icono de ojo | `frontend/src/pages/admin/gastro-pos.tsx` | ✅ |
+| **3 casos E2E nuevos** (existencia del botón, ciclo ocultar/mostrar, drawer en 410×915) | `frontend/e2e/pos-tablet-responsive.spec.ts` | ✅ 8 passed en el spec |
+| **Bump versión** | `VERSION`, `backend/package.json`, `frontend/package.json`, `mobile/package.json`, `featurelist.json`, Swagger | ✅ 1.39.24 |
+| **🚀 Deploy a `provecchio.com`** (release acumulada v1.39.22 + v1.39.23 + v1.39.24, 2026-10-21 21:53) | `scripts/deploy-production.sh provecchio` | ✅ health `1.39.24 ok`, 5 contenedores healthy, QA post-deploy con las 8 rutas admin en verde |
+
+### 🚀 Release v1.39.23 — POS del mozo (vista por mesa): el pedido debe estar reclamado (Octubre 2026)
+
+| Feature | Módulo | Estado |
+|---------|--------|--------|
+| **La vista POS por mesa reclama el pedido antes de enviarlo a cocina** — el mozo recibía `400 "El pedido aún no fue reclamado por el mozo"` en `POST /orders/:id/ready` (solo en laptop: en tablet se usa el panel de mozos, que ya reclamaba) | `frontend/src/pages/admin/gastro-pos.tsx` | ✅ |
+| **`sendToKitchen` exige el reclamo previo** para pedidos guest (el control `claimedBy` faltaba; ya existía en `guestMarkReady`, `guestUpdateItems`, `guestPaymentPreconfirm`, `guestMarkPaid` y `guestTransferToPerson`) | `backend/src/orders/orders.service.ts` | ✅ |
+| **Bump versión** | `VERSION`, `backend/package.json`, `frontend/package.json`, `mobile/package.json`, `featurelist.json`, Swagger | ✅ 1.39.23 |
+
+### 🚀 Release v1.39.22 — Tres módulos del panel admin devolvían 404 (Octubre 2026)
+
+| Feature | Módulo | Estado |
+|---------|--------|--------|
+| **`/admin/social-catalog`, `/admin/loyalty` y `/admin/gastro/kds-stations` restaurados** — las rutas fueron borradas del router por el commit `7f6bae00` (2026-10-17) y los *lazy imports** quedaron muertos | `frontend/src/AdminApp.tsx` | ✅ |
+| **Test de regresión** que exige que cada enlace del `Sidebar` tenga su ruta registrada y que ninguna página importada quede sin montar (2ª ocurrencia de la misma clase, tras troubleshooting #160) | `frontend/src/components/sidebar-routes.test.ts` | ✅ |
+| **QA E2E post-deploy autenticado** y con detección de la pantalla 404 del router (antes era un no-op: sin sesión el router redirigía a `/login` y solo se miraba el HTTP status) | `scripts/qa_e2e_check.py` | ✅ |
+| **Bump versión** | `VERSION`, `backend/package.json`, `frontend/package.json`, `mobile/package.json`, `featurelist.json`, Swagger | ✅ 1.39.22 |
+
+### 🚀 Release v1.39.21 — La suite E2E del frontend deja de apuntar a producción (Octubre 2026)
+
+| Feature | Módulo | Estado |
+|---------|--------|--------|
+| **8 specs E2E con default `provecchio.com`** — el job de CI corría la suite contra producción, que crea mesas, abre/cierra turnos de caja y envía pedidos a cocina | `frontend/e2e/*.spec.ts` | ✅ Corregido a `provecchio.local` |
+| **Proxy `/api` del dev server** apuntaba a `:3000` en lugar del backend local en `:3010` (10 tests caían por timeout de API) | `frontend/vite.config.ts`, `frontend/.env.example` | ✅ |
+| **Dev server no arrancaba** con `PLAYWRIGHT_BASE_URL` definido | `frontend/playwright.config.ts` | ✅ |
+| **Job `Frontend E2E`** informational + URLs fijas explícitas (el gate bloqueante sigue siendo el workflow `QA E2E (Playwright + Python)`) | `.github/workflows/ci-cd.yml` | ✅ |
+| **Estado del CI documentado**: la cuenta no tiene fondos para Actions (spending limit) → sin runners; la verificación se replica 100 % en local | `docs/troubleshooting/185-github-actions-spending-limit-no-runners.md` | ⚠️ **ABIERTO** (requiere topped-up) |
+| **Análisis del bug 404**: `/admin/social-catalog`, `/admin/loyalty` y `/admin/gastro/kds-stations` sin `<Route>` (borradas por el commit `7f6bae00`) | `docs/troubleshooting/184-admin-routes-social-catalog-loyalty-kds-stations-404.md` | 🔍 **ANALIZADO** (fix pendiente de aprobación) |
+| **Bump versión** | `VERSION`, `backend/package.json`, `frontend/package.json`, `mobile/package.json`, `featurelist.json`, Swagger | ✅ 1.39.21 |
+
+> **TODO — Job `Frontend E2E` informativo:** la suite de Playwright del frontend exige un stack **completamente sembrado** (tenant con usuario admin, cajas registradoras con turno, mesas con token QR, PIN de mesero, catálogo y proveedor de importación) que CI no aprovisiona. Por eso el job quedó como informativo (`continue-on-error`) en `.github/workflows/ci-cd.yml`. El gate E2E **bloqueante** sigue siendo el workflow `QA E2E (Playwright + Python)`, que corre contra el entorno desplegado con aserciones de solo lectura. Próximo paso: seed reproducible por tenant + `docker compose` de pruebas en CI para promover el job a bloqueante.
+
+### 🚀 Release v1.39.20 — Fix del Service Worker (PWA) + hardening del pipeline de CI (Octubre 2026)
+
+| Feature | Módulo | Estado |
+|---------|--------|--------|
+| **Fix del service worker que servía la versión anterior** — `index.html` salía del precache de Workbox, `navigateFallback: null` y navegaciones con `NetworkFirst` | `frontend/vite.config.ts` | ✅ Production Ready |
+| **Guard de versión en el frontend** — compara el bundle contra `GET /api/v1/health` y ofrece **Actualizar ahora** limpiando cachés y recargando | `frontend/src/components/version-guard.tsx`, `frontend/src/main.tsx` | ✅ |
+| **Pipeline de CI en verde** — `react-qr-code@2.2.0` (ERESOLVE), `gitleaks` en GHCR, deps directas de Expo en mobile, props `id` eliminados de expo-router v6 | `frontend/package.json`, `mobile/package.json`, `mobile/app/**/_layout.tsx` | ✅ |
+| **Workflow `qa_e2e` operativo** — `secrets` fuera de `strategy`, `CATALOG_PATH=/social-catalog`, deps de sistema vía `playwright install --with-deps` (la lista manual fallaba en ubuntu-24.04) | `.github/workflows/qa_e2e.yml` | ✅ |
+| **OOM de Node eliminado del backend** — `NODE_OPTIONS=--max-old-space-size=4096` en typecheck y build de NestJS (exit 134 → "heap out of memory") | `.github/workflows/ci.yml`, `.github/workflows/ci-cd.yml` | ✅ |
+| **Política de lint por ratchet** y **gate de auditoría de producción** (`--omit=dev --audit-level=critical`) | `.github/workflows/ci.yml` | ✅ |
+| **Gobierno de versiones** — `VERSION` raíz como única fuente de verdad; `backend/VERSION` y `frontend/VERSION` huérfanos eliminados; `sync-version.sh` sin destruir el historial del changelog | `scripts/sync-version.sh`, `scripts/check-version-sync.sh`, `backend/src/health/health.controller.ts` | ✅ |
+| **Deuda de lint/tsc saneada** — 8 errores FE + 86 BE, 0 errores de TypeScript (incluido bug real en `AvailabilityCheckResponseDto.conflicts`) | backend y frontend | ✅ |
+| **Bump versión** | `VERSION`, `backend/package.json`, `frontend/package.json`, `mobile/package.json`, `featurelist.json`, Swagger | ✅ 1.39.20 |
+| **E2E de frontend sin riesgo sobre producción** (8 specs apuntaban a `provecchio.com` por defecto) + proxy del dev server corregido a `:3010` | `frontend/e2e/*.spec.ts`, `frontend/vite.config.ts`, `frontend/playwright.config.ts`, `frontend/.env.example` | ✅ 73 passed / 0 failed |
+
+### 🚀 Release v1.39.19 — Cierre de turno con arqueo y relevo de cajero en Caja Gastro (Octubre 2026)
+
+| Feature | Módulo | Estado |
+|---------|--------|--------|
+| **FEAT-196 — Botón "Cerrar turno" con arqueo y Reporte Z** (consume `GET /api/v1/pos-sessions/:id/report`, declara el efectivo contado, muestra faltante/sobrante) | `frontend/src/pages/admin/gastro-cashier.tsx` | ✅ Production Ready |
+| **Nuevo endpoint `POST /api/v1/pos-sessions/:id/switch-cashier`** (`CashManagementService.switchCashierByPin` — relevo que conserva caja, fondo y movimientos) | `backend/src/pos/cash-management.service.ts`, `backend/src/pos-sessions/pos-sessions.controller.ts` | ✅ |
+| **Fix de detección de sesión activa** (`useMemo` derivado en lugar de `setState` con closure obsoleta) + auto-selección de caja y bloqueo de apertura duplicada | `frontend/src/pages/admin/gastro-cashier.tsx` | ✅ |
+| **Auditoría de caja incluida en el cierre** (`cashRegister` en la respuesta de `closeSession`) | `backend/src/pos-sessions/pos-sessions.service.ts` | ✅ |
+| **Tests** (7 unitarios nuevos + 2 E2E nuevos: cierre desde la UI y relevo) | `backend/src/pos/cash-management.service.spec.ts`, `frontend/e2e/cashier-cash-register-flow.spec.ts` | ✅ 20 unitarios / 5 E2E |
+| **Documentación** | `docs/plans/omnigastro/auditoria-caja-cierre-relevo-2026-10-21.md` | ✅ |
+| **Bump versión** | `VERSION`, `backend/package.json`, `frontend/package.json`, `featurelist.json`, Swagger | ✅ 1.39.19 |
+
+### 🚀 Release v1.39.18 — Cobro centralizado multi-caja: la sesión se ancla a la caja física (Octubre 2026)
+
+| Feature | Módulo | Estado |
+|---------|--------|--------|
+| **FEAT-193 — La sesión de caja se ancla a la caja registradora** (`pos_sessions.cash_register_id`) | `backend/src/pos/cash-management.service.ts`, `backend/src/pos/cash-register.service.ts` | ✅ Production Ready |
+| **Control de acceso por caja** (`cash_register_access.can_open` + ficha de empleado del cajero) | `backend/src/pos/cash-register.service.ts` | ✅ |
+| **Fix de rutas del panel de caja** (`/api/v1/pos/sessions/*` → `/api/v1/pos-sessions/*`) y `configId` opcional | `frontend/src/pages/admin/gastro-cashier.tsx` | ✅ |
+| **Nuevo endpoint `GET /api/v1/pos-sessions/open`** (turnos abiertos con caja y cajero) | `backend/src/pos-sessions/pos-sessions.controller.ts` | ✅ |
+| **Cajas de producción** (4 cajas + 10 accesos: Principal, Barra, Terraza, Auxiliar) | DB `provecchio-dimora-001` | ✅ |
+| **Documentación** | `docs/plans/omnigastro/auditoria-caja-sesion-caja-fisica.md`, `docs/plans/omnigastro/manual-caja-cobro-centralizado.md` | ✅ |
+| **Bump versión** | `VERSION`, `backend/package.json`, `frontend/package.json`, `featurelist.json`, manifiestos POS | ✅ 1.39.18 |
+
+### 🚀 Release v1.39.11 — Sincronización OrderFlow → Odoo 14 POS (Octubre 2026)
+
+| Feature | Módulo | Estado |
+|---------|--------|--------|
+| **FEAT-184 — Mapeo de mesas OrderFlow ↔ Odoo** (`odoo_table_id`, listener con id numérico, UI de mapeo) | `backend/prisma/`, `backend/src/tables/`, `backend/src/orders/odoo-table-sync.listener.ts` | ✅ Production Ready |
+| **FEAT-185 — Addon Odoo 14 `pos_omniflow_sync` parcheado** (`pos.order` creable por RPC) | `odoo-adapter/odoo-addons/pos_omniflow_sync/`, `scripts/deploy-odoo-addon.sh` | ✅ Desplegado con backup + rollback |
+| **FEAT-186 — Sync en el cierre de mesa** + cobro en mesa configurable por tenant | `backend/src/orders/orders.service.ts`, `backend/src/modules/omnigastro-config/` | ✅ Production Ready |
+| **FEAT-187 — Config unificada del adapter** (`ODOO_DB=prod`) y retirada del worker legacy | `docker-compose.yml`, `odoo-adapter/src/` | ✅ |
+| **FEAT-188 — Telemetría t0…t5 + 5 métricas Prometheus** | `backend/src/queues/odoo-sync-telemetry.service.ts`, `backend/src/metrics/` | ✅ |
+| **Modal de editar mesa restaurado** (bug #8a del reporte del cliente) | `frontend/src/pages/admin/gastro-tables.tsx` | ✅ |
+| **Documentación** | `docs/plans/omnigastro/PLAN_ODOO_POS_SYNC_2026-10-19.md`, `flujo_odoo-pos-sync.md` | ✅ |
+| **Bump versión** | `VERSION`, `backend/package.json`, `frontend/package.json`, `featurelist.json`, 60+ manifiestos | ✅ 1.39.11 |
+
+### 🚀 Release v1.39.10 — Backend crash-loop: Socket.IO + Redis adapter (Octubre 2026)
+
+| Feature | Módulo | Estado |
+|---------|--------|--------|
+| **Fix `unhandledRejection` en adapter de Socket.IO/Redis** (`Stream isn't writeable`) | `backend/src/common/redis-io.adapter.ts` | ✅ Production Ready |
+| `await subClient.connect()` antes de `createAdapter`; password enmascarada en logs; `safeQuit()` en fallback | | ✅ |
+| **Guard acotado de `unhandledRejection` (solo Redis)** | `backend/src/main.ts` | ✅ Production Ready |
+| Pub/sub no crítico no tumba el proceso; el resto conserva `process.exit(1)` | | ✅ |
+| **Config de Redis en compose local + `env_file`** | `docker-compose.yml` | ✅ |
+| `REDIS_URL` / `REDIS_PASSWORD` / `ENABLE_REDIS_WS` / `env_file: .env` (fix `JWT_SECRET` ausente) | | ✅ |
+| **Documentación** | `docs/troubleshooting/182-*.md` + índice | ✅ |
+| **Bump versión** | `VERSION`, `backend/package.json`, `frontend/package.json`, `featurelist.json` | ✅ 1.39.10 |
+| **E2E Playwright** | `frontend/e2e/` | ✅ 64/64 OK vs `provecchio.local` y vs `provecchio.com` |
+
+### 🚀 Release v1.39.10 — Deploy a producción Provecchio (Octubre 2026)
+
+| Feature | Módulo | Estado |
+|---------|--------|--------|
+| **Deploy a provecchio.com** (autorizado por el usuario) | `scripts/deploy-production.sh` | ✅ En producción |
+| SSH del deploy con `root@` (17 invocaciones) — evita `permission denied` sobre `.env.provecchio` | | ✅ |
+| **Build del frontend en el servidor** (`node:20-alpine` + `vite build --mode provecchio`) | | ✅ |
+| `docker-compose.provecchio.yml`: `REDIS_URL`/`DATABASE_URL` con interpolación (fin del placeholder) | | ✅ |
+| `sync_standalone` / `omnibi_standalone` operativos (auth-shared, bind mount, Redis, healthcheck, base `orderflow_bi`) | | ✅ 9/9 healthy |
+| **E2E Playwright en producción** | `frontend/e2e/` | ✅ 64/64 OK vs `provecchio.com` |
+| **Documentación** | `docs/troubleshooting/183-*.md` + índice | ✅ |
+
+---
+
+### 🚀 Release v1.39.2 — OmniGastro Bug Fixes Post-v1.39.1 (Octubre 2026)
+
+| Feature | Módulo | Estado |
+|---------|--------|--------|
+| **Bug 1 — KDS Stations categorías padre/hoja independientes + excluir subcategorías** | `frontend/src/pages/admin/gastro-kds-stations.tsx` | ✅ Production Ready |
+| Tres Selects multivalor independientes; acción "Seleccionar todas las hojas de padres"; persiste `categories` combinado | | ✅ |
+| **Bug 2 — Tables sync: unificar fuente a `/api/v1/tables/floor-map`** | `frontend/src/pages/admin/gastro.tsx` | ✅ Production Ready |
+| Modal y listado muestran mismas mesas activas; refetch tras CRUD | | ✅ |
+| **Bug 4 — Cargar pedidos por mesa / sin mesa (takeout)** | `frontend/src/pages/admin/gastro.tsx`, `backend/src/orders/orders.controller.ts`, `backend/src/orders/orders.service.ts` | ✅ Production Ready |
+| Botón "Cargar Pedido"; `tableId=null` + `orderType=TAKEOUT`; navegar al POS | | ✅ |
+| **Bug 5 — Modal responsivo en panel de mozos sin overflow** | `frontend/src/pages/admin/gastro.tsx` | ✅ Production Ready |
+| `width` breakpoints, `bodyStyle` overflowY, `ellipsis`, `scroll x`, tokens de tema | | ✅ |
+| **Bump versión** | `VERSION`, `backend/package.json`, `frontend/package.json`, `featurelist.json` | ✅ 1.39.2 |
+| **E2E Playwright** | `frontend/e2e/` (4 specs) | ✅ Production Ready |
+
+---
+
+
+| Feature | Módulo | Estado |
+|---------|--------|--------|
+| **Monolito → omnibi-standalone proxy** | `backend/src/analytics/analytics.service.ts` | ✅ Production Ready |
+| `getYoYComparison()` / `getHistoricalSyncStatus()` / `triggerOmniBiSync()` | Reemplazan mock data por HTTP calls a standalone (port 3027) | ✅ Verificado |
+| **Proxy endpoint** | `backend/src/analytics/analytics.controller.ts:315` | ✅ Production Ready |
+| `POST /api/v1/analytics/omnibi/sync/odoo14` | `@RequirePermissions('analytics:write')`, despacha a standalone | ✅ |
+| **Extractor pagination + BOMs** | `services/omnibi-standalone/src/extractors/odoo-historical-extractor.ts` | ✅ Production Ready |
+| `paginateAll()` (500/page, 2000 pages max) + `extractBoms()` + `maxWriteDate` tracking | Corrige extracción directa sin paginación y BOMs nunca extraídos | ✅ |
+| **`omnibi.service.ts` rewrite** | Usa `paginateAll()` para 4 modelos, checkpoints con Odoo `write_date` | ✅ Production Ready |
+| Checkpoints `bi_sync_checkpoints` guardan `maxWriteDate` (no `new Date()`) | Permite sync incremental | ✅ |
+| **Frontend theme tokens** | `frontend/src/pages/admin/bi.tsx` | ✅ Production Ready |
+| `token.colorPrimary` / `token.colorBgContainer` | Sin colores hardcodeados `#1677ff`/`#fafafa` | ✅ |
+| **`docker-compose.prod.yml`** | Service `omnibi_standalone` (port 3027) | ✅ Production Ready |
+| Traefik `bi.provecchio.com` → `orderflow_omnibi_standalone:3027` | Routers verificados en `services.yml` | ✅ |
+| Deploy provecchio.com v1.38.19 | Contenedores healthy, health endpoint OK | ✅ Completado |
+
+| Feature | Módulo | Estado |
+|---------|--------|--------|
+| **Fix Categories Endpoint** | `frontend/src/pages/admin/gastro-pos.tsx:66` | ✅ Production Ready |
+| Endpoint correcto: `/api/v1/catalog/categories/tree?includeProducts=true` | Reemplaza `/api/v1/categories?includeProducts=true&tree=true` (404) | ✅ Verificado 200 |
+| **Table-by-ID Endpoint** | `backend/src/tables/tables.controller.ts`, `tables.service.ts` | ✅ Production Ready |
+| `GET /api/v1/tables/:id` | Retorna mesa con piso, capacidad, zona | ✅ Verificado 200 |
+| **Orders Endpoint Verificado** | `GET /api/v1/orders?tableId=...` | ✅ Verificado 200 |
+| Error 500 previo fue transitorio | DRAFT orders con líneas | ✅ Verificado |
+| **Seguridad Mozo v1.38.15 (incluida)** | PIN estricta API-only, auto-asignación, nav POS | ✅ Production Ready |
+| Deploy provecchio.com v1.38.16 | Contenedores healthy, health endpoint OK | ✅ Completado |
+
+---
 
 ### 🚀 Release v1.36.4 — OmniGastro KDS Multi-Estación + RBAC Hardening (Septiembre 2026)
 
@@ -42,7 +286,7 @@
 
 ---
 
-<!--CURRENT_VERSION-->1.38.0<!--/CURRENT_VERSION-->
+<!--CURRENT_VERSION-->1.40.0<!--/CURRENT_VERSION--> <!-- Actualizado: 2026-10-20 v1.39.12 por Kilo -->
 
 El ecosistema **OmniFlow** contempla 10 aplicaciones y capas operativas. A continuación se presenta la evaluación de madurez técnica por componente y los puntos pendientes priorizados hacia el Go-Live final.
 
@@ -55,7 +299,7 @@ El ecosistema **OmniFlow** contempla 10 aplicaciones y capas operativas. A conti
 | **OmniGastro & KDS Multi-Estación** | Web / PWA / WebSockets | **95%** | ✅ Production Ready | Fases 0-3.1 completadas (FEAT-112 a FEAT-152). KDS configurable multi-estación + impresión ESC/POS + RBAC hardening en PR. | **v1.36.4** |
 | **OmnIoT Edge Hardware Gateway** | Tauri / Rust Native Daemon | **70%** | 🔄 Desarrollo Avanzado | Emulador Epson ePOS, lectura básculas RS-232, ESC/POS TCP/USB daemon systemd en Debian/Radxa. | **v1.35.0** |
 | **Tauri v2 Desktop Wrappers** | Tauri v2 / Rust Kiosk | **65%** | 🔄 Staging Web | Empaquetado binarios `.AppImage` (Linux) y `.msi` (Windows) para OmniPOS Retail, Gastro y KDS. | **v1.35.0** |
-| **Mobile Native (`@orderflow/mobile`)** | React Native / Expo | **60%** | 🔄 En desarrollo | Publicación APK/IPA para `OmniMozos Pocket`, flujo Tap-to-Pay y sincronización offline-first. | **v1.36.0** |
+| **OmniMobile Monorepo & Apps (`mobile/apps/*`)** | React Native / Expo Monorepo | **65%** | 🔄 En desarrollo (`FEAT-160`) | Estructuración Monorepo (`apps/app-waiter`, `app-customer`, `app-admin` + `packages/*`). `app-waiter` v1.0 en fase de preparación post-PWA. | **v1.36.0** |
 | **Alta Disponibilidad / Standby Replica** | PostgreSQL Streaming / Traefik | **75%** | ✅ Failover Activo | Réplica Provecchio operativa para failover; pendiente migración a Tailscale/NetBird para cerrar puerto 5432 públicamente. | **v1.37.0** |
 | **OmniRealState (Vertical PropTech)** | Standalone Service (`:3028`) | **35%** | 📋 Plan & Specs Completos | Fast-Track MVP (`services/real-estate-standalone/`), SideBar Refine, GeoJSON, contratos, expensas, mora y liquidaciones. | **v1.34.0 (MVP) → v1.36.0** |
 | **Scheduling Core (Feature Granular)** | NestJS Module / Core Service | **5%** | 📋 Documentación Iniciada | Motor de scheduling multi-tenant extraído de cal.diy: disponibilidad avanzada, calendar sync, video conferencing, webhooks. Consumido por bookings, OmniCRM, HR, POS. Docs: `docs/plans/scheduling/`. | **v1.36.0 → v1.41.0** |

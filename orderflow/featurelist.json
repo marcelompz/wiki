@@ -1,7 +1,7 @@
 {
   "project": "OrderFlow SaaS Omnicanal",
-  "version": "1.39.15",
-  "last_updated": "2026-10-20",
+  "version": "1.40.0",
+  "last_updated": "2026-10-22",
   "features": [
     {
       "id": "FEAT-183",
@@ -2232,10 +2232,137 @@
         "Revisar el punto #6 del backlog (el historial de estados Pendiente/Cocinando/Listo se pierde al confirmar en cocina)"
       ],
       "qa_validation": "E2E local (frontend/e2e/kds-ticket-notification.cjs): el socket recibe kds:ticket_new con orderId, station, tableNumber y lineas al enviar a cocina, sin pulsar 'Sincronizar Todo' | Unitarios del gateway: 2 casos nuevos, 14/14 en verde | Suite completa en verde"
+    },
+    {
+      "id": "FEAT-192",
+      "category": "OmniGastro / Sala",
+      "title": "Lote 2 de bugs del cliente: alertas del mozo, KDS, POS y catálogo (#1, #2a, #2b, #3, #4, #6, #9)",
+      "description": "Cierra los 7 bugs restantes del reporte del cliente v1.39.9 en un unico lote. #9: el POS consultaba estados inexistentes (CLAIMED, SENT_TO_KITCHEN, IN_PREPARATION) en vez de los del enum OrderStatus, por lo que al enviar a cocina el pedido (PREPARING) desaparecia de la pantalla y el mozo no podia reabrirlo. #3: el aviso al mozo se componia con el UUID del producto; ahora usa metadata.snapshotName y el numero de mesa. #2b: al confirmar el pedido se creaba el WaiterCall en BD pero no se emitia el evento waiterCallNew, asi que la tablet del mozo no se enteraba. #2a: el modal 'Para llevar / Barra' se abria siempre; con QR de mesa se envia directo con serviceMode TABLE. #1: la pagina publica reproducia el sonido de la llamada en el movil del CLIENTE y la tablet del mozo no tenia WebSocket; ahora el cliente no suena y un hook useWaiterAlerts (sonido + pop-up) se conecta en el POS, la pantalla de mozos y el panel. #6: al confirmar en cocina la comanda se filtraba de la lista del KDS; ahora pasa a la seccion 'Historial de la sesion'. #4: al volver al menu el cliente veia el carrito vacio sin señal; ahora se informa que el pedido sigue en curso.",
+      "status": "completed",
+      "version": "1.39.17",
+      "priority": "HIGH",
+      "assigned_module": "backend/src/guest/guest-orders.controller.ts, backend/src/guest/guest-orders.controller.spec.ts, frontend/src/hooks/useWaiterAlerts.ts, frontend/src/pages/admin/gastro-pos.tsx, frontend/src/pages/admin/gastro-mozos.tsx, frontend/src/pages/admin/gastro.tsx, frontend/src/pages/admin/kds.tsx, frontend/src/pages/omni-catalog.tsx",
+      "depends_on": [],
+      "blocking": [],
+      "deploy_target": "provecchio",
+      "next_steps": [
+        "Unificar el helper de 'nombre de linea' (snapshotName) en un unico sitio: el patron 'l.name || l.productId' aparece en tres ficheros y cae al UUID cuando falta el snapshotName",
+        "Configurar las cajas en produccion (cash_registers vacio) para poder imputar los cobros de la cuenta abierta"
+      ],
+      "qa_validation": "Unitarios: 3 casos nuevos en guest-orders.controller.spec.ts (#3 nombre del producto, #2b emision de waiterCallNew, y que no se emita en servicio BAR) | Suite completa 131 suites / 975 tests en verde | tsc backend y frontend sin errores | vite build + PWA correctos | Auditoria: docs/plans/omnigastro/auditoria-gastro-lote-2-bugs.md"
+    },
+    {
+      "id": "FEAT-193",
+      "category": "OmniGastro / Caja",
+      "title": "Cobro centralizado multi-caja: la sesion de caja se ancla a la caja registradora fisica",
+      "description": "Con las 4 cajas ya creadas en produccion (Caja Principal, Barra, Terraza, Caja Auxiliar) y sus 10 accesos por cajero, se cierra el circuito: hoy la sesion de caja (pos_sessions) NUNCA se anclaba a una caja fisica (cash_register_id siempre null) y el panel de caja (frontend/src/pages/admin/gastro-cashier.tsx) estaba roto por tres puntos. (1) Calling a rutas inexistentes: /api/v1/pos/sessions/{active,open-pin,:id/collect} devolvian 404 porque los endpoints reales son /api/v1/pos-sessions/*. (2) Enviaba configId con el id de la cash_register, pero el backend lo busca en pos_configs -> 404 'Configuracion de caja no encontrada'. (3) Ni openSession ni openSessionWithPin aceptaban cashRegisterId, de modo que la sesion no podia imputarse a la caja fisica y el arqueo por caja era imposible. Correccion: OpenSessionPinDto acepta cashRegisterId opcional y configId pasa a opcional (se resuelve el pos_config activo del tenant); CashRegisterService.resolveCashRegisterForSession valida existencia de la caja, ficha de empleado del cajero y permiso can_open de cash_register_access; la sesion se guarda con cashRegisterId; nuevo endpoint GET /api/v1/pos-sessions/open que lista las sesiones abiertas del tenant con su caja y su cajero; el panel de caja selecciona la caja, muestra el cajero del turno y el estado de cada caja con turno abierto. Sin migraciones: la columna cash_register_id ya existia en pos_sessions.",
+      "status": "completed",
+      "version": "1.39.18",
+      "priority": "HIGH",
+      "assigned_module": "backend/src/pos/cash-management.service.ts, backend/src/pos/cash-register.service.ts, backend/src/pos-sessions/pos-sessions.service.ts, backend/src/pos-sessions/pos-sessions.controller.ts, backend/src/pos-sessions/dto/open-pos-session.dto.ts, backend/src/pos/cash-management.service.spec.ts, frontend/src/pages/admin/gastro-cashier.tsx, frontend/e2e/cashier-cash-register-flow.spec.ts",
+      "depends_on": [
+        "FEAT-190"
+      ],
+      "blocking": [],
+      "deploy_target": "provecchio",
+      "next_steps": [
+        "Sustituir los CI placeholder de Giovanni y Giuliana por las cedulas reales (PUT /api/v1/hr/employees/:id { nationalId })"
+      ],
+      "qa_validation": "Unitarios: backend/src/pos/cash-management.service.spec.ts (13 casos: PIN invalido, sesion duplicada, configId ausente, configId ajeno, caja anclada, sin caja, permiso denegado, cajero sin ficha de empleado, canOpen=false) | Suite completa en verde | tsc backend y frontend sin errores | nest build OK | E2E: frontend/e2e/cashier-cash-register-flow.spec.ts (3 casos: listado de cajas, sesion anclada a la caja, rechazo sin permiso) | Auditoria: docs/plans/omnigastro/auditoria-caja-sesion-caja-fisica.md"
+    },
+    {
+      "id": "FEAT-194",
+      "category": "OmniGastro / Sala",
+      "title": "POS de Mozo: solo los empleados con la bandera de Mozo configurada pueden tener sesion",
+      "description": "Requerimiento del cliente (2026-10-21). El endpoint que alimenta /admin/gastro/mozos debe desplegar SOLO los empleados que estan configurados como Mozo en /admin/settings -> OmniGastro (restaurante). Esa configuracion se valida con una bandera en la tabla de empleados (Employee) que habilita la opcion de tener sesion en el POS de Mozo. PLAN APROBADO 2026-10-22 (docs/plans/omnigastro/plan-actualizacion-v1.39.25-historial-pedidos-bandera-mozo.md, seccion 3). Alcance: (1) migracion Prisma 20261022HHMMSS con Employee.canUseMozoPos Boolean @default(false) @map('can_use_mozo_pos') (snake_case, AGENTS.md 2.4); (2) DTO Create/UpdateEmployeeDto + hr.service create/update persisten la bandera; (3) UsersService.getMozoStaff(tenantId) filtra status=ACTIVE y canUseMozoPos=true (NO reutilizar getGastronomyStaff, que hoy filtra por texto de cargo en GASTRONOMY_POSITIONS); (4) endpoint GET /api/v1/users/mozo-staff con ApiKeyGuard + PermissionsGuard; (5) AuthService.verifyPin acepta scope:'mozo' y rechaza con mensaje explicito a los empleados sin la bandera; (6) frontend gastro-mozos.tsx consume el listado con bandera y envia scope:'mozo'; (7) seccion 'Empleados Mozo' en la pestana gastro de /admin/settings (frontend/src/pages/admin/settings.tsx) con switch que hace PUT /api/v1/hr/employees/:id; (8) switch equivalente en el formulario de empleados del modulo HR. DECISIONES PENDIENTES DE CONFIRMAR: D1 backfill de can_use_mozo_pos=true para los empleados con position en GASTRONOMY_POSITIONS y pinCode asignado (recomendado: si, para no dejar fuera a los mozos actuales). ACTUALIZACION 2026-10-22: el cliente confirma que solo los empleados con la bandera pueden tener sesion en el POS de mozo y que la bandera se configura desde /admin/settings -> OmniGastro; el listado del selector de mozos y el login por PIN deben exigirla. D1 (backfill de la bandera para los mozos actuales) sigue pendiente de confirmar. F2 IMPLEMENTADA EN v1.39.26 (2026-10-22): migracion Prisma 20261022120000_add_can_use_mozo_pos_to_employees (ALTER TABLE employees ADD COLUMN can_use_mozo_pos BOOLEAN NOT NULL DEFAULT false + backfill D1 de los empleados de SALA con PIN: WAITER, HEAD_WAITER, Mozo, Jefe de Sala); UsersService.getMozoStaff (filtra status=ACTIVE y canUseMozoPos=true, NO por texto de cargo); GET /api/v1/users/mozo-staff (ApiKeyGuard + PermissionsGuard, devuelve canUseMozoPos); AuthService.verifyPin(tenantId, pinCode, scope?) con scope 'mozo' que exige la bandera y responde 'Este empleado no esta habilitado para el POS de Mozo. Activalo en /admin/settings -> OmniGastro' sin emitir token; la respuesta incluye user.canUseMozoPos; DTOs Create/UpdateEmployeeDto + hr.service create/update persisten canUseMozoPos (se puede desactivar con false); frontend: gastro-mozos.tsx consume /users/mozo-staff y envia scope:'mozo'; gastro.tsx muestra el tag 'Sin habilitacion de Mozo'; settings.tsx tiene la seccion 'Empleados Mozo' (tabla con switch, FUERA del Form de tenant-settings, PUT /api/v1/hr/employees/:id); hr.tsx tiene el switch 'Puede abrir sesion en el POS de Mozo' en el formulario de empleado. VALIDACION: E2E frontend/e2e/mozo-flag.spec.ts 3 passed; unitarios users.service.mozo-staff.spec.ts 3 passed y auth.service.mozo-pin.spec.ts 4 passed; tsc y eslint 0 errores.",
+      "status": "completed",
+      "version": "1.39.26",
+      "priority": "HIGH",
+      "assigned_module": "backend/prisma/schema.prisma, backend/prisma/migrations/20261022HHMMSS_add_can_use_mozo_pos_to_employees, backend/src/hr/dto/employee.dto.ts, backend/src/hr/hr.service.ts, backend/src/users/services/users.service.ts, backend/src/users/users.controller.ts, backend/src/auth/auth.service.ts, frontend/src/pages/admin/gastro-mozos.tsx, frontend/src/pages/admin/gastro.tsx, frontend/src/pages/admin/settings.tsx, frontend/src/pages/admin/hr.tsx, frontend/e2e/",
+      "depends_on": [],
+      "blocking": [],
+      "deploy_target": "provecchio",
+      "next_steps": [
+        "Verificar en el dispositivo de la tablet que el mozo con la bandera habilitada puede iniciar sesion y que uno sin bandera recibe el mensaje claro",
+        "El administrador puede ajustar la lista de mozos habilitados en /admin/settings -> OmniGastro (seccion 'Empleados Mozo')",
+        "F4 + F4b (v1.39.27): historial en servidor del mozo (GET /api/v1/orders/guest/history + Order.waiterId + claimedById + pestana 'Atendidos') y del cajero (GET /api/v1/pos-sessions + pestana 'Historial de turnos')",
+        "F3 (OPCIONAL, D2'): migracion public_code + GET /api/v1/guest/orders/by-code/:code (solo si el comensal lo pide)"
+      ],
+      "qa_validation": "Unitarios (jest): getMozoStaff filtra por bandera + estado; verifyPin con scope 'mozo' rechaza sin la bandera. API: CRUD de empleado con la bandera y listado de /users/mozo-staff con dos empleados (uno con, uno sin). E2E (Playwright): /admin/gastro/mozos solo lista al empleado habilitado; PIN sin bandera muestra el mensaje de error; PIN con bandera inicia sesion. QA post-deploy: scripts/qa_e2e_check.py sin regresiones en /admin/gastro/mozos. Auditoria: docs/plans/omnigastro/auditoria-bandera-mozo-2026-10-22.md. Ejecutado en v1.39.26: E2E frontend/e2e/mozo-flag.spec.ts 3 passed (listado filtrado, PIN sin bandera rechazado sin token, el selector de /admin/gastro/mozos solo muestra al habilitado); unitarios 3 + 4 passed. Pendiente: verificacion manual en la tablet de provecchio.local con el PIN real del mozo.",
+      "plan": "docs/plans/omnigastro/plan-actualizacion-v1.39.25-historial-pedidos-bandera-mozo.md",
+      "flow": "docs/plans/omnigastro/flujo-historial-pedidos.md",
+      "phase": "F2 (v1.39.26) COMPLETADA"
+    },
+    {
+      "id": "FEAT-196",
+      "category": "OmniGastro / Caja",
+      "title": "Cierre de turno (arqueo/Reporte Z) y relevo de cajero en el panel de Caja Gastro",
+      "description": "Requerimiento del cliente (2026-10-21) durante la prueba de FEAT-193: tras abrir el turno con el PIN de Natalia Bogado no existia forma de cerrar la sesion ni de cambiar de cajero. El panel de caja solo permitia abrir turno; la sesion quedaba abierta para siempre y el admin no podia pasar el turno a otro cajero. Correccion: (1) nuevo endpoint POST /api/v1/pos-sessions/:id/switch-cashier (CashManagementService.switchCashierByPin) que valida el PIN del nuevo cajero, exige que tenga permiso can_open sobre la caja fisica, rechaza duplicidad de sesion abierta y CONSERVA la misma PosSession (misma caja, mismo fondo inicial, mismos movimientos de efectivo) cambiando solo el cajero responsable y dejando la auditoria en notes; (2) boton 'Cerrar turno' en el panel de caja con modal de arqueo que consume GET /api/v1/pos-sessions/:id/report (apertura, ingresos, egresos, efectivo esperado), permite declarar el efectivo contado, muestra faltante/sobrante y cierra con POST /api/v1/pos-sessions/:id/close generando el Reporte Z; (3) correccion del estado de sesion activa en el frontend: antes se derivaba dentro de un setState con closure obsoleta de selectedCashRegister y no detectaba la sesion al cargar la pagina; ahora activeSession es un useMemo derivado de openSessions + selectedCashRegister, con auto-seleccion de la primera caja y bloqueo de apertura duplicada en la misma caja. Sin migraciones: no hay cambios de schema.",
+      "status": "completed",
+      "version": "1.39.19",
+      "priority": "HIGH",
+      "assigned_module": "backend/src/pos/cash-management.service.ts, backend/src/pos/cash-management.service.spec.ts, backend/src/pos-sessions/pos-sessions.controller.ts, backend/src/pos-sessions/pos-sessions.service.ts, frontend/src/pages/admin/gastro-cashier.tsx, frontend/e2e/cashier-cash-register-flow.spec.ts",
+      "depends_on": [
+        "FEAT-193"
+      ],
+      "blocking": [],
+      "deploy_target": "provecchio",
+      "next_steps": [
+        "Imprimir el Reporte Z en el cierre de turno (actualmente solo se guarda en reportZData)",
+        "Exponer el historial de arqueos por caja en el panel (Cierre Z por dia/caja)"
+      ],
+      "qa_validation": "Unitarios: backend/src/pos/cash-management.service.spec.ts (7 casos nuevos de switchCashierByPin: sesion inexistente, sesion cerrada, PIN invalido, mismo cajero, cajero con otra sesion abierta, permiso denegado sobre la caja, transferencia conserving caja y fondo) | tsc backend y frontend sin errores | nest build OK | vite build OK | E2E: frontend/e2e/cashier-cash-register-flow.spec.ts (5 casos, en modo serial: listado de cajas, sesion anclada, rechazo sin permiso, cierre de turno desde la UI con arqueo y Reporte Z, relevo de cajero conservando caja y fondo) | Verificacion manual en localhost: http://provecchio.local/admin/gastro/cashier"
+    },
+    {
+      "id": "FEAT-197",
+      "category": "OmniGastro / Sala / Cliente",
+      "title": "Historial y seguimiento de pedidos del comensal y del panel de mozos",
+      "description": "Requerimiento del cliente (2026-10-21, item 2 del reporte de docs/info/OmniGastro.md): 'despues de hacer el pedido se vacio su lista de compra. Carece de un control de su pedido en el historial. Debe ver el pedido en su estado, asi cuando pide mas cosas sabe cuales ya se le sirvieron en la mesa y cuantas estan marchando. Lo mismo sucede en el endpoint de los cajeros: los pedidos ya atendidos solo quedan en la memoria del dispositivo del mozo, pero si cambia de dispositivo no puede hacer seguimiento'. ANALISIS (2026-10-22): el cliente pierde la referencia al pedido porque omni-catalog.tsx:358 hace clearCart() y el orderId solo vive en la URL ?track= (L269, L360-362) sin persistirse en el dispositivo; el boton 'Volver al menu' (L813-835) borra el ?track=. El panel de mozos solo trae activos: orders.service.ts:1642-1695 filtra status in (DRAFT,CONFIRMED,PREPARING,READY) y take 50, por lo que al cerrar (status DELIVERED, L1590) el pedido desaparece y no hay endpoint de historico; ademas el panel filtra por meta.claimedById (gastro.tsx:190-197) que guestClaim nunca escribe (orders.service.ts:1176-1196), y la sesion de mozo vive 100% en localStorage (gastro-mozos.tsx:38-48, 92-98). PLAN APROBADO 2026-10-22 (docs/plans/omnigastro/plan-actualizacion-v1.39.25-historial-pedidos-bandera-mozo.md, seccion 2). ALCANCE EN 3 CAPAS + 1 FIX: Capa 1 (F1, v1.39.25, sin migracion): store public-orders-store con persist (localStorage) + UI 'Mis pedidos' en omni-catalog.tsx; persistir el pedido ANTES del clearCart(); el boton 'Volver al menu' deja de perder el historial; mostrar el codigo corto del pedido en la pantalla de tracking. Capa 2 (F3, v1.39.27, con migracion): Order.publicCode String? @unique @map('public_code') + generador de 6 caracteres con crypto.randomBytes; GET /api/v1/guest/orders/by-code/:code PUBLICO (sin ApiKeyGuard y sin @TenantPrisma(), resuelve el tenant desde el propio Order con this.prisma, AGENTS.md Regla 4); UI de recuperacion 'Tengo un codigo de pedido'; misma persistencia en el flujo Bio-Link (public-biolink.tsx:242-243). Capa 3 (F4, v1.39.28): GET /api/v1/orders/guest/history (JwtAuthGuard) reutilizando orders.service.findAll; setear Order.waiterId en claim/ready/close (el campo ya existe, schema.prisma:1104); persistir claimedById en metadata.guestDraft (arregla el filtro roto del panel); pestana 'Atendidos' en gastro.tsx; KDS con historial en servidor en vez de memoria (kds.tsx:23, 314-334). FIX (FEAT-197-d, F1): orders.controller.ts:271,276 espera body.mode pero gastro.tsx:242 envia closeMode y gastro-pos.tsx:280 envia method -> el cierre cae siempre en WITHOUT_PAYMENT y paidAt nunca se setea; normalizar los tres formatos (retrocompatible). TELEMETRIA (Regla 13): hitos t0_order_created, t1_table_claimed, t2_cart_saved, t3_order_confirmed, t4_sent_to_kitchen, t5_order_ready, t6_waiter_viewed_history, t7_paid, t11_table_closed. DECISIONES PENDIENTES: D2 nombre del codigo (publicCode) y mostrarlo en pantalla (recomendado: si); D3 implementar el listado por mesa en la iteracion 2 (recomendado: NO, por privacidad); D4 incluir el fix del modo de cierre en la F1 (recomendado: si). ACTUALIZACION 2026-10-22 (decisiones del cliente): (D3) el historial del COMENSAL queda solo en la memoria del dispositivo (localStorage) y se descarta el listado publico por mesa (quien escanee el QR de la mesa no accede a ningun pedido) -> la Capa 2 (publicCode + by-code) pasa a OPCIONAL y la migracion public_code no bloquea la F1; (D3') la 'memoria del sistema' es para MOZO y CAJEROS (usuarios que inician sesion), en endpoints autenticados distintos de los del cliente -> se anade la Capa 3b (cajero) con GET /api/v1/pos-sessions (listado de turnos, hoy inexistente: pos-sessions.controller.ts solo expone open/open-pin/active/open/close/collect/switch-cashier/:id/report), reutilizando Order.posSessionId (ya existe, orders.service.ts:1430) y getZReport (cash-management.service.ts:457), mas la pestana 'Historial de turnos' en gastro-cashier.tsx (hoy sin historial, solo la sesion abierta). FASES: F1 (v1.39.25, Capa 1 + fix paidAt) -> F2 (v1.39.26, FEAT-194) -> F3 (v1.39.27, opcional) -> F4 (v1.39.28, mozo) -> F4b (v1.39.29, cajero). DECISIONES ABIERTAS: D1 backfill de la bandera de mozo (recomendado si), D4 incluir el fix de paidAt en la F1 (recomendado si), D5 implementar la Capa 2 ahora o esperar (recomendado esperar), D6 Capa 3b en fase propia o integrada (recomendado fase propia). F1 IMPLEMENTADA EN v1.39.25 (2026-10-22): store public-orders-store (Zustand+persist, 'gaia-spa-orders', max 20) que recuerda el pedido antes del clearCart; boton 'Mis pedidos' (HistoryOutlined, aria-label 'Ver mis pedidos') con contador en el header del catalogo; drawer con la lista de pedidos (mesa, estado, total) y refresco cada 10s contra GET /api/v1/guest/orders/:id; al tocar un pedido se abre la pantalla de seguimiento existente (?track=<orderId>); el boton 'Volver al menu' ya no pierde el historial. FEAT-197-d IMPLEMENTADO EN v1.39.25: backend/src/orders/order-close-mode.util.ts con normalizeOrderCloseMode (mode/closeMode/method/banderas booleanas -> WITHOUT_PAYMENT|WAITER_CUSTODY|GATEWAY), usado por orders.controller.ts:close, con 7 unitarios en order-close-mode.util.spec.ts. VALIDACION: E2E frontend/e2e/order-tracking.spec.ts 3 passed; suite completa 79 passed / 5 skipped / 0 failed; jest src/orders 81 passed; vitest 26 passed; tsc y eslint 0 errores. F4 + F4b IMPLEMENTADAS EN v1.39.27 (2026-10-22): GET /api/v1/orders/guest/history (orders:read, filtros status/tableId/waiterId/limit, devuelve los pedidos DELIVERED/CANCELLED con waiterId, claimedById, closedAt, paidAt y lineas); guestClaim escribe claimedById en metadata.guestDraft y waiterId en el pedido (el panel ya filtraba por claimedById, que nunca se escribia); guestMarkReady y guestClose imputan tambien el waiterId (para eso el controller les pasa el user autenticado); panel de mozos con vista 'En curso' / 'Atendidos' y filtro 'Solo los mios'; GET /api/v1/pos-sessions (listado de turnos de caja con filtros cashRegisterId/cashierId/state/from/to/limit, incluye _count.orders) y card 'Historial de Turnos' en /admin/gastro/cashier con el Reporte Z del turno. VALIDACION: E2E frontend/e2e/order-history-server.spec.ts 4 passed; suite completa 86 passed / 5 skipped / 0 failed; jest 130 passed; tsc y eslint 0 errores. F3 (codigo corto para recuperar el pedido desde otro dispositivo) QUEDA COMO OPCIONAL NO IMPLEMENTADO (decision D5: el comensal acepta la memoria del dispositivo).",
+      "status": "completed",
+      "version": "1.39.25 / 1.39.27",
+      "priority": "HIGH",
+      "assigned_module": "frontend/src/store/public-orders-store.ts, frontend/src/pages/omni-catalog.tsx, frontend/src/pages/public-biolink.tsx, frontend/src/pages/admin/gastro.tsx, frontend/src/pages/admin/gastro-pos.tsx, frontend/src/pages/admin/kds.tsx, frontend/src/pages/admin/gastro-mozos.tsx, backend/src/guest/guest-orders.controller.ts, backend/src/orders/orders.controller.ts, backend/src/orders/orders.service.ts, backend/src/orders/order-public-code.util.ts, backend/prisma/schema.prisma, frontend/e2e/order-tracking.spec.ts",
+      "depends_on": [
+        "FEAT-193",
+        "FEAT-196"
+      ],
+      "blocking": [],
+      "deploy_target": "provecchio",
+      "plan": "docs/plans/omnigastro/plan-actualizacion-v1.39.25-historial-pedidos-bandera-mozo.md",
+      "flow": "docs/plans/omnigastro/flujo-historial-pedidos.md",
+      "phase": "F1 (v1.39.25) ✅ | F4 + F4b (v1.39.27) ✅ | F3 (v1.39.27+) OPCIONAL NO IMPLEMENTADA",
+      "next_steps": [
+        "Deploy a produccion de v1.39.26 (FEAT-194) y v1.39.27 (historial en servidor) con el protocolo completo",
+        "Verificacion manual en la tablet del mozo: cerrar un pedido y comprobar que aparece en 'Atendidos' y que se recupera al cambiar de dispositivo",
+        "F3 (OPCIONAL, D5): solo si el comensal pide recuperar el pedido desde otro dispositivo (migracion public_code + GET /api/v1/guest/orders/by-code/:code)"
+      ],
+      "qa_validation": "Unitarios (jest): generador de publicCode (alfabeto, unicidad en 10.000 generaciones, reintento ante colision) y normalizacion de mode/closeMode/method. Unitarios (vitest): store public-orders-store (persist, limite de 20, clearCart no borra el historial). E2E (Playwright, nuevo frontend/e2e/order-tracking.spec.ts): el cliente confirma, ve 'Mis pedidos', recarga y conserva el historial, recupera el pedido por codigo en otro dispositivo; el mozo cierra un pedido y lo ve en 'Atendidos', y al entrar de nuevo con su PIN ve los pedidos que atendio (waiterId). Aislamiento: el endpoint by-code no expone pedidos de otro tenant. QA post-deploy: scripts/qa_e2e_check.py + verificacion de que el pedido cerrado queda con paidAt. Adicional Capa 3b: unitarios de listSessions (filtros por caja, cajero, fecha y estado) y E2E del 'Historial de turnos' del cajero: abrir un turno, cerrarlo, verificar que reaparece en el listado con su Reporte Z y sus pedidos cobrados (Order.posSessionId). Adicional D3: test de que ningun endpoint publico expone pedidos de otra mesa ni de otro tenant, y que el listado por mesa NO existe. Ejecutado en v1.39.27: E2E frontend/e2e/order-history-server.spec.ts 4 passed (ciclo claim->ready->close y el pedido aparece en el historial con su mozo; filtros por waiterId y tableId; vista Atendidos del panel de mozos; listado de turnos y Reporte Z en el panel de caja); suite completa 86 passed / 5 skipped / 0 failed. Pendiente: verificacion manual en la tablet y en el panel de caja de provecchio.com tras el deploy."
+    },
+    {
+      "id": "FEAT-198",
+      "category": "Core / Multi-tenant / Marca blanca / DevOps",
+      "title": "Marca Blanca: endpoint GET /api/v1/tenants/:id/config + sanitización de customDomain + fix del rebuild en deploy-local.sh (v1.40.0)",
+      "description": "El modal de Marca Blanca del Super Admin no cargaba la configuración del tenant. (1) El frontend llamaba GET /api/v1/tenants/config/:id, ruta que resuelve el tenant por API key y no por id, de modo que el tenant no se encontraba; se agrega GET /api/v1/tenants/:id/config con ApiKeyGuard + assertCanManageTenant. (2) El PATCH persistía customDomain sin normalizar (https://, barra final, mayúsculas), generando dominios inválidos para Cloudflare; ahora se sanitiza a minúsculas sin esquema ni path y se marca customDomainVerified=true, y si se vacía queda en null. (3) El select de Prisma de getTenantConfig no incluía id:true aunque el return leía tenant.id: error TS2339 que rompía el build de Docker (defecto latente, el commit nunca se compiló antes del deploy); se añade id:true como en las consultas vecinas. (4) deploy-local.sh decidía reconstruir el backend con 'docker compose ps --services', que solo lista servicios corriendo: con el backend arriba reportaba ALREADY RUNNING, se saltaba el build y daba verde con código viejo (violaba la Regla #11); la Fase 5 ahora usa siempre 'up --build -d' y espera el health check.",
+      "status": "completed",
+      "version": "1.40.0",
+      "priority": "MEDIUM",
+      "assigned_module": "backend/src/tenants/tenants.controller.ts, frontend/src/pages/admin/(modal Marca Blanca), scripts/deploy-local.sh",
+      "deploy_target": "provecchio",
+      "deployed_at": "2026-10-22T13:09:00-03:00",
+      "report": "docs/plans/omnigastro/DEPLOY_REPORT_2026-10-22-v1.40.0.md",
+      "troubleshooting": [
+        "docs/troubleshooting/187-select-prisma-sin-id-error-ts2339.md",
+        "docs/troubleshooting/188-restore-provecchio-db-port-null.md"
+      ],
+      "qa_validation": "Local: deploy-local.sh ALL CHECKS PASSED (13/13 versiones, 135 suites / 1009 tests, bundle fresco, GET /api/v1/tenants/:id/config 200) + E2E Playwright 10/10 (mozo-flag, order-history-server, hr-endpoints) sobre datos de producción restaurados. Producción: health 1.40.0, 9/9 contenedores healthy, 40 migraciones 0 pendientes, QA E2E 8 rutas admin OK, 0 errores JS, GET /api/v1/tenants/provecchio-dimora-001/config 200 con whiteLabel.customDomain=provecchio.com. Tag v1.40.0 sobre 273f90e0.",
+      "next_steps": [
+        "Aplicar el fix de 2 líneas en scripts/restore-provecchio.sh (DB_PORT literal 'null') documentado en troubleshooting #188, previa aprobación del usuario",
+        "Verificación manual del usuario en el modal de Marca Blanca de provecchio.com (cargar, editar y guardar customDomain)"
+      ]
     }
   ],
-  "lastUpdated": "2026-10-20",
-  "last_id": "FEAT-191",
+  "lastUpdated": "2026-10-22",
+  "last_id": "FEAT-198",
   "next_pending_sc": null,
   "active_plan": "docs/plans/omnigastro/PLAN_MAESTRO.md",
   "plan_progress": {

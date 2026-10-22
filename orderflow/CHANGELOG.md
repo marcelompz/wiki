@@ -1,3 +1,455 @@
+## [1.40.0] - 2026-10-22
+
+### 🏷️ Marca blanca: endpoint de configuración por tenant + sanitización de `customDomain`
+
+| # | Síntoma | Causa raíz | Corrección |
+|---|---|---|---|
+| 1 | El modal **"🏷️ Marca Blanca"** del Super Admin no cargaba la configuración del tenant (logos, `customDomain`, `footerCredits`) | El frontend pedía `GET /api/v1/tenants/config/:id`, ruta que resuelve por **API key** y no por **id de tenant** → el tenant no se encontraba | Nuevo endpoint `GET /api/v1/tenants/:id/config` (guard `ApiKeyGuard` + `assertCanManageTenant`) que devuelve la configuración de marca blanca del tenant |
+| 2 | `customDomain` se guardaba tal cual venía del formulario (con `https://`, barra final o mayúsculas) | El campo se persistía **sin normalizar**, generando dominios inválidos para Cloudflare y registros DNS duplicados | El `PATCH` **sanitiza** el valor: minúsculas, sin esquema (`http://`/`https://`), sin path ni query, y marca `customDomainVerified = true`; si se vacía, se anula (`customDomain = null`, `customDomainVerified = false`) |
+| 3 | **El build del backend fallaba** (`error TS2339: Property 'id' does not exist`) y bloqueaba el deploy | El `select` de Prisma de `getTenantConfig` **no incluía `id: true`**, pero el `return` leía `tenant.id`. Prisma tipa el `select` como el objeto literal de campos, así que `id` no existía en el tipo | `id: true` añadido al `select`, igual que las consultas vecinas del mismo controller |
+
+> El defecto #3 era **latente**: el commit que lo introdujo nunca se compiló, porque el deploy a
+> producción se ejecutó **antes** de ese commit. Se detectó recién al correr el deploy local.
+
+### 🔧 Corrección del protocolo de deploy local
+
+`scripts/deploy-local.sh` decidía si reconstruir el backend con
+`docker compose ps --services | grep -q "^backend$"`. Ese comando lista **solo los servicios que
+están corriendo**, de modo que, con el backend ya arriba, el scriptinformaba
+`ALREADY RUNNING`, **se saltaba el build** y reportaba verde sin desplegar el código nuevo
+— contra la Regla #11 (`docker compose up --build -d`, nunca `restart`).
+
+Ahora la Fase 5 reconstruye siempre con `up --build -d` y espera el health check del contenedor,
+de modo que el resultado del script refleja el código realmente desplegado.
+
+**Validación en localhost:** E2E de las features nuevas (`mozo-flag`, `order-history-server`,
+`hr-endpoints`) — **10/10 passed** sobre datos de producción restaurados — + verificación de
+`GET /api/v1/tenants/:id/config` → **200**.
+
+### 🚀 Desplegado en producción (`provecchio.com`)
+
+Protocolo AGENTS.md §3.1.1 completo (backup → restore local → validación local → deploy).
+
+| Verificación | Resultado |
+|---|---|
+| Backup previo | `pre_deploy_provecchio_20261022_125507.sql` (2,23 MB) + `_uploads.tar.gz` (28,9 MB) |
+| Restore en localhost | 168 tablas, 1 tenant, 6 empleados, 4 cajas, 18 mesas, 226 productos, 10 usuarios |
+| Deploy local | 13/13 versiones, 135 suites / **1009 tests**, builds nest/vite/tsc OK |
+| Pre-deploy diagnostic | ✅ 0 fallos críticos (11 warnings preexistentes) |
+| Deploy producción | ✅ 9/9 contenedores healthy, 40 migraciones (0 pendientes), QA E2E 8 rutas admin OK |
+| Health público | `https://provecchio.com/api/v1/health` → **`1.40.0`** |
+| Endpoint de la release | `GET /api/v1/tenants/:id/config` → **200** con `whiteLabel.customDomain: "provecchio.com"` |
+| Rollback | `deploy-artifacts/rollback-provecchio-20261022_130136.env` |
+
+**Tag:** `v1.40.0` (commit `273f90e0`). Reporte: [`docs/plans/omnigastro/DEPLOY_REPORT_2026-10-22-v1.40.0.md`](docs/plans/omnigastro/DEPLOY_REPORT_2026-10-22-v1.40.0.md).
+
+## [1.39.28] - 2026-10-22
+
+### 🛠️ Fix de `/admin/hr`: 500 en `hr/employees` y 404 en `positions`
+
+| # | Síntoma | Causa raíz | Corrección |
+|---|---|---|---|
+| 1 | `GET /api/v1/hr/employees` → **500** en el entorno local (tras el restore previo al deploy) | El restore del dump de producción (tomado **antes** del deploy) dejaba la base local sin la columna `employees.can_use_mozo_pos`, mientras el backend ya corría el código nuevo → `PrismaClientKnownRequestError` | `scripts/restore-provecchio.sh` ahora ejecuta `prisma migrate deploy` tras el restore, dejando el entorno local **fiel al código**; si la migración falla, el script aborta |
+| 2 | `GET /api/v1/positions` → **404** (en local **y en producción**) | `PositionModule` se **importaba** en `app.module.ts` pero **nunca se registraba** en el array `imports` → Nest no montaba el controller | `PositionModule` registrado en `imports` del `AppModule` → el listado de cargos vuelve a estar disponible en `/admin/hr` y en `/admin/settings → OmniGastro` |
+
+**Impacto visible:** el formulario de empleados de `/admin/hr` ya carga los cargos (antes avisaba
+*"No se pudieron cargar las opciones organizativas"*) y el listado de empleados deja de dar 500.
+
+**Validación en localhost:** E2E de regresión `frontend/e2e/hr-endpoints.spec.ts` **3 passed**
+(`hr/employees` 200 con `canUseMozoPos` en el payload · `positions` 200 con 6 cargos ·
+`hr/organization` 200).
+
+**Falso positivo descartado:** las 10 filas de `_prisma_migrations` con `finished_at = NULL` están
+**revertidas** (`rolled_back_at` no nulo), no fallidas: Prisma no las re-aplica y **no había riesgo
+de fallo en el siguiente deploy**. Se documentó en el troubleshooting #186 para no "arreglarlas" a ciegas.
+
+## [1.39.28] - 2026-10-22
+
+### 🚧 Release en curso
+
+- Documentar aqui los cambios de la version.
+
+## [1.39.27] - 2026-10-22
+
+### 🚀 Deploy a producción (2026-10-22 07:52) — cierre del plan
+
+**v1.39.26 + v1.39.27** desplegadas en `provecchio.com` (host `192.168.69.240`) con el protocolo completo.
+
+- Migración `20261022120000_add_can_use_mozo_pos_to_employees` aplicada (39 migraciones, 0 pendientes) y
+  backfill verificado: 1 empleado con la bandera de Mozo (Ivan Castillo), cajeros y cocinero en `false`.
+- Health público `1.39.27 ok` · frontend HTTP 200 · 5 contenedores `healthy`.
+- QA post-deploy en verde: catálogo, dominio sin errores JS, auth+DB sin 500 y **8 rutas admin** verificadas.
+- Endpoints nuevos verificados en producción: `/api/v1/users/mozo-staff` (1), `/api/v1/orders/guest/history` (3),
+  `/api/v1/pos-sessions` (2 turnos cerrados).
+- Reporte completo: [`docs/plans/omnigastro/DEPLOY_REPORT_2026-10-22-v1.39.26-27.md`](docs/plans/omnigastro/DEPLOY_REPORT_2026-10-22-v1.39.26-27.md).
+
+
+### 🗂️ FEAT-197 (Capas 3 y 3b) — El mozo y el cajero no pierden el historial al cambiar de dispositivo
+
+> **Reporte del cliente (2026-10-21):** *"Lo mismo sucede en el endpoint de los cajeros: los pedidos ya
+> atendidos solo quedan en la memoria del dispositivo del mozo, pero si cambia de dispositivo no puede
+> hacer seguimiento."*
+>
+> **Decisión del cliente (2026-10-22):** la "memoria del sistema" es para **mozo y cajeros** (usuarios que
+> inician sesión), en endpoints autenticados propios.
+
+| # | Síntoma | Causa raíz | Corrección |
+|---|---|---|---|
+| 1 | Al cerrar un pedido, el mozo **lo pierde de la pantalla**: desaparece del panel | `GET /api/v1/orders/guest/pending` solo devuelve pedidos **en curso** (`DRAFT, CONFIRMED, PREPARING, READY`); al cerrar (`DELIVERED`) el pedido se sale de la lista | Nuevo `GET /api/v1/orders/guest/history` (filtros por `status`, `tableId`, `waiterId`, `limit`) y vista **"✅ Atendidos"** en `/admin/gastro` |
+| 2 | El panel filtraba los pedidos por `meta.claimedById`, un campo que **nunca se escribía** → el filtro no funcionaba | `guestClaim` guardaba `claimedBy` (nombre) pero no el id | `guestClaim` ahora escribe `claimedById` en `metadata.guestDraft` **y** `waiterId` en el pedido; `guestMarkReady` y `guestClose` también imputan el mozo |
+| 3 | El cajero no podía volver a ver un turno ya cerrado (solo existían las sesiones **abiertas**) | `pos-sessions.controller.ts` solo exponía `open`, `active`, `open-pin`, `close`, `collect`, `switch-cashier` y `:id/report` — **no había listado** | Nuevo `GET /api/v1/pos-sessions` (filtros por `cashRegisterId`, `cashierId`, `state`, `from`, `to`, `limit`) + card **"🗂️ Historial de Turnos"** en `/admin/gastro/cashier` con su Reporte Z |
+
+**Contratos nuevos:**
+
+| Método | Ruta | Auth | Descripción |
+|---|---|---|---|
+| `GET` | `/api/v1/orders/guest/history` | `orders:read` | Pedidos ya atendidos (por defecto `DELIVERED,CANCELLED`), filtrable por mesa y por mozo |
+| `GET` | `/api/v1/pos-sessions` | `ApiKeyGuard` | Turnos de caja del tenant con su estado, caja, cajero y nº de pedidos |
+
+**Validación en localhost (`https://provecchio.local`, backend `1.39.27 ok`):**
+- E2E nuevo `frontend/e2e/order-history-server.spec.ts`: **4 passed** (el pedido cerrado aparece en el
+  historial con `waiterId` y `claimedById`; los filtros por mozo y por mesa funcionan; la vista
+  "Atendidos" del panel de mozos; el listado de turnos y su Reporte Z en el panel de caja).
+- Suite E2E completa: **86 passed / 5 skipped / 0 failed** (antes 79).
+- Unitarios backend (`orders`, `users`, `auth`): **130 passed** (17 suites) · `tsc` y eslint sin errores.
+
+## [1.39.27] - 2026-10-22
+
+### 🚧 Release en curso
+
+- Documentar aqui los cambios de la version.
+
+## [1.39.26] - 2026-10-22
+
+### 🧑‍🍳 FEAT-194 — Bandera de Mozo: solo el personal habilitado puede tener sesión en el POS de Mozo
+
+> **Requerimiento del cliente (2026-10-21):** *"El endpoint que alimenta `/admin/gastro/mozos` debe desplegar
+> SOLO los empleados que están configurados como Mozo en `/admin/settings` → OmniGastro (restaurante). Esa
+> configuración se valida con una bandera en la tabla de empleados (Employee) que habilita la opción de tener
+> sesión en el POS de Mozo."*
+
+| # | Antes | Ahora |
+|---|---|---|
+| Selector de mozos | `GET /api/v1/users/staff` → **toda** la gastronomía con PIN (mozos, cajeros, cocineros), filtrado por el **texto** del cargo | `GET /api/v1/users/mozo-staff` → **solo** empleados con `Employee.canUseMozoPos = true` |
+| Login por PIN | `POST /api/v1/auth/verify-pin` aceptaba el PIN de cualquier empleado de gastronomía | `scope: 'mozo'` → exige la bandera; si el PIN existe pero el empleado no está habilitado, responde con un mensaje explícito |
+| Configuración | No existía | Sección **"Empleados Mozo"** en `/admin/settings → OmniGastro` (tabla con switch por empleado) y switch **"Puede abrir sesión en el POS de Mozo"** en el formulario de empleados (`/admin/hr`) |
+| Modelo de datos | `Employee` sin bandera | `Employee.canUseMozoPos` (columna `can_use_mozo_pos`, snake_case) + **migración `20261022120000_add_can_use_mozo_pos_to_employees`** con backfill (D1) de los mozos de sala ya activos |
+
+**Backfill (decisión D1 del cliente):** la migración marca `can_use_mozo_pos = true` para los empleados
+**de sala** (`WAITER`, `HEAD_WAITER`, `Mozo`, `Jefe de Sala`) que estén `ACTIVE` y tengan PIN asignado.
+Los cajeros y cocineros **no** se habilitan automáticamente (la bandera es del POS de Mozo, no de la caja
+ni de la cocina) y el administrador puede activarla desde la sección "Empleados Mozo".
+
+**Contratos:**
+
+| Método | Ruta | Cambio |
+|---|---|---|
+| `GET` | `/api/v1/users/mozo-staff` | **nuevo** — solo empleados con la bandera activa (con `ApiKeyGuard` + `PermissionsGuard`) |
+| `POST` | `/api/v1/auth/verify-pin` | ahora acepta `scope: 'mozo'`; la respuesta incluye `user.canUseMozoPos` |
+| `PUT` | `/api/v1/hr/employees/:id` | acepta `canUseMozoPos` (se puede activar **y** desactivar) |
+| `POST` | `/api/v1/hr/employees` | acepta `canUseMozoPos` en el alta |
+
+**Validación en localhost (`https://provecchio.local`, backend `1.39.26 ok`):**
+- E2E nuevo `frontend/e2e/mozo-flag.spec.ts`: **3 passed** (el listado solo trae habilitados; el PIN sin
+  bandera se rechaza con el mensaje *"no está habilitado para el POS de Mozo"* y sin emitir token; el
+  selector de `/admin/gastro/mozos` muestra al Mozo habilitado y **no** al cajero).
+- Unitarios: `users.service.mozo-staff.spec.ts` **3 passed** (filtra por bandera, no por cargo) y
+  `auth.service.mozo-pin.spec.ts` **4 passed** (scope mozo acepta/rechaza, y el flujo sin scope no cambia).
+- `tsc` sin errores · eslint 0 errores.
+
+**Nota de compatibilidad:** `POST /api/v1/auth/verify-pin` **sin** `scope` mantiene el comportamiento
+anterior (toda la gastronomía), por lo que los demás flujos de autenticación por PIN no se ven afectados.
+
+## [1.39.26] - 2026-10-22
+
+### 🚧 Release en curso
+
+- Documentar aqui los cambios de la version.
+
+## [1.39.25] - 2026-10-22
+
+### 🚀 Deploy a producción (2026-10-22 05:32)
+
+**v1.39.25** desplegada en `provecchio.com` (host `192.168.69.240`) con el protocolo completo
+(backup → restore en localhost → verificación → pre-deploy diagnostic → build → migrate → health checks
+→ QA post-deploy).
+
+- Health público `1.39.25 ok` · frontend HTTP 200 · 5 contenedores `healthy` · 38 migraciones, 0 pendientes.
+- QA post-deploy en verde: catálogo, dominio sin errores JS, auth+DB sin 500 y **8 rutas admin** verificadas.
+- Bundle de producción `index-D9ZVaT1F.js` con el botón 🕘 "Mis pedidos" y backend con
+  `order-close-mode.util.js` (el fix del `paidAt`).
+- Incidencia de red resuelta: la estación perdió la ruta a la LAN `192.168.69.x` y se aplicó
+  `ProxyJump` vía `dimoraserver2` en `~/.ssh/config`.
+- Reporte completo: [`docs/plans/omnigastro/DEPLOY_REPORT_2026-10-22.md`](docs/plans/omnigastro/DEPLOY_REPORT_2026-10-22.md).
+
+
+### 🧾 El comensal recupera sus pedidos ("Mis pedidos") y el cierre de pedido registra el pago
+
+> **Reporte del cliente (2026-10-21, ítem 2):** *"después de hacer el pedido se vació su lista de compra.
+> Carece de un control de su pedido en el historial. Debe ver el pedido en su estado, así cuando pide más
+> cosas sabe cuáles ya se le sirvieron en la mesa y cuántas están marchando."*
+>
+> **Decisión del cliente (2026-10-22):** el historial del **comensal** queda **solo en la memoria de su
+> dispositivo** (se descarta el listado público de pedidos por mesa: quien escanea el QR de la mesa no
+> accede al pedido de nadie). La "memoria del sistema" queda para **mozo y cajeros**, en endpoints
+> autenticados (fases F4 y F4b del plan maestro).
+
+| # | Síntoma | Causa raíz | Corrección |
+|---|---|---|---|
+| 1 | Al confirmar el pedido, el carrito se vacía y el comensal **pierde la referencia a su pedido**: el `orderId` solo quedaba en la URL `?track=` y en el estado de React | `omni-catalog.tsx:358` ejecutaba `clearCart()` y el `orderId` no se persistía en el dispositivo; el botón "Volver al menú" (L813-835) borraba el `?track=` | Nuevo store `public-orders-store` (Zustand + `persist`, clave `gaia-spa-orders`, máx. 20 pedidos) que **recuerda el pedido antes de vaciar el carrito** |
+| 2 | El comensal no tenía **ninguna** vista de sus pedidos | No existía UI de "mis pedidos" en el catálogo público | Botón **🕘 "Mis pedidos"** en el header (con contador) + drawer con la lista de pedidos, su estado, la mesa y el total; al tocar uno se abre la pantalla de seguimiento existente |
+| 3 | El estado del historial quedaba congelado | No había refresco del estado de los pedidos guardados | El drawer refresca cada 10 s contra `GET /api/v1/guest/orders/:id` (endpoint público ya existente, con el UUID que el propio comensal conserva) |
+| 4 | Al cerrar un pedido desde la sala, **`paidAt` nunca se escribía**: el paso "Entregado y pagado" del tracking no se completaba y el cobro en mesa / pago digital no se registraban | `orders.controller.ts:271,276` leía el modo de cierre solo de `body.mode`, pero las pantallas lo enviaban en `closeMode` (`gastro.tsx:242`) o `method` (`gastro-pos.tsx:280`) → el service recibía siempre `WITHOUT_PAYMENT` | Nuevo util `order-close-mode.util.ts` (`normalizeOrderCloseMode`) que normaliza `mode` / `closeMode` / `method` / banderas booleanas a los tres modos canónicos |
+
+**Comportamiento resultante:**
+
+| Momento | Antes | Ahora |
+|---|---|---|
+| Tras confirmar | Carrito vacío, sin rastro del pedido | Carrito vacío **y** el pedido en "Mis pedidos" |
+| Recargar o volver al menú | Pedido perdido | El pedido sigue en "Mis pedidos" (persistido en el dispositivo) |
+| Otra persona escanea el QR de la mesa | — | **No ve ningún pedido** (el historial es local del dispositivo) |
+| Cerrar el pedido cobrando en mesa / con pago digital | `paidAt` nunca se escribía | `paidAt` se escribe y el tracking muestra "Entregado y pagado" |
+
+**Validación en localhost (`https://provecchio.local`, backend `1.39.25 ok`):**
+- E2E nuevo `frontend/e2e/order-tracking.spec.ts`: **3 passed** (confirmar → "Mis pedidos" → recarga → el
+  historial sigue; otra sesión no ve el historial; el cierre con `{ method: 'GATEWAY' }` registra `paidAt`).
+- Suite E2E completa: **79 passed / 5 skipped / 0 failed** (antes 76 passed / 5 skipped).
+- Unitarios: backend `src/orders` **81 passed** (9 suites, incluye los 7 casos de `normalizeOrderCloseMode`);
+  frontend vitest **26 passed** (9 files, incluye los 6 casos del store).
+- `tsc` sin errores en backend y frontend · eslint 0 errores (22 warnings preexistentes en `omni-catalog.tsx`).
+- Verificación visual: el botón 🕘 aparece en el header del catálogo (3.er icono) y el drawer lista el pedido
+  con su estado y su total.
+
+**Pendiente (fases siguientes del plan maestro):** F2 · FEAT-194 (bandera de Mozo) · F4 · historial del mozo
+en servidor · F4b · historial de turnos del cajero · F3 (opcional) · código corto de recuperación.
+
+### 🚧 Release en curso
+
+- Documentar aqui los cambios de la version.
+
+## [1.39.24] - 2026-10-21
+
+### 🍔 POS del mozo (tablet): botón ☰ para mostrar y ocultar el catálogo de productos
+
+> **Reporte del cliente:** *"En la vista vertical de la tablet el menú lateral oculta los
+> productos. Se debería ocultar y mostrar con un botón de acceso. Falta agregar ese menú tipo
+> hamburguesa (de las tres líneas) para ocultar y mostrar los productos lateralmente."*
+
+| # | Síntoma | Causa raíz | Corrección |
+|---|---|---|---|
+| 1 | En pantallas de menos de 768 px el catálogo **no existía** hasta abrir un drawer oculto: el mozo veía el POS sin productos y sin saber cómo llegar a ellos | `gastro-pos.tsx` renderizaba el catálogo **solo** dentro del `<Drawer>` cuando `!isMedium`, y ese drawer arrancaba cerrado. El único acceso era un icono de lupa sin etiqueta, no discoverible | Nuevo **botón ☰ (hamburguesa) con etiqueta "Productos"** siempre visible en el header del POS. En anchos <768 px abre/cierra el catálogo **lateralmente** (drawer); en ≥768 px alterna el catálogo inline |
+| 2 | El control de visibilidad era un icono de ojo, no un menú lateral | El botón alternaba `showCatalog` con `EyeInvisibleOutlined` / `EyeOutlined`, señal ambigua | Se reemplaza por `MenuOutlined` (☰, tres líneas) con `aria-label="Mostrar u ocultar el catálogo de productos"` y tooltip contextual ("Ocultar catálogo" / "Mostrar catálogo" / "Catálogo de productos") |
+
+**Comportamiento resultante:**
+
+| Ancho | Antes | Ahora |
+|---|---|---|
+| <768 px | Catálogo invisible (drawer cerrado, acceso solo por lupa sin etiqueta) | Botón **☰ Productos** abre el catálogo lateralmente |
+| 768–1199 px | Catálogo inline, botón de ojo para ocultarlo | Botón **☰ Productos** lo oculta y lo recupera |
+| ≥1200 px | Catálogo inline en 3 columnas | Igual (desktop) |
+
+**Validación en localhost:**
+- 3 casos nuevos en `frontend/e2e/pos-tablet-responsive.spec.ts`: existencia del botón ☰ en tablet vertical, ciclo ocultar/mostrar del catálogo lateral y apertura del drawer en pantalla angosta (410×915).
+- `pos-tablet-responsive.spec.ts` completo: **8 passed**. Suite total: **76 passed / 5 skipped / 0 failed**.
+- `tsc` sin errores, eslint 0 errores (436 warnings, ratchet 440), vitest 20/20.
+- Verificación visual por captura: botón "☰ Productos" visible en el header a 768×1024 y drawer lateral con buscador, categorías y productos a 410×915.
+
+### 🚀 Deploy a producción (2026-10-21 21:53)
+
+Release acumulada **v1.39.22 + v1.39.23 + v1.39.24** desplegada en `provecchio.com`
+(host `192.168.69.240`) con el protocolo completo (backup → restore en localhost →
+verificación de fidelidad → pre-deploy diagnostic → build → migrate → health checks
+→ QA post-deploy).
+
+- Health público `1.39.24 ok`, frontend HTTP 200, 5 contenedores `healthy`.
+- QA post-deploy en verde: catálogo público, dominio sin errores JS, login admin + DB
+  sin HTTP 500 y **8 rutas admin** verificadas (incluye `/admin/social-catalog`,
+  `/admin/loyalty` y `/admin/gastro/kds-stations`).
+- Bundle de producción `gastro-pos-5D7CJgum.js` con el `aria-label` del botón ☰
+  (build fresco) y backend con el guard `claimedBy` en `sendToKitchen`.
+- Artefactos: `backups/pre_deploy_provecchio_20261021_211340.sql` (+ `_uploads.tar.gz`),
+  `deploy-artifacts/rollback-provecchio-20261021_212239.env`.
+
+## [1.39.23] - 2026-10-21
+
+### 🐛 POS del mozo (vista por mesa): "El pedido aún no fue reclamado por el mozo"
+
+El mozo, al abrir la vista POS de una mesa en la **laptop** y marcar el pedido
+como listo, recibía `HTTP 400` — *"El pedido aún no fue reclamado por el mozo"* —
+con `POST /api/v1/orders/:id/ready`. En la **tablet** no ocurría, porque ahí se
+usa el panel de mozos.
+
+| # | Síntoma | Causa raíz | Corrección |
+|---|---|---|---|
+| 1 | El POST `/ready` devolvía 400 en la vista POS por mesa | `guestMarkReady` exige `metadata.guestDraft.claimedBy`, y la vista POS por mesa marcaba el pedido como listo **sin reclamarlo** (el panel de mozos sí reclamaba antes: `claim` → `ready`) | `frontend/src/pages/admin/gastro-pos.tsx`: la vista POS ahora **reclama antes de enviar a cocina**, replicando el orden del panel de mozos. El reclamo es *best effort*: si falla (pedido no guest, ya reclamado o sin permiso) se continúa y el `/ready` es el que decide con su mensaje original |
+| 2 | `sendToKitchen` no exigía el reclamo previo | El control `claimedBy` estaba en `guestMarkReady`, `guestUpdateItems`, `guestPaymentPreconfirm`, `guestMarkPaid` y `guestTransferToPerson`, pero no en `sendToKitchen` | `backend/src/orders/orders.service.ts`: un pedido guest sin reclamar no puede ir a cocina. Los pedidos POS regulares (sin `guestDraft`) no se ven afectados |
+
+**Traza de los tres flujos de envío a cocina:**
+
+| Vista | Secuencia | Resultado |
+|---|---|---|
+| Panel de mozos (`gastro.tsx:222,232`) | `claim` → `ready` | ✅ |
+| Gestión de mesas (`gastro-tables.tsx:385,389`) | `claim` → `send-to-kitchen` | ✅ |
+| **POS por mesa (`gastro-pos.tsx:255`)** | `ready` sin reclamar | ❌ 400 → **corregido a `claim` → `ready`** |
+
+**Validación en localhost:**
+- API: sin reclamo `POST /ready` → **400** *"El pedido aún no fue reclamado por el mozo"*; con reclamo `claim` → **200** y `ready` → **200** (`status: READY`).
+- Navegador (POS por mesa, mesa G10, pedido guest `DRAFT` sin reclamar): `POST /claim` → **200** y `POST /ready` → **200**; antes el segundo devolvía 400.
+- `tsc` sin errores, eslint 0 errores, vitest 20/20, Playwright 73 passed / 5 skipped / 0 failed.
+
+**Nota de diagnóstico:** el síntoma se reproduce solo en la laptop porque la
+tablet usa el panel de mozos (que ya reclamaba). La causa raíz está en la vista
+POS por mesa, no en el device.
+
+## [1.39.22] - 2026-10-21
+
+### 🐛 Tres módulos del panel admin devolvían 404 (Menu digital, Puntos, Estaciones KDS)
+
+`/admin/social-catalog`, `/admin/loyalty` y `/admin/gastro/kds-stations`
+mostraban "404 Página no encontrada" (y `/admin/whatsapp-catalog` redirigía
+al primero). No eran rutas aisladas: las tres fueron **borradas del router**
+por el commit `7f6bae00` (2026-10-17), que corrompió
+`frontend/src/AdminApp.tsx`. Los *lazy imports* de las páginas siguen vivos
+como imports muertos, por eso TypeScript no lo detectaba y ESLint solo lo
+marcaba como *warning* (el ratchet de v1.39.20 no bloquea warnings).
+
+| # | Síntoma | Causa raíz | Corrección |
+|---|---|---|---|
+| 1 | 3 rutas admin inaccesibles | `<Route>` borrados por el commit `7f6bae00`; los lazy imports quedaron muertos | 3 `<Route>` reinsertados (48 → 50 rutas, ninguna perdida) + eliminado el import muerto `TenantAccessPage` |
+| 2 | El QA post-deploy daba por buenas esas rutas | `qa_e2e_check.py` **no se autenticaba**: el router redirigía a `/login` y la verificación era un no-op | El QA ahora autentica al admin (`QA_ADMIN_EMAIL` / `QA_ADMIN_PASSWORD`) antes de recorrer las rutas |
+| 3 | El QA solo miraba el HTTP status | Una SPA responde 200 también en su pantalla de 404 (catch-all con `<Result>` de Ant Design) | El QA falla si el body renderizado contiene "Página no encontrada"; se agregó `/admin/gastro/kds-stations` a las rutas verificadas y el flag `QA_IGNORE_CERT=1` para el certificado local |
+
+**Prevención de la recurrencia** (segunda ocurrencia de esta misma clase,
+tras troubleshooting #160): nuevo test `frontend/src/components/sidebar-routes.test.ts`
+que exige que cada enlace del `Sidebar` tenga su ruta registrada en
+`AdminApp.tsx` y que ninguna página importada quede sin ruta que la monte.
+Comprobado que **falla** si se vuelve a borrar una ruta.
+
+**Validación en localhost:** las 4 rutas renderizan y cargan sus datos
+(APIs 200), QA E2E en verde sobre las 8 rutas admin, `tsc` sin errores,
+eslint 0 errores (435 warnings, ratchet 440), vitest 20/20 y Playwright
+**73 passed / 5 skipped / 0 failed**.
+
+**Documentación:** `docs/troubleshooting/184-admin-routes-social-catalog-loyalty-kds-stations-404.md`.
+
+## [1.39.21] - 2026-10-21
+
+### 🧪 Estado del CI: sin runners por límite de gasto de GitHub Actions
+
+La cuenta de GitHub **no tiene fondos para Actions**: todos los jobs fallan en
+2-3 s con `steps: []` y `runner_name: ""`, y GitHub lo reporta como *"recent
+account payments have failed or your spending limit needs to be increased"*.
+**No es un defecto del código** (el `qa_e2e` llegó a `success` el 2026-10-21
+17:36 UTC). La verificación se replica 100 % en local: backend 995/995 jest,
+frontend 17/17 vitest, `tsc` limpio en backend/frontend/mobile, E2E Playwright
+73 passed / 5 skipped / 0 failed, y el fix del OOM reproducido (2 GB falla,
+4 GB pasa). Detalle en `docs/troubleshooting/185-github-actions-spending-limit-no-runners.md`.
+
+### 🐛 Análisis: 3 rutas del panel admin devuelven 404
+
+`/admin/social-catalog`, `/admin/loyalty` y `/admin/gastro/kds-stations`
+muestran "404 Página no encontrada". Las rutas **existían** y fueron borradas
+del router por el commit `7f6bae00` (2026-10-17), que corrompió
+`frontend/src/AdminApp.tsx`; los *lazy imports* de las tres páginas siguen
+presentes como imports muertos, por eso TypeScript no lo detecta. Sin `<Route>`
+el router cae en el catch-all 404. Las páginas y sus APIs están intactas
+(responden 200), por lo que la corrección es restaurar las 3 rutas, añadir un
+test de regresión que verifique cada enlace del `Sidebar` contra las rutas
+registradas y endurecer el QA E2E para detectar el texto "Página no encontrada".
+Detalle en `docs/troubleshooting/184-admin-routes-social-catalog-loyalty-kds-stations-404.md`.
+
+### 🛡️ La suite E2E del frontend deja de apuntar a producción
+
+Tres defectos que hacían que la suite E2E del frontend no fuera confiable.
+
+| # | Síntoma | Causa raíz | Corrección |
+|---|---|---|---|
+| 13 | La suite E2E se ejecutaba sobre **producción** | 8 specs tenían `https://provecchio.com` como default de `PLAYWRIGHT_BASE_URL` y el job de CI no define esa variable. La suite crea mesas, abre/cierra turnos de caja y envía pedidos a cocina | Defaults a `https://provecchio.local`; el job de CI fija `PLAYWRIGHT_BASE_URL`/`PLAYWRIGHT_API_URL` explícitos |
+| 14 | 10 tests E2E fallaban por timeout de API | El proxy `/api` del dev server de Vite apuntaba a `localhost:3000`, pero el backend local corre en `3010` (`backend/.env`, `docker-compose`) | Default del proxy a `http://localhost:3010`, documentado en `.env.example` como `PROXY_TARGET` |
+| 15 | El dev server no arrancaba con `PLAYWRIGHT_BASE_URL` definido | `playwright.config.ts` omitía el `webServer` siempre que existiera la variable | El dev server se levanta cuando el objetivo es local y se omite solo con URLs externas |
+| 16 | El job `Frontend E2E` era un rojo estructural | La suite exige un stack sembrado (tenant admin, cajas, mesas con token QR, PIN, catálogo) que CI no aprovisiona | Job marcado como informativo (`continue-on-error`) y pendiente documentado en `ROADMAP.md`; el gate bloqueante sigue siendo el workflow `QA E2E (Playwright + Python)` |
+
+**Verificación:** 73 passed / 5 skipped / 0 failed sin variables de entorno; `tsc` sin errores; eslint 0 errores (439 warnings, ratchet 440); 17/17 vitest; build OK.
+
+## [1.39.20] - 2026-10-21
+
+### 🛠️ Fix de Service Worker (PWA) + hardening del pipeline de CI
+
+El usuario seguía viendo **v1.39.17** en `provecchio.local` pese a que el backend ya reportaba `1.39.19`. Causa raíz: el service worker del PWA **precacheaba `index.html`** y servía el bundle viejo desde la caché, ignorando los despliegues nuevos.
+
+| # | Síntoma | Causa raíz | Corrección |
+|---|---|---|---|
+| 1 | Frontend servía una versión vieja tras el deploy | `index.html` estaba en `globPatterns` del precache de Workbox | `frontend/vite.config.ts`: HTML fuera del precache, `navigateFallback: null` y navegaciones con `NetworkFirst` |
+| 2 | Sin aviso de versión desactualizada | No existía detección de desfase bundle ↔ backend | Nuevo `frontend/src/components/version-guard.tsx` (montado en `frontend/src/main.tsx`): compara el bundle contra `GET /api/v1/health` y ofrece **Actualizar ahora** limpiando cachés y recargando |
+| 3 | `npm ci` fallaba con `ERESOLVE` en el frontend | `react-qr-code@2.0.3` incompatible con React 18 | Upgrade a `react-qr-code@2.2.0` + lockfile regenerado |
+| 4 | Job `gitleaks` en rojo | La imagen `gitleaks/gitleaks:latest` ya no existe en Docker Hub | Migrado a `ghcr.io/gitleaks/gitleaks:latest` |
+| 5 | Job mobile en rojo | `@expo/vector-icons` y `expo-font` solo como dependencias transitivas | Declarados como dependencias directas de `mobile/package.json`; props `id` eliminados de los layouts de expo-router v6 |
+| 6 | Workflow `qa_e2e` no arrancaba | `secrets` estaba declarado dentro de `strategy` (clave no válida) | Movido a `env` del job; `CATALOG_PATH` corregido a la ruta real `/social-catalog` |
+| 7 | Job `qa_e2e` moría en "Install system dependencies" | Lista manual de paquetes obsoleta para `ubuntu-24.04` (noble): `libatk1.0-0` → `libatk1.0-0t64`, `libcups2` → `libcups2t64`, etc. | Step eliminado: `playwright install --with-deps chromium` ya instala las librerías con los nombres correctos |
+| 8 | Jobs `backend`, `Backend Tests & Build` y `k6` abortaban con exit 134 | `FATAL ERROR: Ineffective mark-compacts near heap limit` — el heap por defecto de V8 (~2GB) no alcanza para el typecheck/build de NestJS | `NODE_OPTIONS=--max-old-space-size=4096` en los jobs backend de `ci.yml` y `ci-cd.yml` (reproducido localmente: 2GB falla, 4GB pasa) |
+| 9 | `npm audit` bloqueaba el pipeline por vulnerabilidades de devDependencies | Se auditaba también `devDependencies` (jest, eslint), cuyos fixes exigen majors de NestJS/Jest | Gate de producción: `npm audit --omit=dev --audit-level=critical` (0 críticas; 6 `high` de majors trackeadas para un release dedicado) |
+| 10 | El lint bloqueaba por deuda histórica | Se exigía `--max-warnings=0` | **Ratchet**: el pipeline falla solo si los warnings superan el techo actual (backend 311, frontend 440) |
+| 11 | 8 errores de lint en frontend y 86 en backend | Violaciones reales de ESLint | Corregidos; `tsc` del backend quedó sin errores (incluido bug real en `AvailabilityCheckResponseDto.conflicts`, que declaraba un objeto donde el dominio usa `string[]`) |
+| 12 | `VERSION` desincronizado entre raíz, backend y frontend | Dos `VERSION` huérfanos (`backend/VERSION`, `frontend/VERSION`) | La raíz es la única fuente de verdad; `backend/src/health/health.controller.ts` lee `package.json` con fallback a `VERSION`; `scripts/sync-version.sh` ya no destruye el historial del changelog |
+
+**Verificación:** backend `995/995` jest, frontend `17/17` vitest, `tsc` limpio en backend/frontend/mobile, builds de NestJS y Vite OK, `prisma validate` OK, E2E de caja y manual `8/8`, `qa_e2e` en verde en CI.
+
+## [1.39.19] - 2026-10-21
+
+### ✨ FEAT-196: Cerrar turno con arqueo y relevo de cajero en el panel de Caja Gastro
+
+Reportado por el cliente durante la prueba de FEAT-193: tras abrir el turno con el PIN de **Natalia Bogado** no existía forma de **cerrar la sesión** ni de **cambiar de cajero**. El panel solo permitía abrir turno, la sesión quedaba abierta para siempre y el admin no podía pasar el turno a otro cajero.
+
+| # | Síntoma | Causa raíz | Corrección |
+|---|---|---|---|
+| **1** | No había forma de cerrar la sesión de caja | El panel no tenía botón de cierre; `POST /api/v1/pos-sessions/:id/close` existía pero nadie lo invocaba | Botón **Cerrar turno** con modal de arqueo que consume `GET /api/v1/pos-sessions/:id/report`, declara el efectivo contado, muestra **faltante/sobrante** y cierra generando el **Reporte Z** |
+| **2** | No se podía cambiar de cajero | No existía endpoint de relevo; abrir con otro PIN creaba una sesión paralela | Nuevo `POST /api/v1/pos-sessions/:id/switch-cashier` → `CashManagementService.switchCashierByPin()` |
+| **3** | La sesión activa no se detectaba al recargar la página | `activeSession` se derivaba dentro de un `setState` con **closure obsoleta** de `selectedCashRegister` (siempre `null` en el `useEffect` de montaje) | `activeSession` pasa a ser un `useMemo` derivado de `openSessions` + `selectedCashRegister`, con auto-selección de la primera caja y bloqueo de apertura duplicada en la misma caja |
+
+**El relevo conserva el turno:** la misma `PosSession` (misma caja física, mismo fondo inicial, mismos movimientos de efectivo) cambia de cajero responsable. Se valida el PIN del nuevo cajero, se exige su permiso `can_open` sobre la caja, se rechaza que ya tenga otra sesión abierta, y la trazabilidad queda en `notes` (`Relevo de cajero: Natalia Bado -> Giovanni Benedetti`).
+
+**Control de acceso:** el endpoint exige el permiso `cash:open_session` del actor; la validación del PIN y del permiso de caja la hace el servicio.
+
+**Sin migraciones:** no hay cambios de schema.
+
+**Validación:** 7 casos nuevos en `backend/src/pos/cash-management.service.spec.ts` (20 en total) · `tsc` backend y frontend sin errores · `nest build` OK · `vite build` OK · E2E `frontend/e2e/cashier-cash-register-flow.spec.ts` (5 casos, en modo serial: listado de cajas, sesión anclada, rechazo sin permiso, cierre de turno desde la UI, relevo conservando caja y fondo).
+
+**Auditoría:** `docs/plans/omnigastro/auditoria-caja-cierre-relevo-2026-10-21.md`.
+
+## [1.39.18] - 2026-10-20
+
+### ✨ FEAT-193: Cobro centralizado multi-caja — la sesión de caja se ancla a la caja física
+
+Con las 4 cajas ya configuradas en producción (Caja Principal, Barra, Terraza, Caja Auxiliar) y sus 10 accesos por cajero, se cierra el circuito: **la sesión de caja nunca se anclaba a una caja física** (`pos_sessions.cash_register_id` siempre `null`) y el panel de caja estaba roto por tres puntos.
+
+| # | Síntoma | Causa raíz | Corrección |
+|---|---|---|---|
+| **1** | El panel de caja no cargaba sesión ni cobraba (404) | `gastro-cashier.tsx` llamaba `/api/v1/pos/sessions/{active,open-pin,:id/collect}`; los endpoints reales son `/api/v1/pos-sessions/*` | Rutas corregidas a `/api/v1/pos-sessions/*` |
+| **2** | "Configuración de caja no encontrada" al abrir con PIN | El frontend mandaba `configId` con el id de la `cash_register`, pero el backend lo busca en `pos_configs` | `configId` pasa a **opcional**: si no viene se resuelve el `pos_config` activo del tenant |
+| **3** | El cobro no se podía imputar a una caja concreta | Ni `openSession` ni `openSessionWithPin` aceptaban `cashRegisterId` | `OpenSessionPinDto` acepta `cashRegisterId`; la sesión se guarda con `cash_register_id` |
+
+**Control de acceso por caja:** nuevo `CashRegisterService.resolveCashRegisterForSession()` — valida que la caja exista y esté activa, que el cajero tenga ficha de empleado y que tenga permiso `can_open` en `cash_register_access` (si no: 403 "No tenés permiso para abrir esta caja").
+
+**Nuevo endpoint:** `GET /api/v1/pos-sessions/open` lista las sesiones abiertas del tenant con su caja y su cajero (el panel los usa para mostrar "cajas con turno abierto" y recuperar el turno tras recargar la página).
+
+**Seguridad:** la respuesta de `open-pin` ya no expone el `pinCode` del cajero.
+
+**Sin migraciones:** la columna `pos_sessions.cash_register_id` ya existía (y `deleteCashRegister` ya la anulaba); solo faltaba escribirla.
+
+**Validación:** 13 casos nuevos en `backend/src/pos/cash-management.service.spec.ts` · suite completa en verde · `tsc` backend y frontend sin errores · `nest build` OK · E2E `frontend/e2e/cashier-cash-register-flow.spec.ts` (3 casos: listado de cajas, sesión anclada a la caja, rechazo sin permiso).
+
+**Auditoría:** `docs/plans/omnigastro/auditoria-caja-sesion-caja-fisica.md`.
+
+## [1.39.17] - 2026-10-20
+
+### 🐛 Fix: ValidationPipe rechazaba campos del DTO OpenSessionPinDto
+
+El DTO `OpenSessionPinDto` no tenía decoradores de validación (`@IsString`, `@IsNumber`, etc.). Con `forbidNonWhitelisted: true` en el ValidationPipe global, el pipe trataba los campos sin decoradores como "no declarados" y rechazaba POST `/api/v1/pos-sessions/open-pin` con "property `configId` should not exist".
+
+**Corrección:** Agregados decoradores `@IsString`, `@IsNumber`, `@IsOptional`, `@Min` al DTO en `backend/src/pos/cash-management.service.ts:5-16`.
+
+**Validación:** `backend/src/pos/cash-management.service.ts` · `tsc` OK · `nest build` OK.
+
 ## [1.39.16] - 2026-10-20
 
 ### 🐛 Fix: Lote 2 de bugs del cliente — alertas del mozo, KDS, POS y catálogo (#1, #2a, #2b, #3, #4, #6, #9)
