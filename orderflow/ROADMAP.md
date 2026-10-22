@@ -1,8 +1,8 @@
 # 🗺️ ROADMAP DE ORDERFLOW - v1.34.0 → v2.0.0 (Go-Live Definitivo)
-**Última Actualización:** 2026-10-22 (Release v1.40.2 — OmniGastro: editar y eliminar mesas desde `/admin/gastro/tables` + guardas de integridad — **implementada y validada en local, pendiente de deploy autorizado**)
+**Última Actualización:** 2026-10-22 (Release v1.40.2 — OmniGastro: editar y eliminar mesas desde `/admin/gastro/tables` + guardas de integridad — **desplegada y verificada en `provecchio.com`**)
 **Release anterior:** 2026-10-22 (Release v1.40.1 — Marca Blanca: el `PATCH /api/v1/tenants/:id` devolvía 500 y podía borrar la configuración del tenant — desplegada y verificada en `provecchio.com`) · 2026-10-22 (Release v1.40.0 — endpoint `GET /api/v1/tenants/:id/config` desplegado en `provecchio.com`)
 
-**Versión Actual:** **`v1.40.2`** 🧪 **VALIDADA EN LOCAL — pendiente de deploy autorizado** (`provecchio.com` sigue en `v1.40.1`) | Marca pública: OmniFlow. Capa técnica interna: OrderFlow.
+**Versión Actual:** **`v1.40.2`** ✅ **DESPLEGADA EN PRODUCCIÓN** (`provecchio.com`, 2026-10-22 19:00) | Marca pública: OmniFlow. Capa técnica interna: OrderFlow.
 **Próximos Releases:** **v1.41.0** (FEAT-201: provisioning de pisos/mesas OmniGastro → Odoo) ➔ **v1.41.x** (Tauri Desktop & OmnIoT Edge) ➔ **v2.0.0** (🚀 **GO-Live Definitivo del Ecosistema — Target: 15 de Febrero de 2027**)
 **Plan Maestro Go-to-Live:** ver [docs/plans/PLAN_GO_LIVE_APLICACIONES_ECOSISTEMA.md](docs/plans/PLAN_GO_LIVE_APLICACIONES_ECOSISTEMA.md)
 **Roadmap Comercial:** ver [docs/planes/comercial/OmniFlow_PLAN_COMERCIAL_v1.md](docs/planes/comercial/OmniFlow_PLAN_COMERCIAL_v1.md) (FEAT-112 a FEAT-119)

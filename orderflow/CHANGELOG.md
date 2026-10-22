@@ -38,6 +38,21 @@ no hacían nada. Los handlers existían, pero ningún botón los invocaba, y la 
 Backups: `pre_deploy_provecchio_20261022_174014.sql` (OmniGastro) y
 `/opt/odoo/backups/prod_pre_floor_cleanup_20261022_175602.sql.gz` (Odoo).
 
+### 🔧 Infraestructura — 502 persistente en `pesallaccia.com` (Hetzner)
+
+El `dynamic/services.yml` estandarizado con los nombres de contenedor de Provecchio
+(`orderflow_backend` / `orderflow_frontend`) se sincronizó al host de Hetzner, cuyos contenedores
+son `orderflow-backend-prod` / `orderflow-frontend-prod`. Traefik no resolvía el nombre en
+`traefik-public` y devolvía **502** en API y frontend, con los contenedores sanos.
+
+- **Host:** corrección de las dos URLs del servicio + `docker kill -s HUP traefik` (sin reiniciar).
+- **Repo:** `docker-compose.prod.yml` declara alias de red `orderflow_backend` / `orderflow_frontend`
+  en `traefik-public` para que el `services.yml` canónico resuelva en ambos hosts.
+- **Verificación:** `https://pesallaccia.com/api/v1/health` → **200** (`1.36.5`, `database: ok`).
+- **Doc:** `docs/troubleshooting/191-hetzner-traefik-container-name-mismatch-502.md`.
+
+> El host de Hetzner permanece en v1.36.5; este fix restablece el servicio pero no actualiza versión.
+
 ## [1.40.1] - 2026-10-22
 
 ### 🐛 Marca Blanca: el `PATCH /api/v1/tenants/:id` devolvía 500 y podía borrar la configuración del tenant

@@ -1,3 +1,43 @@
+## [1.40.2] - 2026-10-22
+
+### 🪑 OmniGastro — Editar y eliminar mesas en `/admin/gastro/tables` (FEAT-200)
+
+El cliente reportó (bug 8a) que en `/admin/gastro/tables` **solo funcionaba crear**: editar y borrar
+no hacían nada. Los handlers existían, pero ningún botón los invocaba, y la otra pantalla
+(`/admin/gastro`) solo permitía renombrar.
+
+| # | Síntoma | Causa raíz | Corrección |
+|---|---|---|---|
+| 1 | No se podía editar ni eliminar una mesa desde el mapa de salón | `handleEditTable`, `handleSaveTable` y `handleDeleteTable` eran **código muerto**: el modal "Editar Mesa" existía pero ningún control lo abría | Nuevo componente compartido `GastroTableEditModal` + botones **Editar/Eliminar** en la grilla y en el drawer (con confirmación) |
+| 2 | `/admin/gastro` solo permitía cambiar el nombre | Modal reducido a `tableNumber` | Usa el mismo modal completo: número, nombre, zona, sillas, forma y mapeo a Odoo |
+| 3 | Se podía borrar una mesa con la cuenta abierta | `deleteTable` no verificaba pedidos | **400** si hay pedidos `DRAFT/CONFIRMED/PREPARING/READY`; resuelve las llamadas al mozo `PENDING` en la misma transacción |
+| 4 | Dos mesas podían apuntar al mismo `restaurant.table` de Odoo | `PATCH /tables/:id` escribía `odooTableId` sin validar | **400** `ya está vinculada a la mesa <X>` + opciones ocupadas deshabilitadas en el select |
+| 5 | Recrear una mesa eliminada fallaba con error de base | `@@unique([tenantId, floorId, tableNumber])` incluye las filas soft-deleted | `createTable` **revive** el registro (conserva el token del QR) |
+| 6 | `PATCH /tables/:id` era el único endpoint CRUD con permiso de mozo | Usaba `tables:status` | Pasa a **`tables:manage`**; el mozo conserva `POST /tables/:id/status` |
+
+**Testing:** 5 unitarios nuevos (`backend/src/tables/tables.service.spec.ts`, 2 suites / 30 tests OK),
+`tsc --noEmit` limpio en backend y frontend, y E2E `frontend/e2e/gastro-tables-crud.spec.ts`
+(CRUD por API, rechazo de mapeo duplicado, botones Editar/Eliminar en grilla y drawer).
+
+**Documentación:** `docs/plans/omnigastro/plan-actualizacion-v1.40.2-tables-crud.md`,
+`docs/troubleshooting/190-gastro-tables-handlers-huerfanos.md`.
+
+### 🧹 Operación de datos (producción y Odoo, 2026-10-22)
+
+- **Limpieza de pruebas en OmniGastro:** 6 pedidos cancelados (stock devuelto), 9 llamadas al mozo
+  resueltas (57/57 `RESOLVED`), mesa `M01` liberada y **soft-delete** de `G02`, `M01` y `Giardino`
+  (historial conservado; sus QR responden 404).
+- **Saneamiento del plano de Odoo:** 4 pisos duplicados archivados (Terraza 8, Café 9, Restó 10,
+  Barra 12) y **21 mesas duplicadas** (incluida `J1`); los 5 pisos canónicos (Terraza, Café, Restó,
+  Barra, Giardino) quedaron adjuntos al `pos.config` 2 (Giardino) con **46 mesas activas**.
+- **Mapeo corregido:** `G10` apuntaba a `T2#43` (copia sin pedidos) → ahora a `T2#2`; `T11` se
+  mantiene en `T1#1`.
+- **Sesión POS:** `POS/01598` (config 2) quedó atascada en `opening_control`; se completó la apertura
+  con `set_cashbox_pos(1598, 2279500)` → `state=opened`, fondo original restaurado.
+
+Backups: `pre_deploy_provecchio_20261022_174014.sql` (OmniGastro) y
+`/opt/odoo/backups/prod_pre_floor_cleanup_20261022_175602.sql.gz` (Odoo).
+
 ## [1.40.1] - 2026-10-22
 
 ### 🐛 Marca Blanca: el `PATCH /api/v1/tenants/:id` devolvía 500 y podía borrar la configuración del tenant

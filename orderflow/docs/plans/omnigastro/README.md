@@ -2,7 +2,7 @@
 
 > **Estado:** Fase 0–3.3 completada · Hardening RBAC empleados **completado** (v1.38.20) · Sprint Fixes Campo Provecchio **completado** (v1.39.1, 2026-10-16).
 > **Versión base:** OmniFlow / OrderFlow v1.39.1
-> **Última actualización:** 2026-10-16
+> **Última actualización:** 2026-10-22 (plan maestro FEAT-197 + FEAT-194 aprobado; v1.39.24 en producción)
 
 OmniGastro convierte OmniFlow en el **Sistema Operativo Restaurantero** completo, alcanzando paridad operativa con Toast POS y superándola en offline-first nativo, soberanía multi-tier, Live Escandallo atómico y Seat-level ordering.
 
@@ -19,6 +19,14 @@ OmniGastro convierte OmniFlow en el **Sistema Operativo Restaurantero** completo
 | [`PLAN_ODOO_POS_SYNC_2026-10-19.md`](./PLAN_ODOO_POS_SYNC_2026-10-19.md) | **Plan maestro de la sincronización OrderFlow → Odoo 14 POS** (bug #7 del reporte del cliente, FEAT-184…188, v1.39.11) |
 | [`PLAN_CUENTA_ABIERTA_2026-10-20.md`](./PLAN_CUENTA_ABIERTA_2026-10-20.md) | **Plan maestro de la cuenta abierta**: traspaso de la cuenta a una persona y liberación de la mesa manteniendo la cuenta cobrable (FEAT-190, v1.39.14) |
 | [`flujo_odoo-pos-sync.md`](./flujo_odoo-pos-sync.md) | Diagrama de secuencia Mermaid, contratos REST y hitos de telemetría `t0…t5` del sync a Odoo |
+| [`plan-actualizacion-v1.39.25-historial-pedidos-bandera-mozo.md`](./plan-actualizacion-v1.39.25-historial-pedidos-bandera-mozo.md) | **Plan maestro aprobado (2026-10-22)**: FEAT-197 (historial/seguimiento de pedidos del comensal y del panel de mozos, 3 capas + fix `paidAt`) y FEAT-194 (bandera de Mozo en `Employee`), con fases F1–F5, migraciones, telemetría y estrategia de testing |
+| [`auditoria-historial-servidor-f4-2026-10-22.md`](./auditoria-historial-servidor-f4-2026-10-22.md) | Auditoría de la F4 + F4b (v1.39.27): `GET /api/v1/orders/guest/history`, imputación del mozo (`claimedById`/`waiterId`), vista "Atendidos", `GET /api/v1/pos-sessions` y card "Historial de Turnos" con Reporte Z. Cierra el plan maestro |
+| [`auditoria-bandera-mozo-f2-2026-10-22.md`](./auditoria-bandera-mozo-f2-2026-10-22.md) | Auditoría de la F2 (v1.39.26): bandera `Employee.canUseMozoPos`, migración con backfill, `GET /api/v1/users/mozo-staff`, `verify-pin` con `scope:'mozo'`, sección "Empleados Mozo" en settings y evidencia de validación (E2E 3, unitarios 3 + 4) |
+| [`DEPLOY_REPORT_2026-10-22-v1.40.2.md`](./DEPLOY_REPORT_2026-10-22-v1.40.2.md) | Reporte de despliegue de **v1.40.2** (2026-10-22 19:00): CRUD de mesas (FEAT-200) desplegado y verificado en `provecchio.com`, protocolo completo, incidencia del health check `localhost`→`::1`, rollback |
+| [`DEPLOY_REPORT_2026-10-22-v1.39.26-27.md`](./DEPLOY_REPORT_2026-10-22-v1.39.26-27.md) | Reporte de despliegue de **v1.39.26 + v1.39.27** (2026-10-22 07:52): bandera de Mozo con su migración y backfill, historial en servidor del mozo y del cajero, QA post-deploy y cierre del plan maestro |
+| [`DEPLOY_REPORT_2026-10-22.md`](./DEPLOY_REPORT_2026-10-22.md) | Reporte de despliegue de **v1.39.25** en `provecchio.com` (2026-10-22 05:32): protocolo aplicado, evidencia, QA post-deploy, incidencias (ProxyJump por cambio de red) y rollback |
+| [`auditoria-historial-pedidos-f1-2026-10-22.md`](./auditoria-historial-pedidos-f1-2026-10-22.md) | Auditoría de la F1 (v1.39.25): store del historial local, botón 🕘 "Mis pedidos", drawer con refresco, fix `normalizeOrderCloseMode` y evidencia de validación (E2E 3 passed, suite 79 passed, jest 81, vitest 26) |
+| [`flujo-historial-pedidos.md`](./flujo-historial-pedidos.md) | Diagrama de secuencia Mermaid (3 capas), contratos REST y hitos de telemetría `t0…t11` del historial de pedidos |
 | [`BACKLOG_CLIENTE_20261019.md`](./BACKLOG_CLIENTE_20261019.md) | Reporte de los 9 bugs del cliente en la v1.39.9 (origen de FEAT-184…188) |
 | [`featurelist.json`](./featurelist.json) | FEAT-001 a FEAT-00124+ con estado y módulo |
 | `schema/` | Fragmentos de Prisma para las migraciones de cada fase |
