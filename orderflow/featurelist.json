@@ -2399,6 +2399,9 @@
         "docs/troubleshooting/190-gastro-tables-handlers-huerfanos.md"
       ],
       "qa_validation": "jest src/tables (2 suites / 30 tests) en verde con 5 casos nuevos FEAT-200; tsc --noEmit limpio en backend y frontend; E2E frontend/e2e/gastro-tables-crud.spec.ts (CRUD API, rechazo de mapeo duplicado, botones Editar/Eliminar en grilla y drawer).",
+      "deployed_at": "2026-10-22T19:00:00-03:00",
+      "deploy_status": "deployed",
+      "deploy_report": "docs/plans/omnigastro/DEPLOY_REPORT_2026-10-22-v1.40.2.md",
       "next_steps": [
         "v1.41.0: provisioning de pisos y mesas OmniGastro -> Odoo (FEAT-201)"
       ]
