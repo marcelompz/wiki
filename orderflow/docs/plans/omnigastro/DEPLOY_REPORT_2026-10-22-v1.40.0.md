@@ -88,11 +88,20 @@ LOCAL_DATABASE_URL=$(echo "$LOCAL_DATABASE_URL" | sed -E "s#@[^/:@]+:[0-9]+/#@lo
 verificados (168 tablas, conteos correctos) y las migraciones estaban al día. El único efecto es que
 el script no es repetible de forma desatendida y no imprime su mensaje de cierre.
 
-**Fix propuesto (2 líneas):** normalizar el literal antes del default
-(`[ "$DB_PORT" = "null" ] && DB_PORT=""`) en los **dos** bloques que lo extraen (líneas 63-70 y 188-195).
-Queda como **tarea de seguimiento** — no se aplicó durante el deploy para no introducir cambios de
-código no planificados en mitad del protocolo (AGENTS.md Reglas #15/#16). Documentado en
-[`docs/troubleshooting/188-restore-provecchio-db-port-null.md`](../../troubleshooting/188-restore-provecchio-db-port-null.md).
+**Fix aplicado (follow-up, rama `fix/restore-db-port-null`):** no se tocó el script durante el
+deploy para no introducir cambios de código no planificados en mitad del protocolo (AGENTS.md
+Reglas #15/#16); con aprobación del usuario se corrigió inmediatamente después:
+
+- `jq -r '.connection.port // empty'` + normalización del literal `"null"` en los **dos** bloques
+  que extraen la conexión (líneas ~63-70 y ~188-195).
+- Guarda previa: si `DB_PORT` no es numérico se usa `5433`.
+- La captura de `prisma migrate deploy` usa `if ! ...` para registrar la salida real de Prisma
+  antes de abortar (antes el `set -e` mataba el script sin mostrar nada).
+
+**Verificación end-to-end:** `./scripts/restore-provecchio.sh` → **exit 0**, `port=5433`,
+*"No pending migrations to apply"*, `✅ Restore completed successfully!`, datos intactos
+(226 productos, 18 mesas, 4 cajas, 6 empleados, 2 mozos, 10 usuarios) y health local en `1.40.0`.
+Detalle en [`docs/troubleshooting/188-restore-provecchio-db-port-null.md`](../../troubleshooting/188-restore-provecchio-db-port-null.md).
 
 ---
 
