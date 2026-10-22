@@ -2,7 +2,7 @@
 
 > **Vertical:** OmniGastro (Restaurante / Bar)
 > **Alcance:** 2 features nuevas + 1 fix estructural detectado durante el análisis
-> **Estado del plan:** 🟡 **ESPERANDO APROBACIÓN DEL USUARIO** (ningún cambio de código de funcionalidad aplicado todavía)
+> **Estado del plan:** 🟢 **APROBADO** (2026-10-22) · **F1 implementada y validada en localhost (v1.39.25)** — auditoría: [`auditoria-historial-pedidos-f1-2026-10-22.md`](./auditoria-historial-pedidos-f1-2026-10-22.md)
 > **Fecha:** 2026-10-22
 > **Featurelist global:** `featurelist.json` (`FEAT-197` nueva, `FEAT-194` replanteada)
 > **Flujo y telemetría:** [`flujo-historial-pedidos.md`](./flujo-historial-pedidos.md)
@@ -314,7 +314,7 @@ Helpers E2E a reutilizar: `loginByApi`, `loginAsAdmin`, `loginAsAdminByApi` (en
 | Fase | Contenido | Depende de | Entregable | Versión |
 |---|---|---|---|---|
 | **F0** | Aprobación de este plan por el usuario | — | Decisiones §2.1 y §3.1 confirmadas | — |
-| **F1** | FEAT-197 **Capa 1** (cliente, sin migración) + FEAT-197-d (fix modo de cierre) | F0 | El comensal ve "Mis pedidos" (memoria del dispositivo) y no pierde el historial en su dispositivo | v1.39.25 |
+| **F1** | FEAT-197 **Capa 1** (cliente, sin migración) + FEAT-197-d (fix modo de cierre) | F0 | El comensal ve "Mis pedidos" (memoria del dispositivo) y no pierde el historial en su dispositivo | v1.39.25 ✅ **IMPLEMENTADA** |
 | **F2** | FEAT-194 completa (migración `can_use_mozo_pos`, backend, UI, settings) | F0 | Solo los empleados con bandera tienen sesión de mozo | v1.39.26 |
 | **F3** | FEAT-197 **Capa 2** — 🟡 **OPCIONAL (D2')**: código corto + endpoint `by-code` | F1 | *Solo si se solicita*: el comensal recupera su pedido desde otro dispositivo | v1.39.27 |
 | **F4** | FEAT-197 **Capa 3** (mozo): histórico en servidor, `waiterId`, `claimedById`, pestaña "Atendidos" | F1 | El mozo no pierde pedidos al cambiar de dispositivo | v1.39.28 |
@@ -400,6 +400,17 @@ Helpers E2E a reutilizar: `loginByApi`, `loginAsAdmin`, `loginAsAdminByApi` (en
   comensal? (recomendado: esperar; la F1 ya cubre el caso pedido).
 - ⏳ **D6** — ¿El "Historial de turnos" del cajero (Capa 3b) se entrega en la **F4b** separada o se
   integra en la F4? (recomendado: F4b separada, son endpoints y permisos de caja distintos).
+
+### Estado tras la F1 (2026-10-22)
+
+La **F1 está implementada y validada en localhost** (v1.39.25): store `public-orders-store`, botón 🕘
+"Mis pedidos" con contador, drawer con refresco cada 10 s, y el fix `normalizeOrderCloseMode` que hace
+que el cierre con cobro en mesa o pago digital escriba `paidAt`.
+Validación: E2E nuevo 3 passed · suite completa 79 passed / 5 skipped / 0 failed · jest 81 · vitest 26 ·
+`tsc` y eslint sin errores. Detalle en
+[`auditoria-historial-pedidos-f1-2026-10-22.md`](./auditoria-historial-pedidos-f1-2026-10-22.md).
+
+Siguiente paso: **F2** (FEAT-194, bandera de Mozo) → **F4** (histórico del mozo) → **F4b** (histórico de caja).
 
 ### Para arrancar la F1 hace falta
 

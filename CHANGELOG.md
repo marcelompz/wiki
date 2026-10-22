@@ -1,3 +1,49 @@
+## [1.39.25] - 2026-10-22
+
+### 🧾 El comensal recupera sus pedidos ("Mis pedidos") y el cierre de pedido registra el pago
+
+> **Reporte del cliente (2026-10-21, ítem 2):** *"después de hacer el pedido se vació su lista de compra.
+> Carece de un control de su pedido en el historial. Debe ver el pedido en su estado, así cuando pide más
+> cosas sabe cuáles ya se le sirvieron en la mesa y cuántas están marchando."*
+>
+> **Decisión del cliente (2026-10-22):** el historial del **comensal** queda **solo en la memoria de su
+> dispositivo** (se descarta el listado público de pedidos por mesa: quien escanea el QR de la mesa no
+> accede al pedido de nadie). La "memoria del sistema" queda para **mozo y cajeros**, en endpoints
+> autenticados (fases F4 y F4b del plan maestro).
+
+| # | Síntoma | Causa raíz | Corrección |
+|---|---|---|---|
+| 1 | Al confirmar el pedido, el carrito se vacía y el comensal **pierde la referencia a su pedido**: el `orderId` solo quedaba en la URL `?track=` y en el estado de React | `omni-catalog.tsx:358` ejecutaba `clearCart()` y el `orderId` no se persistía en el dispositivo; el botón "Volver al menú" (L813-835) borraba el `?track=` | Nuevo store `public-orders-store` (Zustand + `persist`, clave `gaia-spa-orders`, máx. 20 pedidos) que **recuerda el pedido antes de vaciar el carrito** |
+| 2 | El comensal no tenía **ninguna** vista de sus pedidos | No existía UI de "mis pedidos" en el catálogo público | Botón **🕘 "Mis pedidos"** en el header (con contador) + drawer con la lista de pedidos, su estado, la mesa y el total; al tocar uno se abre la pantalla de seguimiento existente |
+| 3 | El estado del historial quedaba congelado | No había refresco del estado de los pedidos guardados | El drawer refresca cada 10 s contra `GET /api/v1/guest/orders/:id` (endpoint público ya existente, con el UUID que el propio comensal conserva) |
+| 4 | Al cerrar un pedido desde la sala, **`paidAt` nunca se escribía**: el paso "Entregado y pagado" del tracking no se completaba y el cobro en mesa / pago digital no se registraban | `orders.controller.ts:271,276` leía el modo de cierre solo de `body.mode`, pero las pantallas lo enviaban en `closeMode` (`gastro.tsx:242`) o `method` (`gastro-pos.tsx:280`) → el service recibía siempre `WITHOUT_PAYMENT` | Nuevo util `order-close-mode.util.ts` (`normalizeOrderCloseMode`) que normaliza `mode` / `closeMode` / `method` / banderas booleanas a los tres modos canónicos |
+
+**Comportamiento resultante:**
+
+| Momento | Antes | Ahora |
+|---|---|---|
+| Tras confirmar | Carrito vacío, sin rastro del pedido | Carrito vacío **y** el pedido en "Mis pedidos" |
+| Recargar o volver al menú | Pedido perdido | El pedido sigue en "Mis pedidos" (persistido en el dispositivo) |
+| Otra persona escanea el QR de la mesa | — | **No ve ningún pedido** (el historial es local del dispositivo) |
+| Cerrar el pedido cobrando en mesa / con pago digital | `paidAt` nunca se escribía | `paidAt` se escribe y el tracking muestra "Entregado y pagado" |
+
+**Validación en localhost (`https://provecchio.local`, backend `1.39.25 ok`):**
+- E2E nuevo `frontend/e2e/order-tracking.spec.ts`: **3 passed** (confirmar → "Mis pedidos" → recarga → el
+  historial sigue; otra sesión no ve el historial; el cierre con `{ method: 'GATEWAY' }` registra `paidAt`).
+- Suite E2E completa: **79 passed / 5 skipped / 0 failed** (antes 76 passed / 5 skipped).
+- Unitarios: backend `src/orders` **81 passed** (9 suites, incluye los 7 casos de `normalizeOrderCloseMode`);
+  frontend vitest **26 passed** (9 files, incluye los 6 casos del store).
+- `tsc` sin errores en backend y frontend · eslint 0 errores (22 warnings preexistentes en `omni-catalog.tsx`).
+- Verificación visual: el botón 🕘 aparece en el header del catálogo (3.er icono) y el drawer lista el pedido
+  con su estado y su total.
+
+**Pendiente (fases siguientes del plan maestro):** F2 · FEAT-194 (bandera de Mozo) · F4 · historial del mozo
+en servidor · F4b · historial de turnos del cajero · F3 (opcional) · código corto de recuperación.
+
+### 🚧 Release en curso
+
+- Documentar aqui los cambios de la version.
+
 ## [1.39.24] - 2026-10-21
 
 ### 🍔 POS del mozo (tablet): botón ☰ para mostrar y ocultar el catálogo de productos

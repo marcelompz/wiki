@@ -1,14 +1,14 @@
 # 🗺️ ROADMAP DE ORDERFLOW - v1.34.0 → v2.0.0 (Go-Live Definitivo)
-**Última Actualización:** 2026-10-22 (Deploy de v1.39.24 a producción: rutas admin, reclamo del POS y botón ☰ del catálogo)
+**Última Actualización:** 2026-10-22 (Release v1.39.25 — "Mis pedidos" del comensal + fix del `paidAt` al cerrar el pedido)
 **Release anterior:** 2026-10-21 (Release v1.39.24 — botón ☰ del catálogo del POS del mozo)
 
-**Versión Actual:** **`v1.39.24`** ✅ **DEPLOYED EN PRODUCCIÓN** (`provecchio.com`, 2026-10-21 21:53) | Marca pública: OmniFlow. Capa técnica interna: OrderFlow.
+**Versión Actual:** **`v1.39.25`** ✅ **DEPLOYED EN PRODUCCIÓN** (`provecchio.com`, 2026-10-21 21:53) | Marca pública: OmniFlow. Capa técnica interna: OrderFlow.
 **Próximos Releases:** **v1.40.0** (Tauri Desktop & OmnIoT Edge) ➔ **v2.0.0** (🚀 **GO-Live Definitivo del Ecosistema — Target: 15 de Febrero de 2027**)
 **Plan Maestro Go-to-Live:** ver [docs/plans/PLAN_GO_LIVE_APLICACIONES_ECOSISTEMA.md](docs/plans/PLAN_GO_LIVE_APLICACIONES_ECOSISTEMA.md)
 **Roadmap Comercial:** ver [docs/planes/comercial/OmniFlow_PLAN_COMERCIAL_v1.md](docs/planes/comercial/OmniFlow_PLAN_COMERCIAL_v1.md) (FEAT-112 a FEAT-119)
 **Estado:** ✅ **STAGING & PRODUCTION OPERATIVE** | 🏆 **HARDENED v1.39.2** | OmniGastro Fases 0-3.3 Completadas | RBAC Hardening En PR | CI Guard Active | QA E2E Suite | Build Limpio & Cobertura Total
 
-<!--CURRENT_VERSION-->1.39.24<!--/CURRENT_VERSION--> <!-- Actualizado: 2026-10-21 v1.39.24 por Kilo -->
+<!--CURRENT_VERSION-->1.39.25<!--/CURRENT_VERSION--> <!-- Actualizado: 2026-10-21 v1.39.24 por Kilo -->
 
 ### 📋 Próximas actualizaciones planificadas — OmniGastro (plan aprobado 2026-10-22)
 
@@ -26,8 +26,8 @@
 
 | Fase | Versión | Feature | Alcance | Estado |
 |---|---|---|---|---|
-| **F1** | v1.39.25 | **FEAT-197** (Capa 1) | El comensal ve **"Mis pedidos"** en la memoria del dispositivo y no lo pierde al recargar, navegar o volver al menú (el carrito sí se vacía). Sin migración | 🟡 planificado |
-| **F1** | v1.39.25 | **FEAT-197-d** (fix) | El cierre desde el panel de mozos nunca setea `paidAt`: `orders.controller.ts:271,276` espera `body.mode` pero el frontend envía `closeMode`/`method` → normalizar los 3 formatos | 🟡 planificado |
+| **F1** | v1.39.25 | **FEAT-197** (Capa 1) | El comensal ve **"Mis pedidos"** en la memoria del dispositivo y no lo pierde al recargar, navegar o volver al menú (el carrito sí se vacía). Sin migración | ✅ **COMPLETADO** (v1.39.25) — store `public-orders-store` + botón 🕘 en el header + drawer con refresco cada 10 s |
+| **F1** | v1.39.25 | **FEAT-197-d** (fix) | El cierre desde el panel de mozos nunca setea `paidAt`: `orders.controller.ts:271,276` espera `body.mode` pero el frontend envía `closeMode`/`method` → normalizar los 3 formatos | ✅ **COMPLETADO** (v1.39.25) — `order-close-mode.util.ts` + 7 unitarios + E2E |
 | **F2** | v1.39.26 | **FEAT-194** | **Bandera de Mozo**: solo los empleados con `Employee.canUseMozoPos` pueden iniciar sesión en el POS de mozo. Migración `20261022HHMMSS` + `getMozoStaff` + `GET /api/v1/users/mozo-staff` + `verify-pin` con `scope:'mozo'` + sección "Empleados Mozo" en `/admin/settings → OmniGastro` | 🟡 planificado |
 | **F4** | v1.39.28 | **FEAT-197** (Capa 3 · mozo) | El mozo **no pierde pedidos al cambiar de dispositivo**: `GET /api/v1/orders/guest/history` + `Order.waiterId` + `claimedById` persistido + pestaña "Atendidos" | 🟡 planificado |
 | **F4b** | v1.39.29 | **FEAT-197** (Capa 3b · cajero) | El cajero puede volver a ver los turnos ya cerrados: `GET /api/v1/pos-sessions` (listado, hoy inexistente) + pestaña "Historial de turnos" en `/admin/gastro/cashier`, reutilizando `Order.posSessionId` y el Reporte Z | 🟡 planificado |
@@ -36,6 +36,18 @@
 **Decisiones abiertas:** D1 backfill de la bandera para los mozos actuales (recomendado: sí) · D4 incluir el fix de `paidAt` en la F1 (recomendado: sí) · D5 implementar la Capa 2 ahora o esperar (recomendado: esperar) · D6 Capa 3b en fase propia o integrada en la F4 (recomendado: fase propia).
 
 **Telemetría declarada** (`Order.metadata.guestDraft`): `t0_order_created`, `t1_table_claimed`, `t2_cart_saved`, `t3_order_confirmed`, `t4_sent_to_kitchen`, `t5_order_ready`, `t6_waiter_viewed_history`, `t7_paid`, `t11_table_closed`.
+
+### 🚀 Release v1.39.25 — "Mis pedidos" del comensal + fix del `paidAt` al cerrar el pedido (Octubre 2026)
+
+| Feature | Módulo | Estado |
+|---------|--------|--------|
+| **Store `public-orders-store`** (Zustand + `persist`, clave `gaia-spa-orders`, máx. 20 pedidos): el pedido se recuerda **antes** de vaciar el carrito | `frontend/src/store/public-orders-store.ts` | ✅ |
+| **Botón 🕘 "Mis pedidos"** en el header del catálogo (con contador) + **drawer** con la lista, el estado, la mesa y el total; al tocar un pedido se abre su seguimiento | `frontend/src/pages/omni-catalog.tsx` | ✅ |
+| **Refresco del historial** cada 10 s contra `GET /api/v1/guest/orders/:id` (el UUID lo conserva el propio comensal) | `frontend/src/pages/omni-catalog.tsx` | ✅ |
+| **FEAT-197-d**: `normalizeOrderCloseMode` normaliza `mode` / `closeMode` / `method` / banderas → el cierre con cobro en mesa o pago digital **sí** escribe `paidAt` | `backend/src/orders/order-close-mode.util.ts`, `backend/src/orders/orders.controller.ts` | ✅ |
+| **Privacidad (decisión D3)**: el historial es **local del dispositivo**; no existe endpoint público que liste pedidos por mesa | — | ✅ |
+| **Tests**: 3 E2E nuevos (`frontend/e2e/order-tracking.spec.ts`), 7 unitarios backend, 6 unitarios frontend | — | ✅ E2E 79 passed / 5 skipped / 0 failed · jest 81 · vitest 26 |
+| **Bump versión** | `VERSION`, `backend/package.json`, `frontend/package.json`, `mobile/package.json`, `featurelist.json`, Swagger, 55 manifiestos | ✅ 1.39.25 |
 
 ### 🚀 Release v1.39.24 — POS del mozo (tablet): botón ☰ para mostrar y ocultar el catálogo (Octubre 2026)
 
@@ -238,7 +250,7 @@
 
 ---
 
-<!--CURRENT_VERSION-->1.39.24<!--/CURRENT_VERSION--> <!-- Actualizado: 2026-10-20 v1.39.12 por Kilo -->
+<!--CURRENT_VERSION-->1.39.25<!--/CURRENT_VERSION--> <!-- Actualizado: 2026-10-20 v1.39.12 por Kilo -->
 
 El ecosistema **OmniFlow** contempla 10 aplicaciones y capas operativas. A continuación se presenta la evaluación de madurez técnica por componente y los puntos pendientes priorizados hacia el Go-Live final.
 

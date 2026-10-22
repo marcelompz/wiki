@@ -20,7 +20,7 @@
 
 ---
 
-## 2. Diagrama de secuencia — Capa 1: el comensal recupera su pedido
+## 2. Diagrama de secuencia — Capa 1: el comensal recupera su pedido ✅ IMPLEMENTADO (v1.39.25)
 
 ```mermaid
 sequenceDiagram
@@ -88,7 +88,7 @@ sequenceDiagram
 
 ---
 
-## 4. Diagrama de secuencia — Capa 3: el mozo no pierde pedidos al cambiar de dispositivo
+## 4. Diagrama de secuencia — Capa 3: el mozo no pierde pedidos al cambiar de dispositivo 🟡 PENDIENTE (F4)
 
 ```mermaid
 sequenceDiagram
@@ -155,7 +155,7 @@ sequenceDiagram
 
 ---
 
-## 5.1 Diagrama de secuencia — Capa 3b: el cajero recupera los turnos ya cerrados
+## 5.1 Diagrama de secuencia — Capa 3b: el cajero recupera los turnos ya cerrados 🟡 PENDIENTE (F4b)
 
 ```mermaid
 sequenceDiagram
