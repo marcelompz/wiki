@@ -1,3 +1,43 @@
+## [1.40.1] - 2026-10-22
+
+### 🐛 Marca Blanca: el `PATCH /api/v1/tenants/:id` devolvía 500 y podía borrar la configuración del tenant
+
+Detectado al verificar el **guardado** del modal 🏷️ Marca Blanca en producción (v1.40.0 corrigió la
+**lectura**, pero el guardado seguía roto).
+
+| # | Síntoma | Causa raíz | Corrección |
+|---|---|---|---|
+| 1 | `PATCH /api/v1/tenants/:id` → **HTTP 500** (`Unknown argument 'customDomainVerified'`) | El `update()` escribía `payload.customDomainVerified`, campo que **no existe** en `model Tenant` (el real es `domainVerified`, schema.prisma:28). El resto del controller usa el nombre correcto en 10 puntos | `customDomainVerified` → **`domainVerified`** |
+| 2 | El mismo `PATCH` → **500** (`Unknown argument 'whiteLabel'`) | El frontend enviaba un objeto `whiteLabel` anidado, que no es columna de `Tenant`; Prisma rechaza argumentos desconocidos | El backend **descarta** `whiteLabel` del payload y el frontend deja de enviarlo (los valores ya viajan en el nivel superior) |
+| 3 | ⚠️ **Destructivo y enmascarado**: el primer guardado habría borrado `gastro`, `homepageBlocks`, `subscription`, `qrTokens`… | El modal enviaba `config: { footerCredits }`; `Tenant.config` es una columna `Json?` y un `update` de Prisma **reemplaza** el JSON completo | El backend **mergea** `config` con el existente: `{ ...existing.config, ...data.config }` (y `config` se agregó al `select` de la lectura previa) |
+
+> Los defectos #1 y #2 abortaban la petición antes de escribir, y eso **enmascaraba** el #3:
+> corregir solo el 500 habría habilitado la pérdida de datos.
+
+**Validación:**
+- Unitarios (jest) `backend/src/tenants/tenants.controller.spec.ts`: **6 casos nuevos** — normalización
+  de `customDomain` con `domainVerified`, limpieza a `null`, descarte de `whiteLabel`, merge de
+  `config` conservando `homepageBlocks`/`subscription`/`gastro`/`fontFamily`, y disparo de Cloudflare
+  solo cuando el dominio cambia realmente.
+- E2E (Playwright) `frontend/e2e/white-label-modal.spec.ts`: PATCH idempotente → **200**, `whiteLabel`
+  tolerado, `config` preservada, y el modal del Super Admin carga el `customDomain` del tenant.
+- Verificación en producción: `PATCH` con valor sucio (`HTTPS://Provecchio.COM/admin/?x=1`) →
+  `200`, normalizado a `provecchio.com`, sin llamadas a Cloudflare (el dominio no cambió).
+
+**Nota:** los `PATCH` fallidos de v1.40.0 nunca llegaron a escribir; no hubo pérdida de datos.
+
+**Despliegue (2026-10-22 16:24):**
+- Protocolo §3.1.1 completo: backup `pre_deploy_provecchio_20261022_160434` → restore localhost
+  (**exit 0**, 168 tablas, 7 empleados, 4 cajas) → `deploy-local.sh` (**135 suites / 1015 tests**)
+  → E2E **14/14** → deploy a `provecchio.com` (**🎉 Complete**, 9/9 contenedores healthy,
+  39 migraciones / 0 pendientes) → tag `v1.40.1` sobre `f6ba3907` (PR #16).
+- Health público: `https://provecchio.com/api/v1/health` → **`1.40.1`**.
+- Verificación funcional en producción: `PATCH` con `HTTPS://Provecchio.COM/admin/?x=1` → **200**,
+  `customDomain: "provecchio.com"`, `domainVerified: true`, sin llamadas a Cloudflare.
+- Verificación de D3: `config` pasó de 8 a 9 claves (`footerCredits`), **sin perder ninguna**;
+  `homepageBlocks`, `subscription`, `gastro` y `fontFamily` **idénticas**.
+- Reporte: `docs/plans/omnigastro/DEPLOY_REPORT_2026-10-22-v1.40.1.md`.
+
 ## [1.40.0] - 2026-10-22
 
 ### 🏷️ Marca blanca: endpoint de configuración por tenant + sanitización de `customDomain`
@@ -41,7 +81,7 @@ Protocolo AGENTS.md §3.1.1 completo (backup → restore local → validación l
 | Endpoint de la release | `GET /api/v1/tenants/:id/config` → **200** con `whiteLabel.customDomain: "provecchio.com"` |
 | Rollback | `deploy-artifacts/rollback-provecchio-20261022_130136.env` |
 
-**Tag:** `v1.40.0` (commit `273f90e0`). Reporte: [`docs/plans/omnigastro/DEPLOY_REPORT_2026-10-22-v1.40.0.md`](docs/plans/omnigastro/DEPLOY_REPORT_2026-10-22-v1.40.0.md).
+**Tag:** `v1.40.0` (commit `273f90e0`). Reporte: [`DEPLOY_REPORT_2026-10-22-v1.40.0.md`](../plans/omnigastro/DEPLOY_REPORT_2026-10-22-v1.40.0.md).
 
 ## [1.39.28] - 2026-10-22
 

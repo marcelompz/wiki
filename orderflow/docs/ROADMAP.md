@@ -1,14 +1,14 @@
 # 🗺️ ROADMAP DE ORDERFLOW - v1.34.0 → v2.0.0 (Go-Live Definitivo)
-**Última Actualización:** 2026-10-22 (Release v1.40.0 — fix de marca blanca: endpoint `GET /api/v1/tenants/:id/config` + sanitización de `customDomain` — **desplegada en `provecchio.com`**)
-**Release anterior:** 2026-10-22 (Release v1.39.28 — fix de `/admin/hr`: `positions` 404 y `hr/employees` 500 tras el restore)
+**Última Actualización:** 2026-10-22 (Release v1.40.1 — Marca Blanca: el `PATCH /api/v1/tenants/:id` devolvía 500 y podía borrar la configuración del tenant — **desplegada y verificada en `provecchio.com`**)
+**Release anterior:** 2026-10-22 (Release v1.40.0 — endpoint `GET /api/v1/tenants/:id/config` desplegado en `provecchio.com`) · 2026-10-22 (Release v1.39.28 — fix de `/admin/hr`: `positions` 404 y `hr/employees` 500 tras el restore)
 
-**Versión Actual:** **`v1.40.0`** ✅ **DESPLEGADA EN PRODUCCIÓN** (`provecchio.com`, 2026-10-22 13:09) | Marca pública: OmniFlow. Capa técnica interna: OrderFlow.
-**Próximos Releases:** **v1.40.0** (Tauri Desktop & OmnIoT Edge) ➔ **v2.0.0** (🚀 **GO-Live Definitivo del Ecosistema — Target: 15 de Febrero de 2027**)
+**Versión Actual:** **`v1.40.1`** ✅ **DESPLEGADA EN PRODUCCIÓN** (`provecchio.com`, 2026-10-22 16:24) | Marca pública: OmniFlow. Capa técnica interna: OrderFlow.
+**Próximos Releases:** **v1.40.1** (Tauri Desktop & OmnIoT Edge) ➔ **v2.0.0** (🚀 **GO-Live Definitivo del Ecosistema — Target: 15 de Febrero de 2027**)
 **Plan Maestro Go-to-Live:** ver [docs/plans/PLAN_GO_LIVE_APLICACIONES_ECOSISTEMA.md](docs/plans/PLAN_GO_LIVE_APLICACIONES_ECOSISTEMA.md)
 **Roadmap Comercial:** ver [docs/planes/comercial/OmniFlow_PLAN_COMERCIAL_v1.md](docs/planes/comercial/OmniFlow_PLAN_COMERCIAL_v1.md) (FEAT-112 a FEAT-119)
 **Estado:** ✅ **STAGING & PRODUCTION OPERATIVE** | 🏆 **HARDENED v1.39.2** | OmniGastro Fases 0-3.3 Completadas | RBAC Hardening En PR | CI Guard Active | QA E2E Suite | Build Limpio & Cobertura Total
 
-<!--CURRENT_VERSION-->1.40.0<!--/CURRENT_VERSION--> <!-- Actualizado: 2026-10-21 v1.39.24 por Kilo -->
+<!--CURRENT_VERSION-->1.40.1<!--/CURRENT_VERSION--> <!-- Actualizado: 2026-10-21 v1.39.24 por Kilo -->
 
 ### 📋 Próximas actualizaciones planificadas — OmniGastro (plan aprobado 2026-10-22)
 
@@ -286,7 +286,7 @@
 
 ---
 
-<!--CURRENT_VERSION-->1.40.0<!--/CURRENT_VERSION--> <!-- Actualizado: 2026-10-20 v1.39.12 por Kilo -->
+<!--CURRENT_VERSION-->1.40.1<!--/CURRENT_VERSION--> <!-- Actualizado: 2026-10-20 v1.39.12 por Kilo -->
 
 El ecosistema **OmniFlow** contempla 10 aplicaciones y capas operativas. A continuación se presenta la evaluación de madurez técnica por componente y los puntos pendientes priorizados hacia el Go-Live final.
 

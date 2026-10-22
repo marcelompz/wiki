@@ -44,8 +44,9 @@
 
 | Ítem | Estado |
 |---|---|
-| Versión en producción | **v1.40.0** (deploy ✅ a `provecchio.com`, host `192.168.69.240`, 2026-10-22 13:09) — fix de **Marca Blanca** (`GET /api/v1/tenants/:id/config` + sanitización de `customDomain`) y corrección de `deploy-local.sh`. Reporte: [`DEPLOY_REPORT_2026-10-22-v1.40.0.md`](../plans/omnigastro/DEPLOY_REPORT_2026-10-22-v1.40.0.md) |
-| Versión en localhost | **v1.40.0** (`https://provecchio.local`) — validada con datos reales de producción restaurados |
+| Versión en producción | **v1.40.1** (deploy ✅ a `provecchio.com`, host `192.168.69.240`, 2026-10-22 16:24) — **Marca Blanca operativa completa**: el `PATCH /api/v1/tenants/:id` devolvía 500 y podía borrar la configuración del tenant (`config`). Reporte: [`DEPLOY_REPORT_2026-10-22-v1.40.1.md`](../plans/omnigastro/DEPLOY_REPORT_2026-10-22-v1.40.1.md) |
+| Versión en localhost | **v1.40.1** (`https://provecchio.local`) — validada con datos reales de producción restaurados (168 tablas, 7 empleados, 4 cajas) |
+| Release anterior | **v1.40.0** (2026-10-22 13:09) — **lectura** de Marca Blanca: `GET /api/v1/tenants/:id/config` + sanitización de `customDomain` + fix de `deploy-local.sh`. Reporte: [`DEPLOY_REPORT_2026-10-22-v1.40.0.md`](../plans/omnigastro/DEPLOY_REPORT_2026-10-22-v1.40.0.md) |
 | Historial de deploys recientes | **v1.39.27** (2026-10-22 07:52) FEAT-194 bandera de Mozo + FEAT-197 F4/F4b · **v1.39.28** (2026-10-22) fix `/admin/hr`. Reportes: [`DEPLOY_REPORT_2026-10-22.md`](../plans/omnigastro/DEPLOY_REPORT_2026-10-22.md) (v1.39.25) · [`DEPLOY_REPORT_2026-10-22-v1.39.26-27.md`](../plans/omnigastro/DEPLOY_REPORT_2026-10-22-v1.39.26-27.md) (v1.39.26 + v1.39.27) |
 | FEAT-196 (cerrar turno + relevo de cajero) | ✅ **Validado por el usuario en localhost** y verificado por API en producción |
 | FEAT-193 (sesión anclada a la caja física) | ✅ Desplegado en v1.39.21 |
@@ -64,6 +65,44 @@
 > Para reanudarlo: GitHub → Settings → Billing & plans, y luego
 > `gh run rerun <run-id> --failed`.
 
+## 2026-10-22 — v1.40.1 (DEPLOYED ✅ TO PROVECCHIO.COM) — Marca Blanca: el guardado del tenant devolvía 500 y podía borrar la configuración
+
+Reporte completo: [`DEPLOY_REPORT_2026-10-22-v1.40.1.md`](../plans/omnigastro/DEPLOY_REPORT_2026-10-22-v1.40.1.md)
+
+**Contexto:** v1.40.0 hizo que el modal **"🏷️ Marca Blanca"** cargara los datos del tenant, pero al
+pulsar **"Guardar"** la petición devolvía **HTTP 500** — y, oculto detrás de ese error, había un
+camino de **pérdida de datos**.
+
+| # | Síntoma | Causa raíz | Corrección |
+|---|---|---|---|
+| 1 | `PATCH /api/v1/tenants/:id` → **500** (`Unknown argument 'customDomainVerified'`) | El `update()` escribía `payload.customDomainVerified`, campo que **no existe** en `model Tenant` (el real es `domainVerified`, que el resto del controller ya usaba en 10 puntos) | `customDomainVerified` → **`domainVerified`** |
+| 2 | El mismo `PATCH` → **500** (`Unknown argument 'whiteLabel'`) | El frontend enviaba un objeto `whiteLabel` **anidado**, que no es columna de `Tenant`; Prisma rechaza argumentos desconocidos | El backend **descarta** `whiteLabel` del payload y el frontend deja de enviarlo (los valores ya viajan en el nivel superior) |
+| 3 | ⚠️ **Destructivo, enmascarado por 1 y 2**: el primer guardado habría borrado `gastro` (con `qrTokens`, `waiterOptions`), `homepageBlocks`, `subscription`, `fontFamily`… | El modal enviaba `config: { footerCredits }`. `Tenant.config` es una columna `Json?` y un `update` de Prisma **reemplaza el JSON completo** | El backend **mergea**: `{ ...existing.config, ...data.config }` (y `config` se agregó al `select` de la lectura previa) |
+
+> **Por qué importa el orden:** los defectos 1 y 2 abortaban la petición **antes de escribir**, y eso
+> impedía ver el 3. Desbloquear el 500 sin corregir el `config` habría convertido un modal que "no
+> guardaba" en un modal que **borra la configuración del tenant**.
+
+**Protocolo §3.1.1 aplicado (deploy-to-local-first):**
+
+| Paso | Resultado |
+|---|---|
+| Pre-deploy diagnostic | ✅ sin fallos críticos (11 warnings preexistentes) |
+| Backup de producción | ✅ `pre_deploy_provecchio_20261022_160434.sql` (2,24 MB) + `_uploads.tar.gz` (28,9 MB) + `rollback-provecchio-20261022_160434.env` |
+| Restore en localhost | ✅ **exit 0** (el fix de `DB_PORT` de v1.40.0 ya funciona en el flujo real) — 168 tablas, 1 tenant, **7 empleados**, 4 cajas |
+| Deploy local | ✅ versión sincronizada en `1.40.1`, **135 suites / 1015 tests**, `tsc` limpio backend y frontend, bundle fresco |
+| E2E en localhost | ✅ **14/14** — incluye los **4 nuevos** de `frontend/e2e/white-label-modal.spec.ts` (PATCH 200, `whiteLabel` tolerado, `config` preservada, modal carga `customDomain`) |
+| Traefik | ✅ `services.yml` local y remoto con md5 idéntico — sin cambios de ruteo |
+| Deploy a producción | ✅ **🎉 Complete** — 9/9 contenedores healthy, 39 migraciones (0 pendientes), QA E2E 8 rutas admin OK, 0 errores JS |
+| Health público | ✅ `https://provecchio.com/api/v1/health` → **`1.40.1`** |
+| **Guardado en producción** | ✅ `PATCH` idempotente (`HTTPS://Provecchio.COM/admin/?x=1`) → **200**, `customDomain: "provecchio.com"`, `domainVerified: true`, **sin** llamadas a Cloudflare |
+| **Config preservada en producción** | ✅ 8 → 9 claves, **ninguna perdida**; `homepageBlocks`, `subscription`, `gastro` y `fontFamily` **idénticas** |
+| Rollback disponible | `deploy-artifacts/rollback-provecchio-20261022_161656.env` + dump del backup |
+
+**Documentación:** [troubleshooting #189](../troubleshooting/189-white-label-patch-500-config-overwrite.md) ·
+[plan de actualización](../plans/omnigastro/plan-actualizacion-v1.40.1-white-label-patch.md) ·
+`FEAT-199` en `featurelist.json` · tag `v1.40.1` sobre `f6ba3907` (PR #16).
+
 ## 2026-10-22 — v1.40.0 (DEPLOYED ✅ TO PROVECCHIO.COM) — Marca Blanca: endpoint de config por tenant + sanitización de `customDomain`
 
 Reporte completo: [`DEPLOY_REPORT_2026-10-22-v1.40.0.md`](../plans/omnigastro/DEPLOY_REPORT_2026-10-22-v1.40.0.md)
@@ -75,7 +114,7 @@ no cargaba la configuración del tenant.
 | # | Síntoma | Causa raíz | Corrección |
 |---|---|---|---|
 | 1 | El modal de Marca Blanca quedaba vacío | El frontend llamaba `GET /api/v1/tenants/config/:id`, ruta que resuelve el tenant **por API key** y no por id → nunca lo encontraba | Nuevo endpoint **`GET /api/v1/tenants/:id/config`** (`ApiKeyGuard` + `assertCanManageTenant`) |
-| 2 | `customDomain` se guardaba con `https://`, barra final y mayúsculas | El `PATCH` persistía el valor **sin normalizar** → dominios inválidos para Cloudflare y registros DNS duplicados | El `PATCH` **sanitiza**: minúsculas, sin esquema ni path, y marca `customDomainVerified = true`; si se vacía, `customDomain = null` |
+| 2 | `customDomain` se guardaba con `https://`, barra final y mayúsculas | El `PATCH` persistía el valor **sin normalizar** → dominios inválidos para Cloudflare y registros DNS duplicados | El `PATCH` **sanitiza**: minúsculas, sin esquema ni path, y marca el dominio como verificado; si se vacía, `customDomain = null`. ⚠️ En v1.40.0 ese marcado escribía `customDomainVerified`, **campo inexistente** → el guardado devolvía 500; corregido en **v1.40.1** con `domainVerified` |
 | 3 | El deploy fallaba con `error TS2339: Property 'id' does not exist` | El `select` de Prisma de `getTenantConfig` no incluía `id: true` pero el `return` leía `tenant.id` (defecto latente: el commit nunca se compiló antes) | `id: true` añadido al `select` — [troubleshooting #187](../troubleshooting/187-select-prisma-sin-id-error-ts2339.md) |
 
 **Además:** `scripts/deploy-local.sh` reconstruye siempre el backend con `docker compose up --build -d`

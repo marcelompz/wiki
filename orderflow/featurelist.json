@@ -1,6 +1,6 @@
 {
   "project": "OrderFlow SaaS Omnicanal",
-  "version": "1.40.0",
+  "version": "1.40.1",
   "last_updated": "2026-10-22",
   "features": [
     {
@@ -2342,9 +2342,9 @@
       "id": "FEAT-198",
       "category": "Core / Multi-tenant / Marca blanca / DevOps",
       "title": "Marca Blanca: endpoint GET /api/v1/tenants/:id/config + sanitización de customDomain + fix del rebuild en deploy-local.sh (v1.40.0)",
-      "description": "El modal de Marca Blanca del Super Admin no cargaba la configuración del tenant. (1) El frontend llamaba GET /api/v1/tenants/config/:id, ruta que resuelve el tenant por API key y no por id, de modo que el tenant no se encontraba; se agrega GET /api/v1/tenants/:id/config con ApiKeyGuard + assertCanManageTenant. (2) El PATCH persistía customDomain sin normalizar (https://, barra final, mayúsculas), generando dominios inválidos para Cloudflare; ahora se sanitiza a minúsculas sin esquema ni path y se marca customDomainVerified=true, y si se vacía queda en null. (3) El select de Prisma de getTenantConfig no incluía id:true aunque el return leía tenant.id: error TS2339 que rompía el build de Docker (defecto latente, el commit nunca se compiló antes del deploy); se añade id:true como en las consultas vecinas. (4) deploy-local.sh decidía reconstruir el backend con 'docker compose ps --services', que solo lista servicios corriendo: con el backend arriba reportaba ALREADY RUNNING, se saltaba el build y daba verde con código viejo (violaba la Regla #11); la Fase 5 ahora usa siempre 'up --build -d' y espera el health check.",
+      "description": "El modal de Marca Blanca del Super Admin no cargaba la configuración del tenant. (1) El frontend llamaba GET /api/v1/tenants/config/:id, ruta que resuelve el tenant por API key y no por id, de modo que el tenant no se encontraba; se agrega GET /api/v1/tenants/:id/config con ApiKeyGuard + assertCanManageTenant. (2) El PATCH persistía customDomain sin normalizar (https://, barra final, mayúsculas), generando dominios inválidos para Cloudflare; ahora se sanitiza a minúsculas sin esquema ni path y se marca el dominio como verificado (v1.40.0 escribía el campo inexistente customDomainVerified; en v1.40.1 se corrigió a domainVerified, ver FEAT-199), y si se vacía queda en null. (3) El select de Prisma de getTenantConfig no incluía id:true aunque el return leía tenant.id: error TS2339 que rompía el build de Docker (defecto latente, el commit nunca se compiló antes del deploy); se añade id:true como en las consultas vecinas. (4) deploy-local.sh decidía reconstruir el backend con 'docker compose ps --services', que solo lista servicios corriendo: con el backend arriba reportaba ALREADY RUNNING, se saltaba el build y daba verde con código viejo (violaba la Regla #11); la Fase 5 ahora usa siempre 'up --build -d' y espera el health check.",
       "status": "completed",
-      "version": "1.40.0",
+      "version": "1.40.1",
       "priority": "MEDIUM",
       "assigned_module": "backend/src/tenants/tenants.controller.ts, frontend/src/pages/admin/(modal Marca Blanca), scripts/deploy-local.sh",
       "deploy_target": "provecchio",
@@ -2361,10 +2361,31 @@
       "related_fixes": [
         "scripts/restore-provecchio.sh: DB_PORT literal 'null' (troubleshooting #188) — resuelto en rama fix/restore-db-port-null"
       ]
+    },
+    {
+      "id": "FEAT-199",
+      "category": "Core / Multi-tenant / Marca blanca",
+      "title": "Marca Blanca: el PATCH del tenant devolvía 500 y podía borrar la configuración (v1.40.1)",
+      "description": "El modal de Marca Blanca ya cargaba (v1.40.0) pero no guardaba: PATCH /api/v1/tenants/:id devolvía 500 por dos argumentos inexistentes en el schema (customDomainVerified, que en realidad es domainVerified, y un objeto whiteLabel anidado). Además el modal enviaba config: { footerCredits } y, como Tenant.config es una columna Json? que se reemplaza completa en un update de Prisma, al desbloquear el 500 el primer guardado habría borrado gastro (qrTokens, waiterOptions, defaultServiceMode), homepageBlocks, subscription, fontFamily, etc. Se corrige el nombre del campo, se descarta whiteLabel en el backend (y se deja de enviar en el frontend) y se mergea config con el existente.",
+      "status": "completed",
+      "version": "1.40.1",
+      "priority": "HIGH",
+      "assigned_module": "backend/src/tenants/tenants.controller.ts, frontend/src/pages/admin/super-admin-dashboard.tsx",
+      "deploy_target": "provecchio",
+      "report": "docs/plans/omnigastro/plan-actualizacion-v1.40.1-white-label-patch.md",
+      "troubleshooting": [
+        "docs/troubleshooting/189-white-label-patch-500-config-overwrite.md"
+      ],
+      "qa_validation": "Unitarios jest tenants.controller.spec.ts 6 casos nuevos (16 total) y suite completa 135 suites / 1015 tests; tsc limpio en backend y frontend; E2E frontend/e2e/white-label-modal.spec.ts (PATCH 200, whiteLabel tolerado, config preservada, modal carga customDomain); verificación en producción con PATCH idempotente (HTTPS://Provecchio.COM/admin/?x=1 -> provecchio.com, domainVerified true, sin llamadas a Cloudflare). DESPLEGADO Y VERIFICADO EN PRODUCCION (2026-10-22 16:24): deploy-production.sh provecchio -> Production Deploy Complete, 9/9 contenedores healthy, 39 migraciones sin pendientes, health 1.40.1, bundle assets/index-BPoU28fx.js; PATCH idempotente HTTPS://Provecchio.COM/admin/?x=1 -> 200 con customDomain provecchio.com y domainVerified true (sin llamadas a Cloudflare); config 8 -> 9 claves sin perder ninguna (homepageBlocks, subscription, gastro y fontFamily identicas). Protocolo §3.1.1 previo: backup pre_deploy_provecchio_20261022_160434, restore localhost exit 0, deploy-local ALL CHECKS PASSED, E2E 14/14. Tag v1.40.1 sobre f6ba3907 (PR #16).",
+      "next_steps": [
+        "Considerar migrar el PATCH a un DTO con ValidationPipe para no aceptar claves arbitrarias del cliente"
+      ],
+      "deployed_at": "2026-10-22T16:24:00-03:00",
+      "deploy_status": "deployed"
     }
   ],
   "lastUpdated": "2026-10-22",
-  "last_id": "FEAT-198",
+  "last_id": "FEAT-199",
   "next_pending_sc": null,
   "active_plan": "docs/plans/omnigastro/PLAN_MAESTRO.md",
   "plan_progress": {
