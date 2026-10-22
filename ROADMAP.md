@@ -1,14 +1,14 @@
 # 🗺️ ROADMAP DE ORDERFLOW - v1.34.0 → v2.0.0 (Go-Live Definitivo)
-**Última Actualización:** 2026-10-22 (Deploy de v1.39.25 a `provecchio.com`: "Mis pedidos" del comensal + fix del `paidAt`)
-**Release anterior:** 2026-10-22 (Deploy acumulado v1.39.22 + v1.39.23 + v1.39.24 a `provecchio.com`)
+**Última Actualización:** 2026-10-22 (Deploy de v1.39.26 + v1.39.27 a `provecchio.com`: bandera de Mozo e historial en servidor)
+**Release anterior:** 2026-10-22 (Deploy de v1.39.25 a `provecchio.com`: "Mis pedidos" del comensal + fix del `paidAt`)
 
-**Versión Actual:** **`v1.39.25`** ✅ **DEPLOYED EN PRODUCCIÓN** (`provecchio.com`, 2026-10-21 21:53) | Marca pública: OmniFlow. Capa técnica interna: OrderFlow.
+**Versión Actual:** **`v1.39.27`** ✅ **DEPLOYED EN PRODUCCIÓN** (`provecchio.com`, 2026-10-21 21:53) | Marca pública: OmniFlow. Capa técnica interna: OrderFlow.
 **Próximos Releases:** **v1.40.0** (Tauri Desktop & OmnIoT Edge) ➔ **v2.0.0** (🚀 **GO-Live Definitivo del Ecosistema — Target: 15 de Febrero de 2027**)
 **Plan Maestro Go-to-Live:** ver [docs/plans/PLAN_GO_LIVE_APLICACIONES_ECOSISTEMA.md](docs/plans/PLAN_GO_LIVE_APLICACIONES_ECOSISTEMA.md)
 **Roadmap Comercial:** ver [docs/planes/comercial/OmniFlow_PLAN_COMERCIAL_v1.md](docs/planes/comercial/OmniFlow_PLAN_COMERCIAL_v1.md) (FEAT-112 a FEAT-119)
 **Estado:** ✅ **STAGING & PRODUCTION OPERATIVE** | 🏆 **HARDENED v1.39.2** | OmniGastro Fases 0-3.3 Completadas | RBAC Hardening En PR | CI Guard Active | QA E2E Suite | Build Limpio & Cobertura Total
 
-<!--CURRENT_VERSION-->1.39.25<!--/CURRENT_VERSION--> <!-- Actualizado: 2026-10-21 v1.39.24 por Kilo -->
+<!--CURRENT_VERSION-->1.39.27<!--/CURRENT_VERSION--> <!-- Actualizado: 2026-10-21 v1.39.24 por Kilo -->
 
 ### 📋 Próximas actualizaciones planificadas — OmniGastro (plan aprobado 2026-10-22)
 
@@ -28,14 +28,39 @@
 |---|---|---|---|---|
 | **F1** | v1.39.25 | **FEAT-197** (Capa 1) | El comensal ve **"Mis pedidos"** en la memoria del dispositivo y no lo pierde al recargar, navegar o volver al menú (el carrito sí se vacía). Sin migración | ✅ **COMPLETADO** (v1.39.25) — store `public-orders-store` + botón 🕘 en el header + drawer con refresco cada 10 s |
 | **F1** | v1.39.25 | **FEAT-197-d** (fix) | El cierre desde el panel de mozos nunca setea `paidAt`: `orders.controller.ts:271,276` espera `body.mode` pero el frontend envía `closeMode`/`method` → normalizar los 3 formatos | ✅ **COMPLETADO** (v1.39.25) — `order-close-mode.util.ts` + 7 unitarios + E2E |
-| **F2** | v1.39.26 | **FEAT-194** | **Bandera de Mozo**: solo los empleados con `Employee.canUseMozoPos` pueden iniciar sesión en el POS de mozo. Migración `20261022HHMMSS` + `getMozoStaff` + `GET /api/v1/users/mozo-staff` + `verify-pin` con `scope:'mozo'` + sección "Empleados Mozo" en `/admin/settings → OmniGastro` | 🟡 planificado |
-| **F4** | v1.39.28 | **FEAT-197** (Capa 3 · mozo) | El mozo **no pierde pedidos al cambiar de dispositivo**: `GET /api/v1/orders/guest/history` + `Order.waiterId` + `claimedById` persistido + pestaña "Atendidos" | 🟡 planificado |
-| **F4b** | v1.39.29 | **FEAT-197** (Capa 3b · cajero) | El cajero puede volver a ver los turnos ya cerrados: `GET /api/v1/pos-sessions` (listado, hoy inexistente) + pestaña "Historial de turnos" en `/admin/gastro/cashier`, reutilizando `Order.posSessionId` y el Reporte Z | 🟡 planificado |
+| **F2** | v1.39.26 | **FEAT-194** ✅ **COMPLETADO** | **Bandera de Mozo**: solo los empleados con `Employee.canUseMozoPos` pueden iniciar sesión en el POS de mozo. Migración `20261022HHMMSS` + `getMozoStaff` + `GET /api/v1/users/mozo-staff` + `verify-pin` con `scope:'mozo'` + sección "Empleados Mozo" en `/admin/settings → OmniGastro` | 🟡 planificado |
+| **F4** | v1.39.27 | **FEAT-197** (Capa 3 · mozo) ✅ **COMPLETADO** | El mozo **no pierde pedidos al cambiar de dispositivo**: `GET /api/v1/orders/guest/history` + `Order.waiterId` + `claimedById` persistido + pestaña "Atendidos" | 🟡 planificado |
+| **F4b** | v1.39.27 | **FEAT-197** (Capa 3b · cajero) ✅ **COMPLETADO** | El cajero puede volver a ver los turnos ya cerrados: `GET /api/v1/pos-sessions` (listado, hoy inexistente) + pestaña "Historial de turnos" en `/admin/gastro/cashier`, reutilizando `Order.posSessionId` y el Reporte Z | 🟡 planificado |
 | **F3** | v1.39.27 | FEAT-197 (Capa 2) | 🟡 **opcional** — recuperación del pedido del comensal desde otro dispositivo con un código corto | ⚪ opcional |
 
 **Decisiones abiertas:** D1 backfill de la bandera para los mozos actuales (recomendado: sí) · D4 incluir el fix de `paidAt` en la F1 (recomendado: sí) · D5 implementar la Capa 2 ahora o esperar (recomendado: esperar) · D6 Capa 3b en fase propia o integrada en la F4 (recomendado: fase propia).
 
 **Telemetría declarada** (`Order.metadata.guestDraft`): `t0_order_created`, `t1_table_claimed`, `t2_cart_saved`, `t3_order_confirmed`, `t4_sent_to_kitchen`, `t5_order_ready`, `t6_waiter_viewed_history`, `t7_paid`, `t11_table_closed`.
+
+### 🚀 Release v1.39.27 — FEAT-197 (Capas 3 y 3b): historial en servidor para mozo y cajero (Octubre 2026)
+
+| Feature | Módulo | Estado |
+|---------|--------|--------|
+| **`GET /api/v1/orders/guest/history`** (filtros por estado, mesa, mozo y límite) | `backend/src/orders/orders.controller.ts`, `orders.service.ts` | ✅ |
+| **El mozo queda imputado al pedido**: `claimedById` en `metadata.guestDraft` y `waiterId` en `Order` al reclamar, marcar listo y cerrar | `backend/src/orders/orders.service.ts` | ✅ |
+| **Vista "✅ Atendidos"** en el panel de mozos (+ filtro "solo los míos") | `frontend/src/pages/admin/gastro.tsx` | ✅ |
+| **`GET /api/v1/pos-sessions`** (listado de turnos con estado, caja, cajero y nº de pedidos) | `backend/src/pos-sessions/` | ✅ |
+| **Card "🗂️ Historial de Turnos"** con el Reporte Z en el panel de caja | `frontend/src/pages/admin/gastro-cashier.tsx` | ✅ |
+| **Tests** | `frontend/e2e/order-history-server.spec.ts` (4) | ✅ suite 86 passed / 5 skipped / 0 failed · jest 130 |
+| **Bump versión** | `VERSION`, `package.json` ×3, `featurelist.json`, Swagger, 55 manifiestos | ✅ 1.39.27 |
+
+### 🚀 Release v1.39.26 — FEAT-194: bandera de Mozo (Octubre 2026)
+
+| Feature | Módulo | Estado |
+|---------|--------|--------|
+| **Migración `Employee.canUseMozoPos`** (`can_use_mozo_pos`, snake_case) con **backfill D1** de los mozos de sala activos | `backend/prisma/migrations/20261022120000_add_can_use_mozo_pos_to_employees` | ✅ |
+| **`GET /api/v1/users/mozo-staff`**: solo empleados con la bandera activa (deja de filtrar por texto de cargo) | `backend/src/users/services/users.service.ts`, `backend/src/users/users.controller.ts` | ✅ |
+| **`verify-pin` con `scope:'mozo'`**: exige la bandera y responde *"no está habilitado para el POS de Mozo"* sin emitir token | `backend/src/auth/auth.service.ts`, `backend/src/auth/auth.controller.ts` | ✅ |
+| **Sección "Empleados Mozo"** en `/admin/settings → OmniGastro` (tabla con switch por empleado) | `frontend/src/pages/admin/settings.tsx` | ✅ |
+| **Switch "Puede abrir sesión en el POS de Mozo"** en el formulario de empleado | `frontend/src/pages/admin/hr.tsx` | ✅ |
+| **Selector de mozos** consume el listado con bandera + aviso "Sin habilitación de Mozo" en el panel | `frontend/src/pages/admin/gastro-mozos.tsx`, `frontend/src/pages/admin/gastro.tsx` | ✅ |
+| **Tests** | `frontend/e2e/mozo-flag.spec.ts` (3), `users.service.mozo-staff.spec.ts` (3), `auth.service.mozo-pin.spec.ts` (4) | ✅ |
+| **Bump versión** | `VERSION`, `package.json` ×3, `featurelist.json`, Swagger, 55 manifiestos | ✅ 1.39.26 |
 
 ### 🚀 Release v1.39.25 — "Mis pedidos" del comensal + fix del `paidAt` al cerrar el pedido (Octubre 2026)
 
@@ -49,6 +74,7 @@
 | **Tests**: 3 E2E nuevos (`frontend/e2e/order-tracking.spec.ts`), 7 unitarios backend, 6 unitarios frontend | — | ✅ E2E 79 passed / 5 skipped / 0 failed · jest 81 · vitest 26 |
 | **Bump versión** | `VERSION`, `backend/package.json`, `frontend/package.json`, `mobile/package.json`, `featurelist.json`, Swagger, 55 manifiestos | ✅ 1.39.25 |
 | **🚀 Deploy a `provecchio.com`** (2026-10-22 05:32, commit `52d6a4af`) | `scripts/deploy-production.sh provecchio` | ✅ health `1.39.25 ok`, 5 contenedores healthy, 8 rutas admin en verde — [reporte](docs/plans/omnigastro/DEPLOY_REPORT_2026-10-22.md) |
+| **🚀 Deploy a `provecchio.com`** (v1.39.26 + v1.39.27, 2026-10-22 07:52, commits `141fa9dd` + `73d783d2`) | `scripts/deploy-production.sh provecchio` | ✅ health `1.39.27 ok`, 39 migraciones, 5 contenedores healthy, 8 rutas admin en verde — [reporte](docs/plans/omnigastro/DEPLOY_REPORT_2026-10-22-v1.39.26-27.md) |
 
 ### 🚀 Release v1.39.24 — POS del mozo (tablet): botón ☰ para mostrar y ocultar el catálogo (Octubre 2026)
 
@@ -251,7 +277,7 @@
 
 ---
 
-<!--CURRENT_VERSION-->1.39.25<!--/CURRENT_VERSION--> <!-- Actualizado: 2026-10-20 v1.39.12 por Kilo -->
+<!--CURRENT_VERSION-->1.39.27<!--/CURRENT_VERSION--> <!-- Actualizado: 2026-10-20 v1.39.12 por Kilo -->
 
 El ecosistema **OmniFlow** contempla 10 aplicaciones y capas operativas. A continuación se presenta la evaluación de madurez técnica por componente y los puntos pendientes priorizados hacia el Go-Live final.
 

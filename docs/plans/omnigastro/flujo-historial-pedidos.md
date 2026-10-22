@@ -88,7 +88,7 @@ sequenceDiagram
 
 ---
 
-## 4. Diagrama de secuencia — Capa 3: el mozo no pierde pedidos al cambiar de dispositivo 🟡 PENDIENTE (F4)
+## 4. Diagrama de secuencia — Capa 3: el mozo no pierde pedidos al cambiar de dispositivo ✅ IMPLEMENTADO (v1.39.27)
 
 ```mermaid
 sequenceDiagram
@@ -142,8 +142,8 @@ sequenceDiagram
 | `GET` | `/api/v1/guest/orders/by-code/:code` | público | Pedido por código corto de 6 caracteres — **opcional (D2')** | 🆕 F3 opcional |
 | ~~`GET`~~ | ~~`/api/v1/guest/orders/by-table/:tableId`~~ | — | ~~Pedidos de la mesa~~ — ❌ **DESCARTADO (D3)**: el QR es público y expondría los pedidos de la mesa | ❌ |
 | `GET` | `/api/v1/orders/guest/pending` | `JwtAuthGuard` | Pedidos activos (en curso) | ✅ existe |
-| `GET` | `/api/v1/orders/guest/history` | `JwtAuthGuard` | **Histórico del mozo**: pedidos atendidos, filtrable por mesa, mozo y estado | 🆕 F4 |
-| `GET` | `/api/v1/pos-sessions` | `JwtAuthGuard` | **Histórico de turnos del cajero**: filtros por caja, cajero, rango de fechas y estado | 🆕 F4b |
+| `GET` | `/api/v1/orders/guest/history` | `orders:read` | **Histórico del mozo**: pedidos atendidos, filtrable por mesa, mozo y estado | ✅ v1.39.27 |
+| `GET` | `/api/v1/pos-sessions` | `ApiKeyGuard` | **Histórico de turnos del cajero**: filtros por caja, cajero, rango de fechas y estado | ✅ v1.39.27 |
 | `GET` | `/api/v1/pos-sessions/:id/report` | `JwtAuthGuard` | Reporte Z de un turno concreto | ✅ existe |
 | `GET` | `/api/v1/orders/kds/tickets` | `JwtAuthGuard` | Tickets del KDS (historial en servidor) | ✅ existe |
 | `GET` | `/api/v1/users/mozo-staff` | `ApiKeyGuard` + `PermissionsGuard` | Empleados con `canUseMozoPos` | 🆕 F2 (FEAT-194) |
@@ -155,7 +155,7 @@ sequenceDiagram
 
 ---
 
-## 5.1 Diagrama de secuencia — Capa 3b: el cajero recupera los turnos ya cerrados 🟡 PENDIENTE (F4b)
+## 5.1 Diagrama de secuencia — Capa 3b: el cajero recupera los turnos ya cerrados ✅ IMPLEMENTADO (v1.39.27)
 
 ```mermaid
 sequenceDiagram

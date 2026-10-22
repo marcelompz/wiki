@@ -44,13 +44,13 @@
 
 | Ítem | Estado |
 |---|---|
-| Versión en producción | **v1.39.25** (deploy ✅ a `provecchio.com`, host `192.168.69.240`, 2026-10-22 05:32) — "Mis pedidos" del comensal (FEAT-197 F1) + fix del `paidAt` al cerrar el pedido. Reporte: [`DEPLOY_REPORT_2026-10-22.md`](../plans/omnigastro/DEPLOY_REPORT_2026-10-22.md) |
+| Versión en producción | **v1.39.27** (deploy ✅ a `provecchio.com`, host `192.168.69.240`, 2026-10-22 07:52) — FEAT-194 bandera de Mozo (v1.39.26) + historial en servidor del mozo y del cajero (v1.39.27). Reportes: [`DEPLOY_REPORT_2026-10-22.md`](../plans/omnigastro/DEPLOY_REPORT_2026-10-22.md) (v1.39.25) · [`DEPLOY_REPORT_2026-10-22-v1.39.26-27.md`](../plans/omnigastro/DEPLOY_REPORT_2026-10-22-v1.39.26-27.md) (v1.39.26 + v1.39.27) |
 | Versión en localhost | **v1.39.24** (`https://provecchio.local`) |
 | FEAT-196 (cerrar turno + relevo de cajero) | ✅ **Validado por el usuario en localhost** y verificado por API en producción |
 | FEAT-193 (sesión anclada a la caja física) | ✅ Desplegado en v1.39.21 |
 | **CI de GitHub Actions** | ⛔ **Bloqueado: la cuenta no tiene fondos para Actions** (spending limit). Ver [troubleshooting #185](troubleshooting/185-github-actions-spending-limit-no-runners.md) |
-| FEAT-194 (POS de Mozo por empleado) | 🟡 **PLANIFICADO** (fase F2, v1.39.26) — bandera `Employee.canUseMozoPos` + `GET /api/v1/users/mozo-staff` + `verify-pin` con `scope:'mozo'` + sección "Empleados Mozo" en `/admin/settings → OmniGastro`. Detalle en el [plan maestro](../plans/omnigastro/plan-actualizacion-v1.39.25-historial-pedidos-bandera-mozo.md) |
-| FEAT-197 (historial de pedidos) | 🟡 **F1 COMPLETADA en v1.39.25** (comensal: botón 🕘 "Mis pedidos" + drawer con persistencia en el dispositivo; fix `paidAt` al cerrar el pedido) · **PENDIENTES:** F4 v1.39.28 (mozo, en servidor) y F4b v1.39.29 (cajero, turnos de caja); F3 opcional. **Decisión del cliente (2026-10-22):** el historial del comensal queda en la **memoria del dispositivo** (se descarta el listado público por mesa); la **memoria del sistema** es para **mozo y cajeros** en endpoints autenticados. Ver el ítem 2 del reporte de arriba |
+| FEAT-194 (POS de Mozo por empleado) | ✅ **COMPLETADO en v1.39.26** — bandera `Employee.canUseMozoPos` (migración con backfill de los mozos de sala) + `GET /api/v1/users/mozo-staff` + `verify-pin` con `scope:'mozo'` + sección "Empleados Mozo" en `/admin/settings → OmniGastro` + switch en el formulario de empleado. Auditoría: [`auditoria-bandera-mozo-f2-2026-10-22.md`](../plans/omnigastro/auditoria-bandera-mozo-f2-2026-10-22.md) |
+| FEAT-197 (historial de pedidos) | ✅ **COMPLETADO** — F1 v1.39.25 (comensal: botón 🕘 "Mis pedidos" + persistencia en el dispositivo; fix `paidAt`), F4+F4b v1.39.27 (mozo: `GET /api/v1/orders/guest/history` + vista "Atendidos" + imputación `waiterId`; cajero: `GET /api/v1/pos-sessions` + "Historial de Turnos" con Reporte Z). F3 (código corto) queda **opcional y no implementada** (D5). **Decisión del cliente (2026-10-22):** el historial del comensal queda en la **memoria del dispositivo** (se descarta el listado público por mesa); la **memoria del sistema** es para **mozo y cajeros** en endpoints autenticados. Ver el ítem 2 del reporte de arriba |
 
 > **CI sin runners por límite de gasto.** Todos los jobs fallan en 2-3 s con
 > `steps: []` y `runner_name: ""`, y GitHub lo reporta como

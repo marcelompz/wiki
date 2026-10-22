@@ -1,3 +1,100 @@
+## [1.39.27] - 2026-10-22
+
+### 🚀 Deploy a producción (2026-10-22 07:52) — cierre del plan
+
+**v1.39.26 + v1.39.27** desplegadas en `provecchio.com` (host `192.168.69.240`) con el protocolo completo.
+
+- Migración `20261022120000_add_can_use_mozo_pos_to_employees` aplicada (39 migraciones, 0 pendientes) y
+  backfill verificado: 1 empleado con la bandera de Mozo (Ivan Castillo), cajeros y cocinero en `false`.
+- Health público `1.39.27 ok` · frontend HTTP 200 · 5 contenedores `healthy`.
+- QA post-deploy en verde: catálogo, dominio sin errores JS, auth+DB sin 500 y **8 rutas admin** verificadas.
+- Endpoints nuevos verificados en producción: `/api/v1/users/mozo-staff` (1), `/api/v1/orders/guest/history` (3),
+  `/api/v1/pos-sessions` (2 turnos cerrados).
+- Reporte completo: [`docs/plans/omnigastro/DEPLOY_REPORT_2026-10-22-v1.39.26-27.md`](docs/plans/omnigastro/DEPLOY_REPORT_2026-10-22-v1.39.26-27.md).
+
+
+### 🗂️ FEAT-197 (Capas 3 y 3b) — El mozo y el cajero no pierden el historial al cambiar de dispositivo
+
+> **Reporte del cliente (2026-10-21):** *"Lo mismo sucede en el endpoint de los cajeros: los pedidos ya
+> atendidos solo quedan en la memoria del dispositivo del mozo, pero si cambia de dispositivo no puede
+> hacer seguimiento."*
+>
+> **Decisión del cliente (2026-10-22):** la "memoria del sistema" es para **mozo y cajeros** (usuarios que
+> inician sesión), en endpoints autenticados propios.
+
+| # | Síntoma | Causa raíz | Corrección |
+|---|---|---|---|
+| 1 | Al cerrar un pedido, el mozo **lo pierde de la pantalla**: desaparece del panel | `GET /api/v1/orders/guest/pending` solo devuelve pedidos **en curso** (`DRAFT, CONFIRMED, PREPARING, READY`); al cerrar (`DELIVERED`) el pedido se sale de la lista | Nuevo `GET /api/v1/orders/guest/history` (filtros por `status`, `tableId`, `waiterId`, `limit`) y vista **"✅ Atendidos"** en `/admin/gastro` |
+| 2 | El panel filtraba los pedidos por `meta.claimedById`, un campo que **nunca se escribía** → el filtro no funcionaba | `guestClaim` guardaba `claimedBy` (nombre) pero no el id | `guestClaim` ahora escribe `claimedById` en `metadata.guestDraft` **y** `waiterId` en el pedido; `guestMarkReady` y `guestClose` también imputan el mozo |
+| 3 | El cajero no podía volver a ver un turno ya cerrado (solo existían las sesiones **abiertas**) | `pos-sessions.controller.ts` solo exponía `open`, `active`, `open-pin`, `close`, `collect`, `switch-cashier` y `:id/report` — **no había listado** | Nuevo `GET /api/v1/pos-sessions` (filtros por `cashRegisterId`, `cashierId`, `state`, `from`, `to`, `limit`) + card **"🗂️ Historial de Turnos"** en `/admin/gastro/cashier` con su Reporte Z |
+
+**Contratos nuevos:**
+
+| Método | Ruta | Auth | Descripción |
+|---|---|---|---|
+| `GET` | `/api/v1/orders/guest/history` | `orders:read` | Pedidos ya atendidos (por defecto `DELIVERED,CANCELLED`), filtrable por mesa y por mozo |
+| `GET` | `/api/v1/pos-sessions` | `ApiKeyGuard` | Turnos de caja del tenant con su estado, caja, cajero y nº de pedidos |
+
+**Validación en localhost (`https://provecchio.local`, backend `1.39.27 ok`):**
+- E2E nuevo `frontend/e2e/order-history-server.spec.ts`: **4 passed** (el pedido cerrado aparece en el
+  historial con `waiterId` y `claimedById`; los filtros por mozo y por mesa funcionan; la vista
+  "Atendidos" del panel de mozos; el listado de turnos y su Reporte Z en el panel de caja).
+- Suite E2E completa: **86 passed / 5 skipped / 0 failed** (antes 79).
+- Unitarios backend (`orders`, `users`, `auth`): **130 passed** (17 suites) · `tsc` y eslint sin errores.
+
+## [1.39.27] - 2026-10-22
+
+### 🚧 Release en curso
+
+- Documentar aqui los cambios de la version.
+
+## [1.39.26] - 2026-10-22
+
+### 🧑‍🍳 FEAT-194 — Bandera de Mozo: solo el personal habilitado puede tener sesión en el POS de Mozo
+
+> **Requerimiento del cliente (2026-10-21):** *"El endpoint que alimenta `/admin/gastro/mozos` debe desplegar
+> SOLO los empleados que están configurados como Mozo en `/admin/settings` → OmniGastro (restaurante). Esa
+> configuración se valida con una bandera en la tabla de empleados (Employee) que habilita la opción de tener
+> sesión en el POS de Mozo."*
+
+| # | Antes | Ahora |
+|---|---|---|
+| Selector de mozos | `GET /api/v1/users/staff` → **toda** la gastronomía con PIN (mozos, cajeros, cocineros), filtrado por el **texto** del cargo | `GET /api/v1/users/mozo-staff` → **solo** empleados con `Employee.canUseMozoPos = true` |
+| Login por PIN | `POST /api/v1/auth/verify-pin` aceptaba el PIN de cualquier empleado de gastronomía | `scope: 'mozo'` → exige la bandera; si el PIN existe pero el empleado no está habilitado, responde con un mensaje explícito |
+| Configuración | No existía | Sección **"Empleados Mozo"** en `/admin/settings → OmniGastro` (tabla con switch por empleado) y switch **"Puede abrir sesión en el POS de Mozo"** en el formulario de empleados (`/admin/hr`) |
+| Modelo de datos | `Employee` sin bandera | `Employee.canUseMozoPos` (columna `can_use_mozo_pos`, snake_case) + **migración `20261022120000_add_can_use_mozo_pos_to_employees`** con backfill (D1) de los mozos de sala ya activos |
+
+**Backfill (decisión D1 del cliente):** la migración marca `can_use_mozo_pos = true` para los empleados
+**de sala** (`WAITER`, `HEAD_WAITER`, `Mozo`, `Jefe de Sala`) que estén `ACTIVE` y tengan PIN asignado.
+Los cajeros y cocineros **no** se habilitan automáticamente (la bandera es del POS de Mozo, no de la caja
+ni de la cocina) y el administrador puede activarla desde la sección "Empleados Mozo".
+
+**Contratos:**
+
+| Método | Ruta | Cambio |
+|---|---|---|
+| `GET` | `/api/v1/users/mozo-staff` | **nuevo** — solo empleados con la bandera activa (con `ApiKeyGuard` + `PermissionsGuard`) |
+| `POST` | `/api/v1/auth/verify-pin` | ahora acepta `scope: 'mozo'`; la respuesta incluye `user.canUseMozoPos` |
+| `PUT` | `/api/v1/hr/employees/:id` | acepta `canUseMozoPos` (se puede activar **y** desactivar) |
+| `POST` | `/api/v1/hr/employees` | acepta `canUseMozoPos` en el alta |
+
+**Validación en localhost (`https://provecchio.local`, backend `1.39.26 ok`):**
+- E2E nuevo `frontend/e2e/mozo-flag.spec.ts`: **3 passed** (el listado solo trae habilitados; el PIN sin
+  bandera se rechaza con el mensaje *"no está habilitado para el POS de Mozo"* y sin emitir token; el
+  selector de `/admin/gastro/mozos` muestra al Mozo habilitado y **no** al cajero).
+- Unitarios: `users.service.mozo-staff.spec.ts` **3 passed** (filtra por bandera, no por cargo) y
+  `auth.service.mozo-pin.spec.ts` **4 passed** (scope mozo acepta/rechaza, y el flujo sin scope no cambia).
+- `tsc` sin errores · eslint 0 errores.
+
+**Nota de compatibilidad:** `POST /api/v1/auth/verify-pin` **sin** `scope` mantiene el comportamiento
+anterior (toda la gastronomía), por lo que los demás flujos de autenticación por PIN no se ven afectados.
+
+## [1.39.26] - 2026-10-22
+
+### 🚧 Release en curso
+
+- Documentar aqui los cambios de la version.
+
 ## [1.39.25] - 2026-10-22
 
 ### 🚀 Deploy a producción (2026-10-22 05:32)

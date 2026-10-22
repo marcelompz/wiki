@@ -2,7 +2,7 @@
 
 > **Vertical:** OmniGastro (Restaurante / Bar)
 > **Alcance:** 2 features nuevas + 1 fix estructural detectado durante el análisis
-> **Estado del plan:** 🟢 **APROBADO** (2026-10-22) · **F1 implementada y validada en localhost (v1.39.25)** — auditoría: [`auditoria-historial-pedidos-f1-2026-10-22.md`](./auditoria-historial-pedidos-f1-2026-10-22.md)
+> **Estado del plan:** 🟢 **CERRADO** (2026-10-22) · **F1 (v1.39.25), F2 (v1.39.26) y F4+F4b (v1.39.27) implementadas y validadas en localhost** · F3 opcional no implementada (D5) — auditorías: [`auditoria-historial-pedidos-f1-2026-10-22.md`](./auditoria-historial-pedidos-f1-2026-10-22.md) · [`auditoria-bandera-mozo-f2-2026-10-22.md`](./auditoria-bandera-mozo-f2-2026-10-22.md)
 > **Fecha:** 2026-10-22
 > **Featurelist global:** `featurelist.json` (`FEAT-197` nueva, `FEAT-194` replanteada)
 > **Flujo y telemetría:** [`flujo-historial-pedidos.md`](./flujo-historial-pedidos.md)
@@ -315,10 +315,10 @@ Helpers E2E a reutilizar: `loginByApi`, `loginAsAdmin`, `loginAsAdminByApi` (en
 |---|---|---|---|---|
 | **F0** | Aprobación de este plan por el usuario | — | Decisiones §2.1 y §3.1 confirmadas | — |
 | **F1** | FEAT-197 **Capa 1** (cliente, sin migración) + FEAT-197-d (fix modo de cierre) | F0 | El comensal ve "Mis pedidos" (memoria del dispositivo) y no pierde el historial en su dispositivo | v1.39.25 ✅ **IMPLEMENTADA** |
-| **F2** | FEAT-194 completa (migración `can_use_mozo_pos`, backend, UI, settings) | F0 | Solo los empleados con bandera tienen sesión de mozo | v1.39.26 |
-| **F3** | FEAT-197 **Capa 2** — 🟡 **OPCIONAL (D2')**: código corto + endpoint `by-code` | F1 | *Solo si se solicita*: el comensal recupera su pedido desde otro dispositivo | v1.39.27 |
-| **F4** | FEAT-197 **Capa 3** (mozo): histórico en servidor, `waiterId`, `claimedById`, pestaña "Atendidos" | F1 | El mozo no pierde pedidos al cambiar de dispositivo | v1.39.28 |
-| **F4b** | FEAT-197 **Capa 3b** (cajero): `GET /api/v1/pos-sessions` + "Historial de turnos" en el panel de caja | F1 | El cajero puede volver a ver los turnos y cobros ya cerrados | v1.39.29 |
+| **F2** | FEAT-194 completa (migración `can_use_mozo_pos`, backend, UI, settings) | F0 | Solo los empleados con bandera tienen sesión de mozo | v1.39.26 ✅ **IMPLEMENTADA** |
+| **F3** | FEAT-197 **Capa 2** — 🟡 **OPCIONAL (D5): NO IMPLEMENTADA** | F1 | *Solo si el comensal lo solicita*: recuperar el pedido desde otro dispositivo | — |
+| **F4** | FEAT-197 **Capa 3** (mozo): histórico en servidor, `waiterId`, `claimedById`, pestaña "Atendidos" | F1 | El mozo no pierde pedidos al cambiar de dispositivo | v1.39.27 ✅ **IMPLEMENTADA** |
+| **F4b** | FEAT-197 **Capa 3b** (cajero): `GET /api/v1/pos-sessions` + "Historial de turnos" en el panel de caja | F1 | El cajero puede volver a ver los turnos y cobros ya cerrados | v1.39.27 ✅ **IMPLEMENTADA** |
 | **F5** | ~~Capa 2 iteración 2 (listado por mesa)~~ | — | ❌ **DESCARTADO (D3)** | — |
 
 **Reglas de la secuencia**
@@ -392,8 +392,9 @@ Helpers E2E a reutilizar: `loginByApi`, `loginAsAdmin`, `loginAsAdminByApi` (en
 
 ### Decisiones aún abiertas
 
-- ⏳ **D1** — ¿Se aprueba el **backfill** de `can_use_mozo_pos` para los mozos actuales? (recomendado: sí,
-  para no dejar fuera a los mozos que hoy sí pueden iniciar sesión).
+- ✅ **D1** — **Backfill APROBADO y aplicado** en la migración `20261022120000`: se habilitan los empleados
+  de sala (`WAITER`, `HEAD_WAITER`, `Mozo`, `Jefe de Sala`) activos con PIN; cajeros y cocineros quedan
+  en `false` y el administrador puede habilitarlos desde la UI.
 - ⏳ **D4** — ¿Se incluye el **fix del modo de cierre** (FEAT-197-d, `paidAt` nunca se setea) en la F1?
   (recomendado: sí, son 2 líneas y bloquea el histórico de cobros del cajero).
 - ⏳ **D5** — ¿Se implementa la **Capa 2** (código corto) ya, o se espera a la F1 y se decide con el
@@ -411,6 +412,17 @@ Validación: E2E nuevo 3 passed · suite completa 79 passed / 5 skipped / 0 fail
 [`auditoria-historial-pedidos-f1-2026-10-22.md`](./auditoria-historial-pedidos-f1-2026-10-22.md).
 
 Siguiente paso: **F2** (FEAT-194, bandera de Mozo) → **F4** (histórico del mozo) → **F4b** (histórico de caja).
+
+### Estado tras F4 + F4b (2026-10-22) — PLAN CERRADO
+
+La **Capa 3 (mozo)** y la **Capa 3b (cajero)** están implementadas en **v1.39.27**:
+`GET /api/v1/orders/guest/history` + imputación del mozo (`claimedById` / `waiterId`) + vista "Atendidos";
+`GET /api/v1/pos-sessions` + card "Historial de Turnos" con Reporte Z.
+Validación: E2E 4 passed · suite completa 86 passed / 5 skipped / 0 failed · jest 130 passed.
+Detalle en [`auditoria-historial-servidor-f4-2026-10-22.md`](./auditoria-historial-servidor-f4-2026-10-22.md).
+
+**El plan queda cerrado** con F1, F2, F4 y F4b implementadas. La **Capa 2 (F3)** queda documentada como
+opcional y no implementada (decisión D5: el comensal acepta la memoria del dispositivo).
 
 ### Para arrancar la F1 hace falta
 

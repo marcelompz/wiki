@@ -48,9 +48,9 @@
 | **FEAT-191** | El KDS se actualiza solo cuando el mozo envía el pedido a cocina (bug #5) | ✅ **COMPLETADO** (v1.39.15) | FEAT-190 |
 | **FEAT-192** | Lote 2 de bugs del cliente: alertas del mozo, KDS, POS y catálogo (#1, #2a, #2b, #3, #4, #6, #9) | ✅ **COMPLETADO** (v1.39.16) | FEAT-191 |
 | **FEAT-193** | La sesión de caja se ancla a la caja física (el turno pertenece a la caja, no al usuario) | ✅ **COMPLETADO** (v1.39.19) | FEAT-192 |
-| **FEAT-194** | Bandera de Mozo: solo los empleados con `Employee.canUseMozoPos` pueden tener sesión en el POS de mozo | 🟡 **PLANIFICADO** (F2, v1.39.26) — [plan maestro](plan-actualizacion-v1.39.25-historial-pedidos-bandera-mozo.md) | — |
+| **FEAT-194** | Bandera de Mozo: solo los empleados con `Employee.canUseMozoPos` pueden tener sesión en el POS de mozo | ✅ **COMPLETADO** (v1.39.26) — migración + `mozo-staff` + `verify-pin scope` + sección en settings — [plan maestro](plan-actualizacion-v1.39.25-historial-pedidos-bandera-mozo.md) | — |
 | **FEAT-196** | Cierre de turno (Reporte Z) y relevo de cajero en el panel de Caja Gastro | ✅ **COMPLETADO** (v1.39.20) | FEAT-193 |
-| **FEAT-197** | Historial de pedidos: comensal (memoria del dispositivo), mozo (servidor) y cajero (turnos de caja) + fix `paidAt` | 🟡 **PLANIFICADO** (F1 v1.39.25 → F4 v1.39.28 mozo → F4b v1.39.29 cajero; F3 opcional) — [plan maestro](plan-actualizacion-v1.39.25-historial-pedidos-bandera-mozo.md) · [flujo](flujo-historial-pedidos.md) | FEAT-193, FEAT-196 |
+| **FEAT-197** | Historial de pedidos: comensal (memoria del dispositivo), mozo (servidor) y cajero (turnos de caja) + fix `paidAt` | ✅ **COMPLETADO** (F1 v1.39.25 · F4+F4b v1.39.27; F3 opcional no implementada) — [plan maestro](plan-actualizacion-v1.39.25-historial-pedidos-bandera-mozo.md) · [flujo](flujo-historial-pedidos.md) | FEAT-193, FEAT-196 |
 
 > **Deploy acumulado en producción (2026-10-21 21:53):** v1.39.22 (3 rutas admin 404: `social-catalog`, `loyalty`, `gastro/kds-stations`) + v1.39.23 (reclamo previo del pedido en la vista POS por mesa) + v1.39.24 (botón ☰ del catálogo del POS del mozo) → `provecchio.com` (`192.168.69.240`), health `1.39.24 ok`, 5 contenedores healthy, QA post-deploy con las 8 rutas admin en verde. Rollback: `deploy-artifacts/rollback-provecchio-20261021_212239.env`.
 
