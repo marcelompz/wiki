@@ -59,7 +59,7 @@ sequenceDiagram
 
 ---
 
-## 3. Diagrama de secuencia — Capa 2: recuperación desde otro dispositivo
+## 3. Diagrama de secuencia — Capa 2 (opcional, D2'): recuperación desde otro dispositivo
 
 ```mermaid
 sequenceDiagram
@@ -138,14 +138,53 @@ sequenceDiagram
 
 | Método | Ruta | Guard | Descripción | Estado |
 |---|---|---|---|---|
-| `GET` | `/api/v1/guest/orders/:id` | público | Estado puntual de un pedido | ✅ existe |
-| `GET` | `/api/v1/guest/orders/by-code/:code` | público | Pedido por código corto de 6 caracteres | 🆕 F3 |
-| `GET` | `/api/v1/guest/orders/by-table/:tableId` | público | Pedidos **abiertos** de la mesa (opcional, iteración 2) | 🆕 F5 |
+| `GET` | `/api/v1/guest/orders/:id` | público | Estado puntual de un pedido (el comensal lo consulta con el UUID que guarda en su dispositivo) | ✅ existe |
+| `GET` | `/api/v1/guest/orders/by-code/:code` | público | Pedido por código corto de 6 caracteres — **opcional (D2')** | 🆕 F3 opcional |
+| ~~`GET`~~ | ~~`/api/v1/guest/orders/by-table/:tableId`~~ | — | ~~Pedidos de la mesa~~ — ❌ **DESCARTADO (D3)**: el QR es público y expondría los pedidos de la mesa | ❌ |
 | `GET` | `/api/v1/orders/guest/pending` | `JwtAuthGuard` | Pedidos activos (en curso) | ✅ existe |
-| `GET` | `/api/v1/orders/guest/history` | `JwtAuthGuard` | Histórico por mesa y/o mozo | 🆕 F4 |
+| `GET` | `/api/v1/orders/guest/history` | `JwtAuthGuard` | **Histórico del mozo**: pedidos atendidos, filtrable por mesa, mozo y estado | 🆕 F4 |
+| `GET` | `/api/v1/pos-sessions` | `JwtAuthGuard` | **Histórico de turnos del cajero**: filtros por caja, cajero, rango de fechas y estado | 🆕 F4b |
+| `GET` | `/api/v1/pos-sessions/:id/report` | `JwtAuthGuard` | Reporte Z de un turno concreto | ✅ existe |
 | `GET` | `/api/v1/orders/kds/tickets` | `JwtAuthGuard` | Tickets del KDS (historial en servidor) | ✅ existe |
 | `GET` | `/api/v1/users/mozo-staff` | `ApiKeyGuard` + `PermissionsGuard` | Empleados con `canUseMozoPos` | 🆕 F2 (FEAT-194) |
 | `POST` | `/api/v1/auth/verify-pin` | `ApiKeyGuard` | PIN de mozo con `scope: "mozo"` | 🆕 F2 (FEAT-194) |
+
+> **Reparto de la "memoria del sistema" (D3', 2026-10-22):** el comensal **no** tiene historial en el
+> servidor (solo en su dispositivo); el mozo y el cajero **sí**, en endpoints autenticados y filtrados
+> por su identidad (`waiterId` / `posSessionId`).
+
+---
+
+## 5.1 Diagrama de secuencia — Capa 3b: el cajero recupera los turnos ya cerrados
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor K as Cajero
+    participant UI as gastro-cashier.tsx
+    participant PS as PosSessionsController<br/>/api/v1/pos-sessions
+    participant CMS as CashManagementService
+    participant DB as PostgreSQL
+
+    K->>UI: "Historial de turnos" (pestaña nueva)
+    UI->>PS: GET /api/v1/pos-sessions?cashRegisterId=&cashierId=&from=&to=&status=CLOSED
+    Note over PS: JwtAuthGuard + tenantId<br/>(memoria del sistema, no del dispositivo)
+    PS->>CMS: listSessions(tenantId, filtros)
+    CMS->>DB: posSession.findMany (include caja y cajero)
+    DB-->>CMS: turnos
+    CMS-->>PS: [{id, cashRegisterId, cashierId, openedAt, closedAt, status, totals}]
+    PS-->>UI: tabla de turnos
+    UI-->>K: Fecha · Caja · Cajero · Estado · Total
+
+    K->>UI: "Ver el turno del 21/10"
+    UI->>PS: GET /api/v1/pos-sessions/:id/report
+    PS->>CMS: getZReport(tenantId, sessionId)
+    CMS->>DB: read (apertura, ingresos, egresos, efectivo esperado)
+    CMS-->>UI: Reporte Z
+    UI->>UI: GET /api/v1/orders?status=DELIVERED&posSessionId=:id
+    Note over UI: pedidos cobrados en ese turno<br/>(Order.posSessionId ya existe)
+    UI-->>K: Reporte Z + pedidos cobrados
+```
 
 ---
 

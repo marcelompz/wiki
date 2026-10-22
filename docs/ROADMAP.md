@@ -16,16 +16,24 @@
 > **Flujo y telemetría:** [docs/plans/omnigastro/flujo-historial-pedidos.md](docs/plans/omnigastro/flujo-historial-pedidos.md)
 > **Estado:** 🟡 plan documentado y trazable — **esperando aprobación del usuario para iniciar la F1**.
 
+**Decisiones tomadas por el cliente (2026-10-22):**
+
+| # | Decisión | Consecuencia |
+|---|---|---|
+| **D3** | El historial del **comensal** queda **solo en la memoria del dispositivo**; el listado público de pedidos por mesa se **descarta** (quien escanee el QR de la mesa no accede a ningún pedido) | No habrá `GET /api/v1/guest/orders/by-table/:tableId` |
+| **D2'** | El comensal **no** necesita recuperar su pedido desde otro dispositivo | La Capa 2 (código corto `publicCode`) pasa a **opcional**; la migración `public_code` no bloquea la F1 |
+| **D3'** | La "memoria del sistema" es para **mozo y cajeros** (usuarios que inician sesión), en endpoints propios y autenticados | Se añade la **Capa 3b** (histórico de turnos de caja) |
+
 | Fase | Versión | Feature | Alcance | Estado |
 |---|---|---|---|---|
-| **F1** | v1.39.25 | **FEAT-197** (Capa 1) | El comensal ve **"Mis pedidos"** y no pierde el historial al recargar, navegar o volver al menú (el carrito sí se vacía). Persistencia en `localStorage` + UI nueva, **sin migración** | 🟡 planificado |
-| **F1** | v1.39.25 | **FEAT-197-d** (fix) | El cierre desde el panel de mozos nunca setea `paidAt`: `orders.controller.ts:271,276` espera `body.mode` pero el frontend envía `closeMode`/`method` → normalizar los 3 formatos (2 líneas) | 🟡 planificado |
+| **F1** | v1.39.25 | **FEAT-197** (Capa 1) | El comensal ve **"Mis pedidos"** en la memoria del dispositivo y no lo pierde al recargar, navegar o volver al menú (el carrito sí se vacía). Sin migración | 🟡 planificado |
+| **F1** | v1.39.25 | **FEAT-197-d** (fix) | El cierre desde el panel de mozos nunca setea `paidAt`: `orders.controller.ts:271,276` espera `body.mode` pero el frontend envía `closeMode`/`method` → normalizar los 3 formatos | 🟡 planificado |
 | **F2** | v1.39.26 | **FEAT-194** | **Bandera de Mozo**: solo los empleados con `Employee.canUseMozoPos` pueden iniciar sesión en el POS de mozo. Migración `20261022HHMMSS` + `getMozoStaff` + `GET /api/v1/users/mozo-staff` + `verify-pin` con `scope:'mozo'` + sección "Empleados Mozo" en `/admin/settings → OmniGastro` | 🟡 planificado |
-| **F3** | v1.39.27 | **FEAT-197** (Capa 2) | El comensal recupera su pedido **desde otro dispositivo** con un código corto: migración `Order.publicCode` + endpoint público `GET /api/v1/guest/orders/by-code/:code` + UI "Tengo un código de pedido" | 🟡 planificado |
-| **F4** | v1.39.28 | **FEAT-197** (Capa 3) | El mozo **no pierde pedidos al cambiar de dispositivo**: `GET /api/v1/orders/guest/history` + `Order.waiterId` + `claimedById` persistido + pestaña "Atendidos" + KDS con historial en servidor | 🟡 planificado |
-| **F5** | v1.39.29 | FEAT-197 (iteración 2) | Listado de pedidos abiertos por mesa (opcional, **por privacidad no se activa por defecto**) + telemetría completa `t2/t3/t6/t7` | ⚪ opcional |
+| **F4** | v1.39.28 | **FEAT-197** (Capa 3 · mozo) | El mozo **no pierde pedidos al cambiar de dispositivo**: `GET /api/v1/orders/guest/history` + `Order.waiterId` + `claimedById` persistido + pestaña "Atendidos" | 🟡 planificado |
+| **F4b** | v1.39.29 | **FEAT-197** (Capa 3b · cajero) | El cajero puede volver a ver los turnos ya cerrados: `GET /api/v1/pos-sessions` (listado, hoy inexistente) + pestaña "Historial de turnos" en `/admin/gastro/cashier`, reutilizando `Order.posSessionId` y el Reporte Z | 🟡 planificado |
+| **F3** | v1.39.27 | FEAT-197 (Capa 2) | 🟡 **opcional** — recuperación del pedido del comensal desde otro dispositivo con un código corto | ⚪ opcional |
 
-**Decisiones abiertas (a confirmar con el cliente):** D1 backfill de la bandera para los mozos actuales (recomendado: sí) · D2 nombre y visibilidad del código corto (recomendado: `publicCode`, visible en pantalla) · D3 listado por mesa (recomendado: no) · D4 incluir el fix `paidAt` en la F1 (recomendado: sí).
+**Decisiones abiertas:** D1 backfill de la bandera para los mozos actuales (recomendado: sí) · D4 incluir el fix de `paidAt` en la F1 (recomendado: sí) · D5 implementar la Capa 2 ahora o esperar (recomendado: esperar) · D6 Capa 3b en fase propia o integrada en la F4 (recomendado: fase propia).
 
 **Telemetría declarada** (`Order.metadata.guestDraft`): `t0_order_created`, `t1_table_claimed`, `t2_cart_saved`, `t3_order_confirmed`, `t4_sent_to_kitchen`, `t5_order_ready`, `t6_waiter_viewed_history`, `t7_paid`, `t11_table_closed`.
 

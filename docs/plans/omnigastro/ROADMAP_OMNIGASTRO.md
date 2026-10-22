@@ -50,9 +50,11 @@
 | **FEAT-193** | La sesión de caja se ancla a la caja física (el turno pertenece a la caja, no al usuario) | ✅ **COMPLETADO** (v1.39.19) | FEAT-192 |
 | **FEAT-194** | Bandera de Mozo: solo los empleados con `Employee.canUseMozoPos` pueden tener sesión en el POS de mozo | 🟡 **PLANIFICADO** (F2, v1.39.26) — [plan maestro](plan-actualizacion-v1.39.25-historial-pedidos-bandera-mozo.md) | — |
 | **FEAT-196** | Cierre de turno (Reporte Z) y relevo de cajero en el panel de Caja Gastro | ✅ **COMPLETADO** (v1.39.20) | FEAT-193 |
-| **FEAT-197** | Historial y seguimiento de pedidos del comensal y del panel de mozos (3 capas + fix `paidAt`) | 🟡 **PLANIFICADO** (F1 v1.39.25 → F3 v1.39.27 → F4 v1.39.28) — [plan maestro](plan-actualizacion-v1.39.25-historial-pedidos-bandera-mozo.md) · [flujo](flujo-historial-pedidos.md) | FEAT-193, FEAT-196 |
+| **FEAT-197** | Historial de pedidos: comensal (memoria del dispositivo), mozo (servidor) y cajero (turnos de caja) + fix `paidAt` | 🟡 **PLANIFICADO** (F1 v1.39.25 → F4 v1.39.28 mozo → F4b v1.39.29 cajero; F3 opcional) — [plan maestro](plan-actualizacion-v1.39.25-historial-pedidos-bandera-mozo.md) · [flujo](flujo-historial-pedidos.md) | FEAT-193, FEAT-196 |
 
 > **Deploy acumulado en producción (2026-10-21 21:53):** v1.39.22 (3 rutas admin 404: `social-catalog`, `loyalty`, `gastro/kds-stations`) + v1.39.23 (reclamo previo del pedido en la vista POS por mesa) + v1.39.24 (botón ☰ del catálogo del POS del mozo) → `provecchio.com` (`192.168.69.240`), health `1.39.24 ok`, 5 contenedores healthy, QA post-deploy con las 8 rutas admin en verde. Rollback: `deploy-artifacts/rollback-provecchio-20261021_212239.env`.
+
+> **Decisiones del cliente (2026-10-22):** el historial del **comensal** queda solo en la **memoria del dispositivo** (se descarta el listado público por mesa: quien escanee el QR de la mesa no accede a ningún pedido — D3). La **memoria del sistema** es para **mozo y cajeros**, en endpoints autenticados propios: `GET /api/v1/orders/guest/history` (mozo) y `GET /api/v1/pos-sessions` (cajero, listado de turnos que hoy no existe). El código corto del comensal queda **opcional** (D2').
 
 ---
 

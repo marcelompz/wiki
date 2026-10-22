@@ -9,6 +9,24 @@
 
 ---
 
+## 0.1 Decisiones tomadas por el cliente (2026-10-22)
+
+| # | Decisión | Alcance |
+|---|---|---|
+| **D3** | **Descartado el listado público de pedidos por mesa.** El historial del **comensal** vive **solo en la memoria del dispositivo** (localStorage). Si otra persona escanea el QR de la mesa, **no** accede al pedido de nadie. | Elimina la "Capa 2 iteración 2" (F5) del plan: no habrá `GET /api/v1/guest/orders/by-table/:tableId` |
+| **D2'** | El comensal **no** necesita recuperar su pedido desde otro dispositivo: la persistencia en el dispositivo es suficiente. | La Capa 2 (código corto `publicCode` + `GET /api/v1/guest/orders/by-code/:code`) pasa de **necesaria** a **opcional**: se implementa solo si, tras probar la Capa 1, el comensal lo pide (o si se quiere un mecanismo de recuperación por soporte). **La migración `public_code` deja de ser bloqueante.** |
+| **D3'** | La "memoria del sistema" (persistencia en servidor) es para **Mozo y Cajeros** — usuarios que **iniciaron sesión** en el sistema. Son **otros endpoints, no los del cliente**: todos con `JwtAuthGuard` y filtrados por tenant y por identidad del usuario. | Amplía la Capa 3: se añade el bloque **3b · Cajeros** (histórico de turnos y de cobros) y se separa explícitamente el "historial del cliente" (dispositivo) del "historial del personal" (servidor) |
+
+**Consecuencia en el alcance:** la mejora se divide en dos planos con mecanismos distintos y **sin solapamiento**:
+
+| Plano | Dónde vive el historial | Identificador | Endpoint | Auth |
+|---|---|---|---|---|
+| **Comensal** | Memoria del dispositivo (`localStorage`) | `orderId` (UUID) | `GET /api/v1/guest/orders/:id` (existente) | público, por UUID |
+| **Mozo** | **Servidor** | `Order.waiterId` + `metadata.guestDraft.claimedById` | `GET /api/v1/orders/guest/history` | `JwtAuthGuard` |
+| **Cajero** | **Servidor** | `Order.posSessionId` (turno de caja) | `GET /api/v1/pos-sessions` + `GET /api/v1/pos-sessions/:id/report` | `JwtAuthGuard` |
+
+---
+
 ## 0. Contexto: qué se acaba de desplegar
 
 El deploy del 2026-10-21 21:53 llevó a `provecchio.com` (host `192.168.69.240`) la release
@@ -95,10 +113,10 @@ cliente no puede mostrar "pagado" si el flag nunca se escribe.
 
 | Decisión | Opción elegida | Alternativa descartada | Motivo |
 |---|---|---|---|
-| **Identificador recuperable por el cliente** | `Order.publicCode` — código corto legible (6 chars, alfabeto sin ambigüedades) + `orderId` UUID ya existente | Exponer los pedidos por `qrToken` de mesa | El token de mesa está impreso en el QR: listar por mesa **filtraría los pedidos de la mesa a cualquiera que tenga el QR**. El código corto lo conoce solo quien hizo el pedido. |
-| **Fuente de verdad del historial del cliente** | Dispositivo (localStorage) + re-consulta por `orderId`/`publicCode` | Tabla nueva de sesiones de cliente | La Capa 1 resuelve el 90 % del caso real (mismo dispositivo) sin modelo de datos nuevo. La Capa 2 cubre "cambié de dispositivo" con el código corto. |
-| **Historial del mozo** | Endpoint de servidor + `waiterId` en `Order` (campo ya existe, `schema.prisma:1104`) | Nuevo modelo `WaiterShift` | `waiterId` ya está en el schema y no se usa: reutilizarlo evita una tabla nueva. El "turno" de mozo se modela por `waiterId` + ventana temporal. |
-| **Privacidad** | El historial del mozo requiere JWT (`JwtAuthGuard`); el del cliente, por código corto público | Listado público por mesa | Un pedido incluye datos de la mesa y el total. El código corto es el mismo nivel de acceso que el QR de la mesa, y se puede invalidar cerrando el pedido. |
+| **Identificador recuperable por el cliente** | `Order.publicCode` — código corto legible (6 chars, alfabeto sin ambigüedades) + `orderId` UUID ya existente — **ahora OPCIONAL (D2')** | Exponer los pedidos por `qrToken` de mesa | El token de mesa está impreso en el QR: listar por mesa **filtraría los pedidos de la mesa a cualquiera que tenga el QR**. El código corto lo conoce solo quien hizo el pedido. |
+| **Fuente de verdad del historial del cliente** | **Memoria del dispositivo** (localStorage) — decisión del cliente (D3) | Tabla de sesiones de cliente | La Capa 1 resuelve el caso real tal como lo pidió el cliente ("puede quedar en la memoria del dispositivo"). La Capa 2 (código corto) queda como refuerzo opcional para "cambié de dispositivo", no como pieza obligatoria. |
+| **Historial del personal (mozo/cajero)** | **Servidor**, con identidad del usuario (`waiterId` / `posSessionId`) — decisión del cliente (D3') | Memoria del dispositivo del mozo | Es justo lo que el cliente pidió: "los pedidos ya atendidos solo quedan en la memoria del dispositivo del mozo, pero si cambia de dispositivo no puede hacer seguimiento". Al ser usuarios que **iniciaron sesión**, el servidor puede y debe guardar el histórico: son endpoints autenticados, no públicos. |
+| **Privacidad** | El historial del cliente es público **solo por UUID**; el del personal requiere `JwtAuthGuard` y filtra por tenant + identidad | Listado público por mesa | Un pedido incluye datos de la mesa y el total. El código corto es el mismo nivel de acceso que el QR de la mesa, y se puede invalidar cerrando el pedido. El listado por mesa se **descartó** (D3). |
 
 ### 2.2 Alcance por capas
 
@@ -113,7 +131,11 @@ cliente no puede mostrar "pagado" si el flag nunca se escribe.
 | 1.5 | Estados de la UI | mismo archivo | `Preparando` / `En cocina` / `¡Listo!` / `Entregado` — reutilizar los pasos ya definidos en L724-840 |
 | 1.6 | Acceso desde el header | mismo archivo | Botón "Mis pedidos (n)" junto al carrito, visible solo si hay pedidos |
 
-#### Capa 2 — Cliente: recuperar el historial desde otro dispositivo (requiere migración)
+#### Capa 2 — Cliente: recuperar el historial desde otro dispositivo — 🟡 **OPCIONAL (D2')**
+
+> **No bloqueante.** El cliente acepta que el historial del comensal viva en el dispositivo. Esta capa
+> queda como refuerzo y **se implementa solo si, tras probar la Capa 1, se solicita** (cambio de teléfono
+> del comensal, soporte). La migración `public_code` **no** se ejecuta en la F1.
 
 | # | Tarea | Archivo | Detalle |
 |---|---|---|---|
@@ -121,7 +143,7 @@ cliente no puede mostrar "pagado" si el flag nunca se escribe.
 | 2.2 | Campo en el modelo | `backend/prisma/schema.prisma` (`model Order`) | `publicCode String? @unique @map("public_code")` |
 | 2.3 | Generador de código | `backend/src/orders/order-public-code.util.ts` (nuevo) | 6 chars de alfabeto `23456789ABCDEFGHJKLMNPQRSTUVWXYZ` (sin `0/O/1/I`), con reintento ante colisión (índice unique) |
 | 2.4 | Endpoint público de consulta por código | `backend/src/guest/guest-orders.controller.ts` | `GET /api/v1/guest/orders/by-code/:code` — **público, SIN `@TenantPrisma()` y SIN `ApiKeyGuard`** (AGENTS.md Regla #4), resuelve el tenant desde el propio `Order.tenantId` con `this.prisma`; devuelve `{ orderId, status, totalAmount, tableName, createdAt, lines[], meta }` |
-| 2.5 | Endpoint público de listado por mesa + ventana | mismo controller | `GET /api/v1/guest/orders/by-table/:tableId?minutes=240` — **opcional**, expone solo pedidos **abiertos** (no `DELIVERED`) de la mesa; se activa solo si el cliente lo pide explícitamente en una segunda iteración |
+| 2.5 | ~~Endpoint público de listado por mesa + ventana~~ | ~~`guest-orders.controller.ts`~~ | ❌ **DESCARTADO (D3, 2026-10-22)**: no se implementa. El QR de la mesa es un dato público y listar por mesa expondría los pedidos de toda la mesa a cualquiera que lo tenga. |
 | 2.6 | Exponer el código al cliente | `frontend/src/pages/omni-catalog.tsx` (L724-840) | Mostrar "Código de tu pedido: **A7K3**" en la pantalla de tracking para poder recuperarlo en otro dispositivo |
 | 2.7 | UI de recuperación | mismo archivo | Input "Tengo un código de pedido" → `GET /by-code/:code` → misma pantalla de tracking |
 | 2.8 | Bio-Link | `frontend/src/pages/public-biolink.tsx:242-243` | Persistir el pedido en el mismo store y ofrecer la misma recuperación por código |
@@ -138,17 +160,45 @@ cliente no puede mostrar "pagado" si el flag nunca se escribe.
 | 3.6 | KDS: historial de sesión persistente | `frontend/src/pages/admin/kds.tsx:23, L314-334` | Reemplazar el array en memoria por `GET /api/v1/orders/kds/tickets?status=...` (ya existe, `orders.controller.ts:156-161`) |
 | 3.7 | **FEAT-197-d** fix del modo de cierre | `backend/src/orders/orders.controller.ts:271,276` | Aceptar `mode` **y** `closeMode`/`method` (normalizar) para que `paidAt` se setee correctamente |
 
+#### Capa 3b — Cajeros: historial de turnos y cobros en el servidor (D3')
+
+> **Alcance del cliente (2026-10-22):** *"El caso en el que quiero que quede en la memoria del sistema es
+> para Mozo y Cajeros (los usuarios que iniciaron sesión en el sistema). Son otros endpoints, no de cliente."*
+
+**Estado actual verificado:** `Order.posSessionId` **ya existe** y vincula cada pedido con su turno de caja
+(`backend/src/orders/orders.service.ts:1430`, `L1388 resolveCashSession`), y el Reporte Z de una sesión
+concreta se puede leer (`CashManagementService.getZReport`, `backend/src/pos/cash-management.service.ts:457`).
+Lo que **no existe** es el **listado** de turnos: `pos-sessions.controller.ts` solo expone `open`, `open-pin`,
+`active`, `open`, `close`, `collect`, `switch-cashier` y `:id/report` — **no hay `GET /api/v1/pos-sessions`**,
+y el panel de caja (`frontend/src/pages/admin/gastro-cashier.tsx`) **no tiene historial**: solo la sesión
+abierta. Consecuencia: al cerrar un turno, el cajero no puede volver a ver qué se cobró en él.
+
+| # | Tarea | Archivo | Detalle |
+|---|---|---|---|
+| 3b.1 | Listado de turnos de caja | `backend/src/pos-sessions/pos-sessions.controller.ts` | `GET /api/v1/pos-sessions?cashRegisterId=&cashierId=&from=&to=&status=OPEN\|CLOSED&limit=50` — `JwtAuthGuard`, `tenantId` siempre |
+| 3b.2 | Service del listado | `backend/src/pos/cash-management.service.ts` | `listSessions(tenantId, filtros)` → `posSession.findMany` con `include` de la caja y del cajero; hoy no hay ningún `findMany` de `posSession` en el service |
+| 3b.3 | Detalle de un turno | `backend/src/pos-sessions/pos-sessions.controller.ts:116` | `GET /api/v1/pos-sessions/:id/report` ya existe → reutilizarlo para abrir el detalle (apertura, ingresos, egresos, efectivo esperado) |
+| 3b.4 | Pedidos cobrados en el turno | `backend/src/orders/orders.controller.ts:56-69` | Reutilizar `GET /api/v1/orders?status=DELIVERED&limit=` + filtro `posSessionId` → listar los pedidos imputados a ese turno |
+| 3b.5 | Filtro por cajero | `backend/src/pos/cash-management.service.ts:182` | `switchCashierByPin` ya reasigna el cajero responsable del turno → el listado debe permitir filtrar por el cajero que efectivamente cobró |
+| 3b.6 | UI "Historial de turnos" | `frontend/src/pages/admin/gastro-cashier.tsx` | Nueva pestaña con la tabla de turnos (fecha, caja, cajero, estado, total) → al abrir uno, su Reporte Z y sus pedidos |
+| 3b.7 | Panel del cajero: pedidos cobrados | `frontend/src/pages/admin/gastro-pos.tsx:117` | Hoy el POS solo carga 1 pedido activo (`GET /api/v1/orders?tableId=..&limit=1`); permitir ver los pedidos cobrados de la mesa/turno |
+| 3b.8 | Permisos | `backend/src/pos-sessions/pos-sessions.controller.ts` | Reutilizar los permisos de caja ya existentes (`cash:read` / `cash:close`) en lugar de crear otros |
+
 ### 2.3 Contratos REST
 
 ```text
 PÚBLICOS (sin guards, resuelven tenant desde el propio dato — AGENTS.md Regla #4)
-  GET  /api/v1/guest/orders/:id                (existente) → estado puntual del pedido
-  GET  /api/v1/guest/orders/by-code/:code      (nuevo)    → pedido por código corto
-  GET  /api/v1/guest/orders/by-table/:tableId  (nuevo, iteración 2) → pedidos abiertos de la mesa
+  GET  /api/v1/guest/orders/:id                (existente) → estado puntual del pedido (el cliente
+                                                 ya lo conoce por su UUID, guardado en su dispositivo)
+  GET  /api/v1/guest/orders/by-code/:code      (opcional, D2') → pedido por código corto de 6 chars
 
-PROTEGIDOS (JwtAuthGuard)
-  GET  /api/v1/orders/guest/history             (nuevo)    → histórico (atendidos/cerrados) por mesa y/o mozo
+PROTEGIDOS (JwtAuthGuard) — "memoria del sistema" para el personal que inicia sesión
+  GET  /api/v1/orders/guest/history             (nuevo)    → historial del mozo: pedidos atendidos,
+                                                 filtrable por tableId, waiterId y estado
+  GET  /api/v1/pos-sessions                     (nuevo)    → historial de turnos de caja del cajero
+  GET  /api/v1/pos-sessions/:id/report          (existente)→ Reporte Z de un turno concreto
   GET  /api/v1/orders/kds/tickets               (existente) → tickets del KDS (hoy sin histórico)
+  GET  /api/v1/orders?status=DELIVERED&...      (existente) → pedidos cobrados de un turno
 ```
 
 ### 2.4 Telemetría (AGENTS.md Regla 13)
@@ -264,11 +314,12 @@ Helpers E2E a reutilizar: `loginByApi`, `loginAsAdmin`, `loginAsAdminByApi` (en
 | Fase | Contenido | Depende de | Entregable | Versión |
 |---|---|---|---|---|
 | **F0** | Aprobación de este plan por el usuario | — | Decisiones §2.1 y §3.1 confirmadas | — |
-| **F1** | FEAT-197 **Capa 1** (cliente, sin migración) + FEAT-197-d (fix modo de cierre) | F0 | El cliente ve "Mis pedidos" y no pierde el historial en su dispositivo | v1.39.25 |
+| **F1** | FEAT-197 **Capa 1** (cliente, sin migración) + FEAT-197-d (fix modo de cierre) | F0 | El comensal ve "Mis pedidos" (memoria del dispositivo) y no pierde el historial en su dispositivo | v1.39.25 |
 | **F2** | FEAT-194 completa (migración `can_use_mozo_pos`, backend, UI, settings) | F0 | Solo los empleados con bandera tienen sesión de mozo | v1.39.26 |
-| **F3** | FEAT-197 **Capa 2** (migración `public_code`, endpoints públicos, recuperación por código) | F1 | El cliente recupera su pedido desde otro dispositivo | v1.39.27 |
-| **F4** | FEAT-197 **Capa 3** (histórico del mozo en servidor, `waiterId`, `claimedById`, KDS) | F1 | El mozo no pierde pedidos al cambiar de dispositivo | v1.39.28 |
-| **F5** | Capa 2 iteración 2 (listado por mesa, opcional) + telemetría completa | F3, F4 | KPIs t2/t3/t6/t7 en producción | v1.39.29 |
+| **F3** | FEAT-197 **Capa 2** — 🟡 **OPCIONAL (D2')**: código corto + endpoint `by-code` | F1 | *Solo si se solicita*: el comensal recupera su pedido desde otro dispositivo | v1.39.27 |
+| **F4** | FEAT-197 **Capa 3** (mozo): histórico en servidor, `waiterId`, `claimedById`, pestaña "Atendidos" | F1 | El mozo no pierde pedidos al cambiar de dispositivo | v1.39.28 |
+| **F4b** | FEAT-197 **Capa 3b** (cajero): `GET /api/v1/pos-sessions` + "Historial de turnos" en el panel de caja | F1 | El cajero puede volver a ver los turnos y cobros ya cerrados | v1.39.29 |
+| **F5** | ~~Capa 2 iteración 2 (listado por mesa)~~ | — | ❌ **DESCARTADO (D3)** | — |
 
 **Reglas de la secuencia**
 - Cada fase = **una rama** `feat/gastro-historial-pedidos-f1`, `feat/gastro-bandera-mozo-f2`, … y **un PR**
@@ -331,12 +382,27 @@ Helpers E2E a reutilizar: `loginByApi`, `loginAsAdmin`, `loginAsAdminByApi` (en
 
 **Este plan NO ejecuta cambios de funcionalidad.** Solo documentación y trazabilidad.
 
-Para pasar a la implementación hace falta:
+### Decisiones ya tomadas (2026-10-22)
+
+- ✅ **D3** — Descartado el listado público por mesa. El historial del comensal vive en la memoria del
+  dispositivo; quien escanee el QR de la mesa no accede a ningún pedido.
+- ✅ **D3'** — La "memoria del sistema" es para **mozo y cajeros** (usuarios autenticados), en endpoints
+  propios con `JwtAuthGuard` → Capa 3 (mozo) + Capa 3b (cajero).
+- ✅ **D2'** — El código corto del comensal pasa a **opcional**; la migración `public_code` no bloquea la F1.
+
+### Decisiones aún abiertas
+
+- ⏳ **D1** — ¿Se aprueba el **backfill** de `can_use_mozo_pos` para los mozos actuales? (recomendado: sí,
+  para no dejar fuera a los mozos que hoy sí pueden iniciar sesión).
+- ⏳ **D4** — ¿Se incluye el **fix del modo de cierre** (FEAT-197-d, `paidAt` nunca se setea) en la F1?
+  (recomendado: sí, son 2 líneas y bloquea el histórico de cobros del cajero).
+- ⏳ **D5** — ¿Se implementa la **Capa 2** (código corto) ya, o se espera a la F1 y se decide con el
+  comensal? (recomendado: esperar; la F1 ya cubre el caso pedido).
+- ⏳ **D6** — ¿El "Historial de turnos" del cajero (Capa 3b) se entrega en la **F4b** separada o se
+  integra en la F4? (recomendado: F4b separada, son endpoints y permisos de caja distintos).
+
+### Para arrancar la F1 hace falta
 
 1. **Aprobación explícita** de este plan (§15 y §16 de AGENTS.md).
-2. **Confirmar 4 decisiones abiertas**:
-   - D1 · ¿Se aprueba el **backfill** de `can_use_mozo_pos` para los mozos actuales? (recomendado: sí)
-   - D2 · ¿El código corto del cliente se llama `publicCode` y se muestra en pantalla? (recomendado: sí)
-   - D3 · ¿Se implementa la **Capa 2 iteración 2** (listado de pedidos abiertos por mesa)? (recomendado: no, por privacidad)
-   - D4 · ¿Se incluye el **fix del modo de cierre** (FEAT-197-d) en la F1? (recomendado: sí, es de 2 líneas y bloquea el histórico de pagos)
-3. **Orden de fases**: ¿F1 → F2 → F3 → F4 (recomendado) o priorizar solo F1 + F2?
+2. Respuesta a **D1**, **D4**, **D5** y **D6**.
+3. Orden de fases: **F1 → F2 → F4 → F4b** (recomendado) o priorizar solo F1 + F2.
