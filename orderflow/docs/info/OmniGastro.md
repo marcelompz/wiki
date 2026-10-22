@@ -76,7 +76,7 @@ no cargaba la configuración del tenant.
 |---|---|---|---|
 | 1 | El modal de Marca Blanca quedaba vacío | El frontend llamaba `GET /api/v1/tenants/config/:id`, ruta que resuelve el tenant **por API key** y no por id → nunca lo encontraba | Nuevo endpoint **`GET /api/v1/tenants/:id/config`** (`ApiKeyGuard` + `assertCanManageTenant`) |
 | 2 | `customDomain` se guardaba con `https://`, barra final y mayúsculas | El `PATCH` persistía el valor **sin normalizar** → dominios inválidos para Cloudflare y registros DNS duplicados | El `PATCH` **sanitiza**: minúsculas, sin esquema ni path, y marca `customDomainVerified = true`; si se vacía, `customDomain = null` |
-| 3 | El deploy fallaba con `error TS2339: Property 'id' does not exist` | El `select` de Prisma de `getTenantConfig` no incluía `id: true` pero el `return` leía `tenant.id` (defecto latente: el commit nunca se compiló antes) | `id: true` añadido al `select` — [troubleshooting #187](troubleshooting/187-select-prisma-sin-id-error-ts2339.md) |
+| 3 | El deploy fallaba con `error TS2339: Property 'id' does not exist` | El `select` de Prisma de `getTenantConfig` no incluía `id: true` pero el `return` leía `tenant.id` (defecto latente: el commit nunca se compiló antes) | `id: true` añadido al `select` — [troubleshooting #187](../troubleshooting/187-select-prisma-sin-id-error-ts2339.md) |
 
 **Además:** `scripts/deploy-local.sh` reconstruye siempre el backend con `docker compose up --build -d`
 en la Fase 5. Antes usaba `docker compose ps --services | grep backend`, que **solo lista servicios
@@ -88,7 +88,7 @@ verde sin desplegar el código nuevo (violaba la Regla #11).
 | Paso | Resultado |
 |---|---|
 | Backup de producción | ✅ `pre_deploy_provecchio_20261022_125507.sql` (2,23 MB) + `_uploads.tar.gz` (28,9 MB) + `rollback-provecchio-20261022_125507.env` |
-| Restore en localhost | ✅ 168 tablas, 1 tenant, 6 empleados, 4 cajas, 18 mesas, 226 productos, 10 usuarios. Migraciones verificadas a mano (39, 0 pendientes) — ver [troubleshooting #188](troubleshooting/188-restore-provecchio-db-port-null.md) |
+| Restore en localhost | ✅ 168 tablas, 1 tenant, 6 empleados, 4 cajas, 18 mesas, 226 productos, 10 usuarios. Migraciones verificadas a mano (39, 0 pendientes) — ver [troubleshooting #188](../troubleshooting/188-restore-provecchio-db-port-null.md) |
 | Paridad de datos | ✅ Banderas de mozo idénticas a producción (Ivan Castillo 1234, Natalia Bogado 9876) |
 | Pre-deploy diagnostic | ✅ sin fallos críticos (11 warnings preexistentes) |
 | Deploy local | ✅ versión 13/13 en `1.40.0`, **135 suites / 1009 tests**, bundle fresco, endpoint white-label **200** |
