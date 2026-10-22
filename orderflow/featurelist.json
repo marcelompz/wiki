@@ -1,6 +1,6 @@
 {
   "project": "OrderFlow SaaS Omnicanal",
-  "version": "1.40.1",
+  "version": "1.40.2",
   "last_updated": "2026-10-22",
   "features": [
     {
@@ -2382,10 +2382,30 @@
       ],
       "deployed_at": "2026-10-22T16:24:00-03:00",
       "deploy_status": "deployed"
+    },
+    {
+      "id": "FEAT-200",
+      "category": "OmniGastro / Mesas / Salón",
+      "title": "Editar y eliminar mesas desde /admin/gastro/tables (v1.40.2)",
+      "description": "El cliente reportó (bug 8a) que en /admin/gastro/tables solo funcionaba crear: los handlers de edición y borrado existían en gastro-tables.tsx pero ningún botón los invocaba, y el modal de gastro.tsx solo permitía renombrar. Se crea el componente compartido GastroTableEditModal (número, nombre, sillas, forma, zona y mapeo a restaurant.table de Odoo) y se conecta desde la grilla, el drawer del mapa de salón y el listado de /admin/gastro. Backend: DELETE /api/v1/tables/:id rechaza mesas con pedidos DRAFT/CONFIRMED/PREPARING/READY y resuelve en la misma transacción las llamadas al mozo PENDING; PATCH /api/v1/tables/:id pasa a exigir tables:manage y valida que la zona exista en el tenant; se bloquea mapear dos mesas al mismo odooTableId (causa del incidente G2/G02 apuntando ambas a restaurant.table 40); createTable revive una mesa soft-deleted del mismo número/zona en lugar de romper con la restricción @@unique.",
+      "status": "completed",
+      "version": "1.40.2",
+      "priority": "HIGH",
+      "assigned_module": "frontend/src/pages/admin/gastro-tables.tsx, frontend/src/pages/admin/gastro.tsx, frontend/src/components/gastro-table-edit-modal.tsx, backend/src/tables/tables.service.ts, backend/src/tables/tables.controller.ts, frontend/e2e/gastro-tables-crud.spec.ts",
+      "depends_on": ["FEAT-183", "FEAT-184"],
+      "blocking": "",
+      "report": "docs/plans/omnigastro/plan-actualizacion-v1.40.2-tables-crud.md",
+      "troubleshooting": [
+        "docs/troubleshooting/190-gastro-tables-handlers-huerfanos.md"
+      ],
+      "qa_validation": "jest src/tables (2 suites / 30 tests) en verde con 5 casos nuevos FEAT-200; tsc --noEmit limpio en backend y frontend; E2E frontend/e2e/gastro-tables-crud.spec.ts (CRUD API, rechazo de mapeo duplicado, botones Editar/Eliminar en grilla y drawer).",
+      "next_steps": [
+        "v1.41.0: provisioning de pisos y mesas OmniGastro -> Odoo (FEAT-201)"
+      ]
     }
   ],
   "lastUpdated": "2026-10-22",
-  "last_id": "FEAT-199",
+  "last_id": "FEAT-200",
   "next_pending_sc": null,
   "active_plan": "docs/plans/omnigastro/PLAN_MAESTRO.md",
   "plan_progress": {

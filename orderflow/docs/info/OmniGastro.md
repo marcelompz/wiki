@@ -65,6 +65,75 @@
 > Para reanudarlo: GitHub → Settings → Billing & plans, y luego
 > `gh run rerun <run-id> --failed`.
 
+## 2026-10-22 — v1.40.2 (VALIDADA EN LOCAL ⏳ PENDIENTE DE DEPLOY) — Editar/eliminar mesas + limpieza de pruebas y saneamiento de pisos en Odoo
+
+### FEAT-200 — CRUD de mesas en `/admin/gastro/tables`
+
+El bug 8a del cliente ("solo funciona crear") tenía dos causas:
+
+1. `gastro-tables.tsx` ya tenía `handleEditTable`, `handleSaveTable`, `handleDeleteTable` y el modal completo,
+   pero **ningún botón los invocaba** (modal inalcanzable).
+2. `gastro.tsx` sí tenía botones, pero su modal **solo editaba `tableNumber`**.
+
+Se creó el componente compartido `frontend/src/components/gastro-table-edit-modal.tsx` (número, nombre,
+zona, sillas, forma y mesa de Odoo) y se conectaron **Editar** y **Eliminar** en la grilla, en el drawer
+del mapa de salón y en el listado de `/admin/gastro`.
+
+Guardas agregadas en `backend/src/tables/tables.service.ts`:
+
+| Regla | Comportamiento |
+|---|---|
+| Mesa con pedidos `DRAFT/CONFIRMED/PREPARING/READY` | `DELETE` → **400** con el conteo; no se borra |
+| Llamadas al mozo `PENDING` | Se resuelven en la misma transacción del soft-delete |
+| `odooTableId` ya usado por otra mesa | **400** `ya está vinculada a la mesa <X>` |
+| Zona inexistente/inactiva | **400** |
+| Recrear una mesa soft-deleted (mismo número y zona) | Se revive el registro y se conserva el `token` del QR |
+| `PATCH /tables/:id` | Permiso `tables:manage` (antes `tables:status`) |
+
+Detalle: `docs/plans/omnigastro/plan-actualizacion-v1.40.2-tables-crud.md` ·
+`docs/troubleshooting/190-gastro-tables-handlers-huerfanos.md`.
+
+### Limpieza de datos de prueba (producción, 2026-10-22 17:40)
+
+Backup previo: `pre_deploy_provecchio_20261022_174014.sql` (2.240.601 B) + uploads (28,9 MB) +
+`deploy-artifacts/rollback-provecchio-20261022_174014.env`.
+
+| Acción | Resultado |
+|---|---|
+| 6 pedidos de prueba cancelados (G9 ×2, G6, G10, T11, G2) | `CANCELLED`, stock devuelto |
+| 9 llamadas al mozo resueltas | 57/57 `RESOLVED`, 0 pendientes |
+| `M01` liberada | estado `FREE` antes del borrado |
+| Soft-delete de `G02`, `M01`, `Giardino` | `isDeleted=true`, `active=false`, historial intacto (M01 5 pedidos, G02 1, Giardino 0) |
+| Pedidos abiertos | **0** |
+| Mesas visibles | **10**, todas `FREE` |
+| QR de las mesas eliminadas | **404** (control G10 → 200) |
+
+### Saneamiento del plano de Odoo (2026-10-22 17:56)
+
+Backup: `/opt/odoo/backups/prod_pre_floor_cleanup_20261022_175602.sql.gz` (20 MB) · snapshot
+`/tmp/opencode/odoo-state-before-floor-cleanup.json`.
+
+- Pisos duplicados archivados: **8** Terraza, **9** Café, **10** Restó, **12** Barra.
+- **21 mesas duplicadas archivadas**: `T1#42`, `T2#43`, `C1–C6#59-64`, `R1–R6#65-70`, `B1–B3#71-73`,
+  `J1#74`, `T1#82`, `T1#83`, `T2#84`.
+- Pisos canónicos adjuntos a **`pos.config` 2 (Giardino)**: `floor_ids = [1,2,3,4,5]` → **46 mesas**
+  activas (Terraza 18, Café 6, Restó 7, Giardino 9, Barra 6), sin nombres repetidos.
+- **Mapeo corregido:** `G10` apuntaba a `T2#43` (copia sin pedidos) → ahora `T2#2`; `T11` sigue en `T1#1`.
+  `G3` y `G4` se asignaron al piso Giardino en OmniGastro.
+
+### Sesión POS de Giardino
+
+`POS/01598` (config 2) había quedado en `opening_control` desde el 2026-10-21 21:12, lo que hacía que
+`getActivePosSession(2)` devolviera `null` y el adapter respondiera
+`No hay sesión POS abierta para config_id=2`. Se completó la apertura con
+`set_cashbox_pos(1598, 2279500)` → `state=opened`, fondo original restaurado. Verificado:
+`getActivePosSession(2)` → `[{"id":1598,"state":"opened"}]` y 46 mesas en el plano del config 2.
+
+> Nota Odoo: `action_pos_session_open` **no** abre una sesión con `cash_control`: la deja en
+> `opening_control` y resetea `cash_register_balance_start` a 0. La transición real
+> `opening_control → opened` la hace `set_cashbox_pos(cashbox_value, notes)`.
+
+
 ## 2026-10-22 — v1.40.1 (DEPLOYED ✅ TO PROVECCHIO.COM) — Marca Blanca: el guardado del tenant devolvía 500 y podía borrar la configuración
 
 Reporte completo: [`DEPLOY_REPORT_2026-10-22-v1.40.1.md`](../plans/omnigastro/DEPLOY_REPORT_2026-10-22-v1.40.1.md)
