@@ -1,5 +1,20 @@
 ## [1.39.25] - 2026-10-22
 
+### 🚀 Deploy a producción (2026-10-22 05:32)
+
+**v1.39.25** desplegada en `provecchio.com` (host `192.168.69.240`) con el protocolo completo
+(backup → restore en localhost → verificación → pre-deploy diagnostic → build → migrate → health checks
+→ QA post-deploy).
+
+- Health público `1.39.25 ok` · frontend HTTP 200 · 5 contenedores `healthy` · 38 migraciones, 0 pendientes.
+- QA post-deploy en verde: catálogo, dominio sin errores JS, auth+DB sin 500 y **8 rutas admin** verificadas.
+- Bundle de producción `index-D9ZVaT1F.js` con el botón 🕘 "Mis pedidos" y backend con
+  `order-close-mode.util.js` (el fix del `paidAt`).
+- Incidencia de red resuelta: la estación perdió la ruta a la LAN `192.168.69.x` y se aplicó
+  `ProxyJump` vía `dimoraserver2` en `~/.ssh/config`.
+- Reporte completo: [`docs/plans/omnigastro/DEPLOY_REPORT_2026-10-22.md`](docs/plans/omnigastro/DEPLOY_REPORT_2026-10-22.md).
+
+
 ### 🧾 El comensal recupera sus pedidos ("Mis pedidos") y el cierre de pedido registra el pago
 
 > **Reporte del cliente (2026-10-21, ítem 2):** *"después de hacer el pedido se vació su lista de compra.

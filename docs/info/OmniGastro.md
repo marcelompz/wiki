@@ -44,7 +44,7 @@
 
 | Ítem | Estado |
 |---|---|
-| Versión en producción | **v1.39.24** (deploy ✅ a `provecchio.com`, host `192.168.69.240`, 2026-10-21 21:53) — incluye las rutas admin (v1.39.22), el reclamo previo del POS (v1.39.23) y el botón ☰ del catálogo (v1.39.24) |
+| Versión en producción | **v1.39.25** (deploy ✅ a `provecchio.com`, host `192.168.69.240`, 2026-10-22 05:32) — "Mis pedidos" del comensal (FEAT-197 F1) + fix del `paidAt` al cerrar el pedido. Reporte: [`DEPLOY_REPORT_2026-10-22.md`](../plans/omnigastro/DEPLOY_REPORT_2026-10-22.md) |
 | Versión en localhost | **v1.39.24** (`https://provecchio.local`) |
 | FEAT-196 (cerrar turno + relevo de cajero) | ✅ **Validado por el usuario en localhost** y verificado por API en producción |
 | FEAT-193 (sesión anclada a la caja física) | ✅ Desplegado en v1.39.21 |

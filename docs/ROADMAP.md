@@ -1,5 +1,5 @@
 # 🗺️ ROADMAP DE ORDERFLOW - v1.34.0 → v2.0.0 (Go-Live Definitivo)
-**Última Actualización:** 2026-10-22 (Release v1.39.25 — "Mis pedidos" del comensal + fix del `paidAt` al cerrar el pedido)
+**Última Actualización:** 2026-10-22 (Deploy de v1.39.25 a `provecchio.com`: "Mis pedidos" del comensal + fix del `paidAt`)
 **Release anterior:** 2026-10-21 (Release v1.39.24 — botón ☰ del catálogo del POS del mozo)
 
 **Versión Actual:** **`v1.39.25`** ✅ **DEPLOYED EN PRODUCCIÓN** (`provecchio.com`, 2026-10-21 21:53) | Marca pública: OmniFlow. Capa técnica interna: OrderFlow.
@@ -48,6 +48,7 @@
 | **Privacidad (decisión D3)**: el historial es **local del dispositivo**; no existe endpoint público que liste pedidos por mesa | — | ✅ |
 | **Tests**: 3 E2E nuevos (`frontend/e2e/order-tracking.spec.ts`), 7 unitarios backend, 6 unitarios frontend | — | ✅ E2E 79 passed / 5 skipped / 0 failed · jest 81 · vitest 26 |
 | **Bump versión** | `VERSION`, `backend/package.json`, `frontend/package.json`, `mobile/package.json`, `featurelist.json`, Swagger, 55 manifiestos | ✅ 1.39.25 |
+| **🚀 Deploy a `provecchio.com`** (2026-10-22 05:32, commit `52d6a4af`) | `scripts/deploy-production.sh provecchio` | ✅ health `1.39.25 ok`, 5 contenedores healthy, 8 rutas admin en verde — [reporte](docs/plans/omnigastro/DEPLOY_REPORT_2026-10-22.md) |
 
 ### 🚀 Release v1.39.24 — POS del mozo (tablet): botón ☰ para mostrar y ocultar el catálogo (Octubre 2026)
 
