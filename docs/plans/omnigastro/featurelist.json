@@ -1,7 +1,7 @@
 {
   "project": "OrderFlow SaaS Omnicanal",
-  "version": "1.20.85",
-  "last_updated": "2026-09-03",
+  "version": "1.39.11",
+  "last_updated": "2026-10-22",
   "features": [
     {
       "id": "FEAT-001",
@@ -56,63 +56,11 @@
       ]
     },
     {
-      "id": "FEAT-013",
-      "category": "Core / Billing / Profundización Vertical",
-      "title": "Integración de Pagopar como Pasarela de Pagos Local (Paraguay)",
-      "status": "completed",
-      "assigned_module": "backend/src/billing/pagopar & docs/guides/PAGOPAR_INTEGRATION.md"
-    },
-    {
       "id": "FEAT-008",
       "category": "Catálogo WhatsApp / Profundización Vertical",
       "title": "Profundización Integral: Variantes/Modificadores, Geolocalización GPS, Tarifas por Zona y Plantillas WhatsApp",
       "status": "completed",
       "assigned_module": "frontend/src/pages/whatsapp-*.tsx & backend/src/whatsapp-catalog"
-    },
-    {
-      "id": "FEAT-048",
-      "category": "Social Commerce / Catálogo Omnicanal",
-      "title": "Refactorización WhatsApp Catalog → Social Catalog Hub (Catálogo Omnicanal)",
-      "status": "completed",
-      "assigned_module": "backend/src/social-catalog/, frontend/src/pages/social-*, prisma/schema.prisma",
-      "depends_on": [
-        "FEAT-008"
-      ]
-    },
-    {
-      "id": "FEAT-049",
-      "category": "Admin UI/UX / Temas",
-      "title": "Tema oscuro de primera clase en admin con toggle y persistencia",
-      "status": "completed",
-      "assigned_module": "frontend/src/theme/theme.ts, frontend/src/hooks/useTheme.ts, frontend/src/components/ThemeToggle.tsx"
-    },
-    {
-      "id": "FEAT-050",
-      "category": "Admin UI/UX / Layout",
-      "title": "Sidebar agrupada por dominios (Operaciones / Catálogo & Canales / Relaciones / Sistema)",
-      "status": "completed",
-      "assigned_module": "frontend/src/components/Sidebar.tsx"
-    },
-    {
-      "id": "FEAT-051",
-      "category": "Admin UI/UX / Topbar",
-      "title": "Topbar mejorada con toggle de tema, chip de tenant y botón Ver Tienda",
-      "status": "completed",
-      "assigned_module": "frontend/src/components/Topbar.tsx"
-    },
-    {
-      "id": "FEAT-052",
-      "category": "Admin UI/UX / Dashboard",
-      "title": "Dashboard KPIs contextualizados con sparklines y empty states accionables",
-      "status": "completed",
-      "assigned_module": "frontend/src/components/DashboardKPIs.tsx, frontend/src/components/EmptyState.tsx, frontend/src/pages/admin/dashboard.tsx"
-    },
-    {
-      "id": "FEAT-053",
-      "category": "Admin UI/UX / Catálogo Social",
-      "title": "Catálogo Social admin con preview por canal (WhatsApp/Telegram/Instagram/Messenger)",
-      "status": "completed",
-      "assigned_module": "frontend/src/components/ProductChannelPreview.tsx, backend/src/social-catalog/social-catalog-admin.controller.ts"
     },
     {
       "id": "FEAT-009",
@@ -149,12 +97,11 @@
       "qa_validation": "Versión mobile alineada a 1.20.9 (OmniFlow branding) | app.json actualizado a OmniFlow | Rutas API centralizadas en /api/v1 | POSScreen mantiene modo offline y multi-session | Pantallas agregadas: orders y customer-select | Validación móvil pendiente en build/Expo Go"
     },
     {
-      "id": "FEAT-041",
-      "category": "Catálogo WhatsApp / UX & Ecommerce",
-      "title": "Plan de maduración UX/UI mobile-first del catálogo WhatsApp: detalle de producto, filtros avanzados, búsqueda predictiva, wishlist, reseñas, accesibilidad y performance",
+      "id": "FEAT-013",
+      "category": "Core / Billing / Profundización Vertical",
+      "title": "Integración de Pagopar como Pasarela de Pagos Local (Paraguay)",
       "status": "completed",
-      "assigned_module": "frontend/src/pages/whatsapp-catalog.tsx, frontend/src/pages/whatsapp-checkout.tsx, docs/PLAN_WHATSAPP_CATALOG_UX_UI.md",
-      "blocking": []
+      "assigned_module": "backend/src/billing/pagopar & docs/guides/PAGOPAR_INTEGRATION.md"
     },
     {
       "id": "FEAT-014",
@@ -380,6 +327,14 @@
       ]
     },
     {
+      "id": "FEAT-041",
+      "category": "Catálogo WhatsApp / UX & Ecommerce",
+      "title": "Plan de maduración UX/UI mobile-first del catálogo WhatsApp: detalle de producto, filtros avanzados, búsqueda predictiva, wishlist, reseñas, accesibilidad y performance",
+      "status": "completed",
+      "assigned_module": "frontend/src/pages/whatsapp-catalog.tsx, frontend/src/pages/whatsapp-checkout.tsx, docs/PLAN_WHATSAPP_CATALOG_UX_UI.md",
+      "blocking": []
+    },
+    {
       "id": "FEAT-042",
       "category": "Core / Contacts",
       "title": "Mejoras a la Gestión de Contactos (Odoo res.partner parity)",
@@ -389,60 +344,49 @@
       "blocking": []
     },
     {
-      "id": "FEAT-43",
-      "category": "Core / Architecture",
-      "title": "Durable Event Queue (BullMQ/Redis) para webhooks",
+      "id": "FEAT-048",
+      "category": "Social Commerce / Catálogo Omnicanal",
+      "title": "Refactorización WhatsApp Catalog → Social Catalog Hub (Catálogo Omnicanal)",
       "status": "completed",
-      "assigned_module": "backend/src/webhooks, backend/src/integrations, backend/src/queues",
-      "roadmap_milestone": "v1.16.0",
-      "source": "docs/Informe_Comparativo_Odoo_vs_OrderFlow.md",
-      "blocking": []
-    },
-    {
-      "id": "FEAT-44",
-      "category": "Core / Architecture",
-      "title": "Arquitectura de Eventos Extensible (EventBus interno)",
-      "status": "completed",
-      "assigned_module": "backend/src/events",
-      "roadmap_milestone": "v1.16.0",
-      "source": "docs/Informe_Comparativo_Odoo_vs_OrderFlow.md",
-      "blocking": [
-        "FEAT-043"
+      "assigned_module": "backend/src/social-catalog/, frontend/src/pages/social-*, prisma/schema.prisma",
+      "depends_on": [
+        "FEAT-008"
       ]
     },
     {
-      "id": "FEAT-45",
-      "category": "Core / Inventory",
-      "title": "Control de Inventario Multidepósito (doble entrada)",
+      "id": "FEAT-049",
+      "category": "Admin UI/UX / Temas",
+      "title": "Tema oscuro de primera clase en admin con toggle y persistencia",
       "status": "completed",
-      "assigned_module": "backend/src/inventory",
-      "roadmap_milestone": "v1.16.0",
-      "source": "docs/Informe_Comparativo_Odoo_vs_OrderFlow.md",
-      "blocking": [
-        "FEAT-043"
-      ]
+      "assigned_module": "frontend/src/theme/theme.ts, frontend/src/hooks/useTheme.ts, frontend/src/components/ThemeToggle.tsx"
     },
     {
-      "id": "FEAT-46",
-      "category": "Core / Integrations",
-      "title": "Mapeador de Integraciones Configurable (orderflow_connector)",
+      "id": "FEAT-050",
+      "category": "Admin UI/UX / Layout",
+      "title": "Sidebar agrupada por dominios (Operaciones / Catálogo & Canales / Relaciones / Sistema)",
       "status": "completed",
-      "assigned_module": "backend/src/integrations/orderflow_connector",
-      "roadmap_milestone": "v1.16.0",
-      "source": "docs/Informe_Comparativo_Odoo_vs_OrderFlow.md",
-      "blocking": [
-        "FEAT-043"
-      ]
+      "assigned_module": "frontend/src/components/Sidebar.tsx"
     },
     {
-      "id": "FEAT-47",
-      "category": "Core / Audit",
-      "title": "Auditoría Transaccional Ampliada (AuditLog expandido)",
+      "id": "FEAT-051",
+      "category": "Admin UI/UX / Topbar",
+      "title": "Topbar mejorada con toggle de tema, chip de tenant y botón Ver Tienda",
       "status": "completed",
-      "assigned_module": "backend/src/audit",
-      "roadmap_milestone": "v1.16.0",
-      "source": "docs/Informe_Comparativo_Odoo_vs_OrderFlow.md",
-      "blocking": []
+      "assigned_module": "frontend/src/components/Topbar.tsx"
+    },
+    {
+      "id": "FEAT-052",
+      "category": "Admin UI/UX / Dashboard",
+      "title": "Dashboard KPIs contextualizados con sparklines y empty states accionables",
+      "status": "completed",
+      "assigned_module": "frontend/src/components/DashboardKPIs.tsx, frontend/src/components/EmptyState.tsx, frontend/src/pages/admin/dashboard.tsx"
+    },
+    {
+      "id": "FEAT-053",
+      "category": "Admin UI/UX / Catálogo Social",
+      "title": "Catálogo Social admin con preview por canal (WhatsApp/Telegram/Instagram/Messenger)",
+      "status": "completed",
+      "assigned_module": "frontend/src/components/ProductChannelPreview.tsx, backend/src/social-catalog/social-catalog-admin.controller.ts"
     },
     {
       "id": "FEAT-054",
@@ -1319,10 +1263,349 @@
         "FEAT-116"
       ],
       "blocking": []
+    },
+    {
+      "id": "FEAT-174",
+      "category": "OmniGastro / POS & QR público",
+      "title": "POS mozo responsivo en tablet (sin solapamiento total/productos) + QR de mesa con menú digital en vez de BioLinks",
+      "status": "completed",
+      "version": "1.39.9",
+      "assigned_module": "frontend/src/styles/admin-mobile.css, frontend/src/pages/admin/gastro-pos.tsx, frontend/src/AdminApp.tsx, frontend/src/pages/public-storefront-page.tsx, frontend/src/App.tsx, frontend/e2e/pos-tablet-responsive.spec.ts",
+      "depends_on": [],
+      "blocking": [],
+      "qa_validation": "E2E Playwright pos-tablet-responsive.spec.ts 5/5 OK + suite completa 64/64 OK contra provecchio.local | build frontend OK | scripts/check-version.sh OK"
+    },
+    {
+      "id": "FEAT-183",
+      "category": "OmniGastro / KDS / POS / Mesas / Cliente",
+      "title": "Backlog OmniGastro reportado por el cliente en provecchio.com (9 bugs v1.39.9)",
+      "description": "Reporte del cliente del 2026-10-19 sobre https://provecchio.com, recuperado del checkout /opt/orderflow-branch-schema-prisma (docs/info/OmniGastro.md sin commitear) para no perderlo al descartar la rama de schema. Detalle completo en docs/plans/omnigastro/BACKLOG_CLIENTE_20261019.md. Puntos abiertos: (1) la alerta de 'llamar al mozo' suena en el movil del comensal en vez de en la tablet del mozo; (2a) al pedir desde la mesa por QR la opcion takeaway debe omitirse y quedar por defecto 'consumir en mesa'; (2b) al confirmar el pedido debe llegar notificacion al mozo igual que con el boton 'llamar al mozo'; (3) en la pantalla del mozo se muestra el UUID de la mesa en vez del nombre; (4) al volver al menu se pierde el resumen del pedido y el carrito abre vacio; (5) CRITICO: el pedido enviado a cocina no aparece en el KDS hasta pulsar 'Sincronizar todo' (debe ser automatico); (6) en el KDS el pedido desaparece al confirmar en vez de quedar en el historial Pendiente/Cocinando/Listo; (7) el cierre de cuenta del mozo no carga en el POS de Odoo 14 y el pago del mozo deberia ser opcional y configurable en /admin/settings; (8a) en /admin/gastro/tables solo funciona el crear, no se actualiza ni borra; (8b) CRITICO: el cobro de la mesa G5 pide PIN y devuelve HTTP 400 en POST /api/v1/public/hr/kiosk/pin/verify; (9) tras enviar a cocina el pedido desaparece del POS y el mozo no puede reabrirlo para modificarlo. Los 2 bugs de v1.39.8 (solapamiento del total en tablet y QR de la mesa G10) ya estan resueltos por FEAT-174.",
+      "status": "planned",
+      "assigned_module": "frontend/src/pages/admin/gastro-mozo.tsx, frontend/src/pages/admin/gastro-pos.tsx, frontend/src/pages/admin/gastro-kds.tsx, frontend/src/pages/admin/gastro-tables.tsx, frontend/src/pages/public-storefront-page.tsx, backend/src/modules/omnigastro, backend/src/public/hr, frontend/e2e/, docs/plans/omnigastro/BACKLOG_CLIENTE_20261019.md",
+      "depends_on": [],
+      "blocking": "",
+      "qa_validation": "Un punto por rama y PR, con auditoria en docs/plans/omnigastro/auditoria-<tema>.md y casos E2E en frontend/e2e/. Los puntos 5 y 8b exigen E2E en provecchio.local con datos reales y autorizacion explicita para el deploy.",
+      "version": "1.39.10"
+    },
+    {
+      "id": "FEAT-184",
+      "category": "OmniGastro / Integración Odoo POS",
+      "title": "Mapeo de mesas OrderFlow ↔ Odoo POS (restaurant_tables.odoo_table_id) con validación de sesión POS abierta",
+      "description": "El sync a Odoo fallaba porque no existía correspondencia entre las mesas de OrderFlow y las restaurant.table del ERP (D2). Se añade la columna odoo_table_id (Int, nullable, snake_case con @map) al modelo RestaurantTable, con migración 20261019233000_odoo_pos_sync_mapping (AGENTS.md 2.4). El listener deja de usar el número de mesa legible y resuelve el id NUMÉRICO de Odoo (D1: int('G5') reventaba con ValueError -> HTTP 500). Se añaden GET /api/v1/tables/odoo-tables (listado de restaurant.table + pos.session abiertas vía odoo-adapter) y PATCH /api/v1/tables/:id/odoo-table (asignar/limpiar el mapeo validando contra el ERP). UI: selector de mesa Odoo en /admin/gastro/tables. Script de siembra backend/prisma/seed-odoo-table-mapping.ts (empareja por nombre, DRY-RUN por defecto).",
+      "status": "completed",
+      "version": "1.39.11",
+      "priority": "HIGH",
+      "assigned_module": "backend/prisma/schema.prisma, backend/prisma/migrations/20261019233000_odoo_pos_sync_mapping/migration.sql, backend/src/tables/tables.service.ts, backend/src/tables/odoo-tables.service.ts, backend/src/tables/tables.controller.ts, backend/src/orders/odoo-table-sync.listener.ts, backend/prisma/seed-odoo-table-mapping.ts, frontend/src/pages/admin/gastro-tables.tsx",
+      "depends_on": [],
+      "blocking": [],
+      "deploy_target": "provecchio",
+      "next_steps": [
+        "Ejecutar el seed del mapeo de mesas con datos reales de producción",
+        "Validar en /admin/gastro/tables que todas las mesas tienen equivalente en Odoo"
+      ],
+      "qa_validation": "Jest backend/src/orders/odoo-table-sync.listener.spec.ts 8/8 OK | TypeScript backend y frontend sin errores | Migración aplicada en local | D11: resolucion de SKU verificada contra el ERP real (BEB004 -> 1626 'Americano' 18.000, BEB011 -> 1644, BEB012 -> 1647) | Despliegue en produccion v1.39.11: cadena completa t0->t5 en el pedido real de la mesa G5 con odooTableId=77 y odooConfigId=2, y mapeo de 8/13 mesas aplicado en la base de produccion."
+    },
+    {
+      "id": "FEAT-185",
+      "category": "OmniGastro / Integración Odoo POS",
+      "title": "Parche del addon Odoo 14 pos_omniflow_sync: pos.order creable por RPC",
+      "description": "Defecto del lado ERP (D3) que bloqueaba la cadena completa: en el core de Odoo 14, pos.order.amount_tax / amount_total / amount_paid / amount_return y pos.order.line.price_subtotal / price_subtotal_incl son campos required=True SIN compute (los rellena el onchange del formulario, que no se ejecuta en escrituras RPC). Por eso pos.order.create() por RPC fallaba siempre con 'Field: Taxes (amount_tax)' y la cadena nunca produjo un solo pedido. El addon pos_omniflow_sync (versionado ahora en el repo) aporta los importes explícitos, replica el onchange del core para el subtotal de las líneas (_omniflow_line_amounts) y recalcula la cabecera con _compute_batch_amount_all(). Además corrige la notificación al bus, que usaba APIs de Odoo 18/19 (_get_bus_channel_name / _sendone) inexistentes en Odoo 14: ahora es best-effort y nunca invalida la sincronización. El core de Odoo NO se modifica.",
+      "status": "completed",
+      "version": "1.39.11",
+      "priority": "HIGH",
+      "assigned_module": "odoo-adapter/odoo-addons/pos_omniflow_sync/, odoo-adapter/test-pos-order-contract.js, scripts/deploy-odoo-addon.sh",
+      "depends_on": [
+        "FEAT-184"
+      ],
+      "blocking": [],
+      "deploy_target": "provecchio",
+      "next_steps": [
+        "Acordar ventana de mantenimiento con el cliente para el reinicio de odoo_web_8081",
+        "Desplegar el addon con scripts/deploy-odoo-addon.sh --apply (requiere autorización)"
+      ],
+      "qa_validation": "Prueba de contrato contra el ERP real: caso A reproduce el fallo 'campo obligatorio' (D3) y caso B crea el pos.order con línea e importes correctos; la ruta del addon responde {status:success, odoo_order_id, amount_total} | 0 pedidos de prueba residuales en la DB prod"
+    },
+    {
+      "id": "FEAT-186",
+      "category": "OmniGastro / Integración Odoo POS",
+      "title": "Disparo del sync a Odoo en el cierre de mesa y cobro en mesa configurable por tenant",
+      "description": "D4: el flujo de cierre de cuenta / envío a caja NO emitía odoo.table_order_sync (el único emisor estaba en 'enviar a cocina'), por lo que el pedido nunca llegaba al POS de Odoo — que es exactamente lo que reporta el cliente en el punto 7. guestClose() emite ahora el evento con trigger=TABLE_CLOSED y el id de la mesa de OrderFlow. El cobro en mesa (WAITER_CUSTODY) pasa a ser opcional y configurable por tenant mediante omnigastro_settings.waiterCanCollectPayment (por defecto false: en Provecchio todo el pago se gestiona desde la caja), con enforcement en backend y ocultación de la opción en el POS del mozo. El pos.config de Odoo también es configurable por tenant (odoo_pos_config_id) con fallback a ODOO_POS_CONFIG_ID.",
+      "status": "completed",
+      "version": "1.39.11",
+      "priority": "HIGH",
+      "assigned_module": "backend/src/orders/orders.service.ts, backend/src/modules/omnigastro-config/, frontend/src/pages/admin/gastro-pos.tsx, backend/prisma/schema.prisma",
+      "depends_on": [
+        "FEAT-184",
+        "FEAT-185"
+      ],
+      "blocking": [],
+      "deploy_target": "provecchio",
+      "next_steps": [
+        "Habilitar el cobro en mesa solo para los tenants que lo requieran"
+      ],
+      "qa_validation": "Jest backend/src/orders/orders.service.spec.ts 25/25 OK (incluye guestClose: emite el sync, nunca envía el tableNumber como id, rechaza WAITER_CUSTODY si está deshabilitado)"
+    },
+    {
+      "id": "FEAT-187",
+      "category": "OmniGastro / Integración Odoo POS",
+      "title": "Unificacion de la configuracion del odoo-adapter, de la cola BullMQ y retirada del worker legacy",
+      "description": "D5: ODOO_DB estaba fijado a 'wellnesscoffee', una base que no existe (la unica de negocio es 'prod'), lo que rompia los plugins que resuelven la base por entorno. Ahora ODOO_DB=prod esta parametrizado en docker-compose.yml. D6: el TableSyncWorker del adapter leia la lista Redis plana 'odoo-table-sync' mientras el backend usa BullMQ ('bull:odoo-table-sync'): era un camino muerto que competia por el nombre de la cola; se elimina. D8 (descubierto en la validacion local): BullModule.forRootAsync solo leia REDIS_HOST, que no existe en ningun .env, por lo que caia a 'localhost:6379' - dentro del contenedor eso es el propio backend, no Redis. ioredis reintentaba en silencio y queue.add() NUNCA resolvia: el job de sync a Odoo no se encolaba nunca (afecta a todas las colas: webhooks, follow-up, impresion de cocina y sync Odoo). La conexion ahora se deriva de REDIS_URL, que si esta presente en todos los entornos, con fallback a REDIS_HOST. D9: el volumen anonimo /app/node_modules del backend tapaba el node_modules de la imagen, de modo que el contenedor arrancaba con un Prisma Client viejo ('Unknown field `odooTableId` for select statement') despues de un cambio de schema; se elimina ese volumen y se anade ARG CACHE_BUST al Dockerfile para invalidar la capa de 'prisma generate' en cada release (el deploy script lo inyecta con la version). ODOO_ADAPTER_URL pasa a variable de entorno con valor por defecto, documentado en .env.local.example.",
+      "status": "completed",
+      "version": "1.39.11",
+      "priority": "MEDIUM",
+      "assigned_module": "docker-compose.yml, odoo-adapter/src/index.js, odoo-adapter/src/workers/, .env.local.example",
+      "depends_on": [],
+      "blocking": [],
+      "deploy_target": "provecchio",
+      "next_steps": [
+        "Verificar ODOO_ADAPTER_URL en el .env del servidor de provecchio en el deploy"
+      ],
+      "qa_validation": "Cadena end-to-end validada en local: cierre de mesa -> evento -> listener -> BullMQ -> processor -> odoo-adapter -> Odoo 14, con los hitos t1/t2/t3/t5 registrados en order.metadata.odooSync y las metricas odoo_sync_enqueued_total / odoo_sync_failed_total en /metrics | Sin escrituras en el ERP durante la validacion (tabla mapeada a un id inexistente: Odoo responde 'Table not found' y el error se propaga) | Cliente Prisma del contenedor regenerado: 'odooTableId' presente en el cliente"
+    },
+    {
+      "id": "FEAT-188",
+      "category": "OmniGastro / Integración Odoo POS",
+      "title": "Telemetría t0…t5, métricas Prometheus y E2E del sync a Odoo POS",
+      "description": "D7: los fallos del sync no eran visibles (solo logger.error disperso) y el pos.order creado no era trazable. Se declara la nomenclatura de hitos t0_table_closed, t1_sync_enqueued, t2_job_started, t3_adapter_called, t4_odoo_order_created, t5_sync_completed en el diagrama Mermaid de docs/plans/omnigastro/flujo_odoo-pos-sync.md (AGENTS.md 13) y se guardan en order.metadata.odooSync.milestones con esa nomenclatura exacta. Métricas Prometheus: odoo_sync_enqueued_total, odoo_sync_success_total, odoo_sync_failed_total, odoo_sync_skipped_total y odoo_sync_duration_seconds (histograma). El KPI es la latencia p95 t0 -> t4 por debajo de 5 s.",
+      "status": "completed",
+      "version": "1.39.11",
+      "priority": "MEDIUM",
+      "assigned_module": "backend/src/queues/odoo-sync-telemetry.service.ts, backend/src/metrics/metrics.controller.ts, backend/src/queues/odoo-table-sync.processor.ts, docs/plans/omnigastro/flujo_odoo-pos-sync.md",
+      "depends_on": [
+        "FEAT-184",
+        "FEAT-185",
+        "FEAT-186"
+      ],
+      "blocking": [],
+      "deploy_target": "provecchio",
+      "next_steps": [
+        "Configurar la alerta de odoo_sync_failed_total en el stack de observabilidad"
+      ],
+      "qa_validation": "Jest backend/src/queues/odoo-sync-telemetry.service.spec.ts 6/6 OK (nomenclatura, persistencia en metadata, latencia t0->t5, no romper el flujo ante fallo)"
+    },
+    {
+      "id": "FEAT-189",
+      "category": "OmniGastro / HR Kiosko",
+      "title": "Cobro en /admin/gastro/tables: la verificacion de PIN devolvia HTTP 400 (bug #8b)",
+      "description": "El cliente reporto que al procesar el cobro de una mesa con pedido listo (G5) el sistema pedia el PIN del empleado y devolvia HTTP 400 en POST /api/v1/public/hr/kiosk/pin/verify. Causa raiz: HrKioskPublicController resolvia el tenant EXCLUSIVAMENTE desde el encabezado x-tenant-id, que el interceptor del frontend nunca envia; el tenant ya estaba resuelto por el ApiKeyGuard en request.tenant. Correcciones: resolveTenantId() con la cadena tenantId -> tenant.id -> user.tenantId (x-tenant-id queda como override explicito) en pin/verify y pin/mark-attendance; el frontend envia x-api-key en /api/v1/public/hr/kiosk/** (endpoints publicos por tenant) para que las tablets sin sesion puedan verificar el PIN; el mensaje de asignacion usa firstName/lastName (antes employee.name, undefined); guestPending expone paymentPreconfirmedAt y paymentPreconfirmData (el dato se escribia pero nadie lo leia) y la caja muestra la etiqueta de cobro preconfirmado.",
+      "status": "completed",
+      "version": "1.39.13",
+      "priority": "HIGH",
+      "assigned_module": "backend/src/hr/hr-kiosk-public.controller.ts, backend/src/orders/orders.service.ts, frontend/src/services/api.ts, frontend/src/pages/admin/gastro-tables.tsx, frontend/src/pages/admin/gastro-cashier.tsx",
+      "depends_on": [],
+      "blocking": [],
+      "deploy_target": "provecchio",
+      "next_steps": [
+        "Decidir con el cliente si la mesa se libera en la preconfirmacion del cobro o al confirmarlo en la caja (la promesa 'Mesa libre en breve' del frontend no la cumple el backend por si solo)"
+      ],
+      "qa_validation": "Local: POST /api/v1/public/hr/kiosk/pin/verify con Bearer y SIN x-tenant-id -> 200 con el empleado (antes 400); POST /api/v1/orders/:id/payment-preconfirm -> 200 | tsc backend y frontend sin errores | Suite completa 129 suites / 960 tests en verde | Auditoria: docs/plans/omnigastro/auditoria-gastro-tables-payment-pin-400.md"
+    },
+    {
+      "id": "FEAT-190",
+      "category": "OmniGastro / Sala y caja",
+      "title": "Cuenta abierta: traspaso de la cuenta a una persona y liberacion de la mesa",
+      "description": "Propuesta del cliente (2026-10-20): pasar la cuenta a 'una persona' para que la cuenta a cobrar quede abierta, manteniendo su ID, su persona, su mozo y su cajero con la sesion de caja abierta, y liberar la mesa para el siguiente comensal. Implementacion: POST /api/v1/orders/:id/transfer-to-person (crea/reutiliza el Customer, resuelve la sesion OPENED, pone los comensales en CHECKED_OUT, la mesa en FREE y sin dueno, desasocia la mesa del pedido y escribe guestDraft.openAccount con la persona, el mozo, la sesion y la mesa de origen); POST /api/v1/pos/sessions/:id/collect (cobro real: pedido pagado + CashMovement de venta y propina en la sesion, que hasta ahora solo existia en el frontend); GET /api/v1/orders/guest/pending distingue cuentas de mesa y cuentas abiertas. En el ERP, Odoo 14 CE no tiene la transferencia a cliente del POS Enterprise pero su modelo lo permite: el addon asigna el res.partner y libera la mesa (table_id = False), con nueva ruta del adapter y nuevo handler odoo.transfer_table_order en la cola con telemetria. Sin tablas nuevas: se apoya en Order.customerId, Order.posSessionId, Order.waiterId, Order.tableId y metadata.guestDraft.openAccount.",
+      "status": "completed",
+      "version": "1.39.14",
+      "priority": "HIGH",
+      "assigned_module": "backend/src/orders/orders.service.ts, backend/src/orders/orders.controller.ts, backend/src/orders/dto/transfer-to-person.dto.ts, backend/src/orders/odoo-table-sync.listener.ts, backend/src/queues/odoo-table-sync.processor.ts, backend/src/pos-sessions/pos-sessions.service.ts, backend/src/pos-sessions/pos-sessions.controller.ts, backend/src/pos-sessions/dto/collect-account.dto.ts, odoo-adapter/src/index.js, odoo-adapter/odoo-addons/pos_omniflow_sync/controllers/main.py, frontend/src/pages/admin/gastro-tables.tsx, frontend/src/pages/admin/gastro-cashier.tsx",
+      "depends_on": [
+        "FEAT-189"
+      ],
+      "blocking": [],
+      "deploy_target": "provecchio",
+      "next_steps": [
+        "Validar en produccion el flujo completo con un pedido real: traspaso -> mesa libre -> cuenta en la cola de la caja -> cobro",
+        "Lista de cuentas abiertas huerfanas (sin sesion de caja asignada)"
+      ],
+      "qa_validation": "Jest: 5 casos del cobro en caja (pos-sessions.collect.spec.ts) + 5 del traspaso a persona (orders.service.spec.ts) | Suite completa 130 suites / 970 tests en verde | tsc backend y frontend sin errores | vite build + PWA correctos | Documentacion: PLAN_CUENTA_ABIERTA_2026-10-20.md, flujo_cuenta-abierta.md, auditoria-cuenta-abierta-2026-10-20.md"
+    },
+    {
+      "id": "FEAT-191",
+      "category": "OmniGastro / KDS",
+      "title": "El KDS se actualiza solo cuando el mozo envia el pedido a cocina (bug #5)",
+      "description": "Bug #5 del cliente (critico de sala): la comanda enviada a cocina desde el POS del mozo no aparecia en /admin/kds y habia que pulsar 'Sincronizar Todo'. Causa raiz: dos fallos encadenados. (1) El backend emitia 'kds:ticket_new' solo a la sala 'tenant:{tenantId}:station:{stationId}', a la que NADIE se une: el KDS se une a 'tenant:{tenantId}' mediante 'join:tenant'. (2) El KDS escuchaba 'order:new' y 'order:status_updated' (que se emiten al crear o confirmar el pedido por QR), no 'kds:ticket_new', que es el evento del envio a cocina: no habia ningun suscriptor en el frontend. Correcciones: OrdersGateway.emitKdsTicket() emite a la sala del tenant (donde esta el KDS) y a la de la estacion (para setups multi-KDS); sendToKitchen usa el gateway; el KDS escucha 'kds:ticket_new' y se recarga solo con debounce de 400 ms usando la misma llamada que el boton 'Sincronizar Todo', mas aviso y sonido.",
+      "status": "completed",
+      "version": "1.39.15",
+      "priority": "HIGH",
+      "assigned_module": "backend/src/orders/orders.gateway.ts, backend/src/orders/orders.service.ts, backend/src/orders/orders.gateway.spec.ts, frontend/src/pages/admin/kds.tsx, frontend/e2e/kds-ticket-notification.cjs",
+      "depends_on": [],
+      "blocking": [],
+      "deploy_target": "provecchio",
+      "next_steps": [
+        "Revisar el punto #6 del backlog (el historial de estados Pendiente/Cocinando/Listo se pierde al confirmar en cocina)"
+      ],
+      "qa_validation": "E2E local (frontend/e2e/kds-ticket-notification.cjs): el socket recibe kds:ticket_new con orderId, station, tableNumber y lineas al enviar a cocina, sin pulsar 'Sincronizar Todo' | Unitarios del gateway: 2 casos nuevos, 14/14 en verde | Suite completa en verde"
+    },
+    {
+      "id": "FEAT-192",
+      "category": "OmniGastro / Sala",
+      "title": "Lote 2 de bugs del cliente: alertas del mozo, KDS, POS y catálogo (#1, #2a, #2b, #3, #4, #6, #9)",
+      "description": "Cierra los 7 bugs restantes del reporte del cliente v1.39.9 en un unico lote. #9: el POS consultaba estados inexistentes (CLAIMED, SENT_TO_KITCHEN, IN_PREPARATION) en vez de los del enum OrderStatus, por lo que al enviar a cocina el pedido (PREPARING) desaparecia de la pantalla y el mozo no podia reabrirlo. #3: el aviso al mozo se componia con el UUID del producto; ahora usa metadata.snapshotName y el numero de mesa. #2b: al confirmar el pedido se creaba el WaiterCall en BD pero no se emitia el evento waiterCallNew, asi que la tablet del mozo no se enteraba. #2a: el modal 'Para llevar / Barra' se abria siempre; con QR de mesa se envia directo con serviceMode TABLE. #1: la pagina publica reproducia el sonido de la llamada en el movil del CLIENTE y la tablet del mozo no tenia WebSocket; ahora el cliente no suena y un hook useWaiterAlerts (sonido + pop-up) se conecta en el POS, la pantalla de mozos y el panel. #6: al confirmar en cocina la comanda se filtraba de la lista del KDS; ahora pasa a la seccion 'Historial de la sesion'. #4: al volver al menu el cliente veia el carrito vacio sin señal; ahora se informa que el pedido sigue en curso.",
+      "status": "completed",
+      "version": "1.39.16",
+      "priority": "HIGH",
+      "assigned_module": "backend/src/guest/guest-orders.controller.ts, backend/src/guest/guest-orders.controller.spec.ts, frontend/src/hooks/useWaiterAlerts.ts, frontend/src/pages/admin/gastro-pos.tsx, frontend/src/pages/admin/gastro-mozos.tsx, frontend/src/pages/admin/gastro.tsx, frontend/src/pages/admin/kds.tsx, frontend/src/pages/omni-catalog.tsx",
+      "depends_on": [],
+      "blocking": [],
+      "deploy_target": "provecchio",
+      "next_steps": [
+        "Unificar el helper de 'nombre de linea' (snapshotName) en un unico sitio: el patron 'l.name || l.productId' aparece en tres ficheros y cae al UUID cuando falta el snapshotName",
+        "Configurar las cajas en produccion (cash_registers vacio) para poder imputar los cobros de la cuenta abierta"
+      ],
+      "qa_validation": "Unitarios: 3 casos nuevos en guest-orders.controller.spec.ts (#3 nombre del producto, #2b emision de waiterCallNew, y que no se emita en servicio BAR) | Suite completa 131 suites / 975 tests en verde | tsc backend y frontend sin errores | vite build + PWA correctos | Auditoria: docs/plans/omnigastro/auditoria-gastro-lote-2-bugs.md"
+    },
+    {
+      "id": "FEAT-193",
+      "category": "OmniGastro / Caja",
+      "title": "Cobro centralizado multi-caja: la sesion de caja se ancla a la caja registradora fisica",
+      "description": "Con las 4 cajas ya creadas en produccion (Caja Principal, Barra, Terraza, Caja Auxiliar) y sus 10 accesos por cajero, se cierra el circuito: hoy la sesion de caja (pos_sessions) NUNCA se anclaba a una caja fisica (cash_register_id siempre null) y el panel de caja (frontend/src/pages/admin/gastro-cashier.tsx) estaba roto por tres puntos. (1) Calling a rutas inexistentes: /api/v1/pos/sessions/{active,open-pin,:id/collect} devolvian 404 porque los endpoints reales son /api/v1/pos-sessions/*. (2) Enviaba configId con el id de la cash_register, pero el backend lo busca en pos_configs -> 404 'Configuracion de caja no encontrada'. (3) Ni openSession ni openSessionWithPin aceptaban cashRegisterId, de modo que la sesion no podia imputarse a la caja fisica y el arqueo por caja era imposible. Correccion: OpenSessionPinDto acepta cashRegisterId opcional y configId pasa a opcional (se resuelve el pos_config activo del tenant); CashRegisterService.resolveCashRegisterForSession valida existencia de la caja, ficha de empleado del cajero y permiso can_open de cash_register_access; la sesion se guarda con cashRegisterId; nuevo endpoint GET /api/v1/pos-sessions/open que lista las sesiones abiertas del tenant con su caja y su cajero; el panel de caja selecciona la caja, muestra el cajero del turno y el estado de cada caja con turno abierto. Sin migraciones: la columna cash_register_id ya existia en pos_sessions.",
+      "status": "completed",
+      "version": "1.39.18",
+      "priority": "HIGH",
+      "assigned_module": "backend/src/pos/cash-management.service.ts, backend/src/pos/cash-register.service.ts, backend/src/pos-sessions/pos-sessions.service.ts, backend/src/pos-sessions/pos-sessions.controller.ts, backend/src/pos-sessions/dto/open-pos-session.dto.ts, backend/src/pos/cash-management.service.spec.ts, frontend/src/pages/admin/gastro-cashier.tsx, frontend/e2e/cashier-cash-register-flow.spec.ts",
+      "depends_on": [
+        "FEAT-190"
+      ],
+      "blocking": [],
+      "deploy_target": "provecchio",
+      "next_steps": [
+        "Sustituir los CI placeholder de Giovanni y Giuliana por las cedulas reales (PUT /api/v1/hr/employees/:id { nationalId })"
+      ],
+      "qa_validation": "Unitarios: backend/src/pos/cash-management.service.spec.ts (13 casos: PIN invalido, sesion duplicada, configId ausente, configId ajeno, caja anclada, sin caja, permiso denegado, cajero sin ficha de empleado, canOpen=false) | Suite completa en verde | tsc backend y frontend sin errores | nest build OK | E2E: frontend/e2e/cashier-cash-register-flow.spec.ts (3 casos: listado de cajas, sesion anclada a la caja, rechazo sin permiso) | Auditoria: docs/plans/omnigastro/auditoria-caja-sesion-caja-fisica.md"
+    },
+    {
+      "id": "FEAT-194",
+      "category": "OmniGastro / Sala",
+      "title": "POS de Mozo: solo los empleados con la bandera de Mozo configurada pueden tener sesion",
+      "description": "Requerimiento del cliente (2026-10-21). El endpoint que alimenta /admin/gastro/mozos debe desplegar SOLO los empleados que estan configurados como Mozo en /admin/settings -> OmniGastro (restaurante). Esa configuracion se valida con una bandera en la tabla de empleados (Employee) que habilita la opcion de tener sesion en el POS de Mozo. PLAN APROBADO 2026-10-22 (docs/plans/omnigastro/plan-actualizacion-v1.39.25-historial-pedidos-bandera-mozo.md, seccion 3). Alcance: (1) migracion Prisma 20261022HHMMSS con Employee.canUseMozoPos Boolean @default(false) @map('can_use_mozo_pos') (snake_case, AGENTS.md 2.4); (2) DTO Create/UpdateEmployeeDto + hr.service create/update persisten la bandera; (3) UsersService.getMozoStaff(tenantId) filtra status=ACTIVE y canUseMozoPos=true (NO reutilizar getGastronomyStaff, que hoy filtra por texto de cargo en GASTRONOMY_POSITIONS); (4) endpoint GET /api/v1/users/mozo-staff con ApiKeyGuard + PermissionsGuard; (5) AuthService.verifyPin acepta scope:'mozo' y rechaza con mensaje explicito a los empleados sin la bandera; (6) frontend gastro-mozos.tsx consume el listado con bandera y envia scope:'mozo'; (7) seccion 'Empleados Mozo' en la pestana gastro de /admin/settings (frontend/src/pages/admin/settings.tsx) con switch que hace PUT /api/v1/hr/employees/:id; (8) switch equivalente en el formulario de empleados del modulo HR. DECISIONES PENDIENTES DE CONFIRMAR: D1 backfill de can_use_mozo_pos=true para los empleados con position en GASTRONOMY_POSITIONS y pinCode asignado (recomendado: si, para no dejar fuera a los mozos actuales).",
+      "status": "planned",
+      "version": null,
+      "priority": "HIGH",
+      "assigned_module": "backend/prisma/schema.prisma, backend/prisma/migrations/20261022HHMMSS_add_can_use_mozo_pos_to_employees, backend/src/hr/dto/employee.dto.ts, backend/src/hr/hr.service.ts, backend/src/users/services/users.service.ts, backend/src/users/users.controller.ts, backend/src/auth/auth.service.ts, frontend/src/pages/admin/gastro-mozos.tsx, frontend/src/pages/admin/gastro.tsx, frontend/src/pages/admin/settings.tsx, frontend/src/pages/admin/hr.tsx, frontend/e2e/",
+      "depends_on": [],
+      "blocking": [],
+      "deploy_target": "provecchio",
+      "next_steps": [
+        "F0: obtener la aprobacion explicita del plan y confirmar D1 (backfill)",
+        "Crear la rama feat/gastro-bandera-mozo-f2 desde product/omnigastro (crear la rama de integracion si no existe)",
+        "Migracion Prisma 20261022HHMMSS_add_can_use_mozo_pos_to_employees con columna can_use_mozo_pos (snake_case) + script de backfill",
+        "Backend: getMozoStaff, GET /api/v1/users/mozo-staff, verify-pin con scope 'mozo', DTO y service de HR",
+        "Frontend: selector de mozos, aviso de sin habilitacion y seccion 'Empleados Mozo' en /admin/settings -> OmniGastro",
+        "E2E: solo el empleado con bandera aparece en /admin/gastro/mozos; PIN sin bandera -> mensaje; PIN con bandera -> sesion OK",
+        "Bump de version menor (1.39.26) en VERSION, package.json, featurelist.json, Swagger y manifiestos"
+      ],
+      "qa_validation": "Unitarios (jest): getMozoStaff filtra por bandera + estado; verifyPin con scope 'mozo' rechaza sin la bandera. API: CRUD de empleado con la bandera y listado de /users/mozo-staff con dos empleados (uno con, uno sin). E2E (Playwright): /admin/gastro/mozos solo lista al empleado habilitado; PIN sin bandera muestra el mensaje de error; PIN con bandera inicia sesion. QA post-deploy: scripts/qa_e2e_check.py sin regresiones en /admin/gastro/mozos. Auditoria: docs/plans/omnigastro/auditoria-bandera-mozo-2026-10-22.md",
+      "plan": "docs/plans/omnigastro/plan-actualizacion-v1.39.25-historial-pedidos-bandera-mozo.md",
+      "flow": "docs/plans/omnigastro/flujo-historial-pedidos.md",
+      "phase": "F2 (v1.39.26)"
+    },
+    {
+      "id": "FEAT-196",
+      "category": "OmniGastro / Caja",
+      "title": "Cierre de turno (arqueo/Reporte Z) y relevo de cajero en el panel de Caja Gastro",
+      "description": "Requerimiento del cliente (2026-10-21) durante la prueba de FEAT-193: tras abrir el turno con el PIN de Natalia Bogado no existia forma de cerrar la sesion ni de cambiar de cajero. El panel de caja solo permitia abrir turno; la sesion quedaba abierta para siempre y el admin no podia pasar el turno a otro cajero. Correccion: (1) nuevo endpoint POST /api/v1/pos-sessions/:id/switch-cashier (CashManagementService.switchCashierByPin) que valida el PIN del nuevo cajero, exige que tenga permiso can_open sobre la caja fisica, rechaza duplicidad de sesion abierta y CONSERVA la misma PosSession (misma caja, mismo fondo inicial, mismos movimientos de efectivo) cambiando solo el cajero responsable y dejando la auditoria en notes; (2) boton 'Cerrar turno' en el panel de caja con modal de arqueo que consume GET /api/v1/pos-sessions/:id/report (apertura, ingresos, egresos, efectivo esperado), permite declarar el efectivo contado, muestra faltante/sobrante y cierra con POST /api/v1/pos-sessions/:id/close generando el Reporte Z; (3) correccion del estado de sesion activa en el frontend: antes se derivaba dentro de un setState con closure obsoleta de selectedCashRegister y no detectaba la sesion al cargar la pagina; ahora activeSession es un useMemo derivado de openSessions + selectedCashRegister, con auto-seleccion de la primera caja y bloqueo de apertura duplicada en la misma caja. Sin migraciones: no hay cambios de schema.",
+      "status": "completed",
+      "version": "1.39.19",
+      "priority": "HIGH",
+      "assigned_module": "backend/src/pos/cash-management.service.ts, backend/src/pos/cash-management.service.spec.ts, backend/src/pos-sessions/pos-sessions.controller.ts, backend/src/pos-sessions/pos-sessions.service.ts, frontend/src/pages/admin/gastro-cashier.tsx, frontend/e2e/cashier-cash-register-flow.spec.ts",
+      "depends_on": [
+        "FEAT-193"
+      ],
+      "blocking": [],
+      "deploy_target": "provecchio",
+      "next_steps": [
+        "Imprimir el Reporte Z en el cierre de turno (actualmente solo se guarda en reportZData)",
+        "Exponer el historial de arqueos por caja en el panel (Cierre Z por dia/caja)"
+      ],
+      "qa_validation": "Unitarios: backend/src/pos/cash-management.service.spec.ts (7 casos nuevos de switchCashierByPin: sesion inexistente, sesion cerrada, PIN invalido, mismo cajero, cajero con otra sesion abierta, permiso denegado sobre la caja, transferencia conserving caja y fondo) | tsc backend y frontend sin errores | nest build OK | vite build OK | E2E: frontend/e2e/cashier-cash-register-flow.spec.ts (5 casos, en modo serial: listado de cajas, sesion anclada, rechazo sin permiso, cierre de turno desde la UI con arqueo y Reporte Z, relevo de cajero conservando caja y fondo) | Verificacion manual en localhost: http://provecchio.local/admin/gastro/cashier"
+    },
+    {
+      "id": "FEAT-197",
+      "category": "OmniGastro / Sala / Cliente",
+      "title": "Historial y seguimiento de pedidos del comensal y del panel de mozos",
+      "description": "Requerimiento del cliente (2026-10-21, item 2 del reporte de docs/info/OmniGastro.md): 'despues de hacer el pedido se vacio su lista de compra. Carece de un control de su pedido en el historial. Debe ver el pedido en su estado, asi cuando pide mas cosas sabe cuales ya se le sirvieron en la mesa y cuantas estan marchando. Lo mismo sucede en el endpoint de los cajeros: los pedidos ya atendidos solo quedan en la memoria del dispositivo del mozo, pero si cambia de dispositivo no puede hacer seguimiento'. ANALISIS (2026-10-22): el cliente pierde la referencia al pedido porque omni-catalog.tsx:358 hace clearCart() y el orderId solo vive en la URL ?track= (L269, L360-362) sin persistirse en el dispositivo; el boton 'Volver al menu' (L813-835) borra el ?track=. El panel de mozos solo trae activos: orders.service.ts:1642-1695 filtra status in (DRAFT,CONFIRMED,PREPARING,READY) y take 50, por lo que al cerrar (status DELIVERED, L1590) el pedido desaparece y no hay endpoint de historico; ademas el panel filtra por meta.claimedById (gastro.tsx:190-197) que guestClaim nunca escribe (orders.service.ts:1176-1196), y la sesion de mozo vive 100% en localStorage (gastro-mozos.tsx:38-48, 92-98). PLAN APROBADO 2026-10-22 (docs/plans/omnigastro/plan-actualizacion-v1.39.25-historial-pedidos-bandera-mozo.md, seccion 2). ALCANCE EN 3 CAPAS + 1 FIX: Capa 1 (F1, v1.39.25, sin migracion): store public-orders-store con persist (localStorage) + UI 'Mis pedidos' en omni-catalog.tsx; persistir el pedido ANTES del clearCart(); el boton 'Volver al menu' deja de perder el historial; mostrar el codigo corto del pedido en la pantalla de tracking. Capa 2 (F3, v1.39.27, con migracion): Order.publicCode String? @unique @map('public_code') + generador de 6 caracteres con crypto.randomBytes; GET /api/v1/guest/orders/by-code/:code PUBLICO (sin ApiKeyGuard y sin @TenantPrisma(), resuelve el tenant desde el propio Order con this.prisma, AGENTS.md Regla 4); UI de recuperacion 'Tengo un codigo de pedido'; misma persistencia en el flujo Bio-Link (public-biolink.tsx:242-243). Capa 3 (F4, v1.39.28): GET /api/v1/orders/guest/history (JwtAuthGuard) reutilizando orders.service.findAll; setear Order.waiterId en claim/ready/close (el campo ya existe, schema.prisma:1104); persistir claimedById en metadata.guestDraft (arregla el filtro roto del panel); pestana 'Atendidos' en gastro.tsx; KDS con historial en servidor en vez de memoria (kds.tsx:23, 314-334). FIX (FEAT-197-d, F1): orders.controller.ts:271,276 espera body.mode pero gastro.tsx:242 envia closeMode y gastro-pos.tsx:280 envia method -> el cierre cae siempre en WITHOUT_PAYMENT y paidAt nunca se setea; normalizar los tres formatos (retrocompatible). TELEMETRIA (Regla 13): hitos t0_order_created, t1_table_claimed, t2_cart_saved, t3_order_confirmed, t4_sent_to_kitchen, t5_order_ready, t6_waiter_viewed_history, t7_paid, t11_table_closed. DECISIONES PENDIENTES: D2 nombre del codigo (publicCode) y mostrarlo en pantalla (recomendado: si); D3 implementar el listado por mesa en la iteracion 2 (recomendado: NO, por privacidad); D4 incluir el fix del modo de cierre en la F1 (recomendado: si).",
+      "status": "planned",
+      "version": null,
+      "priority": "HIGH",
+      "assigned_module": "frontend/src/store/public-orders-store.ts, frontend/src/pages/omni-catalog.tsx, frontend/src/pages/public-biolink.tsx, frontend/src/pages/admin/gastro.tsx, frontend/src/pages/admin/gastro-pos.tsx, frontend/src/pages/admin/kds.tsx, frontend/src/pages/admin/gastro-mozos.tsx, backend/src/guest/guest-orders.controller.ts, backend/src/orders/orders.controller.ts, backend/src/orders/orders.service.ts, backend/src/orders/order-public-code.util.ts, backend/prisma/schema.prisma, frontend/e2e/order-tracking.spec.ts",
+      "depends_on": [
+        "FEAT-193",
+        "FEAT-196"
+      ],
+      "blocking": [],
+      "deploy_target": "provecchio",
+      "plan": "docs/plans/omnigastro/plan-actualizacion-v1.39.25-historial-pedidos-bandera-mozo.md",
+      "flow": "docs/plans/omnigastro/flujo-historial-pedidos.md",
+      "phase": "F1 (v1.39.25) -> F3 (v1.39.27) -> F4 (v1.39.28)",
+      "next_steps": [
+        "F0: obtener la aprobacion explicita del plan y confirmar D2, D3 y D4",
+        "F1: rama feat/gastro-historial-pedidos-f1 -> store + UI 'Mis pedidos' + fix del modo de cierre (F1-d) + E2E; bump 1.39.25",
+        "F3: rama feat/gastro-historial-pedidos-f3 -> migracion public_code + endpoint by-code + UI de recuperacion; bump 1.39.27",
+        "F4: rama feat/gastro-historial-pedidos-f4 -> endpoint de historico + waiterId + claimedById + pestana Atendidos + KDS en servidor; bump 1.39.28",
+        "Cada fase: E2E Playwright, actualizacion de la coleccion de Newman (docs/tests/newman/) y auditoria en docs/plans/omnigastro/auditoria-historial-pedidos-<fecha>.md"
+      ],
+      "qa_validation": "Unitarios (jest): generador de publicCode (alfabeto, unicidad en 10.000 generaciones, reintento ante colision) y normalizacion de mode/closeMode/method. Unitarios (vitest): store public-orders-store (persist, limite de 20, clearCart no borra el historial). E2E (Playwright, nuevo frontend/e2e/order-tracking.spec.ts): el cliente confirma, ve 'Mis pedidos', recarga y conserva el historial, recupera el pedido por codigo en otro dispositivo; el mozo cierra un pedido y lo ve en 'Atendidos', y al entrar de nuevo con su PIN ve los pedidos que atendio (waiterId). Aislamiento: el endpoint by-code no expone pedidos de otro tenant. QA post-deploy: scripts/qa_e2e_check.py + verificacion de que el pedido cerrado queda con paidAt."
+    },
+    {
+      "id": "FEAT-43",
+      "category": "Core / Architecture",
+      "title": "Durable Event Queue (BullMQ/Redis) para webhooks",
+      "status": "completed",
+      "assigned_module": "backend/src/webhooks, backend/src/integrations, backend/src/queues",
+      "roadmap_milestone": "v1.16.0",
+      "source": "docs/Informe_Comparativo_Odoo_vs_OrderFlow.md",
+      "blocking": []
+    },
+    {
+      "id": "FEAT-44",
+      "category": "Core / Architecture",
+      "title": "Arquitectura de Eventos Extensible (EventBus interno)",
+      "status": "completed",
+      "assigned_module": "backend/src/events",
+      "roadmap_milestone": "v1.16.0",
+      "source": "docs/Informe_Comparativo_Odoo_vs_OrderFlow.md",
+      "blocking": [
+        "FEAT-043"
+      ]
+    },
+    {
+      "id": "FEAT-45",
+      "category": "Core / Inventory",
+      "title": "Control de Inventario Multidepósito (doble entrada)",
+      "status": "completed",
+      "assigned_module": "backend/src/inventory",
+      "roadmap_milestone": "v1.16.0",
+      "source": "docs/Informe_Comparativo_Odoo_vs_OrderFlow.md",
+      "blocking": [
+        "FEAT-043"
+      ]
+    },
+    {
+      "id": "FEAT-46",
+      "category": "Core / Integrations",
+      "title": "Mapeador de Integraciones Configurable (orderflow_connector)",
+      "status": "completed",
+      "assigned_module": "backend/src/integrations/orderflow_connector",
+      "roadmap_milestone": "v1.16.0",
+      "source": "docs/Informe_Comparativo_Odoo_vs_OrderFlow.md",
+      "blocking": [
+        "FEAT-043"
+      ]
+    },
+    {
+      "id": "FEAT-47",
+      "category": "Core / Audit",
+      "title": "Auditoría Transaccional Ampliada (AuditLog expandido)",
+      "status": "completed",
+      "assigned_module": "backend/src/audit",
+      "roadmap_milestone": "v1.16.0",
+      "source": "docs/Informe_Comparativo_Odoo_vs_OrderFlow.md",
+      "blocking": []
     }
   ],
-  "lastUpdated": "2026-10-08",
-  "last_id": "FEAT-153",
+  "lastUpdated": "2026-10-22",
+  "last_id": "FEAT-197",
   "next_pending_sc": null,
   "active_plan": "docs/plans/omnigastro/plan_actualizacion_1.38.14.md",
   "plan_progress": {

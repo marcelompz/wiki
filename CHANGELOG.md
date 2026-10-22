@@ -1,9 +1,583 @@
+## [1.39.24] - 2026-10-21
+
+### 🍔 POS del mozo (tablet): botón ☰ para mostrar y ocultar el catálogo de productos
+
+> **Reporte del cliente:** *"En la vista vertical de la tablet el menú lateral oculta los
+> productos. Se debería ocultar y mostrar con un botón de acceso. Falta agregar ese menú tipo
+> hamburguesa (de las tres líneas) para ocultar y mostrar los productos lateralmente."*
+
+| # | Síntoma | Causa raíz | Corrección |
+|---|---|---|---|
+| 1 | En pantallas de menos de 768 px el catálogo **no existía** hasta abrir un drawer oculto: el mozo veía el POS sin productos y sin saber cómo llegar a ellos | `gastro-pos.tsx` renderizaba el catálogo **solo** dentro del `<Drawer>` cuando `!isMedium`, y ese drawer arrancaba cerrado. El único acceso era un icono de lupa sin etiqueta, no discoverible | Nuevo **botón ☰ (hamburguesa) con etiqueta "Productos"** siempre visible en el header del POS. En anchos <768 px abre/cierra el catálogo **lateralmente** (drawer); en ≥768 px alterna el catálogo inline |
+| 2 | El control de visibilidad era un icono de ojo, no un menú lateral | El botón alternaba `showCatalog` con `EyeInvisibleOutlined` / `EyeOutlined`, señal ambigua | Se reemplaza por `MenuOutlined` (☰, tres líneas) con `aria-label="Mostrar u ocultar el catálogo de productos"` y tooltip contextual ("Ocultar catálogo" / "Mostrar catálogo" / "Catálogo de productos") |
+
+**Comportamiento resultante:**
+
+| Ancho | Antes | Ahora |
+|---|---|---|
+| <768 px | Catálogo invisible (drawer cerrado, acceso solo por lupa sin etiqueta) | Botón **☰ Productos** abre el catálogo lateralmente |
+| 768–1199 px | Catálogo inline, botón de ojo para ocultarlo | Botón **☰ Productos** lo oculta y lo recupera |
+| ≥1200 px | Catálogo inline en 3 columnas | Igual (desktop) |
+
+**Validación en localhost:**
+- 3 casos nuevos en `frontend/e2e/pos-tablet-responsive.spec.ts`: existencia del botón ☰ en tablet vertical, ciclo ocultar/mostrar del catálogo lateral y apertura del drawer en pantalla angosta (410×915).
+- `pos-tablet-responsive.spec.ts` completo: **8 passed**. Suite total: **76 passed / 5 skipped / 0 failed**.
+- `tsc` sin errores, eslint 0 errores (436 warnings, ratchet 440), vitest 20/20.
+- Verificación visual por captura: botón "☰ Productos" visible en el header a 768×1024 y drawer lateral con buscador, categorías y productos a 410×915.
+
+### 🚀 Deploy a producción (2026-10-21 21:53)
+
+Release acumulada **v1.39.22 + v1.39.23 + v1.39.24** desplegada en `provecchio.com`
+(host `192.168.69.240`) con el protocolo completo (backup → restore en localhost →
+verificación de fidelidad → pre-deploy diagnostic → build → migrate → health checks
+→ QA post-deploy).
+
+- Health público `1.39.24 ok`, frontend HTTP 200, 5 contenedores `healthy`.
+- QA post-deploy en verde: catálogo público, dominio sin errores JS, login admin + DB
+  sin HTTP 500 y **8 rutas admin** verificadas (incluye `/admin/social-catalog`,
+  `/admin/loyalty` y `/admin/gastro/kds-stations`).
+- Bundle de producción `gastro-pos-5D7CJgum.js` con el `aria-label` del botón ☰
+  (build fresco) y backend con el guard `claimedBy` en `sendToKitchen`.
+- Artefactos: `backups/pre_deploy_provecchio_20261021_211340.sql` (+ `_uploads.tar.gz`),
+  `deploy-artifacts/rollback-provecchio-20261021_212239.env`.
+
+## [1.39.23] - 2026-10-21
+
+### 🐛 POS del mozo (vista por mesa): "El pedido aún no fue reclamado por el mozo"
+
+El mozo, al abrir la vista POS de una mesa en la **laptop** y marcar el pedido
+como listo, recibía `HTTP 400` — *"El pedido aún no fue reclamado por el mozo"* —
+con `POST /api/v1/orders/:id/ready`. En la **tablet** no ocurría, porque ahí se
+usa el panel de mozos.
+
+| # | Síntoma | Causa raíz | Corrección |
+|---|---|---|---|
+| 1 | El POST `/ready` devolvía 400 en la vista POS por mesa | `guestMarkReady` exige `metadata.guestDraft.claimedBy`, y la vista POS por mesa marcaba el pedido como listo **sin reclamarlo** (el panel de mozos sí reclamaba antes: `claim` → `ready`) | `frontend/src/pages/admin/gastro-pos.tsx`: la vista POS ahora **reclama antes de enviar a cocina**, replicando el orden del panel de mozos. El reclamo es *best effort*: si falla (pedido no guest, ya reclamado o sin permiso) se continúa y el `/ready` es el que decide con su mensaje original |
+| 2 | `sendToKitchen` no exigía el reclamo previo | El control `claimedBy` estaba en `guestMarkReady`, `guestUpdateItems`, `guestPaymentPreconfirm`, `guestMarkPaid` y `guestTransferToPerson`, pero no en `sendToKitchen` | `backend/src/orders/orders.service.ts`: un pedido guest sin reclamar no puede ir a cocina. Los pedidos POS regulares (sin `guestDraft`) no se ven afectados |
+
+**Traza de los tres flujos de envío a cocina:**
+
+| Vista | Secuencia | Resultado |
+|---|---|---|
+| Panel de mozos (`gastro.tsx:222,232`) | `claim` → `ready` | ✅ |
+| Gestión de mesas (`gastro-tables.tsx:385,389`) | `claim` → `send-to-kitchen` | ✅ |
+| **POS por mesa (`gastro-pos.tsx:255`)** | `ready` sin reclamar | ❌ 400 → **corregido a `claim` → `ready`** |
+
+**Validación en localhost:**
+- API: sin reclamo `POST /ready` → **400** *"El pedido aún no fue reclamado por el mozo"*; con reclamo `claim` → **200** y `ready` → **200** (`status: READY`).
+- Navegador (POS por mesa, mesa G10, pedido guest `DRAFT` sin reclamar): `POST /claim` → **200** y `POST /ready` → **200**; antes el segundo devolvía 400.
+- `tsc` sin errores, eslint 0 errores, vitest 20/20, Playwright 73 passed / 5 skipped / 0 failed.
+
+**Nota de diagnóstico:** el síntoma se reproduce solo en la laptop porque la
+tablet usa el panel de mozos (que ya reclamaba). La causa raíz está en la vista
+POS por mesa, no en el device.
+
+## [1.39.22] - 2026-10-21
+
+### 🐛 Tres módulos del panel admin devolvían 404 (Menu digital, Puntos, Estaciones KDS)
+
+`/admin/social-catalog`, `/admin/loyalty` y `/admin/gastro/kds-stations`
+mostraban "404 Página no encontrada" (y `/admin/whatsapp-catalog` redirigía
+al primero). No eran rutas aisladas: las tres fueron **borradas del router**
+por el commit `7f6bae00` (2026-10-17), que corrompió
+`frontend/src/AdminApp.tsx`. Los *lazy imports* de las páginas siguen vivos
+como imports muertos, por eso TypeScript no lo detectaba y ESLint solo lo
+marcaba como *warning* (el ratchet de v1.39.20 no bloquea warnings).
+
+| # | Síntoma | Causa raíz | Corrección |
+|---|---|---|---|
+| 1 | 3 rutas admin inaccesibles | `<Route>` borrados por el commit `7f6bae00`; los lazy imports quedaron muertos | 3 `<Route>` reinsertados (48 → 50 rutas, ninguna perdida) + eliminado el import muerto `TenantAccessPage` |
+| 2 | El QA post-deploy daba por buenas esas rutas | `qa_e2e_check.py` **no se autenticaba**: el router redirigía a `/login` y la verificación era un no-op | El QA ahora autentica al admin (`QA_ADMIN_EMAIL` / `QA_ADMIN_PASSWORD`) antes de recorrer las rutas |
+| 3 | El QA solo miraba el HTTP status | Una SPA responde 200 también en su pantalla de 404 (catch-all con `<Result>` de Ant Design) | El QA falla si el body renderizado contiene "Página no encontrada"; se agregó `/admin/gastro/kds-stations` a las rutas verificadas y el flag `QA_IGNORE_CERT=1` para el certificado local |
+
+**Prevención de la recurrencia** (segunda ocurrencia de esta misma clase,
+tras troubleshooting #160): nuevo test `frontend/src/components/sidebar-routes.test.ts`
+que exige que cada enlace del `Sidebar` tenga su ruta registrada en
+`AdminApp.tsx` y que ninguna página importada quede sin ruta que la monte.
+Comprobado que **falla** si se vuelve a borrar una ruta.
+
+**Validación en localhost:** las 4 rutas renderizan y cargan sus datos
+(APIs 200), QA E2E en verde sobre las 8 rutas admin, `tsc` sin errores,
+eslint 0 errores (435 warnings, ratchet 440), vitest 20/20 y Playwright
+**73 passed / 5 skipped / 0 failed**.
+
+**Documentación:** `docs/troubleshooting/184-admin-routes-social-catalog-loyalty-kds-stations-404.md`.
+
+## [1.39.21] - 2026-10-21
+
+### 🧪 Estado del CI: sin runners por límite de gasto de GitHub Actions
+
+La cuenta de GitHub **no tiene fondos para Actions**: todos los jobs fallan en
+2-3 s con `steps: []` y `runner_name: ""`, y GitHub lo reporta como *"recent
+account payments have failed or your spending limit needs to be increased"*.
+**No es un defecto del código** (el `qa_e2e` llegó a `success` el 2026-10-21
+17:36 UTC). La verificación se replica 100 % en local: backend 995/995 jest,
+frontend 17/17 vitest, `tsc` limpio en backend/frontend/mobile, E2E Playwright
+73 passed / 5 skipped / 0 failed, y el fix del OOM reproducido (2 GB falla,
+4 GB pasa). Detalle en `docs/troubleshooting/185-github-actions-spending-limit-no-runners.md`.
+
+### 🐛 Análisis: 3 rutas del panel admin devuelven 404
+
+`/admin/social-catalog`, `/admin/loyalty` y `/admin/gastro/kds-stations`
+muestran "404 Página no encontrada". Las rutas **existían** y fueron borradas
+del router por el commit `7f6bae00` (2026-10-17), que corrompió
+`frontend/src/AdminApp.tsx`; los *lazy imports* de las tres páginas siguen
+presentes como imports muertos, por eso TypeScript no lo detecta. Sin `<Route>`
+el router cae en el catch-all 404. Las páginas y sus APIs están intactas
+(responden 200), por lo que la corrección es restaurar las 3 rutas, añadir un
+test de regresión que verifique cada enlace del `Sidebar` contra las rutas
+registradas y endurecer el QA E2E para detectar el texto "Página no encontrada".
+Detalle en `docs/troubleshooting/184-admin-routes-social-catalog-loyalty-kds-stations-404.md`.
+
+### 🛡️ La suite E2E del frontend deja de apuntar a producción
+
+Tres defectos que hacían que la suite E2E del frontend no fuera confiable.
+
+| # | Síntoma | Causa raíz | Corrección |
+|---|---|---|---|
+| 13 | La suite E2E se ejecutaba sobre **producción** | 8 specs tenían `https://provecchio.com` como default de `PLAYWRIGHT_BASE_URL` y el job de CI no define esa variable. La suite crea mesas, abre/cierra turnos de caja y envía pedidos a cocina | Defaults a `https://provecchio.local`; el job de CI fija `PLAYWRIGHT_BASE_URL`/`PLAYWRIGHT_API_URL` explícitos |
+| 14 | 10 tests E2E fallaban por timeout de API | El proxy `/api` del dev server de Vite apuntaba a `localhost:3000`, pero el backend local corre en `3010` (`backend/.env`, `docker-compose`) | Default del proxy a `http://localhost:3010`, documentado en `.env.example` como `PROXY_TARGET` |
+| 15 | El dev server no arrancaba con `PLAYWRIGHT_BASE_URL` definido | `playwright.config.ts` omitía el `webServer` siempre que existiera la variable | El dev server se levanta cuando el objetivo es local y se omite solo con URLs externas |
+| 16 | El job `Frontend E2E` era un rojo estructural | La suite exige un stack sembrado (tenant admin, cajas, mesas con token QR, PIN, catálogo) que CI no aprovisiona | Job marcado como informativo (`continue-on-error`) y pendiente documentado en `ROADMAP.md`; el gate bloqueante sigue siendo el workflow `QA E2E (Playwright + Python)` |
+
+**Verificación:** 73 passed / 5 skipped / 0 failed sin variables de entorno; `tsc` sin errores; eslint 0 errores (439 warnings, ratchet 440); 17/17 vitest; build OK.
+
+## [1.39.20] - 2026-10-21
+
+### 🛠️ Fix de Service Worker (PWA) + hardening del pipeline de CI
+
+El usuario seguía viendo **v1.39.17** en `provecchio.local` pese a que el backend ya reportaba `1.39.19`. Causa raíz: el service worker del PWA **precacheaba `index.html`** y servía el bundle viejo desde la caché, ignorando los despliegues nuevos.
+
+| # | Síntoma | Causa raíz | Corrección |
+|---|---|---|---|
+| 1 | Frontend servía una versión vieja tras el deploy | `index.html` estaba en `globPatterns` del precache de Workbox | `frontend/vite.config.ts`: HTML fuera del precache, `navigateFallback: null` y navegaciones con `NetworkFirst` |
+| 2 | Sin aviso de versión desactualizada | No existía detección de desfase bundle ↔ backend | Nuevo `frontend/src/components/version-guard.tsx` (montado en `frontend/src/main.tsx`): compara el bundle contra `GET /api/v1/health` y ofrece **Actualizar ahora** limpiando cachés y recargando |
+| 3 | `npm ci` fallaba con `ERESOLVE` en el frontend | `react-qr-code@2.0.3` incompatible con React 18 | Upgrade a `react-qr-code@2.2.0` + lockfile regenerado |
+| 4 | Job `gitleaks` en rojo | La imagen `gitleaks/gitleaks:latest` ya no existe en Docker Hub | Migrado a `ghcr.io/gitleaks/gitleaks:latest` |
+| 5 | Job mobile en rojo | `@expo/vector-icons` y `expo-font` solo como dependencias transitivas | Declarados como dependencias directas de `mobile/package.json`; props `id` eliminados de los layouts de expo-router v6 |
+| 6 | Workflow `qa_e2e` no arrancaba | `secrets` estaba declarado dentro de `strategy` (clave no válida) | Movido a `env` del job; `CATALOG_PATH` corregido a la ruta real `/social-catalog` |
+| 7 | Job `qa_e2e` moría en "Install system dependencies" | Lista manual de paquetes obsoleta para `ubuntu-24.04` (noble): `libatk1.0-0` → `libatk1.0-0t64`, `libcups2` → `libcups2t64`, etc. | Step eliminado: `playwright install --with-deps chromium` ya instala las librerías con los nombres correctos |
+| 8 | Jobs `backend`, `Backend Tests & Build` y `k6` abortaban con exit 134 | `FATAL ERROR: Ineffective mark-compacts near heap limit` — el heap por defecto de V8 (~2GB) no alcanza para el typecheck/build de NestJS | `NODE_OPTIONS=--max-old-space-size=4096` en los jobs backend de `ci.yml` y `ci-cd.yml` (reproducido localmente: 2GB falla, 4GB pasa) |
+| 9 | `npm audit` bloqueaba el pipeline por vulnerabilidades de devDependencies | Se auditaba también `devDependencies` (jest, eslint), cuyos fixes exigen majors de NestJS/Jest | Gate de producción: `npm audit --omit=dev --audit-level=critical` (0 críticas; 6 `high` de majors trackeadas para un release dedicado) |
+| 10 | El lint bloqueaba por deuda histórica | Se exigía `--max-warnings=0` | **Ratchet**: el pipeline falla solo si los warnings superan el techo actual (backend 311, frontend 440) |
+| 11 | 8 errores de lint en frontend y 86 en backend | Violaciones reales de ESLint | Corregidos; `tsc` del backend quedó sin errores (incluido bug real en `AvailabilityCheckResponseDto.conflicts`, que declaraba un objeto donde el dominio usa `string[]`) |
+| 12 | `VERSION` desincronizado entre raíz, backend y frontend | Dos `VERSION` huérfanos (`backend/VERSION`, `frontend/VERSION`) | La raíz es la única fuente de verdad; `backend/src/health/health.controller.ts` lee `package.json` con fallback a `VERSION`; `scripts/sync-version.sh` ya no destruye el historial del changelog |
+
+**Verificación:** backend `995/995` jest, frontend `17/17` vitest, `tsc` limpio en backend/frontend/mobile, builds de NestJS y Vite OK, `prisma validate` OK, E2E de caja y manual `8/8`, `qa_e2e` en verde en CI.
+
+## [1.39.19] - 2026-10-21
+
+### ✨ FEAT-196: Cerrar turno con arqueo y relevo de cajero en el panel de Caja Gastro
+
+Reportado por el cliente durante la prueba de FEAT-193: tras abrir el turno con el PIN de **Natalia Bogado** no existía forma de **cerrar la sesión** ni de **cambiar de cajero**. El panel solo permitía abrir turno, la sesión quedaba abierta para siempre y el admin no podía pasar el turno a otro cajero.
+
+| # | Síntoma | Causa raíz | Corrección |
+|---|---|---|---|
+| **1** | No había forma de cerrar la sesión de caja | El panel no tenía botón de cierre; `POST /api/v1/pos-sessions/:id/close` existía pero nadie lo invocaba | Botón **Cerrar turno** con modal de arqueo que consume `GET /api/v1/pos-sessions/:id/report`, declara el efectivo contado, muestra **faltante/sobrante** y cierra generando el **Reporte Z** |
+| **2** | No se podía cambiar de cajero | No existía endpoint de relevo; abrir con otro PIN creaba una sesión paralela | Nuevo `POST /api/v1/pos-sessions/:id/switch-cashier` → `CashManagementService.switchCashierByPin()` |
+| **3** | La sesión activa no se detectaba al recargar la página | `activeSession` se derivaba dentro de un `setState` con **closure obsoleta** de `selectedCashRegister` (siempre `null` en el `useEffect` de montaje) | `activeSession` pasa a ser un `useMemo` derivado de `openSessions` + `selectedCashRegister`, con auto-selección de la primera caja y bloqueo de apertura duplicada en la misma caja |
+
+**El relevo conserva el turno:** la misma `PosSession` (misma caja física, mismo fondo inicial, mismos movimientos de efectivo) cambia de cajero responsable. Se valida el PIN del nuevo cajero, se exige su permiso `can_open` sobre la caja, se rechaza que ya tenga otra sesión abierta, y la trazabilidad queda en `notes` (`Relevo de cajero: Natalia Bado -> Giovanni Benedetti`).
+
+**Control de acceso:** el endpoint exige el permiso `cash:open_session` del actor; la validación del PIN y del permiso de caja la hace el servicio.
+
+**Sin migraciones:** no hay cambios de schema.
+
+**Validación:** 7 casos nuevos en `backend/src/pos/cash-management.service.spec.ts` (20 en total) · `tsc` backend y frontend sin errores · `nest build` OK · `vite build` OK · E2E `frontend/e2e/cashier-cash-register-flow.spec.ts` (5 casos, en modo serial: listado de cajas, sesión anclada, rechazo sin permiso, cierre de turno desde la UI, relevo conservando caja y fondo).
+
+**Auditoría:** `docs/plans/omnigastro/auditoria-caja-cierre-relevo-2026-10-21.md`.
+
+## [1.39.18] - 2026-10-20
+
+### ✨ FEAT-193: Cobro centralizado multi-caja — la sesión de caja se ancla a la caja física
+
+Con las 4 cajas ya configuradas en producción (Caja Principal, Barra, Terraza, Caja Auxiliar) y sus 10 accesos por cajero, se cierra el circuito: **la sesión de caja nunca se anclaba a una caja física** (`pos_sessions.cash_register_id` siempre `null`) y el panel de caja estaba roto por tres puntos.
+
+| # | Síntoma | Causa raíz | Corrección |
+|---|---|---|---|
+| **1** | El panel de caja no cargaba sesión ni cobraba (404) | `gastro-cashier.tsx` llamaba `/api/v1/pos/sessions/{active,open-pin,:id/collect}`; los endpoints reales son `/api/v1/pos-sessions/*` | Rutas corregidas a `/api/v1/pos-sessions/*` |
+| **2** | "Configuración de caja no encontrada" al abrir con PIN | El frontend mandaba `configId` con el id de la `cash_register`, pero el backend lo busca en `pos_configs` | `configId` pasa a **opcional**: si no viene se resuelve el `pos_config` activo del tenant |
+| **3** | El cobro no se podía imputar a una caja concreta | Ni `openSession` ni `openSessionWithPin` aceptaban `cashRegisterId` | `OpenSessionPinDto` acepta `cashRegisterId`; la sesión se guarda con `cash_register_id` |
+
+**Control de acceso por caja:** nuevo `CashRegisterService.resolveCashRegisterForSession()` — valida que la caja exista y esté activa, que el cajero tenga ficha de empleado y que tenga permiso `can_open` en `cash_register_access` (si no: 403 "No tenés permiso para abrir esta caja").
+
+**Nuevo endpoint:** `GET /api/v1/pos-sessions/open` lista las sesiones abiertas del tenant con su caja y su cajero (el panel los usa para mostrar "cajas con turno abierto" y recuperar el turno tras recargar la página).
+
+**Seguridad:** la respuesta de `open-pin` ya no expone el `pinCode` del cajero.
+
+**Sin migraciones:** la columna `pos_sessions.cash_register_id` ya existía (y `deleteCashRegister` ya la anulaba); solo faltaba escribirla.
+
+**Validación:** 13 casos nuevos en `backend/src/pos/cash-management.service.spec.ts` · suite completa en verde · `tsc` backend y frontend sin errores · `nest build` OK · E2E `frontend/e2e/cashier-cash-register-flow.spec.ts` (3 casos: listado de cajas, sesión anclada a la caja, rechazo sin permiso).
+
+**Auditoría:** `docs/plans/omnigastro/auditoria-caja-sesion-caja-fisica.md`.
+
+## [1.39.17] - 2026-10-20
+
+### 🐛 Fix: ValidationPipe rechazaba campos del DTO OpenSessionPinDto
+
+El DTO `OpenSessionPinDto` no tenía decoradores de validación (`@IsString`, `@IsNumber`, etc.). Con `forbidNonWhitelisted: true` en el ValidationPipe global, el pipe trataba los campos sin decoradores como "no declarados" y rechazaba POST `/api/v1/pos-sessions/open-pin` con "property `configId` should not exist".
+
+**Corrección:** Agregados decoradores `@IsString`, `@IsNumber`, `@IsOptional`, `@Min` al DTO en `backend/src/pos/cash-management.service.ts:5-16`.
+
+**Validación:** `backend/src/pos/cash-management.service.ts` · `tsc` OK · `nest build` OK.
+
+## [1.39.16] - 2026-10-20
+
+### 🐛 Fix: Lote 2 de bugs del cliente — alertas del mozo, KDS, POS y catálogo (#1, #2a, #2b, #3, #4, #6, #9)
+
+Cierra los **7 bugs restantes** del reporte del cliente v1.39.9, agrupados en un
+único despliegue (FEAT-192).
+
+| # | Síntoma | Causa raíz | Corrección |
+|---|---|---|---|
+| **9** | Tras enviar a cocina el pedido **desaparece del POS** | El POS consultaba `CLAIMED, SENT_TO_KITCHEN, IN_PREPARATION`, estados **inexistentes** en el enum `OrderStatus`; el `PREPARING` no entraba en el filtro | Consulta `DRAFT,CONFIRMED,PREPARING,READY` |
+| **3** | El aviso al mozo mostraba el **UUID** del producto | El texto se componía con `${l.productId}` | Se usa `metadata.snapshotName`; el aviso usa `tableNumber` (G5) |
+| **2b** | Al confirmar el pedido el mozo **no se enteraba** | Se creaba el `WaiterCall` en BD sin emitir evento | Se emite `waiterCallNew` a la sala del tenant |
+| **2a** | En el QR de mesa se ofrecía **"Para llevar / Barra"** | El modal de `serviceMode` se abría siempre | Con QR de mesa se envía directo con `serviceMode: 'TABLE'` |
+| **1** | La alerta sonaba en el **móvil del cliente** | La página pública reproducía el sonido y la tablet del mozo no tenía WebSocket | El cliente ya no suena; nuevo hook `useWaiterAlerts` (sonido + pop-up) en POS, mozos y panel |
+| **6** | Al confirmar en cocina la comanda **desaparecía** | El handler `order:status_updated` la filtraba de la lista | Se conserva en la sección **"🗂️ Historial de la sesión"** |
+| **4** | Al volver al menú el carrito **parecía vacío** | Sin señal de que el pedido seguía en curso | Aviso *"Tu pedido #xxxx sigue en curso"* |
+
+**Validación:** 3 casos nuevos en `guest-orders.controller.spec.ts` · suite completa
+**131 suites / 975 tests** en verde · `tsc` sin errores · `vite build` + PWA OK.
+
+**Auditoría:** `docs/plans/omnigastro/auditoria-gastro-lote-2-bugs.md`.
+
+## [1.39.15] - 2026-10-20
+
+### 🐛 Fix: El KDS no se actualizaba solo al enviar el pedido a cocina (bug #5, crítico de sala)
+
+**Síntoma:** al enviar el pedido a cocina desde el POS del mozo, la comanda **no
+aparecía** en `/admin/kds`: había que pulsar "🔄 Sincronizar Todo". En sala, la
+cocina no tiene tiempo de interactuar con la pantalla.
+
+**Causa raíz (dos fallos encadenados):**
+
+1. **Sala equivocada:** el backend emitía `kds:ticket_new` solo a
+   `tenant:{tenantId}:station:{stationId}`, **a la que nadie se une** (el KDS se
+   une a `tenant:{tenantId}` con `join:tenant`).
+2. **Evento sin suscriptor:** el KDS escuchaba `order:new` y
+   `order:status_updated` (que se emiten al crear/confirmar el pedido por QR), no
+   `kds:ticket_new`, que era el evento del envío a cocina.
+
+**Correcciones:**
+
+- `OrdersGateway.emitKdsTicket()`: emite `kds:ticket_new` a **la sala del tenant**
+  (donde está el KDS) **y** a la de la estación (para setups multi-KDS).
+- `sendToKitchen` usa el gateway en lugar del `emit` directo.
+- El KDS escucha `kds:ticket_new` y se **recarga solo** (debounce de 400 ms) con
+  la misma llamada que el botón "Sincronizar Todo", con aviso y sonido.
+
+**Validación:** E2E `frontend/e2e/kds-ticket-notification.cjs` (socket → API →
+socket): la comanda llega sin pulsar nada. Unitarios del gateway: 2 casos nuevos.
+
+**Auditoría:** `docs/plans/omnigastro/auditoria-gastro-kds-auto-refresh.md`.
+
+## [1.39.14] - 2026-10-20
+
+### ✨ Feature: Cuenta abierta — liberar la mesa manteniendo la cuenta cobrable (FEAT-190)
+
+Propuesta del cliente: *«Pasar la cuenta a "una persona" para que la cuenta a cobrar
+quede abierta... así es como podemos liberar la mesa pero mantener la cuenta abierta
+para el cobro»*. Es el patrón de **cuenta abierta** (tab).
+
+**Backend**
+
+- `POST /api/v1/orders/:id/transfer-to-person`: resuelve o crea el `Customer` (la
+  persona), resuelve la sesión de caja, libera la mesa (comensales `CHECKED_OUT`,
+  mesa `FREE` y sin dueño) y desasocia la mesa del pedido. La transacción conserva
+  su ID, su persona, su mozo y su sesión de caja en `guestDraft.openAccount`.
+- `POST /api/v1/pos/sessions/:id/collect`: **cobro real** (antes solo actualizaba la
+  lista en memoria y guardaba las propinas en el `localStorage`). Marca el pedido
+  como pagado y registra el `CashMovement` de venta y de propina en la sesión de caja.
+- `GET /api/v1/orders/guest/pending`: distingue cuentas de mesa y **cuentas abiertas**
+  (persona, mesa de origen y sesión de caja).
+
+**ERP (Odoo 14)**
+
+- Odoo 14 CE no tiene la "transferencia a cliente" del POS Enterprise (comprobado
+  en el core), pero su modelo lo permite: el addon asigna el `res.partner` y libera
+  la mesa (`table_id = False`). Así la mesa queda libre en el ERP y la cuenta sigue
+  abierta a nombre del cliente.
+- Nueva ruta del adapter `POST /api/omniflow/transfer_table_order` y nuevo handler
+  `odoo.transfer_table_order` en la cola `odoo-table-sync` (con telemetría).
+
+**Frontend**
+
+- `/admin/gastro/tables`: acción "Cerrar cuenta y liberar mesa" con la persona a la
+  que se traspasa (nombre, RUC, teléfono) y conmutador de traspaso al ERP.
+- `/admin/gastro/cashier`: sección de cuentas abiertas y cobro real (exige sesión de
+  caja abierta).
+
+**Sin tablas nuevas**: se apoya en `Order.customerId`, `Order.posSessionId`,
+`Order.waiterId`, `Order.tableId` (nullable) y `metadata.guestDraft.openAccount`.
+
+**Documentación:** `docs/plans/omnigastro/PLAN_CUENTA_ABIERTA_2026-10-20.md`,
+`flujo_cuenta-abierta.md`, `auditoria-cuenta-abierta-2026-10-20.md`.
+
+## [1.39.13] - 2026-10-20
+
+### 🐛 Fix: El cobro en `/admin/gastro/tables` pedía PIN y devolvía HTTP 400 (bug #8b)
+
+**Síntoma:** la mesa G5 tenía un pedido listo para cobrar, pero al procesar el
+cobro el sistema pedía el PIN del empleado y devolvía
+`HTTP 400` en `POST /api/v1/public/hr/kiosk/pin/verify`.
+
+**Causa raíz:** `HrKioskPublicController` resolvía el tenant **solo** desde el
+encabezado `x-tenant-id`, que el cliente HTTP del frontend nunca envía (el
+interceptor solo añade `Bearer` o `x-api-key`, y en rutas `/public/**` ni
+siquiera la key). El tenant **ya estaba resuelto** por el `ApiKeyGuard` en
+`request.tenant`: el controlador no lo consultaba y respondía 400.
+
+**Correcciones:**
+
+- `resolveTenantId()` usa el contexto de la petición (`req.tenantId` →
+  `req.tenant?.id` → `req.user?.tenantId`), dejando `x-tenant-id` como override
+  explícito. Aplica a `pin/verify` y `pin/mark-attendance`.
+- El frontend envía la `x-api-key` en `/api/v1/public/hr/kiosk/**` (endpoints
+  públicos **por tenant**): las tablets del salón sin sesión pueden verificar el PIN.
+- El mensaje "Mesa asignada a `<nombre>`" usaba `employee.name`, que el endpoint
+  no devuelve (`firstName`/`lastName`).
+- `guestPending` (cola de la caja) expone `paymentPreconfirmedAt` y
+  `paymentPreconfirmData`: el dato se escribía pero **nadie lo leía**, así que la
+  caja no podía saber que el mozo ya había cobrado en mesa. La caja muestra ahora
+  una etiqueta verde con el mozo y la hora de la preconfirmación.
+
+**Auditoría:** `docs/plans/omnigastro/auditoria-gastro-tables-payment-pin-400.md`.
+
 # Changelog
 
 Todos los cambios notables a este proyecto serán documentados en este archivo.
 
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 y este proyecto se adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+## [1.39.12] - 2026-10-20
+
+### 🐛 Fix: El producto del pedido no se resolvíe en el POS de Odoo 14 (D11)
+
+**Síntoma:** con la v1.39.11 desplegada, la cadena llegaba a Odoo (`t0`→`t5`,
+`odoo_table_id=77` correcto) pero el ERP respondía
+`invalid literal for int() with base 10: '<uuid de OrderFlow>'`.
+
+**Causa raíz:** el listener enviaba `odooProductId = line.productId` (un **UUID**
+de OrderFlow) donde Odoo espera el id numérico de `product.product`. El campo
+`Product.odooProductId` nunca existió: el mapeo real es por **SKU**
+(`Product.skuInterno` == `product.default_code`), la misma convención que usa el
+sincronizador de productos del adapter.
+
+**Solución:** el listener envía `sku`/`barcode`/`productId` (trazabilidad) y solo
+`odooProductId` si ya es numérico; el adapter resuelve el producto de Odoo por
+SKU o código de barras y omite (reportando en `skipped_lines`) las líneas sin
+equivalente. Verificado contra el ERP: `BEB004 → 1626 "Americano"` (18.000),
+`BEB011 → 1644`, `BEB012 → 1647`.
+
+## [1.39.11] - 2026-10-20
+
+### 🐛 Fix: Sincronización OrderFlow → Odoo 14 POS (bug #7 del reporte del cliente v1.39.9)
+
+**Síntoma:** el pedido que el mozo cierra y envía a la caja **nunca llega al POS de
+Odoo 14** (`http://192.168.69.246:8081/pos/ui?config_id=2`). La cadena entera
+nunca había funcionado (0 `pos.order` `OmniFlow%` en la DB).
+
+**Causas raíz (4 defectos independientes + 3 de soporte):**
+
+| ID | Defecto | Corrección |
+|---|---|---|
+| D1 | Se enviaba el número de mesa legible (`"G5"`) como id de Odoo → `int("G5")` → 500 | `orders.service.ts` emite el `tableId` de OrderFlow; el listener resuelve el id **numérico** del ERP |
+| D2 | Sin correspondencia mesa ↔ mesa Odoo | Nueva columna `restaurant_tables.odoo_table_id` (snake_case, AGENTS §2.4) + UI de mapeo + endpoints de diagnóstico |
+| D3 | `pos.order.amount_tax` es `required=True` **sin `compute`** en el core de Odoo 14 (y `pos.order.line.price_subtotal` igual) → ninguna creación por RPC es posible | Addon `pos_omniflow_sync`: aporta los importes, replica el onchange del core y recalcula con `_compute_batch_amount_all()` |
+| D4 | El cierre de mesa no disparaba el sync (solo "enviar a cocina") | `guestClose` emite `odoo.table_order_sync` con `trigger=TABLE_CLOSED` |
+| D5 | `ODOO_DB=wellnesscoffee` (base inexistente) | `ODOO_DB=prod` parametrizado en compose |
+| D6 | `TableSyncWorker` (Redis plano) era un camino muerto frente a BullMQ | Worker eliminado del `odoo-adapter` |
+| D7 | Sin trazabilidad ni métricas | Hitos `t0…t5` + 5 métricas Prometheus + alerta por tenant |
+
+**Además:** cobro en mesa configurable por tenant (`waiterCanCollectPayment`),
+`pos.config` por tenant, modal de **editar mesa** restaurado (bug #8a).
+
+**Validación:** prueba de contrato contra el ERP real
+(`odoo-adapter/test-pos-order-contract.js`): reproduce el fallo, valida el fix y
+limpia el pedido de prueba. Addon desplegado con backup + rollback
+(`scripts/deploy-odoo-addon.sh`).
+
+**Documentación:** `docs/plans/omnigastro/PLAN_ODOO_POS_SYNC_2026-10-19.md`,
+`docs/plans/omnigastro/flujo_odoo-pos-sync.md`.
+
+## [1.39.10] - 2026-10-19
+
+### 🐛 Fix: Backend en crash-loop por el adapter de Socket.IO + Redis (`unhandledRejection`)
+
+**Síntoma:** el contenedor `orderflow_backend` reiniciaba en loop (`RestartCount` creciente, health check nunca `healthy`) con:
+
+```
+Error: Stream isn't writeable and enableOfflineQueue options is false
+    at EventEmitter.psubscribe (ioredis/built/utils/Commander.js:90:25)
+    at new RedisAdapter (@socket.io/redis-adapter/dist/index.js:99:28)
+    at RedisIoAdapter.createIOServer (dist/common/redis-io.adapter.js:54:20)
+```
+
+**Causa raíz** (`docs/troubleshooting/182-socketio-redis-adapter-unhandled-rejection-crash.md`):
+
+- `backend/src/common/redis-io.adapter.ts` creaba el cliente de pub/sub con `pubClient.duplicate()`, que hereda `lazyConnect: true` y `enableOfflineQueue: false`, y **nunca lo conectaba**. `@socket.io/redis-adapter` dispara `psubscribe`/`subscribe` de forma fire-and-forget al construir el namespace: con el stream no escribible la promesa se rechaza y, al no estar manejada, Node 22 termina el proceso. El `try/catch` no podía capturarla (rechazo interno del adapter). El bug solo se manifestaba **con Redis accesible**: con password inválida caía al fallback in-memory y el proceso "arrancaba sano" pero sin pub/sub.
+- `docker-compose.yml` (servicio `backend`) no heredaba el `.env` (`TypeError: Configuration key "JWT_SECRET" does not exist`) ni propagaba `REDIS_URL` / `REDIS_PASSWORD` / `ENABLE_REDIS_WS`.
+
+**Solución:**
+
+- `backend/src/common/redis-io.adapter.ts`: `await subClient.connect()` antes de `createAdapter`, password enmascarada en logs (`redis://***@redis:6379`), `safeQuit()` de pub/sub en el fallback y cierre seguro de clientes.
+- `backend/src/main.ts`: guard de `unhandledRejection` **acotado a Redis** (pub/sub es no crítico); cualquier otro rechazo mantiene el comportamiento por defecto de Node (`process.exit(1)`).
+- `docker-compose.yml`: `env_file: .env` + `REDIS_URL` / `REDIS_PASSWORD` / `ENABLE_REDIS_WS` en el servicio `backend` (con `environment` por encima de `env_file` para los hosts de red `postgres` / `redis`).
+
+
+### 🔧 Fix: Deploy a Provecchio (SSH root, build del frontend, servicios standalone)
+
+Documentado en `docs/troubleshooting/183-deploy-provecchio-root-ssh-frontend-fix.md`:
+
+- **`scripts/deploy-production.sh`**: todas las invocaciones SSH usan `root@${REMOTE_HOST}` (antes usaban el usuario local y fallaban con `open /srv/orderflow/.env.provecchio: permission denied`, dejando provecchio.com sin backend); `REMOTE_ENV_FILE` por target (`.env.provecchio`); se elimina el `docker volume prune`; `chmod +x scripts/*.sh` tras el rsync; **nuevo paso de build del frontend** en el servidor (`node:20-alpine` + `npm ci --include=dev` + `vite build --mode provecchio`) porque el servicio `frontend` sirve `./frontend/dist` y el rsync excluye `**/dist` (producción seguía sirviendo el bundle de v1.39.8).
+- **`docker-compose.provecchio.yml`**: `REDIS_URL`/`DATABASE_URL` con interpolación en vez del placeholder `cambiar_redis_password_produccion_aleatorio` (que rompía la autenticación de Redis del backend en producción) y `sync_standalone` con `volumes: !reset []` + `REDIS_URL` con password.
+- **`docker-compose.yml`**: healthcheck de `sync_standalone` con `node -e "fetch(...)"` (la imagen `node:20-slim` no tiene `wget`).
+- **Servicios standalone** (`omnibi-standalone`, `sync-standalone`): el mapping `"@orderflow/auth-shared" → ./auth-shared-dist/index.d.ts` se elimina (TypeScript reescribía el `require` a un `.d.ts` que Node no puede ejecutar), el Dockerfile compila el paquete `file:` dentro de `node_modules/@orderflow/auth-shared/dist` (el `package.json` declara `main: dist/index.js`) y el runner copia `auth-shared-dist` en la subcarpeta `dist/`.
+- **Producción**: base `orderflow_bi` creada y migración `20261013000107_init_omnibi_standalone` aplicada (Prisma 5.22 del servicio; el `npx prisma` de la imagen descargaba Prisma 7, incompatible con el schema).
+- **Resultado**: los 9 contenedores de producción quedan `healthy` (antes `sync_standalone` y `omnibi_standalone` estaban en crash-loop) y el backend reporta `✅ Socket.io Redis Adapter initialized successfully` (el pub/sub de Redis queda habilitado en producción).
+
+### ✅ Validación
+- `docker compose up -d --no-deps backend` → `RestartCount=0`, `Status=running`, `Health=healthy`.
+- `GET /api/v1/health` → `200 {"version":"1.39.10","status":"ok"}`; log `✅ Socket.io Redis Adapter initialized successfully` y `Analytics Cache initialized on Redis redis:6379`.
+- Unit tests backend: **127 suites / 940 tests OK**.
+- E2E Playwright contra `provecchio.local`: **64/64 OK** (22/22 en `omnigastro.spec.ts`, incluida la validación de importación de datos de provecchio.com).
+- `scripts/qa_e2e_check.py` contra `provecchio.com`: catálogo público, dominios y 7 rutas de administración sin errores JS ni HTTP 5xx.
+- Sin cambios de esquema, sin migraciones, `tenantId` intacto.
+
+### 📚 Docs: vertical OpenCore (análisis y refactor del schema Prisma)
+
+Se abre la vertical `docs/plans/opencore/` con el análisis verificado del schema Prisma del core
+y los 11 schemas standalone, promovido desde la rama `feat/schema-prisma-analysis-v3`:
+
+- `Plan_analisis_schema_prisma_v4.md` — estado real del schema (161 modelos, 56 enums, 4.471 líneas,
+  38 carpetas de migración), decisiones del dueño, 5 gates y riesgos de despliegue.
+- `PLAN_2_SCHEMA_SPLITTING_SUMMARY.md` — división del schema en dominios (`platform/`, `commerce/`,
+  `pos/`, `inventory/`, `crm/`, `hr/`, `fiscal/`, `modules/`, `intel/`).
+- `PROJECT_STATUS_REPORT.md` — estado por fases de los Planes 0A/0B/1/2/3.
+- `DEPLOYMENT_PLAN.md` — plan de despliegue histórico de la rama de trabajo.
+- `README.md`, `ROADMAP_OPENCORE.md`, `PLAN_MAESTRO.md`, `AUDITORIA_OPENCORE_20261019.md` y
+  `featurelist.json` de la vertical.
+- FEAT-177 a FEAT-182 registradas en `featurelist.json` (global y vertical) en estado `planned`.
+
+**Sin cambios de código:** ni `schema.prisma`, ni `docker-compose.yml`, ni `package.json`, ni
+`VERSION` (se mantiene **1.39.10**). El `1.40.0` queda reservado para el próximo hito mayor
+(Tauri Desktop & OmnIoT Edge).
+
+## [1.39.9] - 2026-10-19
+
+### 🐛 Fix: OmniGastro v1.39.9 — POS mozo responsivo en tablet + QR de mesa con menú digital
+
+**Bugs reportados en el despliegue v1.39.8 (provecchio.com):**
+
+1. **POS del mozo en tablet: el TOTAL se solapaba con la lista de productos** (`/admin/gastro/pos/:tableId`).
+2. **El QR de la mesa G10 (`/?t=<token>`) abría BioLinks en vez del menú digital** con la opción de llamar al mozo.
+
+**Causas raíz y soluciones**
+
+- **Solapamiento en tablet** (`docs/troubleshooting/181-pos-tablet-overlap-and-qr-biolinks.md`):
+  - `frontend/src/styles/admin-mobile.css` — la regla `@media (max-width:768px){ .ant-layout-sider{ position:fixed!important; z-index:999!important; height:100vh!important } }` (pensada para el sider del shell admin) alcanzaba también a los dos `Sider` del POS (catálogo 300px y resumen 210px con el TOTAL) en `gastro-pos.tsx`: ambos pasaban a `position:fixed` y se apilaban en el mismo origen, superponiendo el bloque del TOTAL sobre la lista de productos. **Fix:** selector scopeado a `.admin-sider`.
+  - `frontend/src/pages/admin/gastro-pos.tsx` — layout responsivo con `Grid.useBreakpoint()`: `≥1200px` 3 columnas (catálogo 300 + líneas + resumen 210), `768–1199px` 2 columnas (catálogo 260 + líneas, con el resumen compacto sobre las líneas), `<768px` catálogo en `Drawer` overlay. Header con `height:auto` + `flexWrap` (los controles ya no desbordan sobre el catálogo), `minWidth:0` en la columna de líneas y wrap en las filas de producto.
+  - `frontend/src/AdminApp.tsx` — la ruta `/admin/gastro/pos/*` renderiza a sangre (sin padding de 24px ni bottom-nav móvil) para ocupar todo el viewport (`calc(100vh - 64px)`) en lugar de `100vh` dentro de una caja con padding.
+- **QR de mesa con BioLinks**:
+  - `frontend/src/pages/public-storefront-page.tsx` — la página se elegía por `tenant.config.homepagePreset` **antes** de considerar el token de mesa `?t=`; el tenant Provecchio tiene `homepagePreset: "omnilinks"`, por lo que el QR abría "¡Bienvenido a nuestra Bio!". **Fix:** si la URL trae `?t=` se renderiza `SocialCatalogPage` (modo restaurante + "Llamar al mozo"), con independencia del preset.
+  - `frontend/src/App.tsx` — misma garantía a nivel de routing: `?t=` resuelve al catálogo social antes de la detección de dominio/subdominio.
+
+**Adicional**
+
+- `featurelist.json` era **JSON inválido** (FEAT-173 quedó fuera del array `features`), lo que rompía `scripts/check-version.sh`; reparado y normalizado el JSON.
+- 37 `*.manifest.json` de módulos core re-sincronizados a la versión del core (venían en 1.39.5/1.39.6).
+- Marcador de versión de `README.md` reparado (`<!--CURRENT_VERSION-->1.39.9<!--`).
+
+### ✅ Validación
+- Build frontend (`tsc` + `vite`) limpio.
+- Playwright `frontend/e2e/pos-tablet-responsive.spec.ts`: **5/5 OK** contra `provecchio.local` (768x1024, 810x1080, 1024x768 sin intersección catálogo/TOTAL, sin scroll horizontal, sin siders en `position:fixed`, sin overflow del header; QR `/?t=<token>` muestra "MODO RESTAURANTE" + "Llamar al mozo" y no BioLinks).
+- Suite E2E completa: **64/64 OK** contra `provecchio.local` (antes 61/64: 3 tests preexistentes rotos en `omnigastro.spec.ts` por selectores que no matcheaban —`text=Buscar producto` sobre un `<input>`, `[class*="collapse"]` que matcheaba el sider del admin, `text=TOTAL` con strict-mode violation— y por creación de comensales no idempotente; corregidos en esta release).
+- Sin cambios de backend, sin migraciones, `tenantId` intacto, sin colores hardcodeados (solo `theme.useToken()`).
+
+## [1.39.8] - 2026-10-18
+
+### 🐛 Fix: OmniGastro v1.39.8 — Localhost Restoration & POS Flow Complete
+
+- **Infraestructura Local** — Conectados `orderflow_db` y `orderflow_omnisync_redis` a `orderflow-network`; actualizadas `DATABASE_URL` y `REDIS_URL` en `.env` y `backend/.env` para usar nombres de host Docker (`orderflow_db:5432`, `orderflow_omnisync_redis:6379`).
+- **Traefik Routing** (`docs/troubleshooting/#175, #176`) — Fix precedencia operadores en `provecchio-router.yml`: `(Host \|\| HostRegexp) && PathPrefix`; agregado router `ws-provecchio-local` (priority 200) para `/socket.io/` → WebSocket KDS/POS funcional.
+- **OmniGastro POS — "Cargar Pedido"** (`docs/troubleshooting/#177`) — Modal ahora muestra "Crear Nuevo Pedido para esta Mesa" cuando no hay pedidos existentes; POST `/api/v1/orders` con `tableId` crea orden DRAFT y navega a POS (`/admin/gastro/pos/{tableId}`).
+- **Backend Orders** — `tableId` guardado en `create()` (`orders.service.ts`); nuevo método `updateItems()` unificado (guest + POS regular); controller usa servicio unificado.
+- **Frontend POS** — Fallback endpoint: `/api/v1/guest/orders/:id` → `/api/v1/orders/:id` para órdenes POS regulares.
+- **Backups — Página Dedicada** — Nueva `/admin/backups` (no modal): config SFTP, lista remota, trigger manual, restore, delete; link en Sidebar "Copias de Seguridad (SFTP)" 💾.
+- **Automated Backup/Restore Alignment** — Cambiado `pg_dump -F c` → plain SQL (`pg_dump -f`); `pg_restore` → `psql -f`; compatible con `backup-production.sh` / `restore-with-info.sh`.
+- **AGENTS.md** — §3.1.1 punto 7: validar SFTP backup/restore antes de deploy completo.
+- **Arquitectura / Tests** — `biolinks/biolinks.controller.ts` agregado a allowlist en `architecture.spec.ts` (endpoints públicos usan `this.prisma` sin `@TenantPrisma`); tests biolinks actualizados.
+- **Odoo 14 Adapter** (`docs/troubleshooting/#178`) — Fix conexión en localhost:
+  - `restart: unless-stopped` en todos los servicios docker-compose
+  - `odoo_adapter`: ODOO_HOST=192.168.69.246, ODOO_PORT=8081, ODOO_PASSWORD=Cross1983_ (coincide con producción)
+  - `odoo_adapter`: REDIS_HOST=redis, REDIS_PASSWORD configurado; `depends_on: redis`
+  - Contenedor `orderflow_odoo_adapter` ahora inicia automáticamente y conecta a Odoo/Redis correctamente
+
+### ✅ Validación
+- `./scripts/init.sh` pasa (940 backend tests + build, frontend build, Traefik sync, E2E QA).
+- Health check: `{"version":"1.39.8","services":{"database":{"status":"ok"}}}`.
+- Flujo completo verificado: QR → mesa G7 → Cargar Pedido → POS → agregar productos → enviar cocina.
+- Biolinks públicos: `/bio/dimora`, `/api/v1/bio/dimora`, `/social-catalog/menudigital` funcionando.
+- WebSocket `wss://provecchio.local/socket.io/` conecta correctamente.
+- Odoo 14 adapter health: `http://localhost:3005/health` → OK.
+
+## [1.39.6] - 2026-10-17
+
+### 🐛 Fix: OmniGastro v1.39.6 — Verificación actualizaciones doc + swagger/config
+
+- **Actualización VERSION, README.md, CHANGELOG.md, ROADMAP.md, docs/timeline.md, backend/src/main.ts:87 (Swagger), y featurelist.json a 1.39.6**
+- **Actualizar script deploy-production.sh para verificar sync traefik** (Regla AGENTS.md #4)
+- **Confirmar despliegue a producción** con `./scripts/init.sh` (Regla AGENTS.md #3)
+- **Generar tag v1.39.6** (`git tag v1.39.6 && git push --tags`)
+- **Sincronizar documentación con Wiki** (`/opt/wiki/orderflow/`) (Regla AGENTS.md #7)
+
+## [1.39.2] - 2026-10-16
+
+### 🐛 Fix: OmniGastro v1.39.2 — Bugs post-despliegue v1.39.1 en Provecchio
+
+- **Bug 1 — KDS Stations: categorías padre/hoja independientes + excluir subcategorías** (`frontend/src/pages/admin/gastro-kds-stations.tsx`)
+  - Refactor del formulario de estación KDS: tres `Select` multivalor independientes (categorías padre con hijos, subcategorías hoja, excluir subcategorías).
+  - Acción rápida "Seleccionar todas las hojas de padres seleccionados" y "Limpiar exclusión".
+  - Persiste categorías combinadas (padres + hojas recursivas) en `categories: string[]`; retrocompatible con estaciones existentes.
+- **Bug 2 — Tables: listado/edición incoherente entre `/admin/gastro/tables` y modal "Gestión de Mesas y Códigos QR"** (`frontend/src/pages/admin/gastro.tsx`)
+  - `loadTables` unificado a `GET /api/v1/tables/floor-map` aplanando `floors` + `unassignedTables`; ambas vistas muestran el mismo conjunto de mesas activas/no eliminadas del tenant.
+  - Refetch tras CRUD (crear/editar/eliminar mesa).
+- **Bug 4 — Modal "Cargar Pedido": pedidos por mesa y sin mesa (takeout)** (`frontend/src/pages/admin/gastro.tsx`, `backend/src/orders/orders.controller.ts`, `backend/src/orders/orders.service.ts`)
+  - Botón "Cargar Pedido" abre modal con `Select` de mesas + opción "Sin mesa (takeout)".
+  - Llama a `GET /api/v1/orders` con `tableId` (o `null` para takeout) y `status=DRAFT,CLAIMED,SENT_TO_KITCHEN,IN_PREPARATION,READY`.
+  - Backend `OrdersService.findAll` soporta `tableId=null` (filtra `tableId IS NULL`) y `orderType=TAKEOUT`; `tenantId` sagrado en todas las consultas.
+  - Acción "Gestionar Pedido" navega a `/admin/gastro/pos/<tableId>`.
+- **Bug 5 — Modal responsivo en panel de mozos (`/admin/gastro/mozos`) sin overflow de texto** (`frontend/src/pages/admin/gastro.tsx`)
+  - `width` responsivo: `xs: 95vw, sm: 90vw, md: 800px, lg: 900px, xl: 1000px`.
+  - `bodyStyle` con `maxHeight: calc(90dvh - 120px)` y `overflowY: auto`.
+  - `ellipsis: true` en columnas largas, `scroll={{ x: true }}` en tablas, tokens de tema Ant Design (cero colores hardcodeados).
+
+### ✅ Validación
+- `./scripts/init.sh` pasa (backend tests + build, frontend build, Traefik sync, E2E QA).
+- Nueva suite Playwright en `frontend/e2e/`: `kds-station-independent-categories.spec.ts`, `tables-modal-sync.spec.ts`, `order-modal-load-takeout.spec.ts`, `modal-responsive.spec.ts`.
+- `/api/v1/health` devuelve versión `1.39.2`.
+
+---
+
+### 🐛 Fix: 403 Forbidden en auth endpoints del panel mozo (verify-pin no devolvía JWT)
+
+- **`auth.service.ts` - `verifyPin()` method** — La verificación de PIN contra `employees.pin_code` verificaba el PIN correctamente pero no generaba/retornaba JWT access token y refresh token. El frontend (`gastro-mozos.tsx`) almacenaba `user` data en localStorage sin tokens, causando 403 "Missing user or tenant context" en todos los endpoints subsecuentes: `/api/v1/modules/installed`, `/api/v1/waiter/calls`, `/api/v1/orders/guest/pending`, `/api/v1/waiter/calls/:id/take-order`. Se añadió la generación de `accessToken` y `refreshToken` (con `generateAccessToken`/`generateRefreshToken`), actualización del `refreshTokenHash` en la tabla `users`, y retorno del token JWT en la respuesta.
+- **`employees` ↔ `users` linking** — Los 3 empleados existentes (Ivan/Mozo, Natalia/Cajero, Paula/Cocinero) no tenían `user_id` vinculado. `verifyPin()` retornaba "El empleado no tiene usuario asociado". Se vincularon directamente en DB: Ivan→mozo@provecchio.com, Natalia→natalia.bado@staff.provecchio.local, Paula→paula@staff.provecchio.local.
+- **`gastro-mozos.tsx`** — `handleVerifyPin` actualizado para almacenar `accessToken` y `refreshToken` en localStorage tras verificación exitosa del PIN. `handleLogoutWaiter` limpiar ambos tokens.
+- **Table name UUID issue** — Era un síntoma del 403, no un bug de datos. Los nombres mostraban UUIDs porque el frontend no podía autenticar para obtener `/api/v1/orders/guest/pending`. Los nombres correctos (G10, M01, Giardino) aparecen tras el fix.
+- **Nuevo:** `docs/guides/TECHNICAL-GUIDE-DEVELOPERS.md` — Guía técnica obligatoria para agentes y desarrolladores.
+
+## [1.38.21] - 2026-10-13
+
+### 🐛 Fix: Modal Gestión de Mesas QR vacío + Odoo POS TypeError en get_table_draft_orders
+
+- **`tables.controller.ts` endpoints de solo lectura** — `GET /api/v1/tables`, `GET /:id`, `GET /floor-map`, `GET /floors`, `GET /:id/guests`, `GET /:id/seat-summary` lanzaban `BadRequestException('Usuario no autenticado')` cuando `req.user?.id` era undefined. Esto ocurría cuando el frontend (`gastro.tsx` `loadTables()`) usaba solo `x-api-key` (sin JWT), que es el flujo normal del panel de mozo. Se eliminó la chequera de `userId` de estos endpoints; el `ApiKeyGuard` ya autentica la solicitud (API key del tenant o JWT). Los endpoints de escritura siguen exigiendo `req.user?.id` por RBAC.
+- **Odoo 14 `pos_restaurant/models/pos_order.py:167`** — `search(r"\d{5,}-\d{3,}-\d{4,}", order['pos_reference']).group(0)` crasheaba con `TypeError` cuando `pos_reference` era `None`/`False` (no es string) y con `AttributeError` cuando era un string que no cumplía la regex. Se parchó directamente en el contenedor `odoo_web_8081` (192.168.69.246:8081): `order["uid"] = search(r"\d{5,}-\d{3,}-\d{4,}", order["pos_reference"] or "").group(0) if order["pos_reference"] else None`.
+- **Addon OmniFlow `pos_omniflow_sync/controllers/main.py:38`** — generaba `pos_reference = f"OmniFlow-{external_order_ref[-6:]}" if external_order_ref else False`. Ambos valores incumplen la regex de Odoo. Se cambió a `f"{pos_session.id:05d}-{table.id:03d}-{order.id:04d}"` (formato `NNNNN-NNN-NNNN`). Sincronizado a `/opt/odoo/addons/pos_omniflow_sync/controllers/main.py` en 192.168.69.246 y Odoo reiniciado.
+- **Resultado** — El modal Gestión de Mesas y Códigos QR de Provecchio ahora devuelve las 13 mesas del tenant `provecchio-dimora-001`. El POS Odoo 14 no tira TypeError al abrir mesas con órdenes draft.
 
 ## [1.38.20] - 2026-10-13
 

@@ -1,11 +1,11 @@
 # OmniFlow SaaS Omnicanal
 
-![Version](https://img.shields.io/badge/version-1.38.15-blue)
+![Version](https://img.shields.io/badge/version-1.39.24-blue)
 ![License](https://img.shields.io/badge/license-Proprietary-red)
 ![NestJS](https://img.shields.io/badge/backend-NestJS-green)
 ![React](https://img.shields.io/badge/frontend-React-blue)
 
-<!--CURRENT_VERSION-->1.38.20<!--/CURRENT_VERSION-->
+<!--CURRENT_VERSION-->1.39.24<!--/CURRENT_VERSION-->
 
 **OmniFlow** es una plataforma SaaS omnicanal para gestión empresarial integral con arquitectura multi-tenant, facturación electrónica SISET, integraciones nativas con Odoo ERP (v14, v18, v19), catálogo social omnicanal, punto de venta (POS), pantallas de cocina (KDS), manufactura (MRP), compras, tesorería multi-moneda, fuerza de ventas B2B, analítica de negocios (BI), workspace documental colaborativo con Collabora Online y motor de Inteligencia Artificial con LLM Local (Ollama / vLLM).
 
@@ -203,5 +203,5 @@ Propietario - OrderFlow Team
 
 ---
 
-**Última actualización:** 2026-09-03  
-**Versión:** 1.27.10
+**Última actualización:** 2026-10-17  
+**Versión:** 1.39.7
