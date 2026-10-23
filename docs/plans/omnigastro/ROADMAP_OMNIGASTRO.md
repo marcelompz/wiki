@@ -142,6 +142,26 @@ FEAT-147 (routing por categoría) ──► FEAT-148 (showInKDS) ──► FEAT-
 
 ---
 
+## 5.2. Backlog propuesto — Cuentas de mesa y pedidos concurrentes (FEAT-203 → FEAT-205)
+
+> **Estado:** 🟡 **propuesto — pendiente de aprobación del usuario** (AGENTS #15/#16), versión objetivo **1.42.0**.
+> **Documentos:** [`plan-actualizacion-cuentas-mesa-concurrentes.md`](./plan-actualizacion-cuentas-mesa-concurrentes.md),
+> [`flujo-cuentas-mesa-concurrentes.md`](./flujo-cuentas-mesa-concurrentes.md).
+
+| FEAT | Alcance | Fase | Estimación |
+|---|---|---|---|
+| **FEAT-203** | `TableSession` + identidad de comensal (`guestKey`/`TableGuest`) + idempotencia del alta QR + Mozo POS y caja agrupados por sesión | F0–F1 | 4–5 días |
+| **FEAT-204** | `Bill` (unidad fiscal) + merge/unmerge de pedidos + cobro por cuenta + split por asiento | F2 | 4–5 días |
+| **FEAT-205** | `sync_bill` en Odoo (addon v14.0.1.4.0, upsert por `omniflow_bill_ref`) + telemetría `t0…t12` + E2E/Newman | F3 | 3–4 días |
+
+**Problema que resuelve:** dos comensales escanean el mismo QR y piden a la vez → hoy se crean dos
+pedidos sin vínculo, dos alertas al mozo, dos tarjetas en caja y dos `pos.order` en Odoo.
+
+**Decisiones de negocio pendientes:** D1–D5 del plan (default por mesa/comensal, alcance fiscal del merge,
+nombre/asiento obligatorio, exclusividad del claim y bloqueo de cierre).
+
+---
+
 ## 6. Métricas de Éxito
 
 | Métrica | Objetivo |

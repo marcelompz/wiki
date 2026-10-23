@@ -1,7 +1,7 @@
 {
   "project": "OrderFlow SaaS Omnicanal",
   "version": "1.41.5",
-  "last_updated": "2026-10-22",
+  "last_updated": "2026-10-23",
   "features": [
     {
       "id": "FEAT-183",
@@ -2447,10 +2447,60 @@
       "status": "completed",
       "version": "1.41.5",
       "priority": "LOW"
+    },
+    {
+      "id": "FEAT-203",
+      "category": "OmniGastro / Salón / Pedidos concurrentes",
+      "title": "TableSession + identidad de comensal e idempotencia en el alta QR (v1.42.0)",
+      "description": "Dos comensales en la misma mesa escanean el mismo QR y envían su pedido a la vez: hoy POST /api/v1/guest/orders crea siempre un Order nuevo, sin sesión, sin vínculo entre pedidos, sin idempotencia y sin cambiar el estado de la mesa. Resultado: dos pedidos independientes, dos WaiterCall, dos tarjetas en caja, el Mozo POS sólo muestra uno (limit=1) y Odoo recibe dos pos.order. Se agrega TableSession (una sesión OPEN por mesa vía índice único parcial), guestKey por dispositivo, idempotencyKey única por tenant, append de líneas al pedido activo del mismo comensal, lock SELECT ... FOR UPDATE al abrir sesión, claim a nivel mesa y endpoints GET /tables/:id/session y POST /table-sessions/:id/close. Incluye feature flag gastro.tableSessions y backfill idempotente de pedidos activos.",
+      "status": "planned",
+      "version": "1.42.0",
+      "priority": "HIGH",
+      "assigned_module": "backend/prisma/schema.prisma, backend/src/guest/guest-orders.controller.ts, backend/src/tables/tables.service.ts, frontend/src/pages/admin/gastro-pos.tsx, frontend/src/pages/admin/gastro-cashier.tsx, frontend/src/pages/omni-catalog.tsx",
+      "depends_on": [
+        "FEAT-116",
+        "FEAT-190",
+        "FEAT-197"
+      ],
+      "report": "docs/plans/omnigastro/plan-actualizacion-cuentas-mesa-concurrentes.md",
+      "qa_validation": "Pendiente: unitarios de concurrencia, integración Postgres de índices parciales y E2E Playwright con 2 contextos sobre el mismo QR"
+    },
+    {
+      "id": "FEAT-204",
+      "category": "OmniGastro / Caja / Facturación",
+      "title": "Bill: cuentas de mesa con merge/unmerge y cobro por cuenta (v1.42.0)",
+      "description": "Capa de cuenta (Bill) como unidad de cobro y fiscal: una Bill por pedido (PER_ORDER) o N pedidos en una sola cuenta (MERGED). Endpoints POST /bills, POST /bills/:id/orders, POST /bills/:id/unmerge y POST /bills/:id/pay con validación de suma exacta, Bill.lockedAt para impedir doble cobro y reutilización de BillSplit/SplitPayment para dividir por asiento. La caja pasa a mostrar una tarjeta por sesión/mesa (elimina las claves React duplicadas key={b.tableId}) y el Mozo POS habilita «Unir cuentas». Un pedido pertenece a una sola Bill y no se puede mergear si ya está pagado/facturado.",
+      "status": "planned",
+      "version": "1.42.0",
+      "priority": "HIGH",
+      "assigned_module": "backend/src/bills/ (nuevo), backend/src/pos/pos-sessions.service.ts, backend/src/bill-split/, frontend/src/pages/admin/gastro-cashier.tsx",
+      "depends_on": [
+        "FEAT-116",
+        "FEAT-203"
+      ],
+      "report": "docs/plans/omnigastro/plan-actualizacion-cuentas-mesa-concurrentes.md",
+      "qa_validation": "Pendiente: unitarios de totales/merge/unmerge y E2E de cobro por cuenta con split por asiento"
+    },
+    {
+      "id": "FEAT-205",
+      "category": "OmniGastro / Integración Odoo 14",
+      "title": "sync_bill: una pos.order por cuenta en Odoo, idempotente (v1.42.0)",
+      "description": "En modo MERGED el sync a Odoo se dispara por Bill (no por pedido): POST /api/omniflow/sync_bill con bill_uuid, líneas y cliente. El addon pos_omniflow_sync sube a v14.0.1.4.0 con el campo omniflow_bill_ref y el método sync_bill, que hace upsert por referencia: si el pos.order está en draft reemplaza líneas y recalcula; si está pagado/publicado responde 409 (requiere nota de crédito). Se conserva sync_table_order para el modo PER_ORDER. Incluye telemetría t0…t12, KPIs de duplicados/huérfanos y colección Newman del contrato.",
+      "status": "planned",
+      "version": "1.42.0",
+      "priority": "HIGH",
+      "assigned_module": "odoo-adapter/src/index.js, odoo-adapter/odoo-addons/pos_omniflow_sync/, backend/src/queues/odoo-table-sync.processor.ts",
+      "depends_on": [
+        "FEAT-184",
+        "FEAT-188",
+        "FEAT-204"
+      ],
+      "report": "docs/plans/omnigastro/flujo-cuentas-mesa-concurrentes.md",
+      "qa_validation": "Pendiente: Newman del contrato sync_bill y E2E con Odoo de staging/local verificando una sola pos.order con todas las líneas"
     }
   ],
-  "lastUpdated": "2026-10-22",
-  "last_id": "FEAT-201",
+  "lastUpdated": "2026-10-23",
+  "last_id": "FEAT-205",
   "next_pending_sc": null,
   "active_plan": "docs/plans/omnigastro/PLAN_MAESTRO.md",
   "plan_progress": {
