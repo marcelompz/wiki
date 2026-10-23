@@ -2,6 +2,24 @@
 
 ## Before deploy on provecchio you need to backup the data on production, restore at localhost, deploy there and test all the stuff. Never deploy on production without successful test on localhost
 
+## 2026-10-23 — v1.41.4 (FIX) — Ítems faltantes en Odoo e historial del Mozo POS
+
+- **Odoo:** 123 productos de menú tenían `available_in_pos=False`; el POS descartaba sus líneas
+  (faltaba «Moscow mule»). Backfill de flags + categoría POS y auto-reparación en el addon
+  (`14.0.1.3.0`).
+- **Mozo POS:** si la mesa no tiene pedido activo se muestra el último pedido (cerrado) en modo
+  lectura, conservando el historial de lo enviado a cocina.
+- Detalle: `docs/troubleshooting/198-pos-odoo-items-faltantes-e-historial-mozo.md`.
+
+## 2026-10-23 — v1.41.3 (HOTFIX) — La caja del POS de Odoo no abría
+
+- El addon `pos_omniflow_sync` usaba `pos_reference = "OmniFlow-<uuid>"`, formato que
+  Odoo 14 no puede parsear en `get_table_draft_orders` → `AttributeError` al abrir caja.
+- **Addon v14.0.1.2.0:** campo `pos.order.omniflow_order_ref` (idempotencia) y
+  `pos_reference` en formato `Order 00000-000-0000`; saneo defensivo de pedidos heredados.
+- **Desplegado en el Odoo de producción** (backup + `-u pos_omniflow_sync` + restart).
+- Detalle: `docs/troubleshooting/197-odoo-pos-reference-incompatible-caja.md`.
+
 ## 2026-10-23 — v1.41.2 (PATCH) — Host de Odoo visible, interlock de escritura y deploy endurecido
 
 - El adapter reporta `odoo_host` y el modal de sincronización muestra **`Odoo: <host>`**, para saber

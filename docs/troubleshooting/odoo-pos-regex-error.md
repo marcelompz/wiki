@@ -60,5 +60,9 @@ def get_table_draft_orders(self):
 
 ## Status
 - **Identified**: 2026-10-15
-- **Fix pending**: Need to implement Option 1 in OrderFlow sync controller
-- **Workaround**: None - Odoo POS unusable for synced tables until fixed
+- **✅ Resolved**: 2026-10-23 (v1.41.3) — implementado en `pos_omniflow_sync` v14.0.1.2.0
+  con campo propio `pos.order.omniflow_order_ref` y `pos_reference` en formato
+  `Order 00000-000-0000`.
+- **Detalle completo**: [`197-odoo-pos-reference-incompatible-caja.md`](197-odoo-pos-reference-incompatible-caja.md)
+- **Recurrencia:** sí, el 2026-10-23 se reprodujo en producción porque el fix nunca se
+  había implementado en el addon.

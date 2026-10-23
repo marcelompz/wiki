@@ -1,3 +1,49 @@
+## [1.41.4] - 2026-10-23
+
+### 🍽️ Ítems que desaparecían del POS de Odoo
+
+- **Causa raíz:** `Moscow mule` (y 122 productos de menú más) tenían `available_in_pos = False`
+  y `pos_categ_id` vacío. El POS de Odoo descarta en silencio las líneas de productos no
+  habilitados para POS, por eso el pedido quedaba con 2 de 3 ítems.
+- **Backfill en Odoo:** 123 productos de las categorías «Para beber» (36) y «Para comer» (87)
+  habilitados para POS y asignados a `pos_categ_id` 16/17 (los insumos/expensas se dejan intactos).
+- **Addon `pos_omniflow_sync` v14.0.1.3.0:** al sincronizar una línea, si el producto no está
+  habilitado para POS se habilita automáticamente (`available_in_pos=True`), con log de warning.
+- **Reparación del pedido 32061:** se reincorporó la línea `Moscow mule` (1×30.000) y el total
+  volvió a 82.000 (3 ítems).
+
+### 👨‍🍳 Historial del pedido en el Mozo POS
+
+- **Causa:** el Mozo POS (`/admin/gastro/pos`) sólo consultaba estados activos
+  (`DRAFT,CONFIRMED,PREPARING,READY`); al cerrar la mesa el pedido pasa a `DELIVERED` y la vista
+  quedaba vacía aunque el historial existiera en el servidor.
+- **Fix:** si la mesa está libre y no hay pedido activo, se carga el último pedido de la mesa en
+  **modo lectura** con etiqueta «Cerrado» (los ítems enviados a cocina siguen visibles). Se bloquea
+  agregar/editar líneas y las acciones de envío/cobro sobre pedidos cerrados.
+- **Doc:** `docs/troubleshooting/198-pos-odoo-items-faltantes-e-historial-mozo.md`.
+
+## [1.41.3] - 2026-10-23
+
+### 🚨 Fix crítico — la caja del POS de Odoo no abría
+
+- **Causa raíz:** el addon `pos_omniflow_sync` creaba los pedidos con
+  `pos_reference = "OmniFlow-<uuid>"`. Odoo 14 (`pos_restaurant.get_table_draft_orders`)
+  hace `re.search(r"\d{5,}-\d{3,}-\d{4,}", pos_reference).group(0)` sin comprobar `None`,
+  por lo que un solo borrador con mesa rompía la apertura de caja con
+  `AttributeError: 'NoneType' object has no attribute 'group'`.
+- **Hotfix de datos:** pedido `32061` (mesa G3) normalizado a `Order 32061-002-1598`.
+- **Addon Odoo v14.0.1.2.0:**
+  - Nuevo campo `pos.order.omniflow_order_ref` para la referencia externa (idempotencia).
+  - `pos_reference` generado como `Order %05d-%03d-%04d` (formato parseable por Odoo).
+  - `_ensure_compatible_reference()` normaliza pedidos heredados con referencias inválidas.
+  - `sync_table_order` y `transfer_table_order` buscan por `omniflow_order_ref`.
+- **Desplegado en Odoo de producción** (`192.168.69.246`, contenedor `odoo_web_8081`):
+  backup + copia + `-u pos_omniflow_sync` + restart.
+- **Validación:** módulo `14.0.1.2.0`, `get_table_draft_orders(75)` OK y test de contrato
+  con `pos_reference` compatible + idempotencia.
+- Documentado en `docs/troubleshooting/197-odoo-pos-reference-incompatible-caja.md`.
+- Limpieza: `.pyc`/`__pycache__` residuales retirados del índice de git.
+
 ## [1.41.2] - 2026-10-23
 
 ### 🔒 Visibilidad y seguridad de la integración Odoo (FEAT-201)
