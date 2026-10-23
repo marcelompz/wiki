@@ -1,0 +1,99 @@
+{
+  "project": "OrderFlow SaaS Omnicanal",
+  "vertical": "opencore",
+  "version": "1.39.10",
+  "last_updated": "2026-10-19",
+  "features": [
+    {
+      "id": "FEAT-177",
+      "category": "OpenCore / Schema Prisma / Diagnóstico",
+      "title": "Plan 0 — Diagnóstico de schema y baseline de migraciones contra provecchio.local",
+      "description": "Capturar el baseline real del schema antes de tocar nada: (1) volcado de las 38 carpetas de backend/prisma/migrations y su estado aplicado en provecchio.local; (2) verificacion columna por columna de los @map snake_case frente a la realidad de la base (AGENTS.md §2.4, zona legacy vs zona nueva); (3) confirmacion de las 52 CREATE TABLE y 15 CREATE TYPE detectadas en el historial frente a los 161 modelos y 56 enums del schema; (4) recuperacion de las politicas RLS desde pg_policies para versionarlas. El 52 vs 161 es una señal fuerte de historial incompleto, no una prueba: la Fase 0A lo confirma contra la base. Fuente de verdad: provecchio.local (copia local de provecchio.com); nunca contra produccion.",
+      "status": "planned",
+      "priority": "HIGH",
+      "assigned_module": "backend/prisma/schema.prisma, backend/prisma/migrations, docs/plans/opencore/",
+      "depends_on": [],
+      "blocking": "FEAT-178, FEAT-181, FEAT-182",
+      "qa_validation": "Baseline documentado en docs/plans/opencore/AUDITORIA_OPENCORE_<fecha>.md con conteos reproducibles; cero escrituras en produccion.",
+      "version": "1.39.10"
+    },
+    {
+      "id": "FEAT-178",
+      "category": "OpenCore / Schema Prisma / Revisión",
+      "title": "Plan 1 — Revisión del schema: aislamiento multi-tenant, tipos numéricos, índices, cascadas, @map y duplicados",
+      "description": "Revision del schema unico actual (4.471 lineas, 161 modelos, 56 enums): (1) aislamiento multi-tenant en tres capas (modelos sin tenantId recalculados sobre 161, tablas con RLS, y los 77 archivos con this.prisma de la auditoria 2026-09-02 que conviene repetir); (2) los 13 campos Float y la precision de los Decimal en nomina, propinas, tipos de cambio y facturacion; (3) cruce de FK contra indices, redundancias y unique faltantes como el reciente de TableGuest; (4) onDelete en cascadas sobre historial fiscal y de nomina; (5) inventario de camelCase y mapeo mixto segun §2.4 de AGENTS.md (la decision de migrar queda en manos del propietario); (6) OmnigastroSettings.paymentRouting, que es Json sin estructura declarada y necesita DTO de validacion o tabla relacionada; (7) duplicados dentro del core (BillOfMaterials vs ProductBom/BomLine, modelos de caja) y campos Json o String que merezcan enum. Entregable: informe priorizado (critico, importante, mejora) con migraciones propuestas que respeten §2.4.",
+      "status": "planned",
+      "priority": "HIGH",
+      "assigned_module": "backend/prisma/schema.prisma, backend/src/common/tenant-connection.manager.ts",
+      "depends_on": ["FEAT-177"],
+      "blocking": "FEAT-180",
+      "qa_validation": "Informe priorizado con una migracion propuesta por hallazgo critico; validacion con prisma validate y prisma format sin drift.",
+      "version": "1.39.10"
+    },
+    {
+      "id": "FEAT-179",
+      "category": "OpenCore / Schema Prisma / Diagrama",
+      "title": "Plan 3 — Diagrama de relaciones core vs standalone y metricas de acoplamiento",
+      "description": "Punto de partida de riesgo bajo, ejecutable sin acceso a datos: (1) prisma validate y prisma format sobre el core y los 11 standalone antes de parsear, para normalizar las sangrias (el conteo de modelos debe tolerar sangria: grep -cE '^\\s*model\\s+\\w+\\s*\\{'); (2) parseo del core y de los 11 schemas standalone asignando dominios con el mapa del Plan 2; (3) nivel 1, mapa de dominios con flechas ponderadas por relaciones cruzadas; (4) nivel 1b, core frente a standalone con modelos compartidos, bases separadas y canales de comunicacion; (5) niveles 2 y 3, un diagrama por dominio y los flujos clave Order → Payment → ElectronicDocument → StockMove y Employee → Attendance → Payroll; (6) metricas de acoplamiento y modulos candidatos a extraccion bloqueados por dependencias. Entregable: diagrama de dominios, vista core vs standalone, diagramas por dominio y tabla de acoplamiento.",
+      "status": "planned",
+      "priority": "MEDIUM",
+      "assigned_module": "backend/prisma/schema.prisma, services/*/prisma/schema.prisma, backend/README_DIAGRAM.md",
+      "depends_on": [],
+      "blocking": "FEAT-180",
+      "qa_validation": "Diagramas versionados en docs/plans/opencore/ con tabla de acoplamiento; el conteo de modelos debe dar 161 en el core.",
+      "version": "1.39.10"
+    },
+    {
+      "id": "FEAT-180",
+      "category": "OpenCore / Schema Prisma / Refactor",
+      "title": "Plan 2 — Division del schema en dominios con script de migracion y chequeo de deriva en CI",
+      "description": "Dividir backend/prisma/schema.prisma en una estructura por dominios: base.prisma (generator y datasource), platform/ (tenant, auth/RBAC, auditoria, billing, provisioning), commerce/ (catalogo, ordenes, pagos), pos/ (POS, restaurante, KDS, OmniGastro), inventory/ (almacenes, stock, compras, proveedores), crm/ (contactos, loyalty, cumpleaños, retencion, marketing), hr/ (empleados, posiciones, asistencia, nomina, propinas), fiscal/ (Facturasend, Tango, FX), modules/ (giveaways, bio links, NFC, quotations) e intel/ + omnichannel/ (analytics, market intel, canales, bots, conversaciones). Requiere un script que mueva el schema a la nueva estructura y un chequeo de deriva en CI entre los modelos compartidos y el core (standalone opcion A). Es la ultima fase por diseno: mientras exista un unico archivo en produccion, cualquier cambio de modelo es un deploy de schema.",
+      "status": "planned",
+      "priority": "MEDIUM",
+      "assigned_module": "backend/prisma/, scripts/, .github/workflows/",
+      "depends_on": ["FEAT-178", "FEAT-179"],
+      "blocking": "FEAT-182",
+      "qa_validation": "prisma migrate diff entre migraciones y schema devuelve vacio (Gate 3); el cliente generado sigue resolviendo los mismos modelos.",
+      "version": "1.39.10"
+    },
+    {
+      "id": "FEAT-181",
+      "category": "OpenCore / Standalone / RLS / Limpieza",
+      "title": "Standalone, RLS y limpieza: duplicados exactos, birthday_logs.type, RLS versionada y credencial ODOO_PASSWORD",
+      "description": "Ejecucion de las decisiones ya tomadas por el propietario: (1) eliminar los duplicados exactos entre core y standalone (bookings con omnibookings, omnicatalog con social-catalog); (2) eliminar la columna birthday_logs.type con una migracion idempotente; (3) recuperar las politicas RLS desde pg_policies de provecchio.local, reconstruirlas y versionar la migracion; (4) rotar ODOO_PASSWORD y sacarla del texto plano de infra/docker-compose.yml y docs/info/files/docker-compose.yml, moviendola al .env. Requiere verificacion previa de cada columna con @map sin resolver contra provecchio.local antes de decidir entre migracion o correccion del schema.",
+      "status": "planned",
+      "priority": "HIGH",
+      "assigned_module": "services/*/prisma/schema.prisma, backend/prisma/migrations, infra/docker-compose.yml, docs/info/files/docker-compose.yml",
+      "depends_on": ["FEAT-177", "FEAT-178"],
+      "blocking": "FEAT-182",
+      "qa_validation": "Migraciones idempotentes aplicadas sin error en provecchio.local sobre base existente (migrate resolve --applied) y base vacia (migrate deploy); sin credenciales en claro en el repo.",
+      "version": "1.39.10"
+    },
+    {
+      "id": "FEAT-182",
+      "category": "OpenCore / Schema Prisma / Release",
+      "title": "Gates de salida 1-5 y merge/deploy de la vertical OpenCore con autorizacion explicita",
+      "description": "Cierre de la vertical con los cinco gates definidos en el plan v4: Gate 1 baseline capturado; Gate 2 todas las migraciones aplicadas sin error en provecchio.local, probando una base existente (con migrate resolve --applied) y una base vacia creada solo con migrate deploy; Gate 3 prisma migrate diff entre migraciones y schema sale vacio; Gate 4 ./scripts/init.sh en verde; Gate 5 prueba E2E en localhost sobre un respaldo restaurado de produccion. Merge y deploy solo con los cinco gates, con autorizacion explicita del usuario (AGENTS.md §9) y usando ./scripts/deploy-production.sh; despues se borra la rama de feature. Riesgo activo a monitorear: desplegar una imagen con @map snake_case en seis modelos y con OmnigastroSettings sin verificar columnas reales hace fallar las consultas al arrancar; ademas el contexto de build de mas de 4,5 GB con Dockerfile.dev y el .dockerignore de 245 bytes deben diagnosticarse.",
+      "status": "planned",
+      "priority": "HIGH",
+      "assigned_module": "scripts/init.sh, scripts/deploy-production.sh, scripts/pre-deploy-diagnostic.sh, backend/prisma/",
+      "depends_on": ["FEAT-177", "FEAT-178", "FEAT-179", "FEAT-180", "FEAT-181"],
+      "blocking": "",
+      "qa_validation": "Los 5 gates en verde con evidencia en docs/plans/opencore/AUDITORIA_OPENCORE_<fecha>.md; health de produccion con la version nueva y E2E sin 5xx.",
+      "version": "1.39.10"
+    }
+  ],
+  "last_id": "FEAT-182",
+  "gates": [
+    { "id": 1, "name": "Baseline capturado", "status": "pending", "feature": "FEAT-177" },
+    { "id": 2, "name": "Migraciones aplicadas sin error en provecchio.local (base existente y base vacia)", "status": "pending", "feature": "FEAT-182" },
+    { "id": 3, "name": "prisma migrate diff entre migraciones y schema vacio", "status": "pending", "feature": "FEAT-180" },
+    { "id": 4, "name": "./scripts/init.sh en verde", "status": "pending", "feature": "FEAT-182" },
+    { "id": 5, "name": "E2E en localhost sobre un respaldo restaurado de produccion", "status": "pending", "feature": "FEAT-182" }
+  ],
+  "notes": [
+    "Fuente de verdad operativa: provecchio.local (copia local de provecchio.com). Nada se ejecuta contra produccion sin autorizacion explicita (AGENTS.md §9).",
+    "La rama feat/schema-prisma-analysis-v3 conserva la parte de codigo (schema reformateado, docker-compose.yml antiguo, bump a 1.39.9) y NO esta fusionada: fusionarla completa revertiria el start:prod, el pin de Prisma y los fixes de deploy a provecchio.",
+    "Documentacion de esta vertical fusionada en main v1.39.10 sin cambios de schema, compose, package.json ni VERSION."
+  ]
+}

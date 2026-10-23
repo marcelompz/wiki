@@ -1,9 +1,93 @@
 # Línea de Tiempo y Evolución de OmniFlow
 
-**Última actualización:** 2026-09-30  
-**Versión actual:** `v1.37.3`  
-**Próximo hito:** `v1.38.0` — Tauri Desktop & OmnIoT Edge
+**Última actualización:** 2026-10-21  
+**Versión actual:** `v1.39.19`  
+**Próximo hito:** `v1.40.0` — Tauri Desktop & OmnIoT Edge
 **Documento fuente:** `CHANGELOG.md`, `ROADMAP.md`, `featurelist.json`
+
+---
+
+### 2026-10-21 : v1.39.19 — Cierre de turno con arqueo y relevo de cajero en Caja Gastro
+- Reporte del cliente durante la prueba de FEAT-193: tras abrir el turno con el PIN de Natalia Bogado
+  **no había forma de cerrar la sesión ni de cambiar de cajero**
+- **Cierre de turno**: nuevo botón con modal de arqueo (apertura, ingresos, egresos, efectivo
+  esperado), campo de efectivo contado, badge de **faltante/sobrante** y Reporte Z persistido
+- **Relevo de cajero**: nuevo endpoint `POST /api/v1/pos-sessions/:id/switch-cashier`
+  (`CashManagementService.switchCashierByPin`) — valida el PIN, exige permiso `can_open` sobre la caja,
+  rechaza duplicidad y **conserva** la misma sesión (caja, fondo y movimientos)
+- **Fix de detección de sesión**: `activeSession` se deriva con `useMemo` (antes usaba un `setState`
+  con closure obsoleta y no detectaba el turno al recargar); auto-selección de caja y bloqueo de
+  apertura duplicada
+- Validación: 7 unitarios nuevos (20 en total) + 2 E2E nuevos (5 en total, en modo serial)
+
+### 2026-10-20 : v1.39.11 — Sincronización OrderFlow → Odoo 14 POS (bug #7 del cliente)
+- Diagnóstico end-to-end de la cadena OrderFlow → BullMQ → odoo-adapter → Odoo 14: **la cadena nunca había funcionado** (0 `pos.order` `OmniFlow%` en la DB del ERP)
+- **D1**: se enviaba el número de mesa legible (`"G5"`) como id de Odoo → `int("G5")` → HTTP 500
+- **D2**: no existía correspondencia mesa ↔ mesa Odoo → nueva columna `restaurant_tables.odoo_table_id` (snake_case) + UI de mapeo
+- **D3**: `pos.order.amount_tax` y `pos.order.line.price_subtotal` son `required=True` **sin `compute`** en el core de Odoo 14 → ninguna creación por RPC era posible (addon `pos_omniflow_sync` parcheado, **sin tocar el core**)
+- **D4**: el cierre de mesa no disparaba el sync (solo "enviar a cocina") → `guestClose` emite con `trigger=TABLE_CLOSED`
+- **D5/D6/D7**: `ODOO_DB=prod` parametrizado, worker legacy del adapter eliminado, telemetría `t0…t5` + 5 métricas Prometheus
+- Cobro en mesa configurable por tenant (`waiterCanCollectPayment`); modal de **editar mesa** restaurado (bug #8a)
+- Addon Odoo y script de despliegue versionados en el repo (`odoo-adapter/odoo-addons/pos_omniflow_sync/`, `scripts/deploy-odoo-addon.sh` con backup y rollback)
+- Documentación: `docs/plans/omnigastro/PLAN_ODOO_POS_SYNC_2026-10-19.md` y `flujo_odoo-pos-sync.md` (diagrama Mermaid + hitos de telemetría)
+
+---
+
+### 2026-10-19 : v1.39.10 — Vertical OpenCore: análisis del schema Prisma (documentación)
+- Se abre `docs/plans/opencore/` con el análisis verificado del schema core (161 modelos, 56 enums, 4.471 líneas, 38 carpetas de migración) y los 11 schemas standalone
+- Documentos: `Plan_analisis_schema_prisma_v4.md`, `PLAN_2_SCHEMA_SPLITTING_SUMMARY.md`, `PROJECT_STATUS_REPORT.md`, `DEPLOYMENT_PLAN.md`, `README.md`, `ROADMAP_OPENCORE.md`, `PLAN_MAESTRO.md`, `AUDITORIA_OPENCORE_20261019.md`, `featurelist.json`
+- FEAT-177 a FEAT-182 registradas en estado `planned` (Fase 0 baseline, Plan 1 revisión, Plan 3 diagrama, Plan 2 división, standalone/RLS, gates de salida)
+- Fuente de verdad operativa: `provecchio.local`; nada se ejecuta contra `provecchio.com` sin autorización explícita
+- **Sin cambios de código ni de versión** (se mantiene 1.39.10; el 1.40.0 queda reservado para Tauri Desktop & OmnIoT Edge)
+- Auditoría de ramas: `staging` (30 commits, v0.5.0) **no es fusionable** (borraría 132.556 líneas de `main`); la parte de código de `feat/schema-prisma-analysis-v3` tampoco (revierte fixes de deploy)
+
+---
+
+### 2026-10-16 : v1.39.2 — OmniGastro Bug Fixes Post-v1.39.1 (Provecchio)
+- Bug 1: KDS Stations categorías padre/hoja independientes + excluir subcategorías (`gastro-kds-stations.tsx`)
+- Bug 2: Unificar fuente de mesas a `/api/v1/tables/floor-map` (modal y listado sincronizados) (`gastro.tsx`)
+- Bug 4: Modal "Cargar Pedido" por mesa / sin mesa (takeout) + backend `tableId=null` y `orderType=TAKEOUT` (`orders.controller.ts`, `orders.service.ts`)
+- Bug 5: Modal responsivo en panel de mozos, sin overflow de texto (width breakpoints, bodyStyle, ellipsis, scroll x) (`gastro.tsx`)
+- Bump versión a 1.39.2 en VERSION, package.json, featurelist.json
+- E2E Playwright: 4 nuevas specs en `frontend/e2e/`
+- `./scripts/init.sh` pasa; `/api/v1/health` → v1.39.2
+
+---
+
+### 2026-10-19 : v1.39.10 — Deploy a producción (provecchio.com)
+- Deploy de v1.39.10 a provecchio con `./scripts/deploy-production.sh provecchio` (autorizado por el usuario)
+- Correcciones de infraestructura detectadas en el deploy (ver `docs/troubleshooting/183-*.md`):
+  - SSH del script de deploy sin `root@` → `permission denied` sobre `.env.provecchio` (600) y `.git/objects`
+  - El frontend servía `./frontend/dist` sin reconstruir (rsync excluye `**/dist`) → producción seguía en el bundle v1.39.8
+  - `scripts/replica-entrypoint.sh` en modo 644 → réplica de PostgreSQL no arrancaba
+  - `sync_standalone` / `omnibi_standalone` en crash-loop (mapping `@orderflow/auth-shared` a `.d.ts`, `main: dist/index.js` sin subcarpeta, bind mount de desarrollo sobre `/app`, Redis sin password, healthcheck con `wget` inexistente)
+  - Base `orderflow_bi` creada y migración de OmniBI aplicada en producción
+- Estado final: 9/9 contenedores `healthy`, `/api/v1/health` → `200 v1.39.10`, bundle frontend `1.39.10`, `✅ Socket.io Redis Adapter initialized successfully`
+- E2E Playwright contra provecchio.com: **64/64 OK**; `qa_e2e_check.py`: sin errores JS ni 5xx
+
+---
+
+### 2026-10-19 : v1.39.10 — Backend: crash-loop por adapter de Socket.IO + Redis (`unhandledRejection`)
+- `backend/src/common/redis-io.adapter.ts`: el cliente `sub` creado con `duplicate()` (hereda `lazyConnect`/`enableOfflineQueue:false`) nunca se conectaba; `@socket.io/redis-adapter` dispara `psubscribe`/`subscribe` sin `await` → rechazo sin manejar → Node 22 terminaba el proceso
+  - Fix: `await subClient.connect()` antes de `createAdapter`, password enmascarada en logs, `safeQuit()` en el fallback
+- `backend/src/main.ts`: guard acotado de `unhandledRejection` (solo rechazos de Redis; el resto mantiene `process.exit(1)`)
+- `docker-compose.yml`: `env_file: .env` (fix `Configuration key "JWT_SECRET" does not exist`) + `REDIS_URL`/`REDIS_PASSWORD`/`ENABLE_REDIS_WS` en el servicio `backend`
+- Documentado en `docs/troubleshooting/182-socketio-redis-adapter-unhandled-rejection-crash.md` + índice
+- Validación: backend `healthy` (`RestartCount=0`), `/api/v1/health` → 200 v1.39.10, unit tests 940/940, E2E Playwright 64/64 vs `provecchio.local`
+- Bump de versión a 1.39.10 (VERSION, package.json, main.ts Swagger, README/ROADMAP/timeline, featurelist.json, 37 manifiestos)
+
+---
+
+### 2026-10-19 : v1.39.9 — OmniGastro: POS mozo responsivo en tablet + QR de mesa con menú digital
+- Bug 1: POS del mozo en tablet — el TOTAL se solapaba con la lista de productos (`gastro-pos.tsx` + `admin-mobile.css`)
+  - `admin-mobile.css`: regla global `.ant-layout-sider{position:fixed!important}` scopeada a `.admin-sider`
+  - `gastro-pos.tsx`: layout responsivo con `Grid.useBreakpoint()` (3/2/1 columnas + Drawer), header wrap-safe, `minWidth:0`
+  - `AdminApp.tsx`: ruta `/admin/gastro/pos/*` a sangre (viewport completo)
+- Bug 2: QR de mesa G10 (`/?t=<token>`) abría BioLinks en vez del menú digital (`public-storefront-page.tsx` + `App.tsx`)
+  - `?t=` fuerza `SocialCatalogPage` (modo restaurante + "Llamar al mozo") con independencia de `homepagePreset`
+- `featurelist.json` reparado (JSON inválido) + FEAT-174 registrada; 37 manifiestos re-sincronizados a 1.39.9
+- E2E Playwright: `frontend/e2e/pos-tablet-responsive.spec.ts` 5/5 OK contra provecchio.local
+- Bump de versión a 1.39.9 (VERSION, package.json, main.ts Swagger, README/ROADMAP/timeline, featurelist.json)
 
 ---
 

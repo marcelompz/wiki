@@ -2,6 +2,60 @@
 
 ## Before deploy on provecchio you need to backup the data on production, restore at localhost, deploy there and test all the stuff. Never deploy on production without successful test on localhost
 
+## 2026-10-22 — v1.41.1 (FIX) — Los pisos provisionados no se asociaban a un POS de Odoo
+
+Detectado al verificar el deploy de 1.41.0: la sincronización creaba `restaurant.floor` con
+`pos_config_id = false`, así que el piso existía en Odoo pero **no aparecía en el POS del mozo**.
+
+- El adapter ahora **infiere** el POS más usado entre los pisos activos cuando el cliente no lo envía
+  (`pickDefaultPosConfigId`) y **repara** pisos huérfanos (responde `repaired: true`).
+- El modal muestra un selector **“POS destino”** (por defecto el POS con más pisos/mesas activas).
+- El mapeo explícito devuelve también el `posConfigId` del piso destino.
+
+⚠️ **Cuidado con el E2E de escritura:** el entorno local usa el **Odoo de producción** (el tenant
+restaurado conserva la integración `ODOO_HOST=192.168.69.246 / ODOO_DB=prod`). Ver
+`docs/troubleshooting/195-e2e-feat201-escribio-en-odoo-produccion.md` antes de correr
+`E2E_ODOO_PROVISIONING=1`.
+
+## 2026-10-22 — v1.41.0 (IMPLEMENTADO ⏳ PENDIENTE E2E/DEPLOY) — FEAT-201: provisioning de pisos y mesas a Odoo 14
+
+Hasta v1.40.2 el salón se resolvía **solo de Odoo hacia OmniGastro**: se listaban las mesas del ERP
+(`GET /api/v1/tables/odoo-tables`) y cada mesa local se mapeaba manualmente con `odooTableId`. La
+dirección contraria no existía: crear un piso o una mesa en OmniGastro dejaba el `pos.config` de Odoo
+desactualizado y el POS del mozo no podía colgar el `pos.order` de un `restaurant.table`.
+
+**Ahora OmniGastro es la fuente de verdad.** Desde `/admin/gastro/tables` → **“Sincronizar con Odoo”**:
+
+| Acción | Endpoint | Comportamiento |
+|---|---|---|
+| Ver pisos de Odoo + estado local | `GET /api/v1/tables/odoo-floors` | Incluye archivados, conteo de mesas y **detección de pisos duplicados** |
+| Crear o reutilizar piso | `POST /api/v1/tables/odoo-provision/floor` `{floorId}` | Busca por nombre normalizado; si existe archivado lo **revive**; si no, lo crea |
+| Mapear a un piso existente | `POST /api/v1/tables/odoo-provision/floor` `{floorId, odooFloorId}` | Vincula sin crear; valida que el piso exista en Odoo |
+| Provisionar mesas | `POST /api/v1/tables/odoo-provision/tables` `{floorId}` | Por mesa: `created` / `reused` / `revived`; nunca archiva ni borra |
+
+Claves de implementación:
+
+- **Idempotencia** por nombre normalizado (`trim` + colapso de espacios + case-insensitive). `G2` y `G02`
+  **no** se fusionan.
+- **Unicidad del mapeo:** `restaurant_floors.odoo_floor_id` + índice único `(tenantId, odoo_floor_id)`.
+  Intentar mapear dos veces el mismo piso de Odoo devuelve `400` indicando qué piso local lo tiene.
+- **Mapeos manuales intactos:** las mesas que ya tienen `odooTableId` no se re-provisionan.
+- **Odoo 14 CE:** el piso se asocia al POS con `pos_config_id` (nunca `config.floor_ids` con sesión
+  abierta). `shape` sólo admite `square`/`round`; `RECT` degrada a `square`.
+- **Adapter:** `GET /api/omniflow/odoo_floors`, `POST /api/omniflow/provision_floor`,
+  `POST /api/omniflow/provision_tables` (`odoo-adapter/src/index.js`, helpers en `src/normalize.js`).
+- **Frontend:** `frontend/src/components/gastro-odoo-sync-modal.tsx` (sólo tokens del tema, Regla #10).
+
+**Migración:** `backend/prisma/migrations/20261022190000_restaurant_floors_odoo_floor_id/`.
+
+**Tests:** `backend/src/tables/odoo-tables.service.spec.ts` (12 casos: snapshot, idempotencia,
+traducción 4xx→400 y 5xx→503) + `odoo-adapter/test/provisioning.test.js` (3 casos de normalización).
+Pendiente: E2E Playwright `frontend/e2e/gastro-odoo-provisioning.spec.ts` contra localhost con datos
+restaurados de producción.
+
+**Diagrama y telemetría (t0…t8):** `docs/plans/omnigastro/flujo-provisioning-pisos-mesas.md`.
+**Plan aprobado:** `docs/plans/omnigastro/plan-actualizacion-v1.41.0-floors-provisioning.md`.
+
 ## Estado actual (2026-10-22)
 
 - **Bug v1.39.21** — Pos del mozo: error al enviar pedido a cocina — ✅ **RESUELTO en v1.39.23 y DESPLEGADO en producción**
@@ -44,8 +98,10 @@
 
 | Ítem | Estado |
 |---|---|
-| Versión en producción | **v1.39.27** (deploy ✅ a `provecchio.com`, host `192.168.69.240`, 2026-10-22 07:52) — FEAT-194 bandera de Mozo (v1.39.26) + historial en servidor del mozo y del cajero (v1.39.27). Reportes: [`DEPLOY_REPORT_2026-10-22.md`](../plans/omnigastro/DEPLOY_REPORT_2026-10-22.md) (v1.39.25) · [`DEPLOY_REPORT_2026-10-22-v1.39.26-27.md`](../plans/omnigastro/DEPLOY_REPORT_2026-10-22-v1.39.26-27.md) (v1.39.26 + v1.39.27) |
-| Versión en localhost | **v1.39.24** (`https://provecchio.local`) |
+| Versión en producción | **v1.40.1** (deploy ✅ a `provecchio.com`, host `192.168.69.240`, 2026-10-22 16:24) — **Marca Blanca operativa completa**: el `PATCH /api/v1/tenants/:id` devolvía 500 y podía borrar la configuración del tenant (`config`). Reporte: [`DEPLOY_REPORT_2026-10-22-v1.40.1.md`](../plans/omnigastro/DEPLOY_REPORT_2026-10-22-v1.40.1.md) |
+| Versión en localhost | **v1.40.1** (`https://provecchio.local`) — validada con datos reales de producción restaurados (168 tablas, 7 empleados, 4 cajas) |
+| Release anterior | **v1.40.0** (2026-10-22 13:09) — **lectura** de Marca Blanca: `GET /api/v1/tenants/:id/config` + sanitización de `customDomain` + fix de `deploy-local.sh`. Reporte: [`DEPLOY_REPORT_2026-10-22-v1.40.0.md`](../plans/omnigastro/DEPLOY_REPORT_2026-10-22-v1.40.0.md) |
+| Historial de deploys recientes | **v1.39.27** (2026-10-22 07:52) FEAT-194 bandera de Mozo + FEAT-197 F4/F4b · **v1.39.28** (2026-10-22) fix `/admin/hr`. Reportes: [`DEPLOY_REPORT_2026-10-22.md`](../plans/omnigastro/DEPLOY_REPORT_2026-10-22.md) (v1.39.25) · [`DEPLOY_REPORT_2026-10-22-v1.39.26-27.md`](../plans/omnigastro/DEPLOY_REPORT_2026-10-22-v1.39.26-27.md) (v1.39.26 + v1.39.27) |
 | FEAT-196 (cerrar turno + relevo de cajero) | ✅ **Validado por el usuario en localhost** y verificado por API en producción |
 | FEAT-193 (sesión anclada a la caja física) | ✅ Desplegado en v1.39.21 |
 | **CI de GitHub Actions** | ⛔ **Bloqueado: la cuenta no tiene fondos para Actions** (spending limit). Ver [troubleshooting #185](troubleshooting/185-github-actions-spending-limit-no-runners.md) |
@@ -62,6 +118,152 @@
 > Playwright 73 passed / 5 skipped / 0 failed, `qa_e2e` verde en CI).
 > Para reanudarlo: GitHub → Settings → Billing & plans, y luego
 > `gh run rerun <run-id> --failed`.
+
+## 2026-10-22 — v1.40.2 (VALIDADA EN LOCAL ⏳ PENDIENTE DE DEPLOY) — Editar/eliminar mesas + limpieza de pruebas y saneamiento de pisos en Odoo
+
+### FEAT-200 — CRUD de mesas en `/admin/gastro/tables`
+
+El bug 8a del cliente ("solo funciona crear") tenía dos causas:
+
+1. `gastro-tables.tsx` ya tenía `handleEditTable`, `handleSaveTable`, `handleDeleteTable` y el modal completo,
+   pero **ningún botón los invocaba** (modal inalcanzable).
+2. `gastro.tsx` sí tenía botones, pero su modal **solo editaba `tableNumber`**.
+
+Se creó el componente compartido `frontend/src/components/gastro-table-edit-modal.tsx` (número, nombre,
+zona, sillas, forma y mesa de Odoo) y se conectaron **Editar** y **Eliminar** en la grilla, en el drawer
+del mapa de salón y en el listado de `/admin/gastro`.
+
+Guardas agregadas en `backend/src/tables/tables.service.ts`:
+
+| Regla | Comportamiento |
+|---|---|
+| Mesa con pedidos `DRAFT/CONFIRMED/PREPARING/READY` | `DELETE` → **400** con el conteo; no se borra |
+| Llamadas al mozo `PENDING` | Se resuelven en la misma transacción del soft-delete |
+| `odooTableId` ya usado por otra mesa | **400** `ya está vinculada a la mesa <X>` |
+| Zona inexistente/inactiva | **400** |
+| Recrear una mesa soft-deleted (mismo número y zona) | Se revive el registro y se conserva el `token` del QR |
+| `PATCH /tables/:id` | Permiso `tables:manage` (antes `tables:status`) |
+
+Detalle: `docs/plans/omnigastro/plan-actualizacion-v1.40.2-tables-crud.md` ·
+`docs/troubleshooting/190-gastro-tables-handlers-huerfanos.md`.
+
+### Limpieza de datos de prueba (producción, 2026-10-22 17:40)
+
+Backup previo: `pre_deploy_provecchio_20261022_174014.sql` (2.240.601 B) + uploads (28,9 MB) +
+`deploy-artifacts/rollback-provecchio-20261022_174014.env`.
+
+| Acción | Resultado |
+|---|---|
+| 6 pedidos de prueba cancelados (G9 ×2, G6, G10, T11, G2) | `CANCELLED`, stock devuelto |
+| 9 llamadas al mozo resueltas | 57/57 `RESOLVED`, 0 pendientes |
+| `M01` liberada | estado `FREE` antes del borrado |
+| Soft-delete de `G02`, `M01`, `Giardino` | `isDeleted=true`, `active=false`, historial intacto (M01 5 pedidos, G02 1, Giardino 0) |
+| Pedidos abiertos | **0** |
+| Mesas visibles | **10**, todas `FREE` |
+| QR de las mesas eliminadas | **404** (control G10 → 200) |
+
+### Saneamiento del plano de Odoo (2026-10-22 17:56)
+
+Backup: `/opt/odoo/backups/prod_pre_floor_cleanup_20261022_175602.sql.gz` (20 MB) · snapshot
+`/tmp/opencode/odoo-state-before-floor-cleanup.json`.
+
+- Pisos duplicados archivados: **8** Terraza, **9** Café, **10** Restó, **12** Barra.
+- **21 mesas duplicadas archivadas**: `T1#42`, `T2#43`, `C1–C6#59-64`, `R1–R6#65-70`, `B1–B3#71-73`,
+  `J1#74`, `T1#82`, `T1#83`, `T2#84`.
+- Pisos canónicos adjuntos a **`pos.config` 2 (Giardino)**: `floor_ids = [1,2,3,4,5]` → **46 mesas**
+  activas (Terraza 18, Café 6, Restó 7, Giardino 9, Barra 6), sin nombres repetidos.
+- **Mapeo corregido:** `G10` apuntaba a `T2#43` (copia sin pedidos) → ahora `T2#2`; `T11` sigue en `T1#1`.
+  `G3` y `G4` se asignaron al piso Giardino en OmniGastro.
+
+### Sesión POS de Giardino
+
+`POS/01598` (config 2) había quedado en `opening_control` desde el 2026-10-21 21:12, lo que hacía que
+`getActivePosSession(2)` devolviera `null` y el adapter respondiera
+`No hay sesión POS abierta para config_id=2`. Se completó la apertura con
+`set_cashbox_pos(1598, 2279500)` → `state=opened`, fondo original restaurado. Verificado:
+`getActivePosSession(2)` → `[{"id":1598,"state":"opened"}]` y 46 mesas en el plano del config 2.
+
+> Nota Odoo: `action_pos_session_open` **no** abre una sesión con `cash_control`: la deja en
+> `opening_control` y resetea `cash_register_balance_start` a 0. La transición real
+> `opening_control → opened` la hace `set_cashbox_pos(cashbox_value, notes)`.
+
+
+## 2026-10-22 — v1.40.1 (DEPLOYED ✅ TO PROVECCHIO.COM) — Marca Blanca: el guardado del tenant devolvía 500 y podía borrar la configuración
+
+Reporte completo: [`DEPLOY_REPORT_2026-10-22-v1.40.1.md`](../plans/omnigastro/DEPLOY_REPORT_2026-10-22-v1.40.1.md)
+
+**Contexto:** v1.40.0 hizo que el modal **"🏷️ Marca Blanca"** cargara los datos del tenant, pero al
+pulsar **"Guardar"** la petición devolvía **HTTP 500** — y, oculto detrás de ese error, había un
+camino de **pérdida de datos**.
+
+| # | Síntoma | Causa raíz | Corrección |
+|---|---|---|---|
+| 1 | `PATCH /api/v1/tenants/:id` → **500** (`Unknown argument 'customDomainVerified'`) | El `update()` escribía `payload.customDomainVerified`, campo que **no existe** en `model Tenant` (el real es `domainVerified`, que el resto del controller ya usaba en 10 puntos) | `customDomainVerified` → **`domainVerified`** |
+| 2 | El mismo `PATCH` → **500** (`Unknown argument 'whiteLabel'`) | El frontend enviaba un objeto `whiteLabel` **anidado**, que no es columna de `Tenant`; Prisma rechaza argumentos desconocidos | El backend **descarta** `whiteLabel` del payload y el frontend deja de enviarlo (los valores ya viajan en el nivel superior) |
+| 3 | ⚠️ **Destructivo, enmascarado por 1 y 2**: el primer guardado habría borrado `gastro` (con `qrTokens`, `waiterOptions`), `homepageBlocks`, `subscription`, `fontFamily`… | El modal enviaba `config: { footerCredits }`. `Tenant.config` es una columna `Json?` y un `update` de Prisma **reemplaza el JSON completo** | El backend **mergea**: `{ ...existing.config, ...data.config }` (y `config` se agregó al `select` de la lectura previa) |
+
+> **Por qué importa el orden:** los defectos 1 y 2 abortaban la petición **antes de escribir**, y eso
+> impedía ver el 3. Desbloquear el 500 sin corregir el `config` habría convertido un modal que "no
+> guardaba" en un modal que **borra la configuración del tenant**.
+
+**Protocolo §3.1.1 aplicado (deploy-to-local-first):**
+
+| Paso | Resultado |
+|---|---|
+| Pre-deploy diagnostic | ✅ sin fallos críticos (11 warnings preexistentes) |
+| Backup de producción | ✅ `pre_deploy_provecchio_20261022_160434.sql` (2,24 MB) + `_uploads.tar.gz` (28,9 MB) + `rollback-provecchio-20261022_160434.env` |
+| Restore en localhost | ✅ **exit 0** (el fix de `DB_PORT` de v1.40.0 ya funciona en el flujo real) — 168 tablas, 1 tenant, **7 empleados**, 4 cajas |
+| Deploy local | ✅ versión sincronizada en `1.40.1`, **135 suites / 1015 tests**, `tsc` limpio backend y frontend, bundle fresco |
+| E2E en localhost | ✅ **14/14** — incluye los **4 nuevos** de `frontend/e2e/white-label-modal.spec.ts` (PATCH 200, `whiteLabel` tolerado, `config` preservada, modal carga `customDomain`) |
+| Traefik | ✅ `services.yml` local y remoto con md5 idéntico — sin cambios de ruteo |
+| Deploy a producción | ✅ **🎉 Complete** — 9/9 contenedores healthy, 39 migraciones (0 pendientes), QA E2E 8 rutas admin OK, 0 errores JS |
+| Health público | ✅ `https://provecchio.com/api/v1/health` → **`1.40.1`** |
+| **Guardado en producción** | ✅ `PATCH` idempotente (`HTTPS://Provecchio.COM/admin/?x=1`) → **200**, `customDomain: "provecchio.com"`, `domainVerified: true`, **sin** llamadas a Cloudflare |
+| **Config preservada en producción** | ✅ 8 → 9 claves, **ninguna perdida**; `homepageBlocks`, `subscription`, `gastro` y `fontFamily` **idénticas** |
+| Rollback disponible | `deploy-artifacts/rollback-provecchio-20261022_161656.env` + dump del backup |
+
+**Documentación:** [troubleshooting #189](../troubleshooting/189-white-label-patch-500-config-overwrite.md) ·
+[plan de actualización](../plans/omnigastro/plan-actualizacion-v1.40.1-white-label-patch.md) ·
+`FEAT-199` en `featurelist.json` · tag `v1.40.1` sobre `f6ba3907` (PR #16).
+
+## 2026-10-22 — v1.40.0 (DEPLOYED ✅ TO PROVECCHIO.COM) — Marca Blanca: endpoint de config por tenant + sanitización de `customDomain`
+
+Reporte completo: [`DEPLOY_REPORT_2026-10-22-v1.40.0.md`](../plans/omnigastro/DEPLOY_REPORT_2026-10-22-v1.40.0.md)
+
+**Contexto:** el modal **"🏷️ Marca Blanca"** del Super Admin (el que configura el logo, el dominio
+propio y los créditos del footer de cada instancia —incluida la instancia gastro de Provecchio—)
+no cargaba la configuración del tenant.
+
+| # | Síntoma | Causa raíz | Corrección |
+|---|---|---|---|
+| 1 | El modal de Marca Blanca quedaba vacío | El frontend llamaba `GET /api/v1/tenants/config/:id`, ruta que resuelve el tenant **por API key** y no por id → nunca lo encontraba | Nuevo endpoint **`GET /api/v1/tenants/:id/config`** (`ApiKeyGuard` + `assertCanManageTenant`) |
+| 2 | `customDomain` se guardaba con `https://`, barra final y mayúsculas | El `PATCH` persistía el valor **sin normalizar** → dominios inválidos para Cloudflare y registros DNS duplicados | El `PATCH` **sanitiza**: minúsculas, sin esquema ni path, y marca el dominio como verificado; si se vacía, `customDomain = null`. ⚠️ En v1.40.0 ese marcado escribía `customDomainVerified`, **campo inexistente** → el guardado devolvía 500; corregido en **v1.40.1** con `domainVerified` |
+| 3 | El deploy fallaba con `error TS2339: Property 'id' does not exist` | El `select` de Prisma de `getTenantConfig` no incluía `id: true` pero el `return` leía `tenant.id` (defecto latente: el commit nunca se compiló antes) | `id: true` añadido al `select` — [troubleshooting #187](../troubleshooting/187-select-prisma-sin-id-error-ts2339.md) |
+
+**Además:** `scripts/deploy-local.sh` reconstruye siempre el backend con `docker compose up --build -d`
+en la Fase 5. Antes usaba `docker compose ps --services | grep backend`, que **solo lista servicios
+corriendo**: con el backend ya arriba reportaba `ALREADY RUNNING`, **se saltaba el build** y daba
+verde sin desplegar el código nuevo (violaba la Regla #11).
+
+**Protocolo §3.1.1 aplicado (deploy-to-local-first):**
+
+| Paso | Resultado |
+|---|---|
+| Backup de producción | ✅ `pre_deploy_provecchio_20261022_125507.sql` (2,23 MB) + `_uploads.tar.gz` (28,9 MB) + `rollback-provecchio-20261022_125507.env` |
+| Restore en localhost | ✅ 168 tablas, 1 tenant, 6 empleados, 4 cajas, 18 mesas, 226 productos, 10 usuarios. Migraciones verificadas a mano (39, 0 pendientes) — ver [troubleshooting #188](../troubleshooting/188-restore-provecchio-db-port-null.md) |
+| Paridad de datos | ✅ Banderas de mozo idénticas a producción (Ivan Castillo 1234, Natalia Bogado 9876) |
+| Pre-deploy diagnostic | ✅ sin fallos críticos (11 warnings preexistentes) |
+| Deploy local | ✅ versión 13/13 en `1.40.0`, **135 suites / 1009 tests**, bundle fresco, endpoint white-label **200** |
+| E2E en localhost | ✅ **10/10** (`mozo-flag`, `order-history-server`, `hr-endpoints`) sobre datos reales |
+| Traefik | ✅ `services.yml` local y remoto con md5 idéntico — sin cambios de ruteo |
+| Deploy a producción | ✅ **🎉 Complete** — 9/9 contenedores healthy, 40 migraciones (0 pendientes), QA E2E 8 rutas admin OK, 0 errores JS |
+| Health público | ✅ `https://provecchio.com/api/v1/health` → **`1.40.0`** |
+| Endpoint de la release en producción | ✅ `GET /api/v1/tenants/provecchio-dimora-001/config` → **200** con `whiteLabel.customDomain: "provecchio.com"` |
+| Rollback disponible | `deploy-artifacts/rollback-provecchio-20261022_130136.env` + dump del backup |
+
+> **Nota operativa:** el health check SSH del script falló por el path de fallback
+> (`dimoraserver1:2021` → *Connection refused*) y cayó al chequeo HTTP público, que pasó. La
+> verificación posterior por SSH directo al host primario confirmó 9/9 contenedores healthy.
 
 ## Deploy a producción (2026-10-21 21:53) — v1.39.24
 

@@ -1,6 +1,6 @@
 {
   "project": "OrderFlow SaaS Omnicanal",
-  "version": "1.39.27",
+  "version": "1.41.1",
   "last_updated": "2026-10-22",
   "features": [
     {
@@ -8,13 +8,17 @@
       "category": "OmniGastro / KDS / POS / Mesas / Cliente",
       "title": "Backlog OmniGastro reportado por el cliente en provecchio.com (9 bugs v1.39.9)",
       "description": "Reporte del cliente del 2026-10-19 sobre https://provecchio.com, recuperado del checkout /opt/orderflow-branch-schema-prisma (docs/info/OmniGastro.md sin commitear) para no perderlo al descartar la rama de schema. Detalle completo en docs/plans/omnigastro/BACKLOG_CLIENTE_20261019.md. Puntos abiertos: (1) la alerta de 'llamar al mozo' suena en el movil del comensal en vez de en la tablet del mozo; (2a) al pedir desde la mesa por QR la opcion takeaway debe omitirse y quedar por defecto 'consumir en mesa'; (2b) al confirmar el pedido debe llegar notificacion al mozo igual que con el boton 'llamar al mozo'; (3) en la pantalla del mozo se muestra el UUID de la mesa en vez del nombre; (4) al volver al menu se pierde el resumen del pedido y el carrito abre vacio; (5) CRITICO: el pedido enviado a cocina no aparece en el KDS hasta pulsar 'Sincronizar todo' (debe ser automatico); (6) en el KDS el pedido desaparece al confirmar en vez de quedar en el historial Pendiente/Cocinando/Listo; (7) el cierre de cuenta del mozo no carga en el POS de Odoo 14 y el pago del mozo deberia ser opcional y configurable en /admin/settings; (8a) en /admin/gastro/tables solo funciona el crear, no se actualiza ni borra; (8b) CRITICO: el cobro de la mesa G5 pide PIN y devuelve HTTP 400 en POST /api/v1/public/hr/kiosk/pin/verify; (9) tras enviar a cocina el pedido desaparece del POS y el mozo no puede reabrirlo para modificarlo. Los 2 bugs de v1.39.8 (solapamiento del total en tablet y QR de la mesa G10) ya estan resueltos por FEAT-174.",
-      "status": "planned",
+      "status": "completed",
       "priority": "HIGH",
       "assigned_module": "frontend/src/pages/admin/gastro-mozo.tsx, frontend/src/pages/admin/gastro-pos.tsx, frontend/src/pages/admin/gastro-kds.tsx, frontend/src/pages/admin/gastro-tables.tsx, frontend/src/pages/public-storefront-page.tsx, backend/src/modules/omnigastro, backend/src/public/hr, frontend/e2e/, docs/plans/omnigastro/BACKLOG_CLIENTE_20261019.md",
       "depends_on": [],
       "blocking": "",
-      "qa_validation": "Un punto por rama y PR, con auditoria en docs/plans/omnigastro/auditoria-<tema>.md y casos E2E en frontend/e2e/. Los puntos 5 y 8b exigen E2E en provecchio.local con datos reales y autorizacion explicita para el deploy.",
-      "version": "1.39.10"
+      "qa_validation": "Auditoria de cierre con evidencia de codigo, unit tests, E2E y verificacion en produccion v1.40.2: docs/plans/omnigastro/AUDITORIA_FEAT-183_20261022.md. Los 9 puntos quedaron implementados por FEAT-192 (#1, #2a, #2b, #3, #4, #9), FEAT-197 (#6), FEAT-186/187 (#7) y FEAT-200 (#8a); #8b verificado en produccion (PIN 404, ya no 400 por x-tenant-id). Riesgo residual: #1/#2b (aviso sonoro en tablet del mozo) y #5 (KDS en vivo) no reproducidos manualmente con dos dispositivos.",
+      "version": "1.40.2",
+      "report": "docs/plans/omnigastro/AUDITORIA_FEAT-183_20261022.md",
+      "deployed_at": "2026-10-22T19:38:00-03:00",
+      "deploy_status": "deployed",
+      "deploy_report": "docs/plans/omnigastro/DEPLOY_REPORT_2026-10-22-v1.40.2.md"
     },
     {
       "id": "FEAT-177",
@@ -2337,10 +2341,106 @@
         "F3 (OPCIONAL, D5): solo si el comensal pide recuperar el pedido desde otro dispositivo (migracion public_code + GET /api/v1/guest/orders/by-code/:code)"
       ],
       "qa_validation": "Unitarios (jest): generador de publicCode (alfabeto, unicidad en 10.000 generaciones, reintento ante colision) y normalizacion de mode/closeMode/method. Unitarios (vitest): store public-orders-store (persist, limite de 20, clearCart no borra el historial). E2E (Playwright, nuevo frontend/e2e/order-tracking.spec.ts): el cliente confirma, ve 'Mis pedidos', recarga y conserva el historial, recupera el pedido por codigo en otro dispositivo; el mozo cierra un pedido y lo ve en 'Atendidos', y al entrar de nuevo con su PIN ve los pedidos que atendio (waiterId). Aislamiento: el endpoint by-code no expone pedidos de otro tenant. QA post-deploy: scripts/qa_e2e_check.py + verificacion de que el pedido cerrado queda con paidAt. Adicional Capa 3b: unitarios de listSessions (filtros por caja, cajero, fecha y estado) y E2E del 'Historial de turnos' del cajero: abrir un turno, cerrarlo, verificar que reaparece en el listado con su Reporte Z y sus pedidos cobrados (Order.posSessionId). Adicional D3: test de que ningun endpoint publico expone pedidos de otra mesa ni de otro tenant, y que el listado por mesa NO existe. Ejecutado en v1.39.27: E2E frontend/e2e/order-history-server.spec.ts 4 passed (ciclo claim->ready->close y el pedido aparece en el historial con su mozo; filtros por waiterId y tableId; vista Atendidos del panel de mozos; listado de turnos y Reporte Z en el panel de caja); suite completa 86 passed / 5 skipped / 0 failed. Pendiente: verificacion manual en la tablet y en el panel de caja de provecchio.com tras el deploy."
+    },
+    {
+      "id": "FEAT-198",
+      "category": "Core / Multi-tenant / Marca blanca / DevOps",
+      "title": "Marca Blanca: endpoint GET /api/v1/tenants/:id/config + sanitización de customDomain + fix del rebuild en deploy-local.sh (v1.40.0)",
+      "description": "El modal de Marca Blanca del Super Admin no cargaba la configuración del tenant. (1) El frontend llamaba GET /api/v1/tenants/config/:id, ruta que resuelve el tenant por API key y no por id, de modo que el tenant no se encontraba; se agrega GET /api/v1/tenants/:id/config con ApiKeyGuard + assertCanManageTenant. (2) El PATCH persistía customDomain sin normalizar (https://, barra final, mayúsculas), generando dominios inválidos para Cloudflare; ahora se sanitiza a minúsculas sin esquema ni path y se marca el dominio como verificado (v1.40.0 escribía el campo inexistente customDomainVerified; en v1.40.1 se corrigió a domainVerified, ver FEAT-199), y si se vacía queda en null. (3) El select de Prisma de getTenantConfig no incluía id:true aunque el return leía tenant.id: error TS2339 que rompía el build de Docker (defecto latente, el commit nunca se compiló antes del deploy); se añade id:true como en las consultas vecinas. (4) deploy-local.sh decidía reconstruir el backend con 'docker compose ps --services', que solo lista servicios corriendo: con el backend arriba reportaba ALREADY RUNNING, se saltaba el build y daba verde con código viejo (violaba la Regla #11); la Fase 5 ahora usa siempre 'up --build -d' y espera el health check.",
+      "status": "completed",
+      "version": "1.40.1",
+      "priority": "MEDIUM",
+      "assigned_module": "backend/src/tenants/tenants.controller.ts, frontend/src/pages/admin/(modal Marca Blanca), scripts/deploy-local.sh",
+      "deploy_target": "provecchio",
+      "deployed_at": "2026-10-22T13:09:00-03:00",
+      "report": "docs/plans/omnigastro/DEPLOY_REPORT_2026-10-22-v1.40.0.md",
+      "troubleshooting": [
+        "docs/troubleshooting/187-select-prisma-sin-id-error-ts2339.md",
+        "docs/troubleshooting/188-restore-provecchio-db-port-null.md"
+      ],
+      "qa_validation": "Local: deploy-local.sh ALL CHECKS PASSED (13/13 versiones, 135 suites / 1009 tests, bundle fresco, GET /api/v1/tenants/:id/config 200) + E2E Playwright 10/10 (mozo-flag, order-history-server, hr-endpoints) sobre datos de producción restaurados. Producción: health 1.40.0, 9/9 contenedores healthy, 40 migraciones 0 pendientes, QA E2E 8 rutas admin OK, 0 errores JS, GET /api/v1/tenants/provecchio-dimora-001/config 200 con whiteLabel.customDomain=provecchio.com. Tag v1.40.0 sobre 273f90e0.",
+      "next_steps": [
+        "Verificación manual del usuario en el modal de Marca Blanca de provecchio.com (cargar, editar y guardar customDomain)"
+      ],
+      "related_fixes": [
+        "scripts/restore-provecchio.sh: DB_PORT literal 'null' (troubleshooting #188) — resuelto en rama fix/restore-db-port-null"
+      ]
+    },
+    {
+      "id": "FEAT-199",
+      "category": "Core / Multi-tenant / Marca blanca",
+      "title": "Marca Blanca: el PATCH del tenant devolvía 500 y podía borrar la configuración (v1.40.1)",
+      "description": "El modal de Marca Blanca ya cargaba (v1.40.0) pero no guardaba: PATCH /api/v1/tenants/:id devolvía 500 por dos argumentos inexistentes en el schema (customDomainVerified, que en realidad es domainVerified, y un objeto whiteLabel anidado). Además el modal enviaba config: { footerCredits } y, como Tenant.config es una columna Json? que se reemplaza completa en un update de Prisma, al desbloquear el 500 el primer guardado habría borrado gastro (qrTokens, waiterOptions, defaultServiceMode), homepageBlocks, subscription, fontFamily, etc. Se corrige el nombre del campo, se descarta whiteLabel en el backend (y se deja de enviar en el frontend) y se mergea config con el existente.",
+      "status": "completed",
+      "version": "1.40.1",
+      "priority": "HIGH",
+      "assigned_module": "backend/src/tenants/tenants.controller.ts, frontend/src/pages/admin/super-admin-dashboard.tsx",
+      "deploy_target": "provecchio",
+      "report": "docs/plans/omnigastro/plan-actualizacion-v1.40.1-white-label-patch.md",
+      "troubleshooting": [
+        "docs/troubleshooting/189-white-label-patch-500-config-overwrite.md"
+      ],
+      "qa_validation": "Unitarios jest tenants.controller.spec.ts 6 casos nuevos (16 total) y suite completa 135 suites / 1015 tests; tsc limpio en backend y frontend; E2E frontend/e2e/white-label-modal.spec.ts (PATCH 200, whiteLabel tolerado, config preservada, modal carga customDomain); verificación en producción con PATCH idempotente (HTTPS://Provecchio.COM/admin/?x=1 -> provecchio.com, domainVerified true, sin llamadas a Cloudflare). DESPLEGADO Y VERIFICADO EN PRODUCCION (2026-10-22 16:24): deploy-production.sh provecchio -> Production Deploy Complete, 9/9 contenedores healthy, 39 migraciones sin pendientes, health 1.40.1, bundle assets/index-BPoU28fx.js; PATCH idempotente HTTPS://Provecchio.COM/admin/?x=1 -> 200 con customDomain provecchio.com y domainVerified true (sin llamadas a Cloudflare); config 8 -> 9 claves sin perder ninguna (homepageBlocks, subscription, gastro y fontFamily identicas). Protocolo §3.1.1 previo: backup pre_deploy_provecchio_20261022_160434, restore localhost exit 0, deploy-local ALL CHECKS PASSED, E2E 14/14. Tag v1.40.1 sobre f6ba3907 (PR #16).",
+      "next_steps": [
+        "Considerar migrar el PATCH a un DTO con ValidationPipe para no aceptar claves arbitrarias del cliente"
+      ],
+      "deployed_at": "2026-10-22T16:24:00-03:00",
+      "deploy_status": "deployed"
+    },
+    {
+      "id": "FEAT-200",
+      "category": "OmniGastro / Mesas / Salón",
+      "title": "Editar y eliminar mesas desde /admin/gastro/tables (v1.40.2)",
+      "description": "El cliente reportó (bug 8a) que en /admin/gastro/tables solo funcionaba crear: los handlers de edición y borrado existían en gastro-tables.tsx pero ningún botón los invocaba, y el modal de gastro.tsx solo permitía renombrar. Se crea el componente compartido GastroTableEditModal (número, nombre, sillas, forma, zona y mapeo a restaurant.table de Odoo) y se conecta desde la grilla, el drawer del mapa de salón y el listado de /admin/gastro. Backend: DELETE /api/v1/tables/:id rechaza mesas con pedidos DRAFT/CONFIRMED/PREPARING/READY y resuelve en la misma transacción las llamadas al mozo PENDING; PATCH /api/v1/tables/:id pasa a exigir tables:manage y valida que la zona exista en el tenant; se bloquea mapear dos mesas al mismo odooTableId (causa del incidente G2/G02 apuntando ambas a restaurant.table 40); createTable revive una mesa soft-deleted del mismo número/zona en lugar de romper con la restricción @@unique.",
+      "status": "completed",
+      "version": "1.40.2",
+      "priority": "HIGH",
+      "assigned_module": "frontend/src/pages/admin/gastro-tables.tsx, frontend/src/pages/admin/gastro.tsx, frontend/src/components/gastro-table-edit-modal.tsx, backend/src/tables/tables.service.ts, backend/src/tables/tables.controller.ts, frontend/e2e/gastro-tables-crud.spec.ts",
+      "depends_on": [
+        "FEAT-183",
+        "FEAT-184"
+      ],
+      "blocking": "",
+      "report": "docs/plans/omnigastro/plan-actualizacion-v1.40.2-tables-crud.md",
+      "troubleshooting": [
+        "docs/troubleshooting/190-gastro-tables-handlers-huerfanos.md"
+      ],
+      "qa_validation": "jest src/tables (2 suites / 30 tests) en verde con 5 casos nuevos FEAT-200; tsc --noEmit limpio en backend y frontend; E2E frontend/e2e/gastro-tables-crud.spec.ts (CRUD API, rechazo de mapeo duplicado, botones Editar/Eliminar en grilla y drawer).",
+      "deployed_at": "2026-10-22T19:00:00-03:00",
+      "deploy_status": "deployed",
+      "deploy_report": "docs/plans/omnigastro/DEPLOY_REPORT_2026-10-22-v1.40.2.md",
+      "next_steps": [
+        "v1.41.0: provisioning de pisos y mesas OmniGastro -> Odoo (FEAT-201)"
+      ]
+    },
+    {
+      "id": "FEAT-201",
+      "category": "OmniGastro / Salón / Integración Odoo 14",
+      "title": "Provisioning de pisos (restaurant.floor) y mesas (restaurant.table) OmniGastro -> Odoo 14 (v1.41.0)",
+      "description": "Hasta v1.40.2 el salón sólo se resolvía de Odoo hacia OmniGastro: se listaban las mesas del ERP (GET /api/v1/tables/odoo-tables) y cada mesa local se mapeaba a mano con odooTableId. La dirección inversa no existía: crear o renombrar un piso/mesa en OmniGastro dejaba el pos.config de Odoo desactualizado y el POS del mozo no podía colgar el pos.order de un restaurant.table. Se agrega provisioning idempotente: (1) GET /api/v1/tables/odoo-floors con pisos de Odoo (incluye archivados), conteo de mesas, estado de mapeo local y detección de duplicados por nombre normalizado; (2) POST /api/v1/tables/odoo-provision/floor que crea o reutiliza un restaurant.floor por nombre normalizado (revive si estaba archivado) o mapea a un piso existente vía odooFloorId; (3) POST /api/v1/tables/odoo-provision/tables que provisiona las mesas del piso sin odooTableId con acciones created/reused/revived, sin archivar ni borrar nada en Odoo. Se agrega RestaurantFloor.odooFloorId + índice único (tenantId, odoo_floor_id) para impedir mapear dos pisos locales al mismo piso de Odoo. Odoo 14 CE: el piso se asocia al POS con pos_config_id (nunca config.floor_ids con sesión abierta) y shape sólo acepta square/round (RECT degrada a square).",
+      "status": "completed",
+      "version": "1.41.1",
+      "priority": "HIGH",
+      "assigned_module": "backend/src/tables/odoo-tables.service.ts, backend/src/tables/tables.service.ts, backend/src/tables/tables.controller.ts, backend/prisma/schema.prisma, odoo-adapter/src/index.js, odoo-adapter/src/normalize.js, frontend/src/components/gastro-odoo-sync-modal.tsx, frontend/src/pages/admin/gastro-tables.tsx",
+      "depends_on": [
+        "FEAT-183",
+        "FEAT-184",
+        "FEAT-200"
+      ],
+      "blocking": "",
+      "report": "docs/plans/omnigastro/plan-actualizacion-v1.41.0-floors-provisioning.md",
+      "qa_validation": "Unitarios 15/15 (12 backend + 3 adapter) y suite completa 1032/1032 en verde; tsc limpio. E2E Playwright frontend/e2e/gastro-odoo-provisioning.spec.ts 5/5 en localhost con datos de produccion restaurados (E2E_ODOO_PROVISIONING=1): snapshot, modal UI, idempotencia de piso, provisioning de mesas con odooTableId y guarda 400 de mapeo duplicado. Persistencia verificada tras docker compose down/up. Auditoria: docs/plans/omnigastro/AUDITORIA_FEAT-201_20261022.md. Verificado en provecchio.com (1.41.0): health ok, 76 migraciones, odoo_floor_id presente. Fix 1.41.1: pisos se asocian al POS de Odoo (inferencia/reparacion) y selector POS destino en el modal.",
+      "next_steps": [
+        "Deploy de 1.41.1 a provecchio.com",
+        "Verificar en el POS del mozo que el piso provisionado aparece"
+      ],
+      "deploy_status": "deployed",
+      "deployed_at": "2026-10-22",
+      "deploy_report": "docs/plans/omnigastro/AUDITORIA_FEAT-201_20261022.md"
     }
   ],
   "lastUpdated": "2026-10-22",
-  "last_id": "FEAT-197",
+  "last_id": "FEAT-201",
   "next_pending_sc": null,
   "active_plan": "docs/plans/omnigastro/PLAN_MAESTRO.md",
   "plan_progress": {

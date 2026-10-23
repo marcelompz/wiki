@@ -51,8 +51,14 @@
         "header": [],
         "url": {
           "raw": "{{baseUrl}}/api/v1/health",
-          "host": ["{{baseUrl}}"],
-          "path": ["api", "v1", "health"]
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "health"
+          ]
         }
       }
     },
@@ -87,8 +93,15 @@
         },
         "url": {
           "raw": "{{baseUrl}}/api/v1/auth/login",
-          "host": ["{{baseUrl}}"],
-          "path": ["api", "v1", "auth", "login"]
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "auth",
+            "login"
+          ]
         }
       }
     },
@@ -111,8 +124,16 @@
         "header": [],
         "url": {
           "raw": "{{baseUrl}}/api/v1/public/social-catalog/{{tenantId}}",
-          "host": ["{{baseUrl}}"],
-          "path": ["api", "v1", "public", "social-catalog", "{{tenantId}}"]
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "public",
+            "social-catalog",
+            "{{tenantId}}"
+          ]
         }
       }
     },
@@ -144,8 +165,16 @@
         },
         "url": {
           "raw": "{{baseUrl}}/api/v1/integrations/orderflow/webhook",
-          "host": ["{{baseUrl}}"],
-          "path": ["api", "v1", "integrations", "orderflow", "webhook"]
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "integrations",
+            "orderflow",
+            "webhook"
+          ]
         }
       }
     },
@@ -181,8 +210,16 @@
         },
         "url": {
           "raw": "{{baseUrl}}/api/v1/integrations/orderflow/webhook",
-          "host": ["{{baseUrl}}"],
-          "path": ["api", "v1", "integrations", "orderflow", "webhook"]
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "integrations",
+            "orderflow",
+            "webhook"
+          ]
         }
       }
     },
@@ -205,8 +242,13 @@
         "header": [],
         "url": {
           "raw": "{{baseUrl}}/admin/kds",
-          "host": ["{{baseUrl}}"],
-          "path": ["admin", "kds"]
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "admin",
+            "kds"
+          ]
         }
       }
     },
@@ -238,8 +280,15 @@
         },
         "url": {
           "raw": "{{baseUrl}}/api/v1/guest/orders",
-          "host": ["{{baseUrl}}"],
-          "path": ["api", "v1", "guest", "orders"]
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "guest",
+            "orders"
+          ]
         }
       }
     },
@@ -275,8 +324,16 @@
         },
         "url": {
           "raw": "{{baseUrl}}/api/v1/orders/:id/claim",
-          "host": ["{{baseUrl}}"],
-          "path": ["api", "v1", "orders", ":id", "claim"]
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "orders",
+            ":id",
+            "claim"
+          ]
         }
       }
     },
@@ -312,8 +369,16 @@
         },
         "url": {
           "raw": "{{baseUrl}}/api/v1/orders/:id/send-to-kitchen",
-          "host": ["{{baseUrl}}"],
-          "path": ["api", "v1", "orders", ":id", "send-to-kitchen"]
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "orders",
+            ":id",
+            "send-to-kitchen"
+          ]
         }
       }
     },
@@ -336,8 +401,15 @@
         "header": [],
         "url": {
           "raw": "{{baseUrl}}/api/v1/pos/sessions",
-          "host": ["{{baseUrl}}"],
-          "path": ["api", "v1", "pos", "sessions"]
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "pos",
+            "sessions"
+          ]
         }
       }
     },
@@ -350,6 +422,12 @@
             "exec": [
               "pm.test('Sync table order returns 200', function () {",
               "    pm.response.to.have.status(200);",
+              "});",
+              "pm.test('El id de mesa de Odoo es numérico', function () {",
+              "    const body = pm.response.json();",
+              "    if (body.error && body.error.indexOf('numerico') !== -1) {",
+              "        pm.expect.fail('El adapter rechazó el id de mesa: ' + body.error);",
+              "    }",
               "});"
             ]
           }
@@ -369,12 +447,18 @@
         ],
         "body": {
           "mode": "raw",
-          "raw": "{\n  \"orderUuid\": \"uuid-001\",\n  \"tableId\": \"table-001\",\n  \"items\": [\n    {\n      \"productId\": \"prod-001\",\n      \"quantity\": 2\n    }\n  ]\n}"
+          "raw": "{\n  \"tenant_id\": \"{{tenantId}}\",\n  \"order_uuid\": \"uuid-001\",\n  \"odoo_config_id\": 2,\n  \"odoo_table_id\": 25,\n  \"items\": [\n    {\n      \"odooProductId\": 1680,\n      \"quantity\": 2,\n      \"unitPrice\": 12.5,\n      \"kitchenNotes\": \"\"\n    }\n  ]\n}"
         },
         "url": {
           "raw": "{{baseUrl}}/api/omniflow/sync_table_order",
-          "host": ["{{baseUrl}}"],
-          "path": ["api", "omniflow", "sync_table_order"]
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "omniflow",
+            "sync_table_order"
+          ]
         }
       }
     },
@@ -410,8 +494,159 @@
         },
         "url": {
           "raw": "{{baseUrl}}/api/v1/integrations/odoo/order-paid",
-          "host": ["{{baseUrl}}"],
-          "path": ["api", "v1", "integrations", "odoo", "order-paid"]
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "integrations",
+            "odoo",
+            "order-paid"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Tables - Odoo mapping (diagnóstico)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Devuelve el listado de mesas de Odoo', function () {",
+              "    pm.response.to.have.status(200);",
+              "    const body = pm.response.json();",
+              "    pm.expect(body).to.have.property('tables');",
+              "    pm.expect(Array.isArray(body.tables)).to.be.true;",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "x-api-key",
+            "value": "{{apiKey}}"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": ""
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/tables/odoo-tables",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "tables",
+            "odoo-tables"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Tables - Odoo floor provisioning (snapshot FEAT-201)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "// FEAT-201: contrato del snapshot de pisos. Tolera 503 si el adapter Odoo no corre.",
+              "pm.test('Responde 200 o 503 (adapter caído)', function () {",
+              "    pm.expect([200, 503]).to.include(pm.response.code);",
+              "});",
+              "if (pm.response.code === 200) {",
+              "    const body = pm.response.json();",
+              "    pm.test('Incluye floors, duplicates y localFloors', function () {",
+              "        pm.expect(body).to.have.property('floors');",
+              "        pm.expect(body).to.have.property('duplicates');",
+              "        pm.expect(body).to.have.property('localFloors');",
+              "        pm.expect(body).to.have.property('mappedOdooFloorIds');",
+              "        pm.expect(Array.isArray(body.floors)).to.be.true;",
+              "        pm.expect(Array.isArray(body.localFloors)).to.be.true;",
+              "    });",
+              "    pm.test('Cada piso de Odoo trae id numérico y tableCount', function () {",
+              "        (body.floors || []).forEach(function (floor) {",
+              "            pm.expect(floor.id).to.be.a('number');",
+              "            pm.expect(floor.tableCount).to.be.a('number');",
+              "        });",
+              "    });",
+              "}"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "x-api-key",
+            "value": "{{apiKey}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/tables/odoo-floors",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "tables",
+            "odoo-floors"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Gastro Config - Opciones de cobro del mozo",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Expone waiterCanCollectPayment', function () {",
+              "    pm.response.to.have.status(200);",
+              "    const body = pm.response.json();",
+              "    pm.expect(body).to.have.property('waiterCanCollectPayment');",
+              "    pm.expect(body.waiterCanCollectPayment).to.be.a('boolean');",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "x-api-key",
+            "value": "{{apiKey}}"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": ""
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/omnigastro-config/payment-options",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "omnigastro-config",
+            "payment-options"
+          ]
         }
       }
     }

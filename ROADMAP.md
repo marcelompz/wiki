@@ -1,14 +1,14 @@
 # 🗺️ ROADMAP DE ORDERFLOW - v1.34.0 → v2.0.0 (Go-Live Definitivo)
-**Última Actualización:** 2026-10-22 (Deploy de v1.39.26 + v1.39.27 a `provecchio.com`: bandera de Mozo e historial en servidor)
-**Release anterior:** 2026-10-22 (Deploy de v1.39.25 a `provecchio.com`: "Mis pedidos" del comensal + fix del `paidAt`)
+**Última Actualización:** 2026-10-22 (Release v1.40.2 — OmniGastro: editar y eliminar mesas desde `/admin/gastro/tables` + guardas de integridad — **desplegada y verificada en `provecchio.com`**)
+**Release anterior:** 2026-10-22 (Release v1.40.1 — Marca Blanca: el `PATCH /api/v1/tenants/:id` devolvía 500 y podía borrar la configuración del tenant — desplegada y verificada en `provecchio.com`) · 2026-10-22 (Release v1.40.0 — endpoint `GET /api/v1/tenants/:id/config` desplegado en `provecchio.com`)
 
-**Versión Actual:** **`v1.39.27`** ✅ **DEPLOYED EN PRODUCCIÓN** (`provecchio.com`, 2026-10-21 21:53) | Marca pública: OmniFlow. Capa técnica interna: OrderFlow.
-**Próximos Releases:** **v1.40.0** (Tauri Desktop & OmnIoT Edge) ➔ **v2.0.0** (🚀 **GO-Live Definitivo del Ecosistema — Target: 15 de Febrero de 2027**)
+**Versión Actual:** **`v1.41.1`** ✅ **DESPLEGADA EN PRODUCCIÓN** (`provecchio.com`, 2026-10-22 21:25) | Marca pública: OmniFlow. Capa técnica interna: OrderFlow.
+**Próximos Releases:** **v1.41.x** (Tauri Desktop & OmnIoT Edge) ➔ **v2.0.0** (🚀 **GO-Live Definitivo del Ecosistema — Target: 15 de Febrero de 2027**)
 **Plan Maestro Go-to-Live:** ver [docs/plans/PLAN_GO_LIVE_APLICACIONES_ECOSISTEMA.md](docs/plans/PLAN_GO_LIVE_APLICACIONES_ECOSISTEMA.md)
 **Roadmap Comercial:** ver [docs/planes/comercial/OmniFlow_PLAN_COMERCIAL_v1.md](docs/planes/comercial/OmniFlow_PLAN_COMERCIAL_v1.md) (FEAT-112 a FEAT-119)
 **Estado:** ✅ **STAGING & PRODUCTION OPERATIVE** | 🏆 **HARDENED v1.39.2** | OmniGastro Fases 0-3.3 Completadas | RBAC Hardening En PR | CI Guard Active | QA E2E Suite | Build Limpio & Cobertura Total
 
-<!--CURRENT_VERSION-->1.39.27<!--/CURRENT_VERSION--> <!-- Actualizado: 2026-10-21 v1.39.24 por Kilo -->
+<!--CURRENT_VERSION-->1.41.1<!--/CURRENT_VERSION--> <!-- Actualizado: 2026-10-22 v1.41.1 (FEAT-201 + fix POS config) -->
 
 ### 📋 Próximas actualizaciones planificadas — OmniGastro (plan aprobado 2026-10-22)
 
@@ -36,6 +36,15 @@
 **Decisiones abiertas:** D1 backfill de la bandera para los mozos actuales (recomendado: sí) · D4 incluir el fix de `paidAt` en la F1 (recomendado: sí) · D5 implementar la Capa 2 ahora o esperar (recomendado: esperar) · D6 Capa 3b en fase propia o integrada en la F4 (recomendado: fase propia).
 
 **Telemetría declarada** (`Order.metadata.guestDraft`): `t0_order_created`, `t1_table_claimed`, `t2_cart_saved`, `t3_order_confirmed`, `t4_sent_to_kitchen`, `t5_order_ready`, `t6_waiter_viewed_history`, `t7_paid`, `t11_table_closed`.
+
+### 🚀 Release v1.39.28 — Fix de `/admin/hr` (500 en empleados, 404 en cargos) (Octubre 2026)
+
+| Feature | Módulo | Estado |
+|---------|--------|--------|
+| **`PositionModule` registrado** en el `imports` del `AppModule` → `GET /api/v1/positions` deja de dar 404 | `backend/src/app.module.ts` | ✅ |
+| **El restore aplica migraciones pendientes** (`prisma migrate deploy`) → el entorno local queda fiel al código y `GET /api/v1/hr/employees` deja de dar 500 | `scripts/restore-provecchio.sh` | ✅ |
+| **E2E de regresión** de los tres endpoints de HR | `frontend/e2e/hr-endpoints.spec.ts` | ✅ 3 passed |
+| **Troubleshooting #186** con el análisis del falso positivo de `_prisma_migrations` | `docs/troubleshooting/186-admin-hr-500-empleados-y-404-posiciones.md` | ✅ |
 
 ### 🚀 Release v1.39.27 — FEAT-197 (Capas 3 y 3b): historial en servidor para mozo y cajero (Octubre 2026)
 
@@ -277,7 +286,7 @@
 
 ---
 
-<!--CURRENT_VERSION-->1.39.27<!--/CURRENT_VERSION--> <!-- Actualizado: 2026-10-20 v1.39.12 por Kilo -->
+<!--CURRENT_VERSION-->1.41.1<!--/CURRENT_VERSION--> <!-- Actualizado: 2026-10-20 v1.39.12 por Kilo -->
 
 El ecosistema **OmniFlow** contempla 10 aplicaciones y capas operativas. A continuación se presenta la evaluación de madurez técnica por componente y los puntos pendientes priorizados hacia el Go-Live final.
 
