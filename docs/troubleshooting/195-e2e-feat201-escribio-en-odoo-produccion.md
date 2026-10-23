@@ -115,3 +115,24 @@ call('restaurant.floor', 'unlink', [[15]])
 **Regla operativa derivada:** en Odoo con sesión POS abierta, los objetos recién creados **no se pueden
 borrar** (el `unlink` valida contra sesiones). Cualquier prueba de escritura contra el ERP real debe
 planificarse con ventana sin sesión, o limitarse a archivar y dejar registro.
+
+---
+
+## Addendum v1.41.2 (2026-10-23) — interlock de escritura
+
+Se agregó una barrera técnica en `frontend/e2e/gastro-odoo-provisioning.spec.ts`: las pruebas que
+crean pisos/mesas requieren **`E2E_ODOO_HOST_ACK=<host>`** y comparan ese valor con el `odooHost` que
+reporta `GET /api/v1/tables/odoo-floors` (expuesto por el adapter desde v1.41.2). Si no hay ACK o no
+coincide, la suite se **omite** con un mensaje explícito.
+
+```bash
+# lectura (seguro en cualquier entorno)
+npx playwright test e2e/gastro-odoo-provisioning.spec.ts
+
+# escritura: exige declarar el host real del ERP
+E2E_ODOO_PROVISIONING=1 E2E_ODOO_HOST_ACK=192.168.69.246 npx playwright test e2e/gastro-odoo-provisioning.spec.ts
+```
+
+**Por qué el ACK y no autodetección:** el Odoo de producción (`192.168.69.246`) y el de desarrollo
+viven en rangos privados equivalentes; no hay forma confiable de distinguirlos por IP. Obligar a
+declarar el host convierte un error silencioso en una decisión consciente.

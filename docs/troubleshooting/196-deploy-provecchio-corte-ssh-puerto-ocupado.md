@@ -86,3 +86,47 @@ El servicio monta `./services/sync-standalone:/app` como **bind mount**, y ese d
 **no tiene `dist/`** (su `package.json` es del 2026-10-12). La imagen sí contiene `dist/src/main.js`,
 pero el mount la tapa. No afecta el core (health, POS, catálogo y QA funcionan); requiere
 `npm ci && npm run build` en `services/sync-standalone` o eliminar el bind mount en producción.
+
+---
+
+## Resolución aplicada en v1.41.2 (2026-10-23)
+
+### 1. `orderflow_sync_standalone` — causa raíz real: overlay omitido
+
+El diagnóstico inicial (falta de `dist/`) era parcial. El repo **ya** resuelve el problema con
+`docker-compose.provecchio.yml`, que hace `volumes: !reset []` para `sync_standalone`:
+
+```yaml
+sync_standalone:
+  volumes: !reset []
+  environment:
+    REDIS_URL: redis://:${REDIS_PASSWORD}@redis:6379
+```
+
+El crash-loop apareció porque la recuperación manual del incidente levantó el stack **solo** con
+`docker-compose.yml` (sin el overlay), dejando activo el bind mount de desarrollo. La forma correcta
+en provecchio es siempre:
+
+```bash
+cd /srv/orderflow
+docker compose -f docker-compose.yml -f docker-compose.provecchio.yml \
+  --env-file .env.provecchio up -d --remove-orphans
+```
+
+Verificado: contenedor `healthy`, sin mounts de desarrollo, `OmniSync is running on:
+http://localhost:3015/api/v1`.
+
+> **Ojo con el env file:** el script usa `.env.prod` como `ENV_FILE_PATH` local, pero
+> `REMOTE_ENV_FILE=.env.provecchio` para el compose remoto. Levantar a mano con `--env-file .env.prod`
+> arranca Redis/DB con credenciales incorrectas.
+
+### 2. Hardening de `scripts/deploy-production.sh` (implementado)
+
+| Mejora | Detalle |
+|---|---|
+| Build antes de borrar | `compose build` → limpieza → `compose rm -f -s` → `compose up -d`. Un build fallido ya no deja el sitio en 502. |
+| Huérfanos con prefijo hash | `docker ps -aq --filter 'name=^[0-9a-f]\{12\}_' | xargs -r docker rm -f` antes del `up`, evita conflictos de nombre/puerto (3010). |
+| Recuperación automática | `trap recover_stack_on_error EXIT` con flag `REMOTE_TOUCHED`: si el deploy aborta tras tocar contenedores y antes de confirmar el stack, reintenta `compose up -d` con las imágenes existentes. |
+| Sin `--build` redundante | El `up` ya no recompila (se hizo antes), reduciendo ventana de indisponibilidad. |
+
+Validado con `bash -n` y con el deploy real de v1.41.2.

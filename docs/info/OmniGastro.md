@@ -2,6 +2,17 @@
 
 ## Before deploy on provecchio you need to backup the data on production, restore at localhost, deploy there and test all the stuff. Never deploy on production without successful test on localhost
 
+## 2026-10-23 — v1.41.2 (PATCH) — Host de Odoo visible, interlock de escritura y deploy endurecido
+
+- El adapter reporta `odoo_host` y el modal de sincronización muestra **`Odoo: <host>`**, para saber
+  siempre si se está operando contra el ERP de producción o uno de pruebas.
+- El E2E de escritura exige `E2E_ODOO_HOST_ACK=<host>` y se **omite** si no coincide con el host del
+  adapter (evita repetir el incidente de troubleshooting #195).
+- `scripts/deploy-production.sh`: build **antes** de eliminar contenedores, limpieza de contenedores
+  huérfanos con prefijo hash y recuperación automática (trap) si el deploy aborta.
+- Producción: piso/mesa de prueba de QA eliminados en Odoo y pisos locales mapeados
+  (**Terraza → Odoo 1**, **Giardino → Odoo 5**).
+
 ## 2026-10-22 — v1.41.1 (FIX) — Los pisos provisionados no se asociaban a un POS de Odoo
 
 Detectado al verificar el deploy de 1.41.0: la sincronización creaba `restaurant.floor` con

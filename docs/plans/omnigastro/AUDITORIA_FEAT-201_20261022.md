@@ -142,3 +142,56 @@ troubleshooting #195).
 - Flujo + telemetría: `docs/plans/omnigastro/flujo-provisioning-pisos-mesas.md`
 - Changelog: `CHANGELOG.md` → `## [1.41.0]`
 - Doc funcional: `docs/info/OmniGastro.md` → sección v1.41.0
+
+## 8. Cierre v1.41.2 (2026-10-23)
+
+### 8.1 Cambios de código
+
+| Área | Cambio |
+|---|---|
+| `odoo-adapter/src/index.js` | `client.integrationHost` + `odoo_host` en `/api/omniflow/odoo_floors` |
+| `backend/src/tables/odoo-tables.service.ts` | `OdooFloorsSnapshot.odooHost` (`payload.odoo_host ?? null`) |
+| `frontend/src/components/gastro-odoo-sync-modal.tsx` | pie del modal con `Odoo: <host>` |
+| `frontend/e2e/gastro-odoo-provisioning.spec.ts` | interlock `E2E_ODOO_HOST_ACK` (skip si no coincide) |
+| `scripts/deploy-production.sh` | build antes de `rm`, limpieza de huérfanos `^[0-9a-f]{12}_`, trap EXIT de recuperación |
+
+### 8.2 Operaciones en producción
+
+| Ítem | Resultado |
+|---|---|
+| Odoo: piso `QA POS Check` (#15) | 🗑️ eliminado (se desvinculó su `pos_config_id` para habilitar `unlink`; **sin cerrar sesiones POS**) |
+| Odoo: mesa `QA-6137` (#87) | 🗑️ eliminada |
+| Residuos QA restantes | 0 (`restaurant.floor` / `restaurant.table` sin registros `QA`) |
+| Mapeo de pisos | Terraza → Odoo **1**, Giardino → Odoo **5** |
+| Snapshot | `mappedOdooFloorIds=[1,5]`, ambos con `posConfigId=2` |
+| `orderflow_sync_standalone` | ✅ healthy levantado con `-f docker-compose.yml -f docker-compose.provecchio.yml --env-file .env.provecchio` |
+
+### 8.3 Validación
+
+- `bash -n scripts/deploy-production.sh` → OK.
+- `npx jest src/tables` (backend) → **43/43** · adapter `npm test` → **5/5**.
+- `tsc --noEmit` backend y frontend → sin errores.
+- E2E lectura (`npx playwright test gastro-odoo-provisioning`) → 2/2 (las escrituras quedan bloqueadas sin `E2E_ODOO_HOST_ACK`).
+
+### 8.4 Lección operativa
+
+El stack de provecchio **siempre** debe levantarse con el overlay `docker-compose.provecchio.yml`;
+sin él, `sync_standalone` monta `./services/sync-standalone:/app` sobre la imagen y arranca sin
+`dist/src/main.js` (`MODULE_NOT_FOUND`). Ver troubleshooting #196.
+
+### 8.5 Deploy de producción v1.41.2 (2026-10-23 09:33 ART)
+
+| Verificación | Resultado |
+|---|---|
+| `GET https://provecchio.com/api/v1/health` | `1.41.2` · `database:ok` · `odoo_adapter:ok` |
+| Frontend | `200` |
+| Snapshot `odoo-floors` | `odooHost=192.168.69.246`, `mappedOdooFloorIds=[1,5]` |
+| Pisos locales | Terraza→1, Giardino→5 |
+| Pisos Odoo activos | Giardino(5), Terraza(1), Café(2), Restó(3), Barra(4) — todos `posConfigId=2` |
+| Contenedores | backend, frontend, db, redis, odoo_adapter, sync_standalone, omnibi_standalone, database-replica → healthy |
+| `orderflow_sync_standalone` | healthy, **sin** bind mounts de desarrollo |
+| QA del script | catálogo sin imágenes rotas, dominio sin errores JS, 8 rutas admin OK, auth/DB sin 500 |
+| Script endurecido | build → limpieza de huérfanos → rm → up: **sin 502**, trap no requerido |
+
+**Resultado:** FEAT-201 cerrada en producción con v1.41.2. El piso de prueba de Odoo ya no existe y
+los dos pisos del salón quedaron mapeados a sus equivalentes reales.

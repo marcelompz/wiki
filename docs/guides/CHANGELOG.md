@@ -1,3 +1,22 @@
+## [1.41.2] - 2026-10-23
+
+### 🔒 Visibilidad y seguridad de la integración Odoo (FEAT-201)
+
+- **Host de Odoo visible (sin credenciales):** el adapter expone `odoo_host` en `/api/omniflow/odoo_floors`, el backend lo propaga como `odooHost` en el snapshot y el modal `GastroOdooSyncModal` lo muestra en el pie (`Odoo: <host>`). Permite saber de un vistazo contra qué ERP se está operando (producción vs. local).
+- **Interlock de escritura en E2E:** las pruebas de provisión (que crean pisos y mesas reales) ahora exigen `E2E_ODOO_HOST_ACK` con el host exacto reportado por el adapter; si no coincide, la suite se **omite** en lugar de escribir en un Odoo inesperado. Cierra el riesgo del incidente de troubleshooting #195.
+- **Troubleshooting #195** actualizado con el addendum del interlock.
+
+### 🚀 Hardening del script de despliegue
+
+- **Build antes de eliminar contenedores:** `scripts/deploy-production.sh` construye las imágenes antes de `compose rm -f -s`. Un build fallido (disco, contexto, red) deja el stack anterior en pie en lugar de dejar el sitio en 502 (troubleshooting #193/#196).
+- **Limpieza de contenedores huérfanos con prefijo hash** (`^[0-9a-f]{12}_`) que dejan los `up` interrumpidos y que retienen puertos como el 3010.
+- **Recuperación automática (trap EXIT):** si el deploy aborta después de tocar contenedores y antes de confirmar el stack, se reintenta `compose up -d` con las imágenes existentes y se avisa del estado.
+- **`orderflow_sync_standalone` en producción:** confirmado que debe levantarse con el overlay `docker-compose.provecchio.yml` (resetea el bind mount `./services/sync-standalone:/app`); sin overlay el contenedor arranca sin `dist/src/main.js`.
+
+### 🧹 Operaciones de producción
+
+- Odoo de producción limpio: piso de prueba `QA POS Check` (#15) y mesa `QA-6137` (#87) eliminados sin cerrar sesiones POS (se desvinculó el piso de su POS para habilitar el `unlink`).
+- Pisos locales mapeados a sus equivalentes activos de Odoo: **Terraza → 1**, **Giardino → 5** (`GET /api/v1/tables/odoo-floors` reporta `mappedOdooFloorIds=[1,5]`).
 ## [1.41.1] - 2026-10-22
 
 ### 🧭 OmniGastro — los pisos provisionados no quedaban asociados a un POS de Odoo
