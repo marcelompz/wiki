@@ -1,3 +1,15 @@
+## [1.41.5] - 2026-10-23
+
+### 🔔 Modal «Llamar al mozo» sin select vacío
+
+- **Causa:** `config.gastro.waiterOptions` del tenant tenía formato legacy (strings:
+  `call_waiter`, `request_bill`, `waiter_take_order`), mientras el QR público esperaba objetos
+  `{id,label,icon}`. El `<Select>` se renderizaba con opciones «undefined».
+- **Fix:** se eliminó el select de los dos modales de «Llamar al mozo»; queda solo el campo de
+  mensaje libre (`frontend/src/pages/omni-catalog.tsx`). Se retiró el estado
+  `selectedWaiterOption` y el envío de `optionId`.
+- **Doc:** `docs/troubleshooting/199-select-vacio-llamar-mozo-qr.md`.
+
 ## [1.41.4] - 2026-10-23
 
 ### 🍽️ Ítems que desaparecían del POS de Odoo

@@ -2,6 +2,13 @@
 
 ## Before deploy on provecchio you need to backup the data on production, restore at localhost, deploy there and test all the stuff. Never deploy on production without successful test on localhost
 
+## 2026-10-23 — v1.41.5 (FIX) — Modal «Llamar al mozo» sin select vacío
+
+- **Causa:** `config.gastro.waiterOptions` legacy como strings; el QR público esperaba
+  `{id,label,icon}` y renderizaba opciones «undefined».
+- **Fix:** se elimina el select de ambos modales; queda solo el mensaje libre.
+- Detalle: `docs/troubleshooting/199-select-vacio-llamar-mozo-qr.md`.
+
 ## 2026-10-23 — v1.41.4 (FIX) — Ítems faltantes en Odoo e historial del Mozo POS
 
 - **Odoo:** 123 productos de menú tenían `available_in_pos=False`; el POS descartaba sus líneas

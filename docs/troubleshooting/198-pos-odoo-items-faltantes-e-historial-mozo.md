@@ -103,3 +103,22 @@ En `gastro-pos.tsx`:
 - `odoo-adapter/odoo-addons/pos_omniflow_sync/controllers/main.py`
 - `frontend/src/pages/admin/gastro-pos.tsx`
 - `docs/troubleshooting/197-odoo-pos-reference-incompatible-caja.md`
+
+## ⚠️ Nota crítica: el POS mantiene el pedido en memoria
+
+La reparación de datos no alcanza si el pedido estaba abierto en el POS de Odoo. El
+frontend del POS guarda su propia copia del pedido y, ante cualquier interacción, la
+reescribe completa (`sync_from_ui`), **borrando las líneas agregadas desde el servidor**.
+
+Caso real (2026-10-23): el pedido 32061 se reparó a 3 líneas y, minutos después, el POS
+lo volvió a guardar con 2 (nuevas líneas `create_date`, sin Moscow mule). Se reparó de
+nuevo a las 14:46.
+
+**Protocolo obligatorio tras reparar un pedido en Odoo:**
+
+1. En la tablet/PC del POS, **recargar la pantalla (F5)** o cerrar y volver a abrir el POS.
+2. Verificar que el pedido muestre las 3 líneas antes de agregar notas, cambiar mesa o cobrar.
+3. Recién entonces operar normalmente.
+
+Si el POS vuelve a guardar sin recargar, la línea desaparece otra vez (no es un fallo del
+sync ni del addon).
