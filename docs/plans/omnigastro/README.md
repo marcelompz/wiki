@@ -2,7 +2,7 @@
 
 > **Estado:** Fase 0–3.3 completada · Hardening RBAC empleados **completado** (v1.38.20) · Sprint Fixes Campo Provecchio **completado** (v1.39.1, 2026-10-16).
 > **Versión base:** OmniFlow / OrderFlow v1.39.1
-> **Última actualización:** 2026-10-23 (plan propuesto FEAT-203/204/205: cuentas de mesa y pedidos concurrentes; v1.41.5 en producción)
+> **Última actualización:** 2026-10-23 (FEAT-203/204/205 implementadas en rama `feat/gastro-feat-203-205-table-sessions-bills`; producción estable v1.41.5, pendiente deploy local + E2E)
 
 OmniGastro convierte OmniFlow en el **Sistema Operativo Restaurantero** completo, alcanzando paridad operativa con Toast POS y superándola en offline-first nativo, soberanía multi-tier, Live Escandallo atómico y Seat-level ordering.
 
@@ -27,8 +27,9 @@ OmniGastro convierte OmniFlow en el **Sistema Operativo Restaurantero** completo
 | [`DEPLOY_REPORT_2026-10-22.md`](./DEPLOY_REPORT_2026-10-22.md) | Reporte de despliegue de **v1.39.25** en `provecchio.com` (2026-10-22 05:32): protocolo aplicado, evidencia, QA post-deploy, incidencias (ProxyJump por cambio de red) y rollback |
 | [`auditoria-historial-pedidos-f1-2026-10-22.md`](./auditoria-historial-pedidos-f1-2026-10-22.md) | Auditoría de la F1 (v1.39.25): store del historial local, botón 🕘 "Mis pedidos", drawer con refresco, fix `normalizeOrderCloseMode` y evidencia de validación (E2E 3 passed, suite 79 passed, jest 81, vitest 26) |
 | [`flujo-historial-pedidos.md`](./flujo-historial-pedidos.md) | Diagrama de secuencia Mermaid (3 capas), contratos REST y hitos de telemetría `t0…t11` del historial de pedidos |
-| [`plan-actualizacion-cuentas-mesa-concurrentes.md`](./plan-actualizacion-cuentas-mesa-concurrentes.md) | **Plan propuesto (2026-10-23, pendiente de aprobación)**: sesión de mesa (`TableSession`), cuentas (`Bill`) con merge/unmerge, identidad de comensal (`guestKey`), idempotencia y sync Odoo por cuenta — FEAT-203/204/205, v1.42.0 |
+| [`plan-actualizacion-cuentas-mesa-concurrentes.md`](./plan-actualizacion-cuentas-mesa-concurrentes.md) | **Plan aprobado (2026-10-23) e implementado en rama**: sesión de mesa (`TableSession`), cuentas (`Bill`) con merge/unmerge, identidad de comensal (`guestKey`), idempotencia y sync Odoo por cuenta — FEAT-203/204/205, v1.42.0 |
 | [`flujo-cuentas-mesa-concurrentes.md`](./flujo-cuentas-mesa-concurrentes.md) | Diagramas Mermaid (QR concurrente, merge/pago, `sync_bill`), máquinas de estado, contratos REST y telemetría `t0…t12` de cuentas de mesa |
+| [`auditoria-feat-203-205-2026-10-23.md`](./auditoria-feat-203-205-2026-10-23.md) | **Auditoría de implementación v1.42.0**: decisiones D1–D5, modelo, endpoints, feature flag, validaciones (18 unitarios + tsc/build + migración) y pendientes antes de producción |
 | [`BACKLOG_CLIENTE_20261019.md`](./BACKLOG_CLIENTE_20261019.md) | Reporte de los 9 bugs del cliente en la v1.39.9 (origen de FEAT-184…188) |
 | [`featurelist.json`](./featurelist.json) | FEAT-001 a FEAT-00124+ con estado y módulo |
 | `schema/` | Fragmentos de Prisma para las migraciones de cada fase |

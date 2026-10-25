@@ -1,7 +1,7 @@
 {
   "id": "analytics",
   "name": "BI & Analytics Hub",
-  "version": "1.41.5",
+  "version": "1.42.1",
   "coreCompatibility": "1.x",
   "description": "Módulo de Business Intelligence, rankings comparativos mensuales/interanuales (YoY) y análisis de rendimiento comercial.",
   "icon": "BarChartOutlined",

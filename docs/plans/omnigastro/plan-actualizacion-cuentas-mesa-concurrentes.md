@@ -1,10 +1,10 @@
 # Plan de Actualización — Cuentas de mesa y pedidos concurrentes
 ## FEAT-203 · FEAT-204 · FEAT-205 — `TableSession` + `Bill` (merge/split) + sync Odoo por cuenta
 
-> **Estado:** 🟡 **PROPUESTO — pendiente de aprobación del usuario** (AGENTS.md Reglas #15 y #16)
+> **Estado:** 🟡 **APROBADO E IMPLEMENTADO EN RAMA** `feat/gastro-feat-203-205-table-sessions-bills` (2026-10-23). Producción estable en v1.41.5; pendiente deploy-to-local-first, E2E de dos contextos y prueba del addon en Odoo local.
 > **Fecha:** 2026-10-23 · **Vertical:** OmniGastro
-> **Rama base:** `product/omnigastro` → feature branches `feat/gastro-table-sessions`, `feat/gastro-bills-merge`, `feat/gastro-odoo-bill-sync`
-> **Bump propuesto:** `minor` (1.41.5 → **1.42.0**) — nueva superficie de API y entidades (Regla #11)
+> **Rama base:** `product/omnigastro` → feature branch `feat/gastro-feat-203-205-table-sessions-bills`
+> **Bump aplicado:** `minor` (1.41.5 → **1.42.0**) — nueva superficie de API y entidades (Regla #11)
 > **Documento de flujo:** [`flujo-cuentas-mesa-concurrentes.md`](./flujo-cuentas-mesa-concurrentes.md)
 > **Feature flag:** `gastro.tableSessions` (tenant config, default `false` hasta F2)
 

@@ -2,6 +2,22 @@
 
 ## Before deploy on provecchio you need to backup the data on production, restore at localhost, deploy there and test all the stuff. Never deploy on production without successful test on localhost
 
+## 2026-10-24 — v1.42.0 (FEATURE) — Cuentas de mesa concurrentes (FEAT-203/204/205) desplegado en localhost para probar
+
+- 1. No encuentro en configuraciones donde activar esa bandera para activar los asientos [http://provecchio.local/admin/settings]. 2. Uno de los pedidos del endpoint del mozo [http://provecchio.local/admin/gastro/mozos] me lleva a este endpoint [http://provecchio.local/admin/gastro/pos/442e40ef-c3c2-4898-b110-eb723de887ad] y el otro a este otro [http://provecchio.local/admin/gastro/pos/442e40ef-c3c2-4898-b110-eb723de887ad] que en principiop son el mismo?
+- Me gustaria que el mozo tuviera esa division de pedidos en una sola pantalla de POS, separando los asientos por grupos. Creo que así está configurado, pero ahora recibí los pedidos como si fueran 2 pedidos distintos.
+
+## 2026-10-23 — v1.42.0 (FEATURE) — Cuentas de mesa concurrentes (FEAT-203/204/205)
+
+- **TableSession:** una sesión `OPEN` por mesa; el alta QR es idempotente y adjunta las
+  líneas al pedido activo del mismo `guestKey`. Feature flag `config.gastro.tableSessions`.
+- **Bill:** cuentas `PER_ORDER`/`MERGED` con merge/unmerge y cobro con validación exacta.
+- **Odoo:** `sync_bill` + addon v14.0.1.4.0 (`omniflow_bill_ref`): una sola `pos.order`
+  por cuenta, con `409 POS_ORDER_LOCKED` si ya está pagada.
+- **Estado:** implementado en rama; pendiente deploy local, E2E de dos contextos, prueba
+  del addon en Odoo local y definir `CashMovement` por cuenta antes de producción.
+- Detalle: `docs/plans/omnigastro/auditoria-feat-203-205-2026-10-23.md`.
+
 ## 2026-10-23 — v1.41.5 (FIX) — Modal «Llamar al mozo» sin select vacío
 
 - **Causa:** `config.gastro.waiterOptions` legacy como strings; el QR público esperaba

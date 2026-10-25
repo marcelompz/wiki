@@ -24,6 +24,34 @@
     {
       "key": "masterApiKey",
       "value": "{{MASTER_API_KEY}}"
+    },
+    {
+      "key": "tableId",
+      "value": ""
+    },
+    {
+      "key": "tableSessionId",
+      "value": ""
+    },
+    {
+      "key": "orderId1",
+      "value": ""
+    },
+    {
+      "key": "orderId2",
+      "value": ""
+    },
+    {
+      "key": "billId",
+      "value": ""
+    },
+    {
+      "key": "billTotal",
+      "value": ""
+    },
+    {
+      "key": "posSessionId",
+      "value": ""
     }
   ],
   "item": [
@@ -649,6 +677,190 @@
           ]
         }
       }
+    },
+    {
+      "name": "FEAT-203/204 — Table Sessions & Bills",
+      "item": [
+        {
+          "name": "Table Session - by table",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Table session returns 200/401/404', function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 401, 404]);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/tables/{{tableId}}/session",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "tables",
+                "{{tableId}}",
+                "session"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Bills - merge two orders",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Bill create returns 201 or 400/404', function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 201, 400, 404]);",
+                  "    if (pm.response.code === 201 || pm.response.code === 200) {",
+                  "        const bill = pm.response.json();",
+                  "        pm.environment.set('billId', bill.id);",
+                  "        pm.environment.set('billTotal', bill.totalAmount);",
+                  "    }",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"sessionId\": \"{{tableSessionId}}\",\n  \"orderIds\": [\"{{orderId1}}\", \"{{orderId2}}\"],\n  \"mode\": \"MERGED\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/bills",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "bills"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Bills - pay",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Bill pay returns 200/400/404/422', function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 400, 404, 422]);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"payments\": [{\"method\": \"cash\", \"amount\": {{billTotal}}}],\n  \"posSessionId\": \"{{posSessionId}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/bills/{{billId}}/pay",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "bills",
+                "{{billId}}",
+                "pay"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Bills - invoice / sync_bill",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Bill invoice returns 200/409/422', function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 409, 422]);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/bills/{{billId}}/invoice",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "bills",
+                "{{billId}}",
+                "invoice"
+              ]
+            }
+          }
+        }
+      ]
     }
   ]
 }

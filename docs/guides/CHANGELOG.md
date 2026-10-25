@@ -1,4 +1,11 @@
-## [1.41.5] - 2026-10-23
+## [1.42.1] - 2026-10-24
+
+### 🚧 Release en curso
+
+- Documentar aqui los cambios de la version.
+
+## [1.41.5] -
+## [1.42.0] - 2026-10-23
 
 ### 🔔 Modal «Llamar al mozo» sin select vacío
 
