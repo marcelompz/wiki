@@ -1,3 +1,30 @@
+## [1.43.2] - 2026-10-26
+
+### 🔌 OmniGastro — hardening del conector `pos_omniflow_sync` (FEAT-207, auditoría del informe del conector)
+
+- **Auditoría claim-por-claim del informe** `docs/info/Informe_estado_conector_pos_omniflow_sync(Odoo).md`: el canon real es `14.0.1.5.0`; 5 hallazgos del informe seguían vigentes, 3 recomendaciones ya implementadas. Documento: `docs/plans/omnigastro/auditoria-conector-pos-omniflow-sync-2026-10-26.md`.
+- **Addon v14.0.1.6.0 (desplegado en 192.168.69.246):** `sync_table_order` rechaza payload sin `order_uuid` (`ORDER_UUID_REQUIRED`), filtra `state='draft'` en ambas búsquedas (un reintento tardío nunca escribe sobre un pedido pagado/facturado), fallback legacy curado (no roba el borrador de otro pedido) y guard defensivo pre-escritura.
+- **Adapter:** `/api/omniflow/sync_table_order` mapea `POS_ORDER_LOCKED` → **409 no reintentable** (BullMQ), igual que `/sync_bill` (v1.43.1 ya lo tenía para sync_bill).
+- **Deploy verificado:** upgrade de módulo `-u pos_omniflow_sync` creó la columna `omniflow_bill_ref` (no existía en prod 1.3.0). Lección registrada: el script de deploy copia código pero no ejecuta el upgrade (pendiente flag `--upgrade`).
+
+### 📦 Release
+
+- Bump patch `1.43.1 → 1.43.2` (VERSION, package.json, featurelist con `FEAT-207`).
+
+## [1.43.1] - 2026-10-26
+
+### 🔐 Auth / Integraciones (FEAT-188-ext)
+
+- Guard SuperAdmin en `/admin/integrations` (`466fc7a0`) + FEAT-188-ext Integraciones Odoo con auth SuperAdmin (`5caf37b1`).
+- Fix login SuperAdmin en producción (`5f136f81`, troubleshooting **#201**: `passwordHash` corrompido por shell mangling en SQL manual; prevención stdin/base64).
+- Release E2E fixes + docs troubleshooting (ver DEPLOY_REPORT `docs/plans/omnigastro/DEPLOY_REPORT_2026-10-26-v1.43.1-provecchio.md`, desplegado en `provecchio.com` vía PR #24).
+
+## [1.43.0] - 2026-10-25
+
+### 🔌 OmniGastro — Integración Odoo POS multi-módulo (FEAT-206)
+
+- Integración Odoo POS con selector de autoridad POS, mapeo bidireccional de catálogo con auditoría, sincronización automática de categorías TPV y panel `/admin/integrations` (`omnigastro-config`) (`ffe85ac6`).
+
 ## [1.40.2] - 2026-10-22
 
 ### 🪑 OmniGastro — Editar y eliminar mesas en `/admin/gastro/tables` (FEAT-200)
