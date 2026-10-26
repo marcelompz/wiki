@@ -52,3 +52,7 @@ En producción (`provecchio.com`) el mismo frontpage funciona con todo el conten
 2. Los **uploads nunca viajan por git**: ante síntomas de imágenes rotas en homepage/biolinks, verificar primero `ls backend/uploads/social-catalog/<tenantId>/` y sincronizar desde el ambiente fuente (§9.1.11).
 3. La resolución de tenant por hostname es **match-exacto primero**: para probar localmente un tenant específico, o se le asigna el subdominio `.local` correspondiente (con su bio), o se neutraliza el tenant field-test — no mezclar.
 4. Tablas curadas con datos de producción → `rsync` de binarios (uploads) + `INSERT` de filas de configuración; nunca asumir que la configuración existe solo porque el tenant existe.
+
+## Adenda (2026-10-26) — el restore de prod borra este seed
+
+El flujo **deploy-to-local-first restablece la DB desde el backup de producción** (ver #205): como `tid-provecchio-local` existe solo en local, el restore `DROP SCHEMA public` destruye el tenant field-test y su BioLink. El paso "re-seed" (INSERTs del tenant, `bio_links`, `exchange_rates` y `omnigastro_settings` modo ODOO) debe repetirse tras **cada** restore.
