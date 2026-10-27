@@ -1,3 +1,14 @@
+## [1.43.7] - 2026-10-27
+
+### 🔐 FEAT-209 — Super-admin automation vía MASTER_API_KEY (fix 403 "Missing user or tenant context" vía Traefik) + credenciales E2E por env
+
+Hallazgos post-deploy v1.43.6 (auditoría FEAT-208, `docs/plans/omnigastro/auditoria-feat-208-2026-10-27.md`). Causa raíz en [troubleshooting #209](docs/troubleshooting/209-master-api-key-403-via-traefik.md).
+
+- **`backend/src/common/api-key.guard.ts`:** el chequeo de `MASTER_API_KEY` estaba en una rama `else if (apiKey)` que **no se ejecutaba** cuando el host ya resolvía tenant (ej. `provecchio.com` vía `customDomain`) → el usuario synthetic super-admin nunca se creaba y `PermissionsGuard` respondía 403 "Missing user or tenant context" para automatizaciones externas. Ahora se evalúa **independientemente** de la resolución por host/query y el super-admin opera sobre el tenant resuelto (`tenantId`/`defaultTenantId`), sin perderlo. Comportamiento con `X-Tenant-Id` previo intacto; API keys de tenant y 401 sin cambios.
+- **`backend/src/common/rbac.service.ts`:** `hasPermission` reconoce el synthetic `master` (como ya hacía con `super-admin-global`) → endpoints que llaman `assertPermission()` directamente (ej. `POST /api/v1/table-sessions/:id/close` con `force:true`, 403 `tables:manage`) pasan con master key.
+- **Credenciales E2E (18 specs):** `'SuperAdmin123!'` hardcodeado (password rotada en producción, #201/#19) reemplazado por inyección por env (`E2E_ADMIN_EMAIL`/`E2E_ADMIN_PASSWORD`, y `PLAYWRIGHT_ADMIN_EMAIL`/`PLAYWRIGHT_ADMIN_PASSWORD` en specs Odoo) — la password real vive en `.env` gitignored, no se commitea. Nota en `docs/tests/newman/README.md`; environment Newman sigue sin password.
+- **Tests:** nueva `backend/src/common/api-key.guard.spec.ts` (3 casos: synthetic user con host resuelto, sin confundir master key con tenant key, 401 previo intacto) + 2 casos RBAC (`master` → true). **Sin endpoints nuevos ni migraciones** → bump patch `1.43.6 → 1.43.7`.
+
 ## [1.43.6] - 2026-10-27
 
 ### 🍽️ OmniGastro — fix POS de Mozo: "Enviar a cocina" sin efecto, líneas que se perdían y catálogo incompleto (rama `fix/omnigastro-pos-envio-cocina-items`)

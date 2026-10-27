@@ -1,6 +1,6 @@
 {
   "project": "OrderFlow SaaS Omnicanal",
-  "version": "1.43.6",
+  "version": "1.43.7",
   "last_updated": "2026-10-26",
   "features": [
     {
@@ -2553,6 +2553,14 @@
       "created_at": "2026-10-27",
       "updated_at": "2026-10-27",
       "notes": "FEAT-177 no existe como id en la lista (es troubleshooting #177); referencia documental del antecedente. | Validacion 2026-10-27: restore prod OK, init.sh 1053/1053, tree 203/203 productos, flujo QR->claim->PATCH->ready verificado por API, E2E dedicada 5/5, vitest 26/26. Hallazgo ambiental pre-existente (#201): specs con login admin fallan por password rotada en prod (409) - no regresion.  | DESPLEGADO en provecchio.com 2026-10-27 (deploy exit 0, health 1.43.6, smoke prod: tree 203/203, QR->claim->PATCH->ready OK, cleanup G9 CLOSED/FREE)."
+    },
+    {
+      "id": "FEAT-209",
+      "title": "Super-admin automation via MASTER_API_KEY + credenciales E2E por env",
+      "status": "completed",
+      "priority": "P0",
+      "version_added": "1.43.7",
+      "notes": "Fix 403 MASTER_API_KEY via Traefik (api-key.guard.ts branch order) + rbac synthetic 'master' + credenciales E2E env-inyectadas en 18 specs (#209). Sin endpoints/migraciones, bump patch 1.43.6->1.43.7."
     }
   ],
   "lastUpdated": "2026-10-26",

@@ -1,14 +1,14 @@
 # 🗺️ ROADMAP DE ORDERFLOW - v1.34.0 → v2.0.0 (Go-Live Definitivo)
-**Última Actualización:** 2026-10-27 (Release v1.43.6 — OmniGastro: POS de mozo enviaba a cocina sin efecto y perdía líneas del pedido; catálogo del POS completo — rama `fix/omnigastro-pos-envio-cocina-items`, pendiente deploy)
+**Última Actualización:** 2026-10-27 (Release v1.43.7 — FEAT-209: MASTER_API_KEY 403 vía Traefik + RBAC synthetic master + credenciales E2E por env — rama `fix/omnigastro-master-key-superadmin`)
 **Release anterior:** 2026-10-27 (Release v1.43.5 — producción operativa en `provecchio.com`, troubleshooting #207: bootstrap de path aliases persistido)
 
-**Versión Actual:** **`v1.43.6`** (rama `fix/omnigastro-pos-envio-cocina-items`, pendiente deploy) · **`v1.43.5` ✅ DESPLEGADA EN PRODUCCIÓN** (`provecchio.com`, 2026-10-27) | Marca pública: OmniFlow. Capa técnica interna: OrderFlow.
+**Versión Actual:** **`v1.43.7`** ✅ DESPLEGADA EN PRODUCCIÓN (`provecchio.com`, 2026-10-27 — health 200/1.43.7, master key externa via Traefik 200) · **`v1.43.6`** ✅ DESPLEGADA EN PRODUCCIÓN (`provecchio.com`, 2026-10-27 — health 200, smoke QR→mozo→cocina OK) · **`v1.43.5` ✅ DESPLEGADA EN PRODUCCIÓN** (`provecchio.com`, 2026-10-27) | Marca pública: OmniFlow. Capa técnica interna: OrderFlow.
 **Próximos Releases:** **v1.41.x** (Tauri Desktop & OmnIoT Edge) ➔ **v2.0.0** (🚀 **GO-Live Definitivo del Ecosistema — Target: 15 de Febrero de 2027**)
 **Plan Maestro Go-to-Live:** ver [docs/plans/PLAN_GO_LIVE_APLICACIONES_ECOSISTEMA.md](docs/plans/PLAN_GO_LIVE_APLICACIONES_ECOSISTEMA.md)
 **Roadmap Comercial:** ver [docs/planes/comercial/OmniFlow_PLAN_COMERCIAL_v1.md](docs/planes/comercial/OmniFlow_PLAN_COMERCIAL_v1.md) (FEAT-112 a FEAT-119)
 **Estado:** ✅ **STAGING & PRODUCTION OPERATIVE** | 🏆 **HARDENED v1.39.2** | OmniGastro Fases 0-3.3 Completadas | RBAC Hardening En PR | CI Guard Active | QA E2E Suite | Build Limpio & Cobertura Total
 
-<!--CURRENT_VERSION-->1.43.6<!--/CURRENT_VERSION--> <!-- Actualizado: 2026-10-27 v1.43.6 fix POS de mozo (enviar a cocina / persistencia de líneas / catálogo) -->
+<!--CURRENT_VERSION-->1.43.7<!--/CURRENT_VERSION--> <!-- Actualizado: 2026-10-27 v1.43.6 fix POS de mozo (enviar a cocina / persistencia de líneas / catálogo) -->
 
 ### 📋 Próximas actualizaciones planificadas — OmniGastro (plan aprobado 2026-10-22)
 
@@ -286,7 +286,7 @@
 
 ---
 
-<!--CURRENT_VERSION-->1.43.6<!--/CURRENT_VERSION--> <!-- Actualizado: 2026-10-26 v1.43.2 hardening conector pos_omniflow_sync (FEAT-207 P0) -->
+<!--CURRENT_VERSION-->1.43.7<!--/CURRENT_VERSION--> <!-- Actualizado: 2026-10-26 v1.43.2 hardening conector pos_omniflow_sync (FEAT-207 P0) -->
 
 El ecosistema **OmniFlow** contempla 10 aplicaciones y capas operativas. A continuación se presenta la evaluación de madurez técnica por componente y los puntos pendientes priorizados hacia el Go-Live final.
 

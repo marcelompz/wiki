@@ -2,6 +2,15 @@
 
 Esta carpeta contiene colecciones de Postman/Newman estandarizadas para validar contratos de API y endpoints críticos de OrderFlow.
 
+> **Nota sobre credenciales (FEAT-209 / #209, #201):** el environment
+> `provecchio.postman_environment.json` mantiene `adminPassword` vacío
+> deliberadamente — la password real del SuperAdmin rota y NO se commitea al
+> repo. Inyectarla al correr: `NEWMAN_ADMIN_PASSWORD=... newman run ...` o
+> completar el environment en runtime solo localmente. En specs Playwright el
+> patrón equivalente es `E2E_ADMIN_EMAIL` / `E2E_ADMIN_PASSWORD` (o
+> `PLAYWRIGHT_ADMIN_EMAIL` / `PLAYWRIGHT_ADMIN_PASSWORD` en specs de Odoo),
+> definidos en `.env.local` (gitignored).
+
 ## Colecciones
 
 | Archivo | Descripción |
