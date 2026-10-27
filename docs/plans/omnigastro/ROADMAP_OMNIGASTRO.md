@@ -43,6 +43,7 @@
 | **FEAT-186** | Disparo del sync a Odoo en el cierre de mesa y cobro en mesa configurables | ✅ **COMPLETADO** (v1.39.11) | FEAT-184, FEAT-185 |
 | **FEAT-187** | Unificación de la configuración del odoo-adapter, de la cola BullMQ y del listener | ✅ **COMPLETADO** (v1.39.11) | FEAT-186 |
 | **FEAT-188** | Telemetría t0…t5, métricas Prometheus y E2E del sync a Odoo POS | ✅ **COMPLETADO** (v1.39.11) | FEAT-187 |
+| **FEAT-188-ext** | Extensión de autenticación SuperAdmin para endpoints de integración Odoo (v1.43.0) | ✅ **COMPLETADO** (2026-10-25) — `request.user` sintético vía `MASTER_API_KEY`, guard en `AdminApp.tsx`, E2E — [plan maestro](plan-actualizacion-v1.43.0-odoo-integrations-auth.md) · [flujo](flujo-odoo-integrations-auth.md) | FEAT-188 |
 | **FEAT-189** | Cobro en `/admin/gastro/tables`: la verificación de PIN devolvía HTTP 400 | ✅ **COMPLETADO** (v1.39.13) | FEAT-167 |
 | **FEAT-190** | Cuenta abierta: traspaso de la cuenta a una persona y liberación de la mesa | ✅ **COMPLETADO** (v1.39.14) | FEAT-115, FEAT-116 |
 | **FEAT-191** | El KDS se actualiza solo cuando el mozo envía el pedido a cocina (bug #5) | ✅ **COMPLETADO** (v1.39.15) | FEAT-190 |
@@ -178,4 +179,8 @@ nombre/asiento obligatorio, exclusividad del claim y bloqueo de cierre).
 
 ---
 
-*Actualizado el 2026-10-16. Fuente: `PLAN_MAESTRO.md` + `AUDITORIA_OMNIGASTRO_2026-09-18.md` + `DISENO_KDS_CONFIGURABLE_IMPRESION.md` + `CHANGELOG.md` (v1.38.20 → v1.38.22).*
+| **FEAT-188-ext** | Extensión de autenticación SuperAdmin para endpoints de integración Odoo (v1.43.0) | ✅ **COMPLETADO** (2026-10-25) — `request.user` sintético vía `MASTER_API_KEY`, guard en `AdminApp.tsx`, E2E — [plan](plan-actualizacion-v1.43.0-odoo-integrations-auth.md) · [flujo](flujo-odoo-integrations-auth.md) | FEAT-188 |
+
+---
+
+*Actualizado el 2026-10-25. Fuente: `PLAN_MAESTRO.md` + `AUDITORIA_OMNIGASTRO_2026-09-18.md` + `DISENO_KDS_CONFIGURABLE_IMPRESION.md` + `CHANGELOG.md` (v1.38.20 → v1.43.0).*

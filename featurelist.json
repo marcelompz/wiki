@@ -1,7 +1,7 @@
 {
   "project": "OrderFlow SaaS Omnicanal",
-  "version": "1.42.1",
-  "last_updated": "2026-10-23",
+  "version": "1.43.6",
+  "last_updated": "2026-10-26",
   "features": [
     {
       "id": "FEAT-183",
@@ -2451,7 +2451,7 @@
     {
       "id": "FEAT-203",
       "category": "OmniGastro / Salón / Pedidos concurrentes",
-      "title": "TableSession + identidad de comensal e idempotencia en el alta QR (v1.42.0)",
+      "title": "TableSession + identidad de comensal e idempotencia en el alta QR (v1.42.1)",
       "description": "Dos comensales en la misma mesa escanean el mismo QR y envían su pedido a la vez: hoy POST /api/v1/guest/orders crea siempre un Order nuevo, sin sesión, sin vínculo entre pedidos, sin idempotencia y sin cambiar el estado de la mesa. Resultado: dos pedidos independientes, dos WaiterCall, dos tarjetas en caja, el Mozo POS sólo muestra uno (limit=1) y Odoo recibe dos pos.order. Se agrega TableSession (una sesión OPEN por mesa vía índice único parcial), guestKey por dispositivo, idempotencyKey única por tenant, append de líneas al pedido activo del mismo comensal, lock SELECT ... FOR UPDATE al abrir sesión, claim a nivel mesa y endpoints GET /tables/:id/session y POST /table-sessions/:id/close. Incluye feature flag gastro.tableSessions y backfill idempotente de pedidos activos.",
       "status": "in_progress",
       "version": "1.42.1",
@@ -2463,12 +2463,13 @@
         "FEAT-197"
       ],
       "report": "docs/plans/omnigastro/plan-actualizacion-cuentas-mesa-concurrentes.md",
-      "qa_validation": "Unitarios OK (idempotencia replay, append por guestKey), migración validada con BEGIN/ROLLBACK + migrate deploy local, tsc/build backend y frontend OK. Pendiente E2E Playwright con 2 contextos y deploy-to-local-first."
+      "qa_validation": "Unitarios OK (idempotencia replay, append por guestKey), migración validada con BEGIN/ROLLBACK + migrate deploy local, tsc/build backend y frontend OK. Pendiente E2E Playwright con 2 contextos y deploy-to-local-first. 2026-10-26 FIX RUNTIME (#206): Bill.totalAmount y BillSplit.billId sin @map generaban 500 en toda query de bills/splits contra la DB snake_case desde el 23-oct. Maps agregados (sin DDL), cliente Prisma regen, out v1.43.4.",
+      "updated_at": "2026-10-26"
     },
     {
       "id": "FEAT-204",
       "category": "OmniGastro / Caja / Facturación",
-      "title": "Bill: cuentas de mesa con merge/unmerge y cobro por cuenta (v1.42.0)",
+      "title": "Bill: cuentas de mesa con merge/unmerge y cobro por cuenta (v1.42.1)",
       "description": "Capa de cuenta (Bill) como unidad de cobro y fiscal: una Bill por pedido (PER_ORDER) o N pedidos en una sola cuenta (MERGED). Endpoints POST /bills, POST /bills/:id/orders, POST /bills/:id/unmerge y POST /bills/:id/pay con validación de suma exacta, Bill.lockedAt para impedir doble cobro y reutilización de BillSplit/SplitPayment para dividir por asiento. La caja pasa a mostrar una tarjeta por sesión/mesa (elimina las claves React duplicadas key={b.tableId}) y el Mozo POS habilita «Unir cuentas». Un pedido pertenece a una sola Bill y no se puede mergear si ya está pagado/facturado.",
       "status": "in_progress",
       "version": "1.42.1",
@@ -2484,7 +2485,7 @@
     {
       "id": "FEAT-205",
       "category": "OmniGastro / Integración Odoo 14",
-      "title": "sync_bill: una pos.order por cuenta en Odoo, idempotente (v1.42.0)",
+      "title": "sync_bill: una pos.order por cuenta en Odoo, idempotente (v1.42.1)",
       "description": "En modo MERGED el sync a Odoo se dispara por Bill (no por pedido): POST /api/omniflow/sync_bill con bill_uuid, líneas y cliente. El addon pos_omniflow_sync sube a v14.0.1.4.0 con el campo omniflow_bill_ref y el método sync_bill, que hace upsert por referencia: si el pos.order está en draft reemplaza líneas y recalcula; si está pagado/publicado responde 409 (requiere nota de crédito). Se conserva sync_table_order para el modo PER_ORDER. Incluye telemetría t0…t12, KPIs de duplicados/huérfanos y colección Newman del contrato.",
       "status": "in_progress",
       "version": "1.42.1",
@@ -2497,10 +2498,65 @@
       ],
       "report": "docs/plans/omnigastro/flujo-cuentas-mesa-concurrentes.md",
       "qa_validation": "Adapter y addon v14.0.1.4.0 con py_compile/node --check OK. Pendiente instalar addon en Odoo local, Newman del contrato sync_bill y verificar una sola pos.order en reintentos."
+    },
+    {
+      "id": "FEAT-206",
+      "category": "OmniGastro / Integración Odoo",
+      "title": "Integración Odoo POS, Catálogo Bidireccional y Hub de Auditoría",
+      "description": "Módulo de integración Odoo POS con selector de autoridad POS, mapeo bidireccional de catálogo con auditoría y motor de reconciliación, sincronización automática de categorías TPV y panel de auditoría de catálogo para OmniGastro",
+      "status": "in_progress",
+      "version": "1.43.0",
+      "priority": "HIGH",
+      "assigned_module": "backend/src/integrations/omnigastro-config.controller.ts, backend/src/integrations/omnigastro-config.service.ts, backend/src/integrations/omnigastro-config.module.ts, frontend/src/pages/integrations.tsx, odoo-adapter/, pos_omniflow_sync",
+      "depends_on": [],
+      "blocking": "",
+      "report": "docs/plans/odoo/PLAN_OPTIMIZACION_MODULO_ODOO_MULTI_MODULO.md",
+      "qa_validation": "Tests E2E completados para el flujo QR→pedido→KDS→mesa→cobro→cierre, endpoints públicos validados, notificaciones WebSocket verificadas."
+    },
+    {
+      "id": "FEAT-207",
+      "category": "OmniGastro / Integración Odoo",
+      "title": "Hardening del conector pos_omniflow_sync (v14.0.1.6.0): idempotencia y guard de estado",
+      "description": "Auditoria del informe estado-conector-pos_omniflow_sync. P0 aplicado al addon canonico 14.0.1.5.0 -> 14.0.1.6.0: (1) sync_table_order rechaza payload sin order_uuid (ORDER_UUID_REQUIRED); (2) busqueda por omniflow_order_ref con filtro state='draft' — un reintento tardio nunca escribe sobre un pedido pagado/facturado (POS_ORDER_LOCKED, mapeado a 409 no reintentable en el adapter); (3) fallback legacy limita el borrador de la mesa a refs vacias o la propia (no roba el draft de otro pedido); (4) guard defensivo de estado antes de escribir. P1 implementado (v1.43.3 / addon v14.0.1.7.0, pendiente deploy): (1) sync_table_order hace UPSERT por clave (producto, precio, nota) — reintento ya no duplica lineas y sanea duplicados heredados; (2) transfer_table_order: match exclusivo por omniflow_order_ref en draft + fallback acotado a la sesion activa (el adapter la resuelve con getActivePosSession) + homonimos nunca fusionados (>=2 matches por nombre crea partner nuevo); (3) el adapter pasa session_id al traspaso a persona.",
+      "status": "in_progress",
+      "version": "1.43.2",
+      "priority": "HIGH",
+      "assigned_module": "odoo-adapter/odoo-addons/pos_omniflow_sync/, odoo-adapter/src/index.js, docs/plans/omnigastro/auditoria-conector-pos-omniflow-sync-2026-10-26.md",
+      "qa_validation": "py_compile OK; node --check OK; npm test odoo-adapter 5/5. Addon 14.0.1.6.0 DEPLOYADO en 192.168.69.246 (backup pos_omniflow_sync_20261026_102101.tar.gz); upgrade -u ejecutado (columna omniflow_bill_ref creada); contract test contra ERP prod APROBADO (casos A/B/C + idempotencia + limpieza, pedido prueba eliminado). P1 pendiente en rama nueva. P1: py_compile OK, node --check OK, tests adapter 5/5; pendiente deploy del addon 1.7.0 y contract test post-deploy.",
+      "dependencies": [
+        "FEAT-153",
+        "FEAT-185",
+        "FEAT-201",
+        "FEAT-205"
+      ],
+      "blocking": [],
+      "created_at": "2026-10-26",
+      "updated_at": "2026-10-26",
+      "notes": "Rama fix/gastro-pos-omniflow-sync-hardening (desde product/omnigastro, fusionada con main v1.43.x)"
+    },
+    {
+      "id": "FEAT-208",
+      "category": "OmniGastro / POS de Mozo",
+      "title": "Fix POS de Mozo v1.43.6: envio a cocina sin efecto, lineas perdidas (PATCH /orders/items) y catalogo del POS incompleto",
+      "description": "Triple fix del reporte de produccion 2026-10-27: (1) gastro-pos.tsx usaba order.orderId inexistente; claim->ready sobre todas las ordenes de la mesa; (2) lineas nuevas sin orderId -> PATCH con id vacio y sin claim; saveLines reporta exito y aborta el envio si la persistencia fallo; (3) getCategoryTree adjunta el producto a la primera categoria presente en el arbol (categoryId o posCategoryId); (4) boton verde 'Agregar aqui' (token.colorSuccess). Bump patch 1.43.5 -> 1.43.6. Docs: troubleshooting #208 + plan-actualizacion-v1.43.6. Rama fix/omnigastro-pos-envio-cocina-items (desde product/omnigastro @ main 1bd5d17c).",
+      "status": "completed",
+      "version": "1.43.6",
+      "priority": "HIGH",
+      "assigned_module": "frontend/src/pages/admin/gastro-pos.tsx, backend/src/catalog/catalog.service.ts, docs/plans/omnigastro/plan-actualizacion-v1.43.6-pos-envio-cocina-items.md",
+      "qa_validation": "tsc --noEmit backend/frontend OK (2026-10-27). Pendiente: smoke provecchio.local (backup restaurado), E2E Playwright del flujo QR->mozo->cocina->cobro, ./scripts/init.sh. | Auditoria: docs/plans/omnigastro/auditoria-feat-208-2026-10-27.md",
+      "dependencies": [
+        "FEAT-203",
+        "FEAT-204",
+        "FEAT-177"
+      ],
+      "blocking": [],
+      "created_at": "2026-10-27",
+      "updated_at": "2026-10-27",
+      "notes": "FEAT-177 no existe como id en la lista (es troubleshooting #177); referencia documental del antecedente. | Validacion 2026-10-27: restore prod OK, init.sh 1053/1053, tree 203/203 productos, flujo QR->claim->PATCH->ready verificado por API, E2E dedicada 5/5, vitest 26/26. Hallazgo ambiental pre-existente (#201): specs con login admin fallan por password rotada en prod (409) - no regresion.  | DESPLEGADO en provecchio.com 2026-10-27 (deploy exit 0, health 1.43.6, smoke prod: tree 203/203, QR->claim->PATCH->ready OK, cleanup G9 CLOSED/FREE)."
     }
   ],
-  "lastUpdated": "2026-10-23",
-  "last_id": "FEAT-205",
+  "lastUpdated": "2026-10-26",
+  "last_id": 207,
   "next_pending_sc": null,
   "active_plan": "docs/plans/omnigastro/PLAN_MAESTRO.md",
   "plan_progress": {
@@ -2512,5 +2568,18 @@
     "Sprint 4 - Engineering Fixes & DB Convention (FEAT-147..150)": "completed",
     "Sprint 5 - Hardware y Escala (FEAT-120..124)": "pending",
     "Sprint 6 - Omnigastro-config Payment Routing (FEAT-173)": "completed"
-  }
+  },
+  "changelog": [
+    {
+      "version": "1.43.1",
+      "date": "2026-10-25",
+      "changes": [
+        "Fix: Added missing tenants.subdomain column and related fields (subdomainVerified, apiKeyPreviousSecret, apiKeyRotatedAt, supportedCurrencies, allowNegativeStock, softDeleted, deletedAt)",
+        "Fix: Added users.pin_code column",
+        "Fix: Regenerated Prisma client with updated schema",
+        "Fix: Updated E2E test integrations-admin.spec.ts for Odoo 14 compatibility (removed test.describe(), corrected password, updated Odoo text selectors)",
+        "Feat: Version bump to 1.43.1 across VERSION, backend/package.json, frontend/package.json, featurelist.json"
+      ]
+    }
+  ]
 }

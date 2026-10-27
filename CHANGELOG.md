@@ -1,8 +1,89 @@
+## [1.43.6] - 2026-10-27
+
+### 🍽️ OmniGastro — fix POS de Mozo: "Enviar a cocina" sin efecto, líneas que se perdían y catálogo incompleto (rama `fix/omnigastro-pos-envio-cocina-items`)
+
+Del reporte de pruebas en producción v1.43.5 (`docs/info/OmniGastro.md`, 2026-10-27). Causas raíz documentadas en [troubleshooting #208](docs/troubleshooting/208-gastro-pos-order-id-lines-catalogo.md).
+
+- **`gastro-pos.tsx` (POS por mesa):**
+  - **"Enviar a cocina" no hacía nada:** desde el refactor v1.42.1 (FEAT-204) el pedido guardado en estado trae el campo `id`, pero los manejadores leían `order.orderId` (siempre `undefined`) y el guard `if (!order?.orderId) return;` abortaba en silencio — sin send, el cobro no se habilitaba. Ahora `claim → ready` se aplica sobre **todas** las órdenes activas de la mesa y `close`/`split` usan `order.id`.
+  - **`Cannot PATCH /api/v1/orders/items` + líneas que desaparecían:** las líneas nuevas del mozo se creaban **sin `orderId`** y `saveLines` caía al fallback con id vacío → PATCH 404; la línea solo vivía en estado local y se perdía al reabrir el pedido. Ahora `handleAddProduct` asigna el `orderId` de la orden del asiento, `saveLines` hace *claim best-effort* antes del PATCH (pedidos guest exigen reclamo, `guestUpdateItems`) y aborta el envío a cocina si la persistencia falló (nunca cocina sin los ítems visibles).
+  - **Estado agregado sobre la sesión:** `isKitchenSent`/`isReady` se evalúan sobre todas las órdenes activas (cobro cuando todas marcaron READY).
+  - **UX (bug 4):** el enlace de texto `[+aquí]` del comensal pasa a **botón verde "Agregar aquí"** con `token.colorSuccess` (Regla #10).
+- **`catalog.service.ts` (catálogo del POS con pocos productos):** `getCategoryTree` adjuntaba el producto solo a `categoryId`; si esa categoría estaba fuera del árbol (nivel > `maxLevel` o inactiva) mientras su `posCategoryId` sí estaba, el producto quedaba huérfano e invisible. Ahora se adjunta a la primera categoría **presente en el árbol** (prioridad `categoryId` → `posCategoryId`), sin duplicados ni cambios de `maxLevel`.
+- **Sin endpoints nuevos ni migraciones** → bump patch `1.43.5 → 1.43.6`.
+
+## [1.43.5] - 2026-10-27
+
+### 🔧 Core — Persistencia del fix de path aliases en producción (Provecchio, troubleshooting #154)
+
+- **`backend/bootstrap.js` (nuevo):** registra `tsconfig-paths` en runtime con los 18 aliases de `tsconfig.json` (prefijo `src/` removido) y auto-detecta el `baseUrl` (`dist/` plano o `dist/src/`). Elimina el `MODULE_NOT_FOUND` para `@common/prisma.service` y el resto de aliases en producción.
+- **`backend/entrypoint.sh`:** el arranque usa `node /app/bootstrap.js` en lugar de `node dist/main.js` (`dist/src/main.js`).
+- **`backend/Dockerfile.prod`:** ahora copia `bootstrap.js` al stage final.
+- **`backend/package.json`:** `tsconfig-paths@^4.2.0` agregado a `dependencies` (era efímero, instalado a mano en el contenedor el 26-oct); `start:prod` apunta al bootstrap.
+- **Network aliases `orderflow_backend` / `orderflow_frontend` en `traefik-public`:** ya estaban persistidos en `docker-compose.prod.yml` (item 4 del informe, sin cambio requerido).
+- Viene de: `docs/info/INFORME_CORRECCION_PROVECCHIO_2026-10-27.md` (correcciones efímeras en contenedor, sesión 2026-10-26/27).
+
+## [1.43.4] - 2026-10-26
+
+### 🔐 OmniGastro — fix runtime bills/table-sessions: campos Prisma sin `@map` (troubleshooting #206)
+
+- **`Bill.totalAmount` → `@map("total_amount")` y `BillSplit.billId` → `@map("bill_id")`:** la migración `20261023120000_gastro_table_sessions_bills` creó las columnas en snake_case (§2.4) pero el modelo no mapeaba esos 2 campos — **cualquier query de bills/splits daba 500 en prod desde el 23-oct** (externo al health- check). Detectado al ejecutar force-close de la sesión de la mesa G8.
+- El fix no requiere DDL (solo regeneración de cliente Prisma + rebuild).
+- Acompaña: FEAT-165 frontend — claim de pedidos y atencion de llamados ya no exigen mesa `FREE` (mesa OCCUPIED es lo esperado con orden activa).
+
+## [1.43.3] - 2026-10-26
+
+### 🔌 OmniGastro — FEAT-207 P1: idempotencia por línea y traspaso endurecido (addon `pos_omniflow_sync` v14.0.1.7.0, pendiente deploy)
+
+- **`sync_table_order` upsert por línea:** el snapshot completo que envía el backend ahora se aplica por clave `(product_id, price_unit, notice)` — un reintento de red/BullMQ **ya no duplica líneas**, los duplicados heredados de reenvíos previos se eliminan y las líneas agregadas a mano por el mozo en Odoo se conservan.
+- **`transfer_table_order` endurecido:** match exclusivo por `omniflow_order_ref` en `state='draft'`; el fallback por mesa queda acotado a la **sesión activa** (el adapter la resuelve con `getActivePosSession` y la manda como `session_id`); sin sesión no hay fallback — nunca se traspasa la cuenta equivocada.
+- **Homonómimos no se fusionan:** si el nombre del cliente matchea 2+ `res partner`, se crea uno nuevo en lugar de fusionar rápido.
+
+## [1.43.2] - 2026-10-26
+
+### 🔌 OmniGastro — hardening del conector `pos_omniflow_sync` (FEAT-207, auditoría del informe del conector)
+
+- **Auditoría claim-por-claim del informe** `docs/info/Informe_estado_conector_pos_omniflow_sync(Odoo).md`: el canon real es `14.0.1.5.0`; 5 hallazgos del informe seguían vigentes, 3 recomendaciones ya implementadas. Documento: `docs/plans/omnigastro/auditoria-conector-pos-omniflow-sync-2026-10-26.md`.
+- **Addon v14.0.1.6.0 (desplegado en 192.168.69.246):** `sync_table_order` rechaza payload sin `order_uuid` (`ORDER_UUID_REQUIRED`), filtra `state='draft'` en ambas búsquedas (un reintento tardío nunca escribe sobre un pedido pagado/facturado), fallback legacy curado (no roba el borrador de otro pedido) y guard defensivo pre-escritura.
+- **Adapter:** `/api/omniflow/sync_table_order` mapea `POS_ORDER_LOCKED` → **409 no reintentable** (BullMQ), igual que `/sync_bill` (v1.43.1 ya lo tenía para sync_bill).
+- **Deploy verificado:** upgrade de módulo `-u pos_omniflow_sync` creó la columna `omniflow_bill_ref` (no existía en prod 1.3.0). Lección registrada: el script de deploy copia código pero no ejecuta el upgrade (pendiente flag `--upgrade`).
+
+### 📦 Release
+
+- Bump patch `1.43.1 → 1.43.2` (VERSION, package.json, featurelist con `FEAT-207`).
+
+## [1.43.1] - 2026-10-26
+
+### 🔐 Auth / Integraciones (FEAT-188-ext)
+
+- Guard SuperAdmin en `/admin/integrations` (`466fc7a0`) + FEAT-188-ext Integraciones Odoo con auth SuperAdmin (`5caf37b1`).
+- Fix login SuperAdmin en producción (`5f136f81`, troubleshooting **#201**: `passwordHash` corrompido por shell mangling en SQL manual; prevención stdin/base64).
+- Release E2E fixes + docs troubleshooting (ver DEPLOY_REPORT `docs/plans/omnigastro/DEPLOY_REPORT_2026-10-26-v1.43.1-provecchio.md`, desplegado en `provecchio.com` vía PR #24).
+
+## [1.43.0] - 2026-10-25
+
+### 🔌 OmniGastro — Integración Odoo POS multi-módulo (FEAT-206)
+
+- Integración Odoo POS con selector de autoridad POS, mapeo bidireccional de catálogo con auditoría, sincronización automática de categorías TPV y panel `/admin/integrations` (`omnigastro-config`) (`ffe85ac6`).
+
 ## [1.42.1] - 2026-10-24
 
-### 🚧 Release en curso
+### 🍽️ OmniGastro — pedidos agrupados por asiento en el POS y flag TableSessions
 
-- Documentar aqui los cambios de la version.
+- **POS agrupa pedidos por asiento (`seatNumber`):** el POS del mozo agrupa los pedidos de una misma mesa por número de asiento, de modo que varios comensales que escanean el mismo QR se visualicen como líneas diferenciadas dentro de una sola sesión de mesa (FEAT-203).
+- **Flag `gastro.tableSessions`:** nuevo feature flag en `/admin/settings → OmniGastro` para habilitar sesiones de mesa (TableSession), `guestKey` por dispositivo e idempotencia en la alta de pedidos por QR. Relacionado con FEAT-204 (cuentas/Bill) y FEAT-205 (sync_bill a Odoo), ambos en desarrollo.
+
+### 🧪 Tests
+
+- **Mock de `BillsService` en tests de `pos-sessions`:** se agregó el mock para aislar el servicio de caja de la capa de cuentas (Bill) y evitar acoplamiento entre módulos (FEAT-204).
+
+### 🔐 Auth
+
+- **SuperAdmin vía `MASTER_API_KEY`:** se establece un `request.user` sintético cuando el SuperAdmin autentica con `MASTER_API_KEY`, permitiendo operaciones de administración cruzada de tenants sin requerir un usuario real vinculado.
+
+### 📦 Release
+
+- Sincronización de versión a `1.42.1` en todos los manifiestos y docs (`VERSION`, `package.json`, `featurelist.json`, `CHANGELOG.md`, `docs/timeline.md`).
 
 ## [1.41.5] -
 ## [1.42.0] - 2026-10-23

@@ -2,6 +2,67 @@
 
 ## Before deploy on provecchio you need to backup the data on production, restore at localhost, deploy there and test all the stuff. Never deploy on production without successful test on localhost
 
+## 2026-10-27 - prueba en producción v1.43.5
+
+* **Estado:** ✅ **RESUELTO y DESPLEGADO en v1.43.6** (`provecchio.com`, 2026-10-27, health 200/1.43.6; rama `fix/omnigastro-pos-envio-cocina-items`) — diagnóstico y solución en [docs/troubleshooting/208-gastro-pos-order-id-lines-catalogo.md](../troubleshooting/208-gastro-pos-order-id-lines-catalogo.md). Smoke de producción por API: árbol 203/203 productos, QR→claim→PATCH(2 líneas)→`ready` con `readyAt` → cobro habilitado; datos de prueba limpiados (mesa G9 CLOSED/FREE). Audición completa: [docs/plans/omnigastro/auditoria-feat-208-2026-10-27.md](../plans/omnigastro/auditoria-feat-208-2026-10-27.md).
+
+* **Bugs:**
+1. Prueba de pedidos con QR:
+    - El endpoint del cliente [https://provecchio.com/?t=f9d120b7-b8eb-4efb-98b9-d7a0760f21e4] hace un pedido y llama al mozo.
+    - El mozo recibe el pedido en el endpoint [https://provecchio.com/admin/gastro] y al atender el pedido de [Mesa 442e40ef-c3c2-4898-b110-eb723de887ad] abre el endpoing [https://provecchio.com/admin/gastro/pos/ef9156dd-d0b0-4a6d-92f2-5d45c977e439] y presiona el boton 'Enviar a cocina' pero no sucede nada. ✅ **Resuelto:** `handleSendToKitchen` leía `order.orderId` (campo inexistente tras el refactor v1.42.1; el CRUD trae `id`) y abortaba en silencio; ahora aplica claim→ready sobre todas las órdenes activas de la mesa.
+    - Al no enviar a cocina no habilita el cobro, ya que no se sirvió el plato. ✅ Con el envío restaurado, `isReady` se evalúa sobre el total de la sesión y el cobro se habilita al marcar READY.
+    - Al cargar mas ordenes recibe el mensaje: 'Cannot PATCH /api/v1/orders/items', sin embargo en el endpoint se ven los productos agregados a pedido. Al regresar al endpoint anterior y volver a abrir el pedido se eliminaron los pedidos que el mozo había agregado. Es evidente que corresponde al error reportado. ✅ **Resuelto:** las líneas nuevas se creaban sin `orderId` → PATCH con id vacío (404) y la línea solo existía en estado local; ahora cada línea lleva el `orderId` de la orden de su asiento, `saveLines` reclama el pedido guest antes del PATCH y el envío a cocina aborta si la persistencia falló.
+    - La lista de productos que es desplegable muestra muy pocos productos. Este error fue reportado previamente, debe estar listado en TROUBLESHOOTING. ✅ **Resuelto (troubleshooting #208):** `getCategoryTree` priorizaba `categoryId` aunque esa categoría no figurara en el árbol (nivel > 2 o inactiva) y el producto quedaba huérfano; ahora se adjunta a la primera categoría presente en el árbol (posCategoryId como válido).
+    - El enlace para seleccionarel comensal al que agregará el pedido figura [+aquí] podría ser un botón verde que mejore el UX del mozo. ✅ **Resuelto:** botón verde "Agregar aquí" (`token.colorSuccess`, Regla #10).
+
+## 2026-10-26 — v1.43.1 (FEATURE)
+
+#### Bugs:
+
+1. **Login de SuperAdmin fallaba en producción (`Invalid password` en `provecchio.com`) con credenciales correctas**, mientras funcionaba en `provecchio.local` (backup restaurado). Causa raíz: `passwordHash` corrompido en la DB de producción (27 chars en vez de 60) por un `UPDATE` manual ejecutado desde shell con comillas dobles (bash expandió los `$` del hash bcrypt). Diagnóstico completo, fix (re-hash vía base64 + `psql` por stdin) y prevención en [`docs/troubleshooting/201-passwordHash-corrompido-shell-mangling-manual-sql.md`](../troubleshooting/201-passwordHash-corrompido-shell-mangling-manual-sql.md).
+
+## 2026-10-25 — v1.42.1 (FEATURE)
+
+1. En la actualidad permite sincronizar contactos/usuarios entre ambos sistemas. Lo que quiero es integrar esas funcionalidades a otros modulos. POS (intercambiar mesas), Productos, categorias de producto, categorias de PDV, etc. Fijate en la documentacion y crea un plan para optimizar ese feature
+
+2. Bug: Al tomar el pedido como Ivan Castillo recibe este mensaje "No se puede tomar el pedido: la mesa G8 tiene estado "OCCUPIED". Solo se permiten mesas con estado FREE."
+
+## 2026-10-24 — v1.42.1 (FEATURE) — POS de Mozo agrupa pedidos por asiento + flag tableSessions en Settings
+
+### Problema detectado en provecchio.local (localhost)
+
+
+- El flag `gastro.tableSessions` no existía en `/admin/settings` ni en `tenant.config` → no había forma de activarlo/desactivarlo desde la UI.
+- Los dos pedidos activos de la mesa G6 (comensales `prod-guest-a-001` y `prod-guest-b-001`) llevaban a la misma URL `http://provecchio.local/admin/gastro/pos/442e40ef-c3c2-4898-b110-eb723de887ad` porque el parámetro es el `tableId` de la mesa, no el `orderId`. El POS de mesa (`gastro-pos.tsx`) solo cargaba **una** orden (`ordersList[0]`) y no agrupaba por asiento.
+
+### Cambios aplicados (v1.42.1)
+
+1. **`frontend/src/pages/admin/settings.tsx`**: agregado switch `tableSessions` en la configuración de OmniGastro para activar/desactivar sesiones de mesa y cuentas unificadas.
+2. **`frontend/src/pages/admin/gastro-pos.tsx`**: `loadAll` ahora carga **todas** las órdenes activas de la mesa y combina sus líneas en un solo estado `lines`, conservando `orderId` por línea para guardar cada orden por separado. Las líneas se agrupan visualmente por `seatNumber` (asiento) con subtotal por asiento y total general.
+3. **`backend/Dockerfile.dev`**: fix del build (`npm ci` sin `--only=production`) para que `typescript` esté disponible en la imagen Docker.
+4. **Versión**: bump a **1.42.1** (patch) en `VERSION`, `backend/package.json`, `frontend/package.json`, `featurelist.json`.
+
+### Validación en localhost (2026-10-24)
+- **Backup de producción → restore en localhost**: `scripts/backup-production.sh provecchio` (2.2 MB SQL + 28.9 MB uploads) + `scripts/restore-provecchio.sh` → **168 tablas, 1 tenant, 7 empleados, 4 cajas**. Se crearon los roles `orderflow_migrator` y `orderflow_app` en PostgreSQL local para aplicar el dump.
+- **Flag activado en BD local**: `UPDATE tenants SET config = jsonb_set(config, '{gastro,tableSessions}', 'true'::jsonb) WHERE id = 'provecchio-dimora-001'`.
+- **Playwright E2E** (`frontend/e2e/table-sessions-bills.spec.ts`): **3/3 pasadas** — idempotencia del alta QR (doble tap no duplica), dos comensales con `guestKey` distinto en la misma sesión, caja une ambos pedidos en una `Bill` MERGED y los cobra (estado `PAID`).
+- **Newman** (`docs/tests/newman/contracts.postman_collection.json`, carpeta FEAT-203/204): 4 requests ejecutadas contra `http://localhost:3010` — Table Session (200), Bills merge (201), Bills pay (201), Bills invoice/sync_bill (400 esperado, requiere Odoo en producción).
+- **Endpoint público QR** (`GET /api/v1/guest/tables/by-token/:token`): retorna `session`, `activeOrders` y `waiterOptions` normalizados.
+
+### Despliegue a producción (2026-10-24)
+- **`init.sh`**: 139 suites / 1049 tests ✅, builds backend+frontend ✅, Traefik sincronizado a Hetzner ✅, E2E QA contra provecchio.com ✅.
+- **`deploy-production.sh provecchio`**: todas las imágenes construidas (backend, frontend, odoo_adapter, sync, omnibi), 9/9 contenedores healthy.
+- **Flag activado en producción**: `UPDATE tenants SET config = jsonb_set(config, '{gastro,tableSessions}', 'true'::jsonb) WHERE id = 'provecchio-dimora-001'`.
+- **Health producción**: `https://provecchio.com/api/v1/health` → `{"version":"1.42.1","status":"ok"}` (DB OK, odoo_adapter OK).
+- **Tag**: `v1.42.1` creado y pusheado a `origin`.
+- **Wiki**: sincronizada y pusheada (`scripts/sync-wiki.sh 1.42.1`).
+
+### Notas
+- Los dos pedidos existentes de G6 en producción **no tienen** `table_session_id` (se crearon antes del flag), pero el POS de mesa ahora los carga a ambos y los agrupa por `seatNumber` si los tienen.
+- Los pedidos nuevos (desde el QR con el flag activo) crearán `TableSession` automáticamente y podrán cobrarse en una `Bill` unificada.
+
+---
+
 ## 2026-10-24 — v1.42.0 (FEATURE) — Cuentas de mesa concurrentes (FEAT-203/204/205) desplegado en localhost para probar
 
 - 1. No encuentro en configuraciones donde activar esa bandera para activar los asientos [http://provecchio.local/admin/settings]. 2. Uno de los pedidos del endpoint del mozo [http://provecchio.local/admin/gastro/mozos] me lleva a este endpoint [http://provecchio.local/admin/gastro/pos/442e40ef-c3c2-4898-b110-eb723de887ad] y el otro a este otro [http://provecchio.local/admin/gastro/pos/442e40ef-c3c2-4898-b110-eb723de887ad] que en principiop son el mismo?

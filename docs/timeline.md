@@ -1,11 +1,69 @@
 # Línea de Tiempo y Evolución de OmniFlow
 
-**Última actualización:** 2026-10-21  
-**Versión actual:** `v1.39.19`  
-**Próximo hito:** `v1.40.0` — Tauri Desktop & OmnIoT Edge
+**Última actualización:** 2026-10-24  
+**Versión actual:** `v1.42.1`  
+**Próximo hito:** `v1.43.0` — cierre de FEAT-203/204/205 (TableSessions, Bill merge/unmerge, sync_bill a Odoo)  
 **Documento fuente:** `CHANGELOG.md`, `ROADMAP.md`, `featurelist.json`
 
 ---
+
+### 2026-10-24 : v1.42.1 — Pedidos agrupados por asiento en POS + flag TableSessions
+- POS del mozo agrupa los pedidos de una misma mesa por número de asiento (`seatNumber`), de modo que varios comensales que escanean el mismo QR se visualicen como líneas diferenciadas dentro de una sola sesión de mesa.
+- Nuevo feature flag `gastro.tableSessions` en `/admin/settings → OmniGastro` para habilitar sesiones de mesa (TableSession), `guestKey` por dispositivo e idempotencia en la alta de pedidos por QR (FEAT-203, FEAT-204, FEAT-205 en desarrollo).
+- Mock de `BillsService` en tests de `pos-sessions` para aislar caja de la capa de cuentas (FEAT-204).
+- SuperAdmin vía `MASTER_API_KEY` establece `request.user` sintético para operaciones cruzadas de tenants.
+- Versión sincronizada a `1.42.1` en `VERSION`, `package.json`, `featurelist.json`, `CHANGELOG.md` y este documento.
+
+### 2026-10-23 : v1.42.0 — FEAT-203/204/205 en desarrollo (sesiones de mesa, cuentas y sync_bill)
+- FEAT-203: TableSession (una sesión OPEN por mesa), `guestKey` por dispositivo, `idempotencyKey` por tenant, append de líneas al pedido activo del mismo comensal, lock `SELECT … FOR UPDATE`, claim a nivel mesa y endpoints `GET /tables/:id/session` + `POST /table-sessions/:id/close`. Feature flag `gastro.tableSessions`.
+- FEAT-204: capa de cuenta (Bill) como unidad de cobro fiscal (`PER_ORDER` / `MERGED`), endpoints `POST /bills`, `/bills/:id/orders`, `/bills/:id/unmerge`, `/bills/:id/pay`, `Bill.lockedAt` para impedir doble cobro, y tarjeta por sesión/mesa en caja.
+- FEAT-205: `sync_bill` idempotente — una `pos.order` por cuenta en Odoo (upsert por `omniflow_bill_ref`), addon `pos_omniflow_sync` v14.0.1.4.0, telemetría `t0…t12` y colección Newman del contrato.
+
+### 2026-10-23 : v1.41.5 — Modal «Llamar al mozo» sin select vacío en el QR de mesa
+- Se eliminó el `<Select>` con opciones «undefined» de los dos modales de llamada al mozo (`omni-catalog.tsx`); queda solo el campo de mensaje libre. Se retiró `selectedWaiterOption` y el envío de `optionId`.
+- Doc: `docs/troubleshooting/199-select-vacio-llamar-mozo-qr.md`.
+
+### 2026-10-23 : v1.41.4 — Ítems que desaparecían del POS de Odoo + historial del pedido en Mozo POS
+- Backfill en Odoo: 123 productos habilitados para POS y asignados a `pos_categ_id` 16/17; addon `pos_omniflow_sync` v14.0.1.3.0 habilita automáticamente productos no POS al sincronizar.
+- Mozo POS (`/admin/gastro/pos`) carga el último pedido de la mesa en modo lectura con etiqueta «Cerrado» cuando la mesa está libre y no hay pedido activo.
+- Doc: `docs/troubleshooting/198-pos-odoo-items-faltantes-e-historial-mozo.md`.
+
+### 2026-10-23 : v1.41.3 — Fix crítico: la caja del POS de Odoo no abría
+- `pos_omniflow_sync` generaba `pos_reference` no parseable por Odoo 14 (`AttributeError` en `get_table_draft_orders`). Hotfix de pedido 32061 y addon v14.0.1.2.0 con `pos_reference` formato `Order %05d-%03d-%04d`, campo `omniflow_order_ref` y normalización de referencias heredadas.
+- Desplegado en Odoo de producción (`192.168.69.246`, contenedor `odoo_web_8081`).
+- Doc: `docs/troubleshooting/197-odoo-pos-reference-incompatible-caja.md`.
+
+### 2026-10-23 : v1.41.2 — Visibilidad y seguridad de la integración Odoo (FEAT-201) + hardening del deploy
+- `odoo_host` visible en `/api/omniflow/odoo_floors`, snapshot `odooHost` y modal `GastroOdooSyncModal` lo muestra en el pie (`Odoo: <host>`).
+- Interlock de escritura en E2E: pruebas de provisión exigen `E2E_ODOO_HOST_ACK` con el host exacto; si no coincide, la suite se omite.
+- `scripts/deploy-production.sh`: build antes de eliminar contenedores, limpieza de contenedores huérfanos con prefijo hash, trap `EXIT` para recuperación automática, y `orderflow_sync_standalone` con overlay `docker-compose.provecchio.yml`.
+- Operaciones: limpieza de pisos/mesas de prueba en Odoo y mapeo local Terraza→1, Giardino→5.
+
+### 2026-10-22 : v1.41.1 — OmniGastro: pisos provisionados asociados a un POS de Odoo
+- `provision_floor` infiere el POS más usado entre los pisos activos de Odoo (`pickDefaultPosConfigId`) y repara pisos huérfanos (`repaired: true`).
+- Backend `ProvisionFloorResult` expone `posConfigId` y `repaired`; frontend agrega selector «POS destino» en el modal de sincronización.
+- 13 casos backend + 5 del adapter. Incidente: corrida E2E escribió en Odoo de producción (pisos/mesas de prueba eliminados y documentados en troubleshooting #195).
+
+### 2026-10-22 : v1.41.0 — OmniGastro — Provisioning de pisos y mesas hacia Odoo 14 (FEAT-201)
+- OmniGastro pasa a ser fuente de verdad con provisioning idempotente desde `/admin/gastro/tables` → «Sincronizar con Odoo»: `GET /api/v1/tables/odoo-floors`, `POST /odoo-provision/floor`, `POST /odoo-provision/tables`.
+- `RestaurantFloor.odooFloorId` + índice único `(tenantId, odoo_floor_id)`; Odoo 14 asocia piso al POS con `pos_config_id`.
+- Adapter `odoo_floors` / `provision_floor` / `provision_tables`; frontend `GastroOdooSyncModal`; migración `20261022190000_restaurant_floors_odoo_floor_id`.
+
+### 2026-10-22 : v1.40.2 — Editar y eliminar mesas en `/admin/gastro/tables` (FEAT-200) + operación de datos + fix 502 Hetzner
+- Nuevo `GastroTableEditModal` + botones Editar/Eliminar en grilla y drawer; `deleteTable` rechaza si hay pedidos activos; `PATCH /tables/:id` valida mapeo duplicado a Odoo y pasa a permiso `tables:manage`.
+- Operación de producción: limpieza de pruebas en OmniGastro, saneamiento de plano de Odoo (4 pisos + 21 mesas duplicadas archivadas), mapeo corregido de mesas y apertura de sesión POS atascada.
+- Fix 502 persistente en `pesallaccia.com` por nombres de contenedor en Traefik (`orderflow_backend`/`orderflow_frontend` vs `orderflow-backend-prod`/…).
+- Doc: `docs/plans/omnigastro/plan-actualizacion-v1.40.2-tables-crud.md`, `docs/troubleshooting/190-gastro-tables-handlers-huerfanos.md`, `docs/troubleshooting/191-hetzner-traefik-container-name-mismatch-502.md`.
+
+### 2026-10-22 : v1.40.1 — Marca blanca: `PATCH /api/v1/tenants/:id` corregido (500 y riesgo de borrar config)
+- `customDomainVerified` → `domainVerified`; descarte de objeto `whiteLabel` anidado; merge de `config` con el existente en vez de reemplazarlo (evita borrar `homepageBlocks`, `subscription`, `gastro`, `qrTokens`…).
+- 6 unitarios nuevos + E2E `white-label-modal.spec.ts`. Desplegado en `provecchio.com` con protocolo completo (backup → restore → validación → deploy).
+
+### 2026-10-22 : v1.40.0 — Marca blanca: endpoint de configuración por tenant + sanitización de `customDomain`
+- Nuevo endpoint `GET /api/v1/tenants/:id/config` (guard `ApiKeyGuard` + `assertCanManageTenant`) que devuelve la configuración de marca blanca del tenant.
+- `customDomain` se sanitiza (minúsculas, sin esquema, sin path/query) y se marca `customDomainVerified = true`; se añade `id: true` al select de Prisma (fix de build TS2339).
+- Fix de protocolo de deploy local: `deploy-local.sh` reconstruye siempre con `up --build -d`.
+- Desplegado en `provecchio.com`; health público reporta `1.40.0`.
 
 ### 2026-10-21 : v1.39.19 — Cierre de turno con arqueo y relevo de cajero en Caja Gastro
 - Reporte del cliente durante la prueba de FEAT-193: tras abrir el turno con el PIN de Natalia Bogado
