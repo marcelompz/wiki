@@ -1,8 +1,8 @@
 # 🗺️ ROADMAP DE ORDERFLOW - v1.34.0 → v2.0.0 (Go-Live Definitivo)
-**Última Actualización:** 2026-10-27 (Release v1.43.6 — OmniGastro: POS de mozo enviaba a cocina sin efecto y perdía líneas del pedido; catálogo del POS completo — rama `fix/omnigastro-pos-envio-cocina-items`, pendiente deploy)
+**Última Actualización:** 2026-10-27 (Release v1.43.6 **DESPLEGADA EN PRODUCCIÓN** — OmniGastro: POS de mozo enviaba a cocina sin efecto y perdía líneas del pedido; catálogo del POS completo — rama `fix/omnigastro-pos-envio-cocina-items`)
 **Release anterior:** 2026-10-27 (Release v1.43.5 — producción operativa en `provecchio.com`, troubleshooting #207: bootstrap de path aliases persistido)
 
-**Versión Actual:** **`v1.43.6`** (rama `fix/omnigastro-pos-envio-cocina-items`, pendiente deploy) · **`v1.43.5` ✅ DESPLEGADA EN PRODUCCIÓN** (`provecchio.com`, 2026-10-27) | Marca pública: OmniFlow. Capa técnica interna: OrderFlow.
+**Versión Actual:** **`v1.43.6`** ✅ **DESPLEGADA EN PRODUCCIÓN** (`provecchio.com`, 2026-10-27 — health 200/1.43.6, smoke QR→mozo→cocina OK) · **`v1.43.5` ✅ DESPLEGADA EN PRODUCCIÓN** | Marca pública: OmniFlow. Capa técnica interna: OrderFlow.
 **Próximos Releases:** **v1.41.x** (Tauri Desktop & OmnIoT Edge) ➔ **v2.0.0** (🚀 **GO-Live Definitivo del Ecosistema — Target: 15 de Febrero de 2027**)
 **Plan Maestro Go-to-Live:** ver [docs/plans/PLAN_GO_LIVE_APLICACIONES_ECOSISTEMA.md](docs/plans/PLAN_GO_LIVE_APLICACIONES_ECOSISTEMA.md)
 **Roadmap Comercial:** ver [docs/planes/comercial/OmniFlow_PLAN_COMERCIAL_v1.md](docs/planes/comercial/OmniFlow_PLAN_COMERCIAL_v1.md) (FEAT-112 a FEAT-119)
