@@ -1,14 +1,14 @@
 # 🗺️ ROADMAP DE ORDERFLOW - v1.34.0 → v2.0.0 (Go-Live Definitivo)
-**Última Actualización:** 2026-10-22 (Release v1.40.2 — OmniGastro: editar y eliminar mesas en `/admin/gastro/tables` (FEAT-200) + limpieza de datos de prueba y saneamiento del plano de Odoo — **desplegada y verificada en `provecchio.com`**)
-**Release anterior:** 2026-10-22 (Release v1.40.1 — Marca Blanca: el `PATCH /api/v1/tenants/:id` devolvía 500 y podía borrar la configuración del tenant) · 2026-10-22 (Release v1.40.0 — endpoint `GET /api/v1/tenants/:id/config` desplegado en `provecchio.com`)
+**Última Actualización:** 2026-10-25 (Release v1.43.1 — Columnas de subdominio y pin_code en tenants/users, integraciones-admin E2E fix, seeding 3 tenants/3 users, documentación sincronizada) · 2026-10-22 (Release v1.40.2 — OmniGastro: editar y eliminar mesas desde `/admin/gastro/tables` + guardas de integridad — **desplegada y verificada en `provecchio.com`**)
+**Release anterior:** 2026-10-22 (Release v1.40.1 — Marca Blanca: el `PATCH /api/v1/tenants/:id` devolvía 500 y podía borrar la configuración del tenant — desplegada y verificada en `provecchio.com`) · 2026-10-22 (Release v1.40.0 — endpoint `GET /api/v1/tenants/:id/config` desplegado en `provecchio.com`)
 
-**Versión Actual:** **`v1.40.2`** ✅ **DESPLEGADA EN PRODUCCIÓN** (`provecchio.com`, 2026-10-22 19:00) | Marca pública: OmniFlow. Capa técnica interna: OrderFlow.
-**Próximos Releases:** **v1.41.0** (OmniGastro: provisioning de pisos/mesas OmniGastro → Odoo, FEAT-201) ➔ **v2.0.0** (🚀 **GO-Live Definitivo del Ecosistema — Target: 15 de Febrero de 2027**)
+**Versión Actual:** **`v1.43.1`** ✅ **DESPLEGADA EN PRODUCCIÓN** (`provecchio.com`, 2026-10-25) | Marca pública: OmniFlow. Capa técnica interna: OrderFlow. Incremento menor por features: integrations-admin E2E fix, column additions, Prisma regeneration, 3 tenants/3 users seeded.
+**Próximos Releases:** **v1.41.x** (Tauri Desktop & OmnIoT Edge) ➔ **v2.0.0** (🚀 **GO-Live Definitivo del Ecosistema — Target: 15 de Febrero de 2027**)
 **Plan Maestro Go-to-Live:** ver [docs/plans/PLAN_GO_LIVE_APLICACIONES_ECOSISTEMA.md](docs/plans/PLAN_GO_LIVE_APLICACIONES_ECOSISTEMA.md)
 **Roadmap Comercial:** ver [docs/planes/comercial/OmniFlow_PLAN_COMERCIAL_v1.md](docs/planes/comercial/OmniFlow_PLAN_COMERCIAL_v1.md) (FEAT-112 a FEAT-119)
 **Estado:** ✅ **STAGING & PRODUCTION OPERATIVE** | 🏆 **HARDENED v1.39.2** | OmniGastro Fases 0-3.3 Completadas | RBAC Hardening En PR | CI Guard Active | QA E2E Suite | Build Limpio & Cobertura Total
 
-<!--CURRENT_VERSION-->1.40.2<!--/CURRENT_VERSION--> <!-- Actualizado: 2026-10-22 v1.40.2 por Kilo -->
+<!--CURRENT_VERSION-->1.43.1<!--/CURRENT_VERSION--> <!-- Actualizado: 2026-10-25 v1.43.1 (columnas subdomain/pin_code, E2E fix, seeding) -->
 
 ### 📋 Próximas actualizaciones planificadas — OmniGastro (plan aprobado 2026-10-22)
 
@@ -286,7 +286,7 @@
 
 ---
 
-<!--CURRENT_VERSION-->1.40.1<!--/CURRENT_VERSION--> <!-- Actualizado: 2026-10-20 v1.39.12 por Kilo -->
+<!--CURRENT_VERSION-->1.42.1<!--/CURRENT_VERSION--> <!-- Actualizado: 2026-10-20 v1.39.12 por Kilo -->
 
 El ecosistema **OmniFlow** contempla 10 aplicaciones y capas operativas. A continuación se presenta la evaluación de madurez técnica por componente y los puntos pendientes priorizados hacia el Go-Live final.
 
