@@ -1,3 +1,15 @@
+## [1.43.8] - 2026-10-27
+
+### 🍽️ FEAT-210 — Flujo cocina real (send-to-kitchen) + notificación `order:ready` al mozo + cobro por sesión (fix "OCCUPIED")
+
+Bugs del QA en producción v1.43.7 (`docs/info/OmniGastro.md`) — causa raíz y solución en [troubleshooting #210](docs/troubleshooting/210-kds-ready-notify-occupied-bill-flow.md).
+
+- **Cocina real:** "Enviar a cocina" del POS de mozo ahora llama `POST /orders/:id/send-to-kitchen` → la orden queda `PREPARING` ("En Cocción") con ticket KDS + telemetría t2/t3/t4; `readyAt` lo pone la cocina con "Marcar Listo (Servir)" (el cliente ya no ve "¡Listo!" antes de recibir).
+- **Notificación al mozo:** nueva emisión WS `order:ready` al transicionar `READY` (payload con mesa/sesión/mozo); `useWaiterAlerts` en `/admin/gastro/mozos` y en el POS de mesa suena + avisa "🏁 Mesa X: pedido listo para entregar"; el panel (`gastro.tsx`) recibe el mismo aviso.
+- **Cobro por sesión:** el POS de mesa ya no expulsa en mesa `OCCUPIED` sin pedidos activos: banner con totales de sesión + "Cobrar en mesa y liberar" (`POST /bills/:id/pay`, crea cuenta MERGED si no existe) / "Cerrar sin cobrar (paga en caja)" (`table-sessions/:id/close`) / "Ir a caja". `BillsService.lockOrders` admite pedidos `DELIVERED` sin pagar.
+- **Testing:** unit 140/140 suites · 1060/1060 tests (2 nuevos: emisión de `order:ready` y negativa); E2E `gastro-pos-send-kitchen.spec.ts` 6/6 con la nueva semántica (assert: tras send-to-kitchen, `readyAt` **falsy**).
+- **Sin endpoints REST nuevos ni migraciones** — bump patch 1.43.7 → 1.43.8.
+
 ## [1.43.7] - 2026-10-27
 
 ### 🔐 FEAT-209 — Super-admin automation vía MASTER_API_KEY (fix 403 "Missing user or tenant context" vía Traefik) + credenciales E2E por env

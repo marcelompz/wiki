@@ -2,6 +2,55 @@
 
 ## Before deploy on provecchio you need to backup the data on production, restore at localhost, deploy there and test all the stuff. Never deploy on production without successful test on localhost
 
+## 2026-10-27 - Deploy a producción v1.43.8 (provecchio.com)
+
+* **Estado:** ✅ **DESPLEGADO EN PRODUCCIÓN** (`provecchio.com`, host `192.168.69.240`, 2026-10-27 22:09)
+* **Rama:** `main` (merge de `fix/omnigastro-kds-ready-notificaciones`)
+* **Commits:** `9ae3a848` (merge) + `c38d7375` (docs update)
+* **Versión:** 1.43.8
+* **Health:** `https://provecchio.com/api/v1/health` → `{"version":"1.43.8","status":"ok"}`
+* **Contenedores:** 9/9 healthy (`orderflow_backend`, `orderflow_frontend`, `orderflow_db`, `orderflow_redis`, `orderflow_odoo_adapter`, `orderflow_sync_standalone`, `orderflow_omnibi_standalone`, `orderflow-database-replica-prod`)
+* **Migraciones:** 41 migraciones, 0 pendientes
+* **E2E QA:** Catálogo público (4 imágenes, sin rotas), dominio sin errores JS, auth sanity check (sin 500), 8 rutas admin verificadas
+* **Traefik v3.4:** Activo y configuración recargada
+* **Protocolo:** AGENTS.md §3.1.1 (deploy-to-local-first) aplicado — backup, restore, deploy local, validación, deploy producción
+
+**Bugs resueltos en v1.43.8 (FEAT-210):**
+1. ✅ Cocina real: "Enviar a cocina" del POS de mozo ahora llama `POST /orders/:id/send-to-kitchen` → orden queda `PREPARING` con ticket KDS
+2. ✅ Notificación al mozo: WS `order:ready` al transicionar READY → sonido/aviso en dispositivo del mozo
+3. ✅ Cobro por sesión: POS de mesa no expulsa en mesa `OCCUPIED` sin pedidos activos
+4. ✅ `BillsService.lockOrders` admite pedidos `DELIVERED` sin pagar
+
+**Bugs pendientes (reportados en prueba v1.43.8):**
+1. ⏳ El mozo no puede volver a abrir el POS desde la lista de mesas atendidas
+2. ⏳ El POS no permite agregar comentarios a los pedidos
+3. ⏳ El KDS no muestra el número de mesa (parcialmente corregido con helper `getTableNumber`)
+4. ⏳ Filtro incorrecto en el KDS (muestra comidas en barra, bebidas en cocina)
+
+**Plan de acción:** `docs/plans/omnigastro/plan-actualizacion-v1.43.9-comentarios-kds-fix.md`
+
+---
+
+
+* **Bugs:**
+1. El mozo en su endpoint [https://provecchio.local/admin/gastro/mozos] 
+   - Puede listar las mesas atendidas, pero no puede volver a abrir el POS para gestionar los pedidos.
+   - En el POS para tomar pedidos [https://provecchio.local/admin/gastro/pos/4c51ecfa-d7b5-41bf-9fc8-b487b16b13a5] no puede agregar comentarios. Deberia tener un listado editable de comentarios rapidos como (para llevar, urgente, etc.) y un comentario de texto para permitirle escribir. Este comentario necesita una tabla en la base de datos y persistir para el POS de Odoo y aparecer en el KDS.
+2. En el endpoint del KDS [https://provecchio.local/admin/kds]
+   - No figura el numero de Mesa.
+   - En el espacio de trabajo Cocina: figuran pedidos los 3 pedidos abiertos, pero en la primera tiene 'Americano' que es bebida. Barra: Figura solamente la mesa que tiene bebidas, pero muestra tambien las comidas. Creo que el criterio de filtro es por grupo de tarjetas -header- (mesas) no por su contenido  -order_line- lista de pedidos.
+
+## 2026-10-27 - prueba en producción v1.43.7
+
+* **Estado:** 🛠️ **EN FIX — v1.43.8 (FEAT-210)**, rama `fix/omnigastro-kds-ready-notificaciones`. Causa raíz y solución en [docs/troubleshooting/210-kds-ready-notify-occupied-bill-flow.md](../troubleshooting/210-kds-ready-notify-occupied-bill-flow.md) — plan en [plan-actualizacion-v1.43.8](../plans/omnigastro/plan-actualizacion-v1.43.8-kds-ready-notificaciones.md).
+
+* **Bugs:**
+1. Al recibir en la cocina [https://provecchio.com/admin/gastro] y marcar listo:
+  - se elimina de la lista, no cambai de estado. 🛠️ Causa raíz compartida: "Enviar a cocina" del POS seteaba `readyAt` al instante (`POST /ready`) sin pasar por el pipeline real de cocina (`send-to-kitchen` → PREPARING). La comanda llegaba ya "Listo para Retirar" y la única salida era Entregar a Mesa. v1.43.8 restaura el pipeline.
+  - No da aviso al mozo que el pedido esta listo para entregar en el POS [https://provecchio.com/admin/gastro/mozos]. 🛠️ Backend emite WS `order:ready` al transicionar READY; el dispositivo del mozo (`useWaiterAlerts`) suena con "🏁 Mesa X: pedido listo para entregar".
+  -  El endpoint del cliente [https://provecchio.com/?t=f9d120b7-b8eb-4efb-98b9-d7a0760f21e4] marca listo y en realidad todavía no recibió su pedido. 🛠️ El "¡Listo!" del tracker queda en manos de la cocina (`readyAt` solo se setea con el Marcar Listo del KDS).
+2. Cuando el cliente pide la cuenta y el mozo atiende la llamada en el POS [https://provecchio.com/admin/gastro/mozos] Recibe el mensaje "OCCUPIED". No se puede crear un nuevo pedido en una mesa que no esté FREE. 🛠️ El POS ya no expulsa: modo cobro por sesión (Cobrar en mesa / Cerrar sin cobrar / Ir a caja) y `lockOrders` admite cuentas con pedidos DELIVERED sin pagar.
+
 ## 2026-10-27 - prueba en producción v1.43.5
 
 * **Estado:** ✅ **RESUELTO y DESPLEGADO en v1.43.6** (`provecchio.com`, 2026-10-27, health 200/1.43.6; rama `fix/omnigastro-pos-envio-cocina-items`) — diagnóstico y solución en [docs/troubleshooting/208-gastro-pos-order-id-lines-catalogo.md](../troubleshooting/208-gastro-pos-order-id-lines-catalogo.md). Smoke de producción por API: árbol 203/203 productos, QR→claim→PATCH(2 líneas)→`ready` con `readyAt` → cobro habilitado; datos de prueba limpiados (mesa G9 CLOSED/FREE). Audición completa: [docs/plans/omnigastro/auditoria-feat-208-2026-10-27.md](../plans/omnigastro/auditoria-feat-208-2026-10-27.md).

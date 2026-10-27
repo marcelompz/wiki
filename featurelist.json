@@ -1,6 +1,6 @@
 {
   "project": "OrderFlow SaaS Omnicanal",
-  "version": "1.43.7",
+  "version": "1.43.8",
   "last_updated": "2026-10-26",
   "features": [
     {
@@ -2563,7 +2563,7 @@
       "notes": "Fix 403 MASTER_API_KEY via Traefik (api-key.guard.ts branch order) + rbac synthetic 'master' + credenciales E2E env-inyectadas en 18 specs (#209). Sin endpoints/migraciones, bump patch 1.43.6->1.43.7."
     },
     {
-      "id": "PENDING-NEWMAN-ADMIN-ENV",
+"id": "PENDING-NEWMAN-ADMIN-ENV",
       "title": "Completar credenciales Newman environment por env (no se commitea la password)",
       "status": "pending",
       "priority": "P2",
@@ -2585,6 +2585,15 @@
       "priority": "P2",
       "version_target": "proximo release",
       "notes": "El master key ahora es super-admin en cualquier host (por diseño). Rotarlo solo si se considera comprometido: generar sk_ nuevo, actualizar .env en servidor (orderflow_backend + odoo_adapter + automatizaciones), docker compose up -d --build backend, smoke externo. Procedimiento documentado en docs/troubleshooting/209."
+    },
+    {
+      "id": "FEAT-210",
+      "title": "Flujo cocina real (send-to-kitchen), notificación order:ready al mozo y cobro por sesión (OCCUPIED)",
+      "status": "completed",
+      "priority": "P0",
+      "version_added": "1.43.8",
+      "notes": "QA v1.43.7 bugs 1 y 2: POS enviar a cocina ahora usa POST /orders/:id/send-to-kitchen (PREPARING+ticket KDS; readyAt queda a la cocina); WS order:ready en transición READY (sonido/aviso en dispositivo del mozo via useWaiterAlerts); POS deja de expulsar en mesa OCCUPIED sin pedidos activos y ofrece cobrar por sesión (/bills/:id/pay + close sesión). lockOrders admite DELIVERED sin pagar. Sin endpoints REST nuevos ni migración; bump patch 1.43.7->1.43.8."
+    }
     }
   ],
   "lastUpdated": "2026-10-26",
