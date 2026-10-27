@@ -2561,6 +2561,30 @@
       "priority": "P0",
       "version_added": "1.43.7",
       "notes": "Fix 403 MASTER_API_KEY via Traefik (api-key.guard.ts branch order) + rbac synthetic 'master' + credenciales E2E env-inyectadas en 18 specs (#209). Sin endpoints/migraciones, bump patch 1.43.6->1.43.7."
+    },
+    {
+      "id": "PENDING-NEWMAN-ADMIN-ENV",
+      "title": "Completar credenciales Newman environment por env (no se commitea la password)",
+      "status": "pending",
+      "priority": "P2",
+      "version_target": "proximo release",
+      "notes": "Completar `adminPassword` del environment `docs/tests/newman/provecchio.postman_environment.json` por variable de entorno en CI/runner (NEWMAN_ADMIN_PASSWORD=...) - nunca commitear la password del SuperAdmin (lecciones #19/#201/#209). README de docs/tests/newman/ ya documentado."
+    },
+    {
+      "id": "PENDING-POS-TABLET-PROBES",
+      "title": "Investigar fallo de probes de layout en pos-tablet-responsive.spec.ts (viewports 768/810 tall)",
+      "status": "pending",
+      "priority": "P2",
+      "version_target": "proximo release",
+      "notes": "2 tests miden Sider/header con probes nulos en viewports 768x1024 y 810x1080; breakpoints de Grid.useBreakpoint intactos desde v1.42.x y el mismo layout responde en el tercer test — sospecha de timing del useBreakpoint con viewport seteado pre-navegacion. Pre-existente (identico en corrida v1.43.6), no relacionado a FEAT-208/209."
+    },
+    {
+      "id": "PENDING-MASTER-KEY-ROTATION",
+      "title": "Rotacion optativa del MASTER_API_KEY (formalmente super-admin multi-host desde FEAT-209)",
+      "status": "pending",
+      "priority": "P2",
+      "version_target": "proximo release",
+      "notes": "El master key ahora es super-admin en cualquier host (por diseño). Rotarlo solo si se considera comprometido: generar sk_ nuevo, actualizar .env en servidor (orderflow_backend + odoo_adapter + automatizaciones), docker compose up -d --build backend, smoke externo. Procedimiento documentado en docs/troubleshooting/209."
     }
   ],
   "lastUpdated": "2026-10-26",
