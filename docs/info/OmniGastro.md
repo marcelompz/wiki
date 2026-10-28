@@ -1,5 +1,19 @@
 # OmniGastro
 
+## 2026-10-28 - Deploy a producción v1.44.5 (provecchio.com)
+
+* **Estado:** ✅ DESPLEGADO EN PRODUCCIÓN (provecchio.com, 2026-10-28 19:25)
+* **Versión:** 1.44.5
+* **Tag:** `v1.44.5` (merge de `fix/omnigastro-kds-reopen-delivered`)
+* **Bugs corregidos (QA v1.44.3):**
+  1. ✅ KDS 'Reabrir Comanda' → 400 RESUELTO: `ALLOWED_TRANSITIONS` ya no marca `DELIVERED` como terminal (`DELIVERED: ['READY','CANCELLED']`); la reapuridad limpia `deliveredAt`/`t6_picked_up`/`t7_delivered` de la telemetría para que el historial del cliente/mozo/KDS sea consistente.
+* **Causa raíz (troubleshooting #212):** el fix v1.44.3 agregó el botón en el frontend pero la matriz de transiciones del backend seguía bloqueando `DELIVERED → READY` con `Transición de estado inválida: DELIVERED → READY.` — ver `docs/troubleshooting/212-kds-reabrir-comanda-delivered-terminal.md`.
+* **Validación:**
+  - Unitarias: orders.service.spec 33/33 (incluye caso de reapertura con limpieza de hitos)
+  - E2E Playwright `gastro-pos-send-kitchen.spec.ts` 7/7 (nuevo caso 7 de regresión)
+  - Newman contracts regenerada: 18/18 requests, 20/20 assertions
+  - En vivo: curl claim→kitchen→ready→delivered→**reopen 200** con `deliveredAt` limpio
+
 ## 2026-10-28 - Deploy a producción v1.44.4 (provecchio.com)
 
 * **Estado:** ✅ DESPLEGADO EN PRODUCCIÓN (provecchio.com, 2026-10-28 18:30)

@@ -1,3 +1,9 @@
+## [1.44.5] - 2026-10-28
+
+### 🚧 Release en curso
+
+- Documentar aqui los cambios de la version.
+
 ## [1.44.4] - 2026-10-28
 
 ### Fix KDS/POS - Botón "Entregar a Mesa" en panel de mozos y POS
