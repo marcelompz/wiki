@@ -1,14 +1,14 @@
 # 🗺️ ROADMAP DE ORDERFLOW - v1.34.0 → v2.0.0 (Go-Live Definitivo)
-**Última Actualización:** 2026-10-27 (Release v1.43.8 — Deploy a provecchio.com exitoso, health 200, E2E QA 8 rutas admin en verde)
-**Release anterior:** 2026-10-27 (Release v1.43.7 — producción operativa en `provecchio.com`, troubleshooting #207: bootstrap de path aliases persistido)
+**Última Actualización:** 2026-10-27 (Release v1.43.9 — Corrección de bugs OmniGastro: reabrir POS, claim error, KDS filtering, PIN modal, primer asiento libre)
+**Release anterior:** 2026-10-27 (Release v1.43.8 — Deploy a provecchio.com exitoso, health 200, E2E QA 8 rutas admin en verde)
 
-**Versión Actual:** **`v1.43.8`** ✅ DESPLEGADA EN PRODUCCIÓN (`provecchio.com`, 2026-10-27 — health 200/1.43.8, E2E QA 8 rutas admin en verde) · **`v1.43.7`** ✅ DESPLEGADA EN PRODUCCIÓN (`provecchio.com`, 2026-10-27 — health 200/1.43.7, master key externa via Traefik 200) · **`v1.43.6`** ✅ DESPLEGADA EN PRODUCCIÓN (`provecchio.com`, 2026-10-27 — health 200, smoke QR→mozo→cocina OK) · **`v1.43.5` ✅ DESPLEGADA EN PRODUCCIÓN** (`provecchio.com`, 2026-10-27) | Marca pública: OmniFlow. Capa técnica interna: OrderFlow.
+**Versión Actual:** **`v1.43.9`** (en desarrollo) · **`v1.43.8`** ✅ DESPLEGADA EN PRODUCCIÓN (`provecchio.com`, 2026-10-27 — health 200/1.43.8, E2E QA 8 rutas admin en verde) · **`v1.43.7`** ✅ DESPLEGADA EN PRODUCCIÓN (`provecchio.com`, 2026-10-27 — health 200/1.43.7, master key externa via Traefik 200) · **`v1.43.6`** ✅ DESPLEGADA EN PRODUCCIÓN (`provecchio.com`, 2026-10-27 — health 200, smoke QR→mozo→cocina OK) · **`v1.43.5` ✅ DESPLEGADA EN PRODUCCIÓN** (`provecchio.com`, 2026-10-27) | Marca pública: OmniFlow. Capa técnica interna: OrderFlow.
 **Próximos Releases:** **v1.41.x** (Tauri Desktop & OmnIoT Edge) ➔ **v2.0.0** (🚀 **GO-Live Definitivo del Ecosistema — Target: 15 de Febrero de 2027**)
 **Plan Maestro Go-to-Live:** ver [docs/plans/PLAN_GO_LIVE_APLICACIONES_ECOSISTEMA.md](docs/plans/PLAN_GO_LIVE_APLICACIONES_ECOSISTEMA.md)
 **Roadmap Comercial:** ver [docs/planes/comercial/OmniFlow_PLAN_COMERCIAL_v1.md](docs/planes/comercial/OmniFlow_PLAN_COMERCIAL_v1.md) (FEAT-112 a FEAT-119)
 **Estado:** ✅ **STAGING & PRODUCTION OPERATIVE** | 🏆 **HARDENED v1.39.2** | OmniGastro Fases 0-3.3 Completadas | RBAC Hardening En PR | CI Guard Active | QA E2E Suite | Build Limpio & Cobertura Total
 
-<!--CURRENT_VERSION-->1.43.8<!--/CURRENT_VERSION--> <!-- Actualizado: 2026-10-27 v1.43.8 - Deploy a provecchio.com exitoso -->
+<!--CURRENT_VERSION-->1.43.9<!--/CURRENT_VERSION--> <!-- Actualizado: 2026-10-27 v1.43.8 - Deploy a provecchio.com exitoso -->
 
 ### 📋 Próximas actualizaciones planificadas — OmniGastro (plan aprobado 2026-10-22)
 
@@ -286,7 +286,7 @@
 
 ---
 
-<!--CURRENT_VERSION-->1.43.8<!--/CURRENT_VERSION--> <!-- Actualizado: 2026-10-27 v1.43.8 - Deploy a provecchio.com exitoso -->
+<!--CURRENT_VERSION-->1.43.9<!--/CURRENT_VERSION--> <!-- Actualizado: 2026-10-27 v1.43.8 - Deploy a provecchio.com exitoso -->
 
 El ecosistema **OmniFlow** contempla 10 aplicaciones y capas operativas. A continuación se presenta la evaluación de madurez técnica por componente y los puntos pendientes priorizados hacia el Go-Live final.
 

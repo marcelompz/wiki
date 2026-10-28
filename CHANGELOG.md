@@ -1,3 +1,9 @@
+## [1.43.9] - 2026-10-27
+
+### 🚧 Release en curso
+
+- Documentar aqui los cambios de la version.
+
 ## [1.43.8] - 2026-10-27
 
 ### 🍽️ FEAT-210 — Flujo cocina real (send-to-kitchen) + notificación `order:ready` al mozo + cobro por sesión (fix "OCCUPIED")

@@ -1,6 +1,69 @@
 # OmniGastro
 
-## Before deploy on provecchio you need to backup the data on production, restore at localhost, deploy there and test all the stuff. Never deploy on production without successful test on localhost
+## 2026-10-27 - Deploy a producción v1.43.9 (provecchio.com) y QA
+
+* **Mejoras:**
+1. Los botones en el endpoint del mozo [https://provecchio.com/admin/gastro/mozos] además de mantener los íconos que quedan muy bien, pueden:
+  - 'Gestión de mesas y código QR' puede ser solamente 'Gestionar mesas'.
+  - 'Cargar pedidos' puede tener color verde para resaltar.
+  - 'Sincronizar' puede ser color naranja.
+2. En el endpoint de configuración [https://provecchio.local/admin/settings] el administrador puede habilitar o deshabilitar la visibilidad de [Propinas Hoy: 0 Gs] e [Incentivos: 0 Gs] en los endpoints de mozos [https://provecchio.local/admin/gastro/mozos]
+
+## 2026-10-27 - v1.43.9 — Deploy a producción (provecchio.com)
+
+* **Estado:** ✅ **DESPLEGADO EN PRODUCCIÓN** (`provecchio.com`, host `192.168.69.240`, 2026-10-28 00:03)
+* **Versión:** 1.43.9
+* **Health:** `https://provecchio.com/api/v1/health` → `{"version":"1.43.9","status":"ok"}`
+* **Contenedores:** 9/9 healthy
+* **Migraciones:** 41 migraciones, 0 pendientes
+* **E2E QA:** Catálogo público (4 imágenes, sin rotas), dominio sin errores JS, auth sanity check (sin 500), 8 rutas admin verificadas
+* **Traefik v3.4:** Activo y configuración recargada
+* **Rollback env:** `/opt/orderflow/deploy-artifacts/rollback-provecchio-20261027_203340.env`
+
+**Bugs corregidos en v1.43.9:**
+1. ✅ Reabrir POS: Botón "Reabrir POS" en tabla de historial de `/admin/gastro/mozos`
+2. ✅ Claim error: Manejo graceful del error "La mesa ya fue reclamada por otro mozo"
+3. ✅ KDS filtering: Backend filtra `orderLines` por estación KDS
+4. ✅ PIN modal: Si mozo ya logueado, no pide PIN — usa sesión existente
+5. ✅ Primer asiento libre: Auto-setea primer número libre al agregar comensal
+
+**Mejora pendiente:**
+6. ⏳ Mover pedido entre asientos (no implementado)
+
+---
+
+
+* **Bugs corregidos:**
+1. ✅ **Reabrir POS:** Agregado botón "Reabrir POS" en la tabla de historial (vista "Atendidos") de `/admin/gastro/mozos`
+2. ✅ **Claim error:** Manejo graceful del error "La mesa ya fue reclamada por otro mozo" — muestra mensaje informativo en vez de error genérico
+3. ✅ **KDS filtering:** El backend ahora filtra las `orderLines` por estación KDS, mostrando solo las líneas de productos que pertenecen a esa estación (no todas las líneas de la orden)
+4. ✅ **PIN modal:** Si el mozo ya está logueado (activeWaiter en localStorage), no pide PIN — ejecuta la acción directamente usando la sesión existente
+5. ✅ **Primer asiento libre:** Al agregar un comensal, el campo "Asiento" se auto-setea con el primer número libre (si tengo asientos 1 y 2, el nuevo será 3)
+
+* **Mejora pendiente:**
+6. ⏳ **Mover pedido entre asientos:** Aún no implementado (requiere UI de drag & drop o selector de asiento destino)
+
+* **Archivos modificados:**
+- `frontend/src/pages/admin/gastro.tsx` — Botón Reabrir POS + manejo de claim error
+- `frontend/src/pages/admin/gastro-tables.tsx` — PIN modal usa sesión existente
+- `frontend/src/pages/admin/gastro-pos.tsx` — Auto-set primer asiento libre
+- `backend/src/orders/orders.service.ts` — Filtro de orderLines por estación KDS
+
+* **Plan de acción:** `docs/plans/omnigastro/plan-actualizacion-v1.43.9-bugs.md`
+
+---
+
+## 2026-10-27 - Deploy a producción v1.43.8 (provecchio.com)
+* **Bugs:**
+1. ¿Cómo el mozo reabre el POS de una mesa que ya tomó pedido? No encuentro el como hacerlo en el endpoint del mozo [https://provecchio.com/admin/gastro/mozos].
+2. Hice pedido desde otro dispositivo en la mesa G6 que ya había hecho pedido [https://provecchio.com/?t=f9d120b7-b8eb-4efb-98b9-d7a0760f21e4&track=1ac8e78e-7cbb-4419-94d4-48b39b73c1d9] Cuando llamé al mozo y recibió el pedido en el endpoint [https://provecchio.com/admin/gastro]  y lo tomó recibió el mensaje [La mesa ya fue reclamada por otro mozo]
+3. Se eliminó la estación de trabajo 'Bar' en vez de dividir las comandas. En la estación de trabajo 'Cocina' tengo filtrados los productos de la categoría 'Para comer' y en la estación de trabajo 'Bar' tengo las categorías 'Para beber'. La mesa G6 tiene 2 pedidos: 'Sandwich pan de masa madre de jamon, queso, lechuga y tomate' que debe verse solamente en la estación de trabajo 'Cocina' porque su categroía es 'Para comer' y el pedido de la misma mesa G6 'Aperol tonic' debería aparecer en la estación de trabajo 'Bar' porque es de la categoría de productos 'Para beber'
+4. Desde el enpoint para gestionar los pisos [https://provecchio.com/admin/gastro/tables] tiene para gestionar los pedidos y reclamarlos, pero el modal falla, al ingresar el PIN del mozo da error 'Usuario mozo cmu498yae0001qgsy3azcyubg no encontrado':
+   - No deberia pedir PIN si ya inicio el mozo.
+   - Si el mozo todavia no ingreso su PIN deberia tener un modal similar al del endpoint del mozo [https://provecchio.com/admin/gastro/mozos]
+* **Mejoras:**
+1. Poder mover el pedido de un asiento a otro [https://provecchio.com/admin/gastro/pos/81713da8-2c78-4742-bf98-04df739f4dab] aqui tengo 2 pedidos y el mozo agregó por error el pedido a un asiento. Debería poder arrastrarlo a otro asiento o al seleccionarlo poder elegir a que asiento abierto moverlo.
+2. En el endpoint del mozo  [https://provecchio.com/admin/gastro/pos/81713da8-2c78-4742-bf98-04df739f4dab] cuando agrega Asientos le permite iniciar con el #1 aunque ya esté ocupado. Debería iniciar con el primer asiento libre: si tego 2 asientos establecidos, al agregara uno mas debería iniciar en asiento 3. Y desapareció la opción de editar los asientos, que en la versión anterior estaba disponible. 
 
 ## 2026-10-27 - Deploy a producción v1.43.8 (provecchio.com)
 
