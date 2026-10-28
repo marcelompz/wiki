@@ -1,3 +1,10 @@
+## [1.44.1] - 2026-10-28
+
+### 🐛 Fix KDS — Productos no se listan + número de mesa incorrecto
+
+- **KDS filtering:** El backend ahora incluye la tabla en la respuesta de órdenes, y el filtro de estación verifica tanto `categoryId` como `posCategoryId` para mayor robustez.
+- **Número de mesa:** El KDS ahora muestra el número/nombre de la mesa correctamente (usando datos de la tabla incluida por el backend en vez de slice del UUID).
+
 ## [1.44.0] - 2026-10-28
 
 ### 🍽️ Mejoras de UX en OmniGastro

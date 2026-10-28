@@ -1,5 +1,13 @@
 # OmniGastro
 
+## 2026-10-28 - Pruebas en OmniGastro (v1.44.0)
+
+* **Bugs:**
+1. En el endpoint del KDS [https://provecchio.com/admin/kds] en los centros de producción 'Cocina' y 'Bar' no se listan los productos, mas que una bandera 'EN COCCIÓN'. En el centro de producción 'Cocina' figuran 2 mesas, una con la identificación correcta '🪑 Mesa G5' y otra con el nombre correcto de la mesa mas un ID '🪑 Mesa 5e6f1b69'. 
+
+* **Mejoras**
+1. Cuando el KDS marca el perdido listo para servir [https://provecchio.com/admin/kds] y el mozo recibe el aviso en su endpoint [https://provecchio.com/admin/gastro/mozos] que marque cuando ya sirvió el plato en la mesa. Este cambio de estado se ve reflejado en los endpoins del KDS, del Mozo (historial) y del cliente.
+
 ## 2026-10-28 - Mejoras de UX en OmniGastro (v1.44.0)
 
 * **Mejoras implementadas:**
@@ -17,7 +25,6 @@
 * **Plan de acción:** `docs/plans/omnigastro/plan-actualizacion-v1.43.10-ux-improvements.md`
 
 ---
-
 
 * **Mejoras:**
 1. Los botones en el endpoint del mozo [https://provecchio.com/admin/gastro/mozos] además de mantener los íconos que quedan muy bien, pueden:
@@ -1960,4 +1967,10 @@ curl -sS [http://provecchio.local/api/v1/health] 2>&1
 * **Estado:** ✅ DESPLEGADO EN PRODUCCIÓN (provecchio.com, 2026-10-28 13:28)
 * **Versión:** 1.44.0
 * **Health:** https://provecchio.com/api/v1/health → {"version":"1.44.0","status":"ok"}
+
+## 2026-10-28 - Deploy a producción v1.44.1 (provecchio.com)
+
+* **Estado:** ✅ DESPLEGADO EN PRODUCCIÓN (provecchio.com, 2026-10-28 15:14)
+* **Versión:** 1.44.1
+* **Health:** https://provecchio.com/api/v1/health → {"version":"1.44.1","status":"ok"}
 
