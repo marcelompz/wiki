@@ -1,3 +1,11 @@
+## [1.44.4] - 2026-10-28
+
+### Fix KDS/POS - Botón "Entregar a Mesa" en panel de mozos y POS
+
+- Panel de mozos: Agregado botón "Entregar a Mesa" para órdenes en estado READY, que marca el pedido como DELIVERED.
+- POS: Agregado botón "Entregar a Mesa" junto a "Enviar a Cocina" para marcar pedidos como entregados.
+- KDS: Las comandas servidas (DELIVERED) ahora se mantienen visibles en la pestaña "Listo" con opción de reabrir.
+
 ## [1.44.3] - 2026-10-28
 
 ### Fix KDS - Comandas servidas desaparecen + reabrir comanda

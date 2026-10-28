@@ -1,5 +1,25 @@
 # OmniGastro
 
+## 2026-10-28 - Deploy a producción v1.44.4 (provecchio.com)
+
+* **Estado:** ✅ DESPLEGADO EN PRODUCCIÓN (provecchio.com, 2026-10-28 18:30)
+* **Versión:** 1.44.4
+* **Health:** https://provecchio.com/api/v1/health → {"version":"1.44.4","status":"ok"} — 8/8 contenedores healthy
+* **Tag:** `v1.44.4`
+* **Contenido:**
+  1. ✅ v1.44.4: botón 'Entregar a Mesa' en panel de mozos (`/admin/gastro/mozos`) y POS por mesa — resuelve bug 1 del QA v1.44.2
+  2. ✅ QA de integridad de datos: conflict marker residual en `e2e/gastro-pos-send-kitchen.spec.ts` limpiado (6/6 tests en verde)
+  3. ✅ Colección Newman regenerada con los paths reales del backend: **18/18 requests, 20/20 assertions** contra localhost — incluye replay idempotente anti-duplicación (misma `idempotencyKey` → misma orden), 2 comensales misma `TableSession`, Bill MERGED → PAID → INVOICED y cleanup
+  4. ✅ Verificación en vivo del fix v1.44.2 (`number` → `tableNumber`): `GET /api/v1/orders` 200 con `tableNumber` en payload; QR público, waiter-calls y POS OK
+* **Anti-duplicación:** tres capas validadas (replay pre-tx + replay en-tx + índice único parcial `orders_idempotency_key_unique` con manejo P2002). Smoke E2E `table-sessions-bills.spec.ts` 3/3 y `order-tracking` + `order-history-server` 7/7.
+* **Environment Newman:** `docs/tests/newman/local.postman_environment.json` (placeholders, no secrets)
+
+## 2026-10-28 - Pruebas en OmniGastro (v1.44.3)
+
+
+* **Bugs:**
+1. Cuando en el endpoint del KDS [https://provecchio.com/admin/kds] selecciona 'Reabrir comanda': XHR PATCH [https://provecchio.com/api/v1/orders/81ba5024-d6cd-4449-9a81-92e6e4218ce0/status] [HTTP/2 400  314ms]
+
 ## 2026-10-28 - Pruebas en OmniGastro (v1.44.2)
 
 * **Bugs:**
