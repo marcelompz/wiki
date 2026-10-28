@@ -1,5 +1,16 @@
 # OmniGastro
 
+## 2026-10-28 - Pruebas en OmniGastro (v1.44.2)
+
+* **Bugs:**
+1. Cuando en el endpoint del KDS [https://provecchio.com/admin/kds] selecciona 'Listo servir':
+   - Cambia su estado y habilita 'Entregar a Mesa' en el mismo endpoint. Que está bien, pero deberia habilitar en los endpoint del mozo: Panel e mozo [https://provecchio.com/admin/gastro/mozos] y POS [https://provecchio.com/admin/gastro/pos/5e6f1b69-e2c0-4516-a14f-4ae1d7e493ec] el botón de 'Entregar a mesa' para que el pueda dar aviso cuando ya sirvió los productos al cliente.
+   - Cuando se sirvió el plato desaparece del KDS [https://provecchio.com/admin/kds], no queda en la pestaña 'Listo'. Habilitar también la opción de reabrir una comanda ya finalizada, 
+2. Los pedidos no se sincronizan con el endpoint del POS e Odoo [http://192.168.69.246:8081/pos/ui?config_id=2#cids=1]
+   
+* **Mejoras**
+1. Para que puedan aplicar correcciones en los pedidos que salieron mal o el cliente quiere diferente, por ejemplo. Que el pedido lleve un registro de los reclamos de los clientes, así el re-trabajo se controla. El mozo es quién toma nota en cada uno de los pedidos si es enviado de nuevo a cocina en el endpoint del POS de mozo [https://provecchio.com/admin/gastro/pos/5e6f1b69-e2c0-4516-a14f-4ae1d7e493ec]. El cliente llama al mozo y este toma nota del reclamo para devolverlo a la cocina. Opcionalmente puede tomar nota sin devolverlo a la cocina, para que quede el registro sin retrabajo.
+
 ## 2026-10-28 - Pruebas en OmniGastro (v1.44.1)
 
 * **Bugs:**
@@ -1994,4 +2005,15 @@ curl -sS [http://provecchio.local/api/v1/health] 2>&1
 
 * **Bugs corregidos:**
 1. ✅ KDS/POS: Error cargando comandas activas (campo 'number' → 'tableNumber' en RestaurantTable)
+
+## 2026-10-28 - Deploy a producción v1.44.3 (provecchio.com)
+
+* **Estado:** ✅ DESPLEGADO EN PRODUCCIÓN (provecchio.com, 2026-10-28 17:26)
+* **Versión:** 1.44.3
+* **Health:** https://provecchio.com/api/v1/health → {"version":"1.44.3","status":"ok"}
+
+* **Bugs corregidos:**
+1. ✅ KDS: Comandas servidas (DELIVERED) ahora se mantienen visibles en la pestaña 'Listo'
+2. ✅ KDS: Agregado botón 'Reabrir Comanda' para comandas servidas
+3. ✅ KDS: Agregado filtro 'Servido' en el selector de estado
 

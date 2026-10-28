@@ -1,3 +1,12 @@
+## [1.44.3] - 2026-10-28
+
+### Fix KDS - Comandas servidas desaparecen + reabrir comanda
+
+- KDS: Las comandas servidas (DELIVERED) ahora se mantienen visibles en la pestaña "Listo" en vez de desaparecer.
+- KDS: Agregado boton "Reabrir Comanda" para comandas servidas, que las devuelve a estado READY.
+- KDS: Agregado filtro "Servido" en el selector de estado.
+- KDS: loadActiveOrders ahora incluye DELIVERED en la consulta al backend.
+
 ## [1.44.2] - 2026-10-28
 
 ### Fix KDS/POS - Error cargando comandas y datos de mesa
