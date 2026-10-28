@@ -1,6 +1,23 @@
 # OmniGastro
 
-## 2026-10-27 - Deploy a producción v1.43.9 (provecchio.com) y QA
+## 2026-10-28 - Mejoras de UX en OmniGastro (v1.44.0)
+
+* **Mejoras implementadas:**
+1. ✅ **Botones con mejor UX:** En `/admin/gastro/mozos`:
+   - 'Gestión de Mesas & Códigos QR' → 'Gestionar Mesas' (texto más corto)
+   - 'Cargar Pedido' → color verde para resaltar
+   - 'Sincronizar' → color naranja
+2. ✅ **Visibilidad configurable:** En `/admin/settings` → OmniGastro, el administrador puede habilitar/deshabilitar la visibilidad de [Propinas Hoy] e [Incentivos] en el panel de mozos. Se almacenan en `tenant-settings.gastro.showTips` y `tenant-settings.gastro.showIncentives`.
+
+* **Archivos modificados:**
+- `frontend/src/pages/admin/gastro.tsx` — Labels y colores de botones
+- `frontend/src/pages/admin/settings.tsx` — Switches de visibilidad de propinas/incentivos
+- `frontend/src/pages/admin/gastro-mozos.tsx` — Renderizado condicional de propinas/incentivos
+
+* **Plan de acción:** `docs/plans/omnigastro/plan-actualizacion-v1.43.10-ux-improvements.md`
+
+---
+
 
 * **Mejoras:**
 1. Los botones en el endpoint del mozo [https://provecchio.com/admin/gastro/mozos] además de mantener los íconos que quedan muy bien, pueden:
@@ -1938,3 +1955,9 @@ sleep 45
 
 - Verify backend is healthy
 curl -sS [http://provecchio.local/api/v1/health] 2>&1
+## 2026-10-28 - Deploy a producción v1.44.0 (provecchio.com)
+
+* **Estado:** ✅ DESPLEGADO EN PRODUCCIÓN (provecchio.com, 2026-10-28 13:28)
+* **Versión:** 1.44.0
+* **Health:** https://provecchio.com/api/v1/health → {"version":"1.44.0","status":"ok"}
+

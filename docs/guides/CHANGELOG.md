@@ -1,3 +1,13 @@
+## [1.44.0] - 2026-10-28
+
+### 🍽️ Mejoras de UX en OmniGastro
+
+- **Botones con mejor UX:** En `/admin/gastro/mozos`:
+  - 'Gestión de Mesas & Códigos QR' → 'Gestionar Mesas' (texto más corto)
+  - 'Cargar Pedido' → color verde para resaltar
+  - 'Sincronizar' → color naranja
+- **Visibilidad configurable:** En `/admin/settings` → OmniGastro, el administrador puede habilitar/deshabilitar la visibilidad de [Propinas Hoy] e [Incentivos] en el panel de mozos. Se almacenan en `tenant-settings.gastro.showTips` y `tenant-settings.gastro.showIncentives`.
+
 ## [1.43.9] - 2026-10-27
 
 ### 🚧 Release en curso
