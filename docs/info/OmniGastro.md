@@ -1,5 +1,38 @@
 # OmniGastro
 
+## 2026-10-28 - Deploy a producción v1.44.6 (provecchio.com) — Sync POS↔Odoo con líneas
+
+* **Estado:** ✅ DESPLEGADO Y VERIFICADO EN PRODUCCIÓN (provecchio.com, 2026-10-28 22:50)
+* **Versión:** 1.44.6 · Health `{"version":"1.44.6",...,"status":"ok"}` · QA admin 8/8 rutas
+* **Bug 2 QA v1.44.2 (pedidos no se sincronizan con el POS de Odoo) — CAUSA RAÍZ:**
+  `sendToKitchen` cargaba `line.product` con select limitado (sin `skuInterno`/`barcode`).
+  En el listener, el stub bloqueaba `resolveProductData` → items llegaban al adapter
+  con `sku:null` → adapter no encuentra `product.product` → **línea omitida** →
+  `pos.order` creada en Odoo SIN LÍNEAS (por eso el QA las veía "no sincronizados").
+* **Fix:** select KDS ahora incluye `skuInterno`/`barcode` + listener con merge
+  defensivo (resolve por productId siempre; stub completo gana si trae SKU).
+* **Validación en producción:** pedido "Aeropress x2" (el que registraba 1 línea
+  omitida) → send-to-kitchen → `Sync Odoo exitoso odooOrderId=32267` **sin líneas
+  omitidas** (log del adapter limpio). Datos de prueba en Odoo a purgar desde el
+  back-office (sesión POS 2): 32255 (sin líneas, del smoke anterior), 32256,
+  32257 y 32267 (probes) — cancelar manualmente.
+* **Diagnóstico adicional:** `odoo_pos_config_id=2` OK; mapeos de mesa OK salvo
+  Giardino/M01/E2E (sin `odooTableId`) y duplicado `odooTableId=40` (G02 vs G2)
+  pendiente de limpieza. El sync dispara solo en KITCHEN y TABLE_CLOSED (los
+  DRAFT del POS no viajan a Odoo hasta enviar a cocina — comportamiento por diseño).
+* **Recuperación de incidentes del deploy (resultado operativo):** builds
+  serializados sin caídas de SSH confirmados; endurecido el script para que un
+  **build crítico fallido aborte el deploy** antes de recrear contenedores con
+  imágenes viejas, con log por servicio (`deploy-artifacts/build-<svc>.log`),
+  commit `c678d3e5`/`ae3d8352` (el primer re-deploy abortó por EOF del heredoc
+  ssh — corregido y validado con simulación `bash -n` del bloque remoto).
+* **Recuperación de incidentes del deploy (resultado operativo):** se confirmó que
+  el build serializado funciona sin caídas de SSH (v1.44.5 incidente) y, en este
+  ciclo, se endureció el script: **build crítico fallido ahora aborta el deploy**
+  antes de recrear contenedores con imágenes viejas, y cada build deja log en
+  `deploy-artifacts/build-<svc>.log` (commit `c678d3e5`/`ae3d8352`). El primer
+  re-deploy abortó por un EOF del heredoc (`\\${svc}` anidado en el case) —
+  corregido y validado con simulación `bash -n` de sustituciones del heredoc.
 ## 2026-10-28 - Deploy a producción v1.44.5 (provecchio.com)
 
 * **Estado:** ✅ DESPLEGADO EN PRODUCCIÓN (provecchio.com, 2026-10-28 19:25)
