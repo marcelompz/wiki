@@ -1,3 +1,10 @@
+## [1.44.2] - 2026-10-28
+
+### Fix KDS/POS - Error cargando comandas y datos de mesa
+
+- KDS: El endpoint /api/v1/orders?status=CONFIRMED,PREPARING,READY devolvia 500 por campo 'number' inexistente en RestaurantTable (corregido a 'tableNumber').
+- POS: El endpoint de ordenes por mesa tambien fallaba con el mismo error, causando "Error cargando datos de la mesa" en /admin/gastro/pos/:tableId.
+
 ## [1.44.1] - 2026-10-28
 
 ### 🐛 Fix KDS — Productos no se listan + número de mesa incorrecto
