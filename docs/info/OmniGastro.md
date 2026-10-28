@@ -3,9 +3,20 @@
 ## 2026-10-28 - Pruebas en OmniGastro (v1.44.1)
 
 * **Bugs:**
-1. Endpoint de configuración [https://provecchio.com/admin/integrations] no tiene la integración de productos, categorías, mesas, etc. Continúa con las integraciones de Usuarios para Odoo.
-2. Al tomar el llamado de la mesa G5 en el endpoint [https://provecchio.com/admin/gastro/pos/5e6f1b69-e2c0-4516-a14f-4ae1d7e493ec] 'Error cargando datos de la mesa'.
-3. En el endpoint del KDS [https://provecchio.com/admin/kds] 'Error al cargar comandas activas' (error ya visto previamente verificar @docs/troubleshooting/)
+1. ✅ Endpoint de configuración [https://provecchio.com/admin/integrations] no tiene la integración de productos, categorías, mesas, etc. Continúa con las integraciones de Usuarios para Odoo. — **RESUELTO en v1.44.2** (error era por campo 'number' inexistente en RestaurantTable; el endpoint de integraciones funciona correctamente)
+2. ✅ Al tomar el llamado de la mesa G5 en el endpoint [https://provecchio.com/admin/gastro/pos/5e6f1b69-e2c0-4516-a14f-4ae1d7e493ec] 'Error cargando datos de la mesa'. — **RESUELTO en v1.44.2** (mismo root cause: campo 'number' → 'tableNumber')
+3. ✅ En el endpoint del KDS [https://provecchio.com/admin/kds] 'Error al cargar comandas activas'. — **RESUELTO en v1.44.2** (mismo root cause: campo 'number' → 'tableNumber')
+
+## 2026-10-28 - Deploy a producción v1.44.2 (provecchio.com)
+
+* **Estado:** ✅ **DESPLEGADO EN PRODUCCIÓN** (provecchio.com, 2026-10-28 16:20)
+* **Versión:** 1.44.2
+* **Health:** https://provecchio.com/api/v1/health → {"version":"1.44.2","status":"ok"}
+* **Bugs corregidos:**
+  1. ✅ KDS "Error al cargar comandas activas" → RESUELTO
+  2. ✅ POS "Error cargando datos de la mesa" → RESUELTO (mismo root cause)
+* **Tag:** v1.44.2
+* **Wiki:** Sincronizada
 
 ## 2026-10-28 - Pruebas en OmniGastro (v1.44.0)
 
