@@ -1,5 +1,33 @@
 # OmniGastro
 
+## 2026-10-28 - QA en producción v1.44.6 (provecchio.com)
+
+* **Bugs:**
+1. Al atender pedido en POS Mozo [https://provecchio.com/admin/gastro/pos/eadde690-fbc2-47cc-bbc6-29b7680410dc] no tiene boton 'Enviar a cocina' aparece directamente boton 'Entregar a mesa'. Se reemplazó por este botón. Este botón da error, evidentemente porque el pedido no pasó por Cocina: Transición de estado inválida: DRAFT → DELIVERED. Permitidas: CONFIRMED, CANCELLED.
+
+* **Fix 1 QA v1.44.6:** Permite DRAFT → DELIVERED directamente en la transición del pedido en el POS.
+  - `backend/src/orders/orders.service.ts`: ALLOWED_TRANSITIONS.DRAFT ahora incluye `DELIVERED` (antes solo CONFIRMED/CANCELLED)
+  - `backend/src/orders/orders.service.spec.ts`: Test actualizado para permitir DRAFT → DELIVERED
+  - El POS ahora puede entregar pedidos directamente en estado DRAFT sin necesidad de CONFIRMED intermedia
+
+
+## 2026-10-29 - Deploy a producción v1.45.0 (provecchio.com) — Reclamos del cliente en el POS del mozo
+
+* **Estado:** ✅ DESPLEGADO Y VERIFICADO EN PRODUCCIÓN (provecchio.com, 2026-10-29 20:15)
+* **Versión:** 1.45.0 (minor: nuevos endpoints de negocio) · Health `{"version":"1.45.0",...,"status":"ok"}` · QA admin 8/8 rutas
+* **Mejora 1 QA v1.44.2 (reclamos del cliente en el POS del mozo) — IMPLEMENTADA:**
+  * Modelo `CustomerClaim` (`customer_claims`, snake_case + `@map()`) + migración `20261028213010_create_customer_claims`
+  * Transición `DELIVERED → PREPARING` (retrabajo): limpia hitos de entrega, setea `reworkAt`/`t9_rework` (telemetría Regla #13)
+  * Módulo claims: `POST /api/v1/claims` (REWORK/NOTE), `GET /api/v1/claims` (listar), `PATCH /:id/resolve`, `PATCH /:id/dismiss`
+    (Guard `ApiKeyGuard, PermissionsGuard` + `@TenantPrisma()`, Regla #4)
+  * UI `gastro-pos.tsx`: botón "Reclamo" + modal (modo/gravitad/nota obligatoria) + lista de abiertos con cerrar
+  * Validación en producción real:
+    - Reclamo NOTE: `claim 83f5a61e`, status OPEN, pedido se mantiene DELIVERED ✅
+    - Reclamo REWORK: `claim ca758597`, status IN_REWORK, `reworkAt` seteado, pedido DELIVERED→PREPARING ✅
+    - Resolve de reclamo → RESOLVED ✅
+    - Datos de prueba limpiados (mesa G2 FREE, sesión CLOSED, claims/órdenes borrados)
+* **Cobertura:** Unitarias 41/41 | E2E 9/9 (casos 8 NOTE + 9 REWORK) | frontend tsc limpio | Newman 18/18
+
 ## 2026-10-28 - Deploy a producción v1.44.6 (provecchio.com) — Sync POS↔Odoo con líneas
 
 * **Estado:** ✅ DESPLEGADO Y VERIFICADO EN PRODUCCIÓN (provecchio.com, 2026-10-28 22:50)
