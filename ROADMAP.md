@@ -8,7 +8,7 @@
 **Roadmap Comercial:** ver [docs/planes/comercial/OmniFlow_PLAN_COMERCIAL_v1.md](docs/planes/comercial/OmniFlow_PLAN_COMERCIAL_v1.md) (FEAT-112 a FEAT-119)
 **Estado:** ✅ **STAGING & PRODUCTION OPERATIVE** | 🏆 **HARDENED v1.39.2** | OmniGastro Fases 0-3.3 Completadas | RBAC Hardening En PR | CI Guard Active | QA E2E Suite | Build Limpio & Cobertura Total
 
-<!--CURRENT_VERSION-->1.45.0<!--/CURRENT_VERSION--> <!-- Actualizado: 2026-10-27 v1.43.8 - Deploy a provecchio.com exitoso -->
+<!--CURRENT_VERSION-->1.45.1<!--/CURRENT_VERSION--> <!-- Actualizado: 2026-10-27 v1.43.8 - Deploy a provecchio.com exitoso -->
 
 ### 📋 Próximas actualizaciones planificadas — OmniGastro (plan aprobado 2026-10-22)
 
@@ -286,7 +286,7 @@
 
 ---
 
-<!--CURRENT_VERSION-->1.45.0<!--/CURRENT_VERSION--> <!-- Actualizado: 2026-10-27 v1.43.8 - Deploy a provecchio.com exitoso -->
+<!--CURRENT_VERSION-->1.45.1<!--/CURRENT_VERSION--> <!-- Actualizado: 2026-10-27 v1.43.8 - Deploy a provecchio.com exitoso -->
 
 El ecosistema **OmniFlow** contempla 10 aplicaciones y capas operativas. A continuación se presenta la evaluación de madurez técnica por componente y los puntos pendientes priorizados hacia el Go-Live final.
 

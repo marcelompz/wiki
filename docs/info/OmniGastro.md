@@ -11,6 +11,17 @@
   - El POS ahora puede entregar pedidos directamente en estado DRAFT sin necesidad de CONFIRMED intermedia
 
 
+## 2026-10-30 - Deploy a producción v1.45.1 (provecchio.com) — Mover pedido entre asientos
+
+* **Estado:** ✅ DESPLEGADO Y VERIFICADO EN PRODUCCIÓN (provecchio.com, 2026-10-30 14:55)
+* **Versión:** 1.45.1 (patch: mejora dentro de OmniGastro, usa endpoint existente) · Health `{"version":"1.45.1",...,"status":"ok"}` · QA admin 8/8 rutas
+* **Pendiente v1.39.21 (mover pedido entre asientos) — IMPLEMENTADO:**
+  * UI `gastro-pos.tsx`: selector de asiento destino por línea + `handleMoveSeat` que reenvía
+    `PATCH /api/v1/orders/:id/items` con `seatNumber` actualizado (endpoint existente, sin cambios de backend)
+  * Validación en producción real: línea movida de asiento 1 → asiento 2, `move:200` ✅
+  * Datos de prueba limpiados (mesa G2 FREE, sesión CLOSED, orden borrada)
+* **Cobertura:** Unitarias backend sin cambios | E2E 10/10 (caso 10 mover asiento) | frontend tsc limpio | QA admin 8/8
+
 ## 2026-10-29 - Deploy a producción v1.45.0 (provecchio.com) — Reclamos del cliente en el POS del mozo
 
 * **Estado:** ✅ DESPLEGADO Y VERIFICADO EN PRODUCCIÓN (provecchio.com, 2026-10-29 20:15)

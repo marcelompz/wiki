@@ -1,3 +1,9 @@
+## [1.45.1] - 2026-10-30
+
+### 🚧 Release en curso
+
+- Documentar aqui los cambios de la version.
+
 ## [1.45.0] - 2026-10-29
 
 ### 🚧 Release en curso
