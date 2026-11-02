@@ -1,6 +1,6 @@
 {
   "name": "orderflow-frontend",
-  "version": "1.45.3",
+  "version": "1.45.4",
   "private": true,
   "type": "module",
   "scripts": {

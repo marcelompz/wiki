@@ -1,5 +1,36 @@
 # OmniGastro
 
+## 2026-11-02 - QA en producción v1.45.3 (provecchio.com)
+
+* **Bugs:**
+1. Cuando el mozo envía a la cocina la comanda en el KDS [https://provecchio.com/admin/kds] se sitúa en la pestaña 'Cocinando' y la comanda solamente tiene el botón 'listo'. Debería estar en 'Pendientes' y entrar a 'Cocinando' cuando el cocinero indica. Tampoco hace distinción entre las comandas en 'Listo' y 'Servido'.
+
+2. En el endpoint del mozo [https://provecchio.com/admin/gastro/pos/d8db0c6c-965a-403f-aefa-fb188191af5f]:
+   - Todavía no tiene botón servir.
+   - Sigue habilitado el botón 'Enviar a la cocina' pero en vez de figurar la mesa que tomó el mozo (T11 en este caso), notifica así '¡Nueva comanda recibida para la mesa BARRA!'
+   - No tiene boton para cerrar la mesa y enviar a caja para el cobro.
+   - En el endpoint del kds  [https://provecchio.com/admin/kds] figura el pedido de la mesa correcta  'Mesa T11'.
+
+* **Mejoras:**
+1. En el endpoint del KDS [https://provecchio.com/admin/kds] lista el historial en todas las pestañas: 🗂️ Historial de la sesión (8)
+f3321d41 · 0 ítem(s)Servido
+56f89887 · 0 ítem(s)Servido
+81ba5024 · 0 ítem(s)Servido
+1ac8e78e · 0 ítem(s)Servido
+63ed4950 · 0 ítem(s)Servido
+0caf90f2 · 0 ítem(s)Servido
+0a60ab8b · 0 ítem(s)Servido
+   - Preferiría que se eliminaran, ya que tengo la lista de comandas servidas en la pestaña 'Servido', además ocupan espacio valioso
+2. Agregar la opción de reabrir la comanda en el POS del mozo [https://provecchio.com/admin/gastro/pos/442e40ef-c3c2-4898-b110-eb723de887ad], permitiendo agregar comentarios en la línea del producto que será devuelto. En una solicitud previa solicité cargar una lista predefinida de comentarios típicos, así ahorra tiempo en seleccionar algo que suele suceder. Habilitar también escribir un comentario y permitir varios comentarios en una misma línea de producto.
+3. Agregar la opción de agregar comentarios en el pedido al cliente en su endpoint [https://provecchio.com/?t=199a24db-62f2-4838-aea9-78a3c90ad839&track=0a049bb9-700a-426a-8c74-27e1ee36613c]
+4. Aplicar mejora de entrega por línea que está como feature futura.
+
+* **Fix deployado en producción v1.45.4 (2026-11-02):**
+  - `frontend/src/pages/admin/gastro-pos.tsx:673-680`: `isKitchenSent` ahora también considera el estado de la orden (`PREPARING`, `READY`, `DELIVERED`) además de `meta.sentToKitchenAt`/`meta.readyAt`. Cuando el KDS marca el pedido como READY, `isKitchenSent` pasa a `true` y el botón cambia a "Entregar a Mesa". `isReady` ahora se activa cuando AL MENOS UNA orden está READY, habilitando el cobro parcial.
+  - `frontend/src/pages/admin/kds.tsx:349-354`: El historial de sesión solo se muestra cuando el filtro es 'Servido' o 'Todas', evitando contaminar las pestañas de Pendiente/Cocinando/Listo.
+  - `docker-compose.yml`: el servicio frontend ahora construye su imagen usando `frontend/Dockerfile.prod` en lugar de depender de un bind mount `./frontend/dist:/app:ro`, lo que resuelve el problema de despliegue en producción donde el bundle no se montaba correctamente en el contenedor.
+  - Verificado en producción: health `{"version":"1.45.4","status":"ok"}`, bundle frontend contiene los cambios de `isKitchenSent` e `isReady`.
+
 ## 2026-11-02 - QA en producción v1.45.1 (provecchio.com)
 
 * **Bugs:**
@@ -10,14 +41,7 @@
    * **Fix deployado en producción v1.45.3 (2026-11-02):**
   - `frontend/src/pages/admin/gastro-pos.tsx:673`: `isKitchenSent` ahora también considera `meta.readyAt` además de `meta.sentToKitchenAt`. Cuando el KDS marca el pedido como READY (Listo), `isKitchenSent` pasa a `true` y el botón cambia a "Entregar a Mesa" en lugar de mostrar "Enviar a Cocina".
   - Esto resuelve que el botón "Enviar a Cocina" aparezca aunque el pedido ya esté listo para entregar.
-
-## 🔄 Mejoras pendientes (futuras releases)
-
-**Entrega parcial por línea** — El usuario solicita agregar un botón por línea de pedido para marcar como entregada individualmente, manteniendo también el botón de "Entregar a Mesa" (entrega total) para ahorrar tiempo al mozo.
-
-- **Ejemplo:** El cliente pide un café espresso (listo en 3 min.) y un croque madame (demora 10 min.). El mozo puede entregar el café y marcarlo como entregado individualmente, mientras el croque sigue pendiente en cocina.
-- **Requisitos:** Endpoint de backend para marcar línea individual como entregada + migración de base de datos + cambios de UI en `gastro-pos.tsx`.
-- **Estado:** Pendiente de implementación — requiere cambios de backend y migración.
+es
 ## 2026-11-02 - QA en producción v1.45.1 (provecchio.com)
 
 * **Bugs:**
