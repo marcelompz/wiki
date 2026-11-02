@@ -1,3 +1,111 @@
+## [1.45.1] - 2026-10-30
+
+### 🚧 Release en curso
+
+- Documentar aqui los cambios de la version.
+
+## [1.45.0] - 2026-10-29
+
+### 🚧 Release en curso
+
+- Documentar aqui los cambios de la version.
+
+## [1.44.6] - 2026-10-28
+
+### 🚧 Release en curso
+
+- Documentar aqui los cambios de la version.
+
+## [1.44.5] - 2026-10-28
+
+### 🚧 Release en curso
+
+- Documentar aqui los cambios de la version.
+
+## [1.44.4] - 2026-10-28
+
+### Fix KDS/POS - Botón "Entregar a Mesa" en panel de mozos y POS
+
+- Panel de mozos: Agregado botón "Entregar a Mesa" para órdenes en estado READY, que marca el pedido como DELIVERED.
+- POS: Agregado botón "Entregar a Mesa" junto a "Enviar a Cocina" para marcar pedidos como entregados.
+- KDS: Las comandas servidas (DELIVERED) ahora se mantienen visibles en la pestaña "Listo" con opción de reabrir.
+
+## [1.44.3] - 2026-10-28
+
+### Fix KDS - Comandas servidas desaparecen + reabrir comanda
+
+- KDS: Las comandas servidas (DELIVERED) ahora se mantienen visibles en la pestaña "Listo" en vez de desaparecer.
+- KDS: Agregado boton "Reabrir Comanda" para comandas servidas, que las devuelve a estado READY.
+- KDS: Agregado filtro "Servido" en el selector de estado.
+- KDS: loadActiveOrders ahora incluye DELIVERED en la consulta al backend.
+
+## [1.44.2] - 2026-10-28
+
+### Fix KDS/POS - Error cargando comandas y datos de mesa
+
+- KDS: El endpoint /api/v1/orders?status=CONFIRMED,PREPARING,READY devolvia 500 por campo 'number' inexistente en RestaurantTable (corregido a 'tableNumber').
+- POS: El endpoint de ordenes por mesa tambien fallaba con el mismo error, causando "Error cargando datos de la mesa" en /admin/gastro/pos/:tableId.
+
+## [1.44.1] - 2026-10-28
+
+### 🐛 Fix KDS — Productos no se listan + número de mesa incorrecto
+
+- **KDS filtering:** El backend ahora incluye la tabla en la respuesta de órdenes, y el filtro de estación verifica tanto `categoryId` como `posCategoryId` para mayor robustez.
+- **Número de mesa:** El KDS ahora muestra el número/nombre de la mesa correctamente (usando datos de la tabla incluida por el backend en vez de slice del UUID).
+
+## [1.44.0] - 2026-10-28
+
+### 🍽️ Mejoras de UX en OmniGastro
+
+- **Botones con mejor UX:** En `/admin/gastro/mozos`:
+  - 'Gestión de Mesas & Códigos QR' → 'Gestionar Mesas' (texto más corto)
+  - 'Cargar Pedido' → color verde para resaltar
+  - 'Sincronizar' → color naranja
+- **Visibilidad configurable:** En `/admin/settings` → OmniGastro, el administrador puede habilitar/deshabilitar la visibilidad de [Propinas Hoy] e [Incentivos] en el panel de mozos. Se almacenan en `tenant-settings.gastro.showTips` y `tenant-settings.gastro.showIncentives`.
+
+## [1.43.9] - 2026-10-27
+
+### 🚧 Release en curso
+
+- Documentar aqui los cambios de la version.
+
+## [1.43.8] - 2026-10-27
+
+### 🍽️ FEAT-210 — Flujo cocina real (send-to-kitchen) + notificación `order:ready` al mozo + cobro por sesión (fix "OCCUPIED")
+
+Bugs del QA en producción v1.43.7 (`docs/info/OmniGastro.md`) — causa raíz y solución en [troubleshooting #210](docs/troubleshooting/210-kds-ready-notify-occupied-bill-flow.md).
+
+- **Cocina real:** "Enviar a cocina" del POS de mozo ahora llama `POST /orders/:id/send-to-kitchen` → la orden queda `PREPARING` ("En Cocción") con ticket KDS + telemetría t2/t3/t4; `readyAt` lo pone la cocina con "Marcar Listo (Servir)" (el cliente ya no ve "¡Listo!" antes de recibir).
+- **Notificación al mozo:** nueva emisión WS `order:ready` al transicionar `READY` (payload con mesa/sesión/mozo); `useWaiterAlerts` en `/admin/gastro/mozos` y en el POS de mesa suena + avisa "🏁 Mesa X: pedido listo para entregar"; el panel (`gastro.tsx`) recibe el mismo aviso.
+- **Cobro por sesión:** el POS de mesa ya no expulsa en mesa `OCCUPIED` sin pedidos activos: banner con totales de sesión + "Cobrar en mesa y liberar" (`POST /bills/:id/pay`, crea cuenta MERGED si no existe) / "Cerrar sin cobrar (paga en caja)" (`table-sessions/:id/close`) / "Ir a caja". `BillsService.lockOrders` admite pedidos `DELIVERED` sin pagar.
+- **Testing:** unit 140/140 suites · 1060/1060 tests (2 nuevos: emisión de `order:ready` y negativa); E2E `gastro-pos-send-kitchen.spec.ts` 6/6 con la nueva semántica (assert: tras send-to-kitchen, `readyAt` **falsy**).
+- **Sin endpoints REST nuevos ni migraciones** — bump patch 1.43.7 → 1.43.8.
+
+## [1.43.7] - 2026-10-27
+
+### 🔐 FEAT-209 — Super-admin automation vía MASTER_API_KEY (fix 403 "Missing user or tenant context" vía Traefik) + credenciales E2E por env
+
+Hallazgos post-deploy v1.43.6 (auditoría FEAT-208, `docs/plans/omnigastro/auditoria-feat-208-2026-10-27.md`). Causa raíz en [troubleshooting #209](docs/troubleshooting/209-master-api-key-403-via-traefik.md).
+
+- **`backend/src/common/api-key.guard.ts`:** el chequeo de `MASTER_API_KEY` estaba en una rama `else if (apiKey)` que **no se ejecutaba** cuando el host ya resolvía tenant (ej. `provecchio.com` vía `customDomain`) → el usuario synthetic super-admin nunca se creaba y `PermissionsGuard` respondía 403 "Missing user or tenant context" para automatizaciones externas. Ahora se evalúa **independientemente** de la resolución por host/query y el super-admin opera sobre el tenant resuelto (`tenantId`/`defaultTenantId`), sin perderlo. Comportamiento con `X-Tenant-Id` previo intacto; API keys de tenant y 401 sin cambios.
+- **`backend/src/common/rbac.service.ts`:** `hasPermission` reconoce el synthetic `master` (como ya hacía con `super-admin-global`) → endpoints que llaman `assertPermission()` directamente (ej. `POST /api/v1/table-sessions/:id/close` con `force:true`, 403 `tables:manage`) pasan con master key.
+- **Credenciales E2E (18 specs):** `'SuperAdmin123!'` hardcodeado (password rotada en producción, #201/#19) reemplazado por inyección por env (`E2E_ADMIN_EMAIL`/`E2E_ADMIN_PASSWORD`, y `PLAYWRIGHT_ADMIN_EMAIL`/`PLAYWRIGHT_ADMIN_PASSWORD` en specs Odoo) — la password real vive en `.env` gitignored, no se commitea. Nota en `docs/tests/newman/README.md`; environment Newman sigue sin password.
+- **Tests:** nueva `backend/src/common/api-key.guard.spec.ts` (3 casos: synthetic user con host resuelto, sin confundir master key con tenant key, 401 previo intacto) + 2 casos RBAC (`master` → true). **Sin endpoints nuevos ni migraciones** → bump patch `1.43.6 → 1.43.7`.
+
+## [1.43.6] - 2026-10-27
+
+### 🍽️ OmniGastro — fix POS de Mozo: "Enviar a cocina" sin efecto, líneas que se perdían y catálogo incompleto (rama `fix/omnigastro-pos-envio-cocina-items`)
+
+Del reporte de pruebas en producción v1.43.5 (`docs/info/OmniGastro.md`, 2026-10-27). Causas raíz documentadas en [troubleshooting #208](docs/troubleshooting/208-gastro-pos-order-id-lines-catalogo.md).
+
+- **`gastro-pos.tsx` (POS por mesa):**
+  - **"Enviar a cocina" no hacía nada:** desde el refactor v1.42.1 (FEAT-204) el pedido guardado en estado trae el campo `id`, pero los manejadores leían `order.orderId` (siempre `undefined`) y el guard `if (!order?.orderId) return;` abortaba en silencio — sin send, el cobro no se habilitaba. Ahora `claim → ready` se aplica sobre **todas** las órdenes activas de la mesa y `close`/`split` usan `order.id`.
+  - **`Cannot PATCH /api/v1/orders/items` + líneas que desaparecían:** las líneas nuevas del mozo se creaban **sin `orderId`** y `saveLines` caía al fallback con id vacío → PATCH 404; la línea solo vivía en estado local y se perdía al reabrir el pedido. Ahora `handleAddProduct` asigna el `orderId` de la orden del asiento, `saveLines` hace *claim best-effort* antes del PATCH (pedidos guest exigen reclamo, `guestUpdateItems`) y aborta el envío a cocina si la persistencia falló (nunca cocina sin los ítems visibles).
+  - **Estado agregado sobre la sesión:** `isKitchenSent`/`isReady` se evalúan sobre todas las órdenes activas (cobro cuando todas marcaron READY).
+  - **UX (bug 4):** el enlace de texto `[+aquí]` del comensal pasa a **botón verde "Agregar aquí"** con `token.colorSuccess` (Regla #10).
+- **`catalog.service.ts` (catálogo del POS con pocos productos):** `getCategoryTree` adjuntaba el producto solo a `categoryId`; si esa categoría estaba fuera del árbol (nivel > `maxLevel` o inactiva) mientras su `posCategoryId` sí estaba, el producto quedaba huérfano e invisible. Ahora se adjunta a la primera categoría **presente en el árbol** (prioridad `categoryId` → `posCategoryId`), sin duplicados ni cambios de `maxLevel`.
+- **Sin endpoints nuevos ni migraciones** → bump patch `1.43.5 → 1.43.6`.
+
 ## [1.43.5] - 2026-10-27
 
 ### 🔧 Core — Persistencia del fix de path aliases en producción (Provecchio, troubleshooting #154)

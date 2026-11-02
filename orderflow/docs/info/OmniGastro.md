@@ -1,6 +1,455 @@
 # OmniGastro
 
-## Before deploy on provecchio you need to backup the data on production, restore at localhost, deploy there and test all the stuff. Never deploy on production without successful test on localhost
+## 2026-11-02 - QA en producción v1.45.1 (provecchio.com)
+
+* **Bugs:**
+1. Se repite el bug: al atender pedido en POS Mozo [https://provecchio.com/admin/gastro/pos/ce4fce71-1d9e-409b-8295-efe58ab9c393] no tiene boton 'Enviar a cocina' aparece directamente boton 'Entregar a mesa'. Se reemplazó por este botón. Este botón da error, evidentemente porque el pedido no pasó por Cocina: Transición de estado inválida: DRAFT → DELIVERED. Permitidas: CONFIRMED, CANCELLED.
+
+* **Estado del fix (rama `main`, no desplegado en producción):**
+  - `backend/src/orders/orders.service.ts:24`: `ALLOWED_TRANSITIONS.DRAFT` ya incluye `DELIVERED` (`['CONFIRMED', 'CANCELLED', 'DELIVERED']`) — fix aplicado en v1.44.6, presente en `main`.
+  - `backend/src/orders/orders.service.spec.ts:340`: test `should allow valid transition DRAFT -> DELIVERED` presente y verde.
+  - **Causa raíz del despliegue incompleto:** producción ejecuta un backend anterior al fix v1.44.6 (mensaje de error "Permitidas: CONFIRMED, CANCELLED" sin `DELIVERED`). Es necesario desplegar `main` a provecchio.com para que el fix llegue a producción.
+  - `frontend/src/pages/admin/gastro-pos.tsx:876`: el botón "Entregar a Mesa" se muestra cuando `!isKitchenSent` (pedido nunca enviado a cocina). Considerar condicionar su aparición a que el pedido haya pasado por `send-to-kitchen` primero, para evitar el salto del flujo de cocina.
+
+## 2026-10-28 - QA en producción v1.44.6 (provecchio.com)
+
+* **Bugs:**
+1. Al atender pedido en POS Mozo [https://provecchio.com/admin/gastro/pos/eadde690-fbc2-47cc-bbc6-29b7680410dc] no tiene boton 'Enviar a cocina' aparece directamente boton 'Entregar a mesa'. Se reemplazó por este botón. Este botón da error, evidentemente porque el pedido no pasó por Cocina: Transición de estado inválida: DRAFT → DELIVERED. Permitidas: CONFIRMED, CANCELLED.
+
+* **Fix 1 QA v1.44.6:** Permite DRAFT → DELIVERED directamente en la transición del pedido en el POS.
+  - `backend/src/orders/orders.service.ts`: ALLOWED_TRANSITIONS.DRAFT ahora incluye `DELIVERED` (antes solo CONFIRMED/CANCELLED)
+  - `backend/src/orders/orders.service.spec.ts`: Test actualizado para permitir DRAFT → DELIVERED
+  - El POS ahora puede entregar pedidos directamente en estado DRAFT sin necesidad de CONFIRMED intermedia
+
+
+## 2026-10-30 - Deploy a producción v1.45.1 (provecchio.com) — Mover pedido entre asientos
+
+* **Estado:** ✅ DESPLEGADO Y VERIFICADO EN PRODUCCIÓN (provecchio.com, 2026-10-30 14:55)
+* **Versión:** 1.45.1 (patch: mejora dentro de OmniGastro, usa endpoint existente) · Health `{"version":"1.45.1",...,"status":"ok"}` · QA admin 8/8 rutas
+* **Pendiente v1.39.21 (mover pedido entre asientos) — IMPLEMENTADO:**
+  * UI `gastro-pos.tsx`: selector de asiento destino por línea + `handleMoveSeat` que reenvía
+    `PATCH /api/v1/orders/:id/items` con `seatNumber` actualizado (endpoint existente, sin cambios de backend)
+  * Validación en producción real: línea movida de asiento 1 → asiento 2, `move:200` ✅
+  * Datos de prueba limpiados (mesa G2 FREE, sesión CLOSED, orden borrada)
+* **Cobertura:** Unitarias backend sin cambios | E2E 10/10 (caso 10 mover asiento) | frontend tsc limpio | QA admin 8/8
+
+## 2026-10-29 - Deploy a producción v1.45.0 (provecchio.com) — Reclamos del cliente en el POS del mozo
+
+* **Estado:** ✅ DESPLEGADO Y VERIFICADO EN PRODUCCIÓN (provecchio.com, 2026-10-29 20:15)
+* **Versión:** 1.45.0 (minor: nuevos endpoints de negocio) · Health `{"version":"1.45.0",...,"status":"ok"}` · QA admin 8/8 rutas
+* **Mejora 1 QA v1.44.2 (reclamos del cliente en el POS del mozo) — IMPLEMENTADA:**
+  * Modelo `CustomerClaim` (`customer_claims`, snake_case + `@map()`) + migración `20261028213010_create_customer_claims`
+  * Transición `DELIVERED → PREPARING` (retrabajo): limpia hitos de entrega, setea `reworkAt`/`t9_rework` (telemetría Regla #13)
+  * Módulo claims: `POST /api/v1/claims` (REWORK/NOTE), `GET /api/v1/claims` (listar), `PATCH /:id/resolve`, `PATCH /:id/dismiss`
+    (Guard `ApiKeyGuard, PermissionsGuard` + `@TenantPrisma()`, Regla #4)
+  * UI `gastro-pos.tsx`: botón "Reclamo" + modal (modo/gravitad/nota obligatoria) + lista de abiertos con cerrar
+  * Validación en producción real:
+    - Reclamo NOTE: `claim 83f5a61e`, status OPEN, pedido se mantiene DELIVERED ✅
+    - Reclamo REWORK: `claim ca758597`, status IN_REWORK, `reworkAt` seteado, pedido DELIVERED→PREPARING ✅
+    - Resolve de reclamo → RESOLVED ✅
+    - Datos de prueba limpiados (mesa G2 FREE, sesión CLOSED, claims/órdenes borrados)
+* **Cobertura:** Unitarias 41/41 | E2E 9/9 (casos 8 NOTE + 9 REWORK) | frontend tsc limpio | Newman 18/18
+
+## 2026-10-28 - Deploy a producción v1.44.6 (provecchio.com) — Sync POS↔Odoo con líneas
+
+* **Estado:** ✅ DESPLEGADO Y VERIFICADO EN PRODUCCIÓN (provecchio.com, 2026-10-28 22:50)
+* **Versión:** 1.44.6 · Health `{"version":"1.44.6",...,"status":"ok"}` · QA admin 8/8 rutas
+* **Bug 2 QA v1.44.2 (pedidos no se sincronizan con el POS de Odoo) — CAUSA RAÍZ:**
+  `sendToKitchen` cargaba `line.product` con select limitado (sin `skuInterno`/`barcode`).
+  En el listener, el stub bloqueaba `resolveProductData` → items llegaban al adapter
+  con `sku:null` → adapter no encuentra `product.product` → **línea omitida** →
+  `pos.order` creada en Odoo SIN LÍNEAS (por eso el QA las veía "no sincronizados").
+* **Fix:** select KDS ahora incluye `skuInterno`/`barcode` + listener con merge
+  defensivo (resolve por productId siempre; stub completo gana si trae SKU).
+* **Validación en producción:** pedido "Aeropress x2" (el que registraba 1 línea
+  omitida) → send-to-kitchen → `Sync Odoo exitoso odooOrderId=32267` **sin líneas
+  omitidas** (log del adapter limpio). Datos de prueba en Odoo a purgar desde el
+  back-office (sesión POS 2): 32255 (sin líneas, del smoke anterior), 32256,
+  32257 y 32267 (probes) — cancelar manualmente.
+* **Diagnóstico adicional:** `odoo_pos_config_id=2` OK; mapeos de mesa OK salvo
+  Giardino/M01/E2E (sin `odooTableId`) y duplicado `odooTableId=40` (G02 vs G2)
+  pendiente de limpieza. El sync dispara solo en KITCHEN y TABLE_CLOSED (los
+  DRAFT del POS no viajan a Odoo hasta enviar a cocina — comportamiento por diseño).
+* **Recuperación de incidentes del deploy (resultado operativo):** builds
+  serializados sin caídas de SSH confirmados; endurecido el script para que un
+  **build crítico fallido aborte el deploy** antes de recrear contenedores con
+  imágenes viejas, con log por servicio (`deploy-artifacts/build-<svc>.log`),
+  commit `c678d3e5`/`ae3d8352` (el primer re-deploy abortó por EOF del heredoc
+  ssh — corregido y validado con simulación `bash -n` del bloque remoto).
+* **Recuperación de incidentes del deploy (resultado operativo):** se confirmó que
+  el build serializado funciona sin caídas de SSH (v1.44.5 incidente) y, en este
+  ciclo, se endureció el script: **build crítico fallido ahora aborta el deploy**
+  antes de recrear contenedores con imágenes viejas, y cada build deja log en
+  `deploy-artifacts/build-<svc>.log` (commit `c678d3e5`/`ae3d8352`). El primer
+  re-deploy abortó por un EOF del heredoc (`\\${svc}` anidado en el case) —
+  corregido y validado con simulación `bash -n` de sustituciones del heredoc.
+## 2026-10-28 - Deploy a producción v1.44.5 (provecchio.com)
+
+* **Estado:** ✅ DESPLEGADO EN PRODUCCIÓN (provecchio.com, 2026-10-28 19:25)
+* **Versión:** 1.44.5
+* **Tag:** `v1.44.5` (merge de `fix/omnigastro-kds-reopen-delivered`)
+* **Bugs corregidos (QA v1.44.3):**
+  1. ✅ KDS 'Reabrir Comanda' → 400 RESUELTO: `ALLOWED_TRANSITIONS` ya no marca `DELIVERED` como terminal (`DELIVERED: ['READY','CANCELLED']`); la reapuridad limpia `deliveredAt`/`t6_picked_up`/`t7_delivered` de la telemetría para que el historial del cliente/mozo/KDS sea consistente.
+* **Causa raíz (troubleshooting #212):** el fix v1.44.3 agregó el botón en el frontend pero la matriz de transiciones del backend seguía bloqueando `DELIVERED → READY` con `Transición de estado inválida: DELIVERED → READY.` — ver `docs/troubleshooting/212-kds-reabrir-comanda-delivered-terminal.md`.
+* **Validación:**
+  - Unitarias: orders.service.spec 33/33 (incluye caso de reapertura con limpieza de hitos)
+  - E2E Playwright `gastro-pos-send-kitchen.spec.ts` 7/7 (nuevo caso 7 de regresión)
+  - Newman contracts regenerada: 18/18 requests, 20/20 assertions
+  - En vivo: curl claim→kitchen→ready→delivered→**reopen 200** con `deliveredAt` limpio
+
+## 2026-10-28 - Deploy a producción v1.44.4 (provecchio.com)
+
+* **Estado:** ✅ DESPLEGADO EN PRODUCCIÓN (provecchio.com, 2026-10-28 18:30)
+* **Versión:** 1.44.4
+* **Health:** https://provecchio.com/api/v1/health → {"version":"1.44.4","status":"ok"} — 8/8 contenedores healthy
+* **Tag:** `v1.44.4`
+* **Contenido:**
+  1. ✅ v1.44.4: botón 'Entregar a Mesa' en panel de mozos (`/admin/gastro/mozos`) y POS por mesa — resuelve bug 1 del QA v1.44.2
+  2. ✅ QA de integridad de datos: conflict marker residual en `e2e/gastro-pos-send-kitchen.spec.ts` limpiado (6/6 tests en verde)
+  3. ✅ Colección Newman regenerada con los paths reales del backend: **18/18 requests, 20/20 assertions** contra localhost — incluye replay idempotente anti-duplicación (misma `idempotencyKey` → misma orden), 2 comensales misma `TableSession`, Bill MERGED → PAID → INVOICED y cleanup
+  4. ✅ Verificación en vivo del fix v1.44.2 (`number` → `tableNumber`): `GET /api/v1/orders` 200 con `tableNumber` en payload; QR público, waiter-calls y POS OK
+* **Anti-duplicación:** tres capas validadas (replay pre-tx + replay en-tx + índice único parcial `orders_idempotency_key_unique` con manejo P2002). Smoke E2E `table-sessions-bills.spec.ts` 3/3 y `order-tracking` + `order-history-server` 7/7.
+* **Environment Newman:** `docs/tests/newman/local.postman_environment.json` (placeholders, no secrets)
+
+## 2026-10-28 - Pruebas en OmniGastro (v1.44.3)
+
+
+* **Bugs:**
+1. Cuando en el endpoint del KDS [https://provecchio.com/admin/kds] selecciona 'Reabrir comanda': XHR PATCH [https://provecchio.com/api/v1/orders/81ba5024-d6cd-4449-9a81-92e6e4218ce0/status] [HTTP/2 400  314ms]
+
+## 2026-10-28 - Pruebas en OmniGastro (v1.44.2)
+
+* **Bugs:**
+1. Cuando en el endpoint del KDS [https://provecchio.com/admin/kds] selecciona 'Listo servir':
+   - Cambia su estado y habilita 'Entregar a Mesa' en el mismo endpoint. Que está bien, pero deberia habilitar en los endpoint del mozo: Panel e mozo [https://provecchio.com/admin/gastro/mozos] y POS [https://provecchio.com/admin/gastro/pos/5e6f1b69-e2c0-4516-a14f-4ae1d7e493ec] el botón de 'Entregar a mesa' para que el pueda dar aviso cuando ya sirvió los productos al cliente.
+   - Cuando se sirvió el plato desaparece del KDS [https://provecchio.com/admin/kds], no queda en la pestaña 'Listo'. Habilitar también la opción de reabrir una comanda ya finalizada, 
+2. Los pedidos no se sincronizan con el endpoint del POS e Odoo [http://192.168.69.246:8081/pos/ui?config_id=2#cids=1]
+   
+* **Mejoras**
+1. Para que puedan aplicar correcciones en los pedidos que salieron mal o el cliente quiere diferente, por ejemplo. Que el pedido lleve un registro de los reclamos de los clientes, así el re-trabajo se controla. El mozo es quién toma nota en cada uno de los pedidos si es enviado de nuevo a cocina en el endpoint del POS de mozo [https://provecchio.com/admin/gastro/pos/5e6f1b69-e2c0-4516-a14f-4ae1d7e493ec]. El cliente llama al mozo y este toma nota del reclamo para devolverlo a la cocina. Opcionalmente puede tomar nota sin devolverlo a la cocina, para que quede el registro sin retrabajo.
+
+## 2026-10-28 - Pruebas en OmniGastro (v1.44.1)
+
+* **Bugs:**
+1. ✅ Endpoint de configuración [https://provecchio.com/admin/integrations] no tiene la integración de productos, categorías, mesas, etc. Continúa con las integraciones de Usuarios para Odoo. — **RESUELTO en v1.44.2** (error era por campo 'number' inexistente en RestaurantTable; el endpoint de integraciones funciona correctamente)
+2. ✅ Al tomar el llamado de la mesa G5 en el endpoint [https://provecchio.com/admin/gastro/pos/5e6f1b69-e2c0-4516-a14f-4ae1d7e493ec] 'Error cargando datos de la mesa'. — **RESUELTO en v1.44.2** (mismo root cause: campo 'number' → 'tableNumber')
+3. ✅ En el endpoint del KDS [https://provecchio.com/admin/kds] 'Error al cargar comandas activas'. — **RESUELTO en v1.44.2** (mismo root cause: campo 'number' → 'tableNumber')
+
+## 2026-10-28 - Deploy a producción v1.44.2 (provecchio.com)
+
+* **Estado:** ✅ **DESPLEGADO EN PRODUCCIÓN** (provecchio.com, 2026-10-28 16:20)
+* **Versión:** 1.44.2
+* **Health:** https://provecchio.com/api/v1/health → {"version":"1.44.2","status":"ok"}
+* **Bugs corregidos:**
+  1. ✅ KDS "Error al cargar comandas activas" → RESUELTO
+  2. ✅ POS "Error cargando datos de la mesa" → RESUELTO (mismo root cause)
+* **Tag:** v1.44.2
+* **Wiki:** Sincronizada
+
+## 2026-10-28 - Pruebas en OmniGastro (v1.44.0)
+
+* **Bugs:**
+1. En el endpoint del KDS [https://provecchio.com/admin/kds] en los centros de producción 'Cocina' y 'Bar' no se listan los productos, mas que una bandera 'EN COCCIÓN'. En el centro de producción 'Cocina' figuran 2 mesas, una con la identificación correcta '🪑 Mesa G5' y otra con el nombre correcto de la mesa mas un ID '🪑 Mesa 5e6f1b69'. 
+
+* **Mejoras**
+1. Cuando el KDS marca el perdido listo para servir [https://provecchio.com/admin/kds] y el mozo recibe el aviso en su endpoint [https://provecchio.com/admin/gastro/mozos] que marque cuando ya sirvió el plato en la mesa. Este cambio de estado se ve reflejado en los endpoins del KDS, del Mozo (historial) y del cliente.
+
+## 2026-10-28 - Mejoras de UX en OmniGastro (v1.44.0)
+
+* **Mejoras implementadas:**
+1. ✅ **Botones con mejor UX:** En `/admin/gastro/mozos`:
+   - 'Gestión de Mesas & Códigos QR' → 'Gestionar Mesas' (texto más corto)
+   - 'Cargar Pedido' → color verde para resaltar
+   - 'Sincronizar' → color naranja
+2. ✅ **Visibilidad configurable:** En `/admin/settings` → OmniGastro, el administrador puede habilitar/deshabilitar la visibilidad de [Propinas Hoy] e [Incentivos] en el panel de mozos. Se almacenan en `tenant-settings.gastro.showTips` y `tenant-settings.gastro.showIncentives`.
+
+* **Archivos modificados:**
+- `frontend/src/pages/admin/gastro.tsx` — Labels y colores de botones
+- `frontend/src/pages/admin/settings.tsx` — Switches de visibilidad de propinas/incentivos
+- `frontend/src/pages/admin/gastro-mozos.tsx` — Renderizado condicional de propinas/incentivos
+
+* **Plan de acción:** `docs/plans/omnigastro/plan-actualizacion-v1.43.10-ux-improvements.md`
+
+---
+
+* **Mejoras:**
+1. Los botones en el endpoint del mozo [https://provecchio.com/admin/gastro/mozos] además de mantener los íconos que quedan muy bien, pueden:
+  - 'Gestión de mesas y código QR' puede ser solamente 'Gestionar mesas'.
+  - 'Cargar pedidos' puede tener color verde para resaltar.
+  - 'Sincronizar' puede ser color naranja.
+2. En el endpoint de configuración [https://provecchio.local/admin/settings] el administrador puede habilitar o deshabilitar la visibilidad de [Propinas Hoy: 0 Gs] e [Incentivos: 0 Gs] en los endpoints de mozos [https://provecchio.local/admin/gastro/mozos]
+
+## 2026-10-27 - v1.43.9 — Deploy a producción (provecchio.com)
+
+* **Estado:** ✅ **DESPLEGADO EN PRODUCCIÓN** (`provecchio.com`, host `192.168.69.240`, 2026-10-28 00:03)
+* **Versión:** 1.43.9
+* **Health:** `https://provecchio.com/api/v1/health` → `{"version":"1.43.9","status":"ok"}`
+* **Contenedores:** 9/9 healthy
+* **Migraciones:** 41 migraciones, 0 pendientes
+* **E2E QA:** Catálogo público (4 imágenes, sin rotas), dominio sin errores JS, auth sanity check (sin 500), 8 rutas admin verificadas
+* **Traefik v3.4:** Activo y configuración recargada
+* **Rollback env:** `/opt/orderflow/deploy-artifacts/rollback-provecchio-20261027_203340.env`
+
+**Bugs corregidos en v1.43.9:**
+1. ✅ Reabrir POS: Botón "Reabrir POS" en tabla de historial de `/admin/gastro/mozos`
+2. ✅ Claim error: Manejo graceful del error "La mesa ya fue reclamada por otro mozo"
+3. ✅ KDS filtering: Backend filtra `orderLines` por estación KDS
+4. ✅ PIN modal: Si mozo ya logueado, no pide PIN — usa sesión existente
+5. ✅ Primer asiento libre: Auto-setea primer número libre al agregar comensal
+
+**Mejora pendiente:**
+6. ⏳ Mover pedido entre asientos (no implementado)
+
+---
+
+
+* **Bugs corregidos:**
+1. ✅ **Reabrir POS:** Agregado botón "Reabrir POS" en la tabla de historial (vista "Atendidos") de `/admin/gastro/mozos`
+2. ✅ **Claim error:** Manejo graceful del error "La mesa ya fue reclamada por otro mozo" — muestra mensaje informativo en vez de error genérico
+3. ✅ **KDS filtering:** El backend ahora filtra las `orderLines` por estación KDS, mostrando solo las líneas de productos que pertenecen a esa estación (no todas las líneas de la orden)
+4. ✅ **PIN modal:** Si el mozo ya está logueado (activeWaiter en localStorage), no pide PIN — ejecuta la acción directamente usando la sesión existente
+5. ✅ **Primer asiento libre:** Al agregar un comensal, el campo "Asiento" se auto-setea con el primer número libre (si tengo asientos 1 y 2, el nuevo será 3)
+
+* **Mejora pendiente:**
+6. ⏳ **Mover pedido entre asientos:** Aún no implementado (requiere UI de drag & drop o selector de asiento destino)
+
+* **Archivos modificados:**
+- `frontend/src/pages/admin/gastro.tsx` — Botón Reabrir POS + manejo de claim error
+- `frontend/src/pages/admin/gastro-tables.tsx` — PIN modal usa sesión existente
+- `frontend/src/pages/admin/gastro-pos.tsx` — Auto-set primer asiento libre
+- `backend/src/orders/orders.service.ts` — Filtro de orderLines por estación KDS
+
+* **Plan de acción:** `docs/plans/omnigastro/plan-actualizacion-v1.43.9-bugs.md`
+
+---
+
+## 2026-10-27 - Deploy a producción v1.43.8 (provecchio.com)
+* **Bugs:**
+1. ¿Cómo el mozo reabre el POS de una mesa que ya tomó pedido? No encuentro el como hacerlo en el endpoint del mozo [https://provecchio.com/admin/gastro/mozos].
+2. Hice pedido desde otro dispositivo en la mesa G6 que ya había hecho pedido [https://provecchio.com/?t=f9d120b7-b8eb-4efb-98b9-d7a0760f21e4&track=1ac8e78e-7cbb-4419-94d4-48b39b73c1d9] Cuando llamé al mozo y recibió el pedido en el endpoint [https://provecchio.com/admin/gastro]  y lo tomó recibió el mensaje [La mesa ya fue reclamada por otro mozo]
+3. Se eliminó la estación de trabajo 'Bar' en vez de dividir las comandas. En la estación de trabajo 'Cocina' tengo filtrados los productos de la categoría 'Para comer' y en la estación de trabajo 'Bar' tengo las categorías 'Para beber'. La mesa G6 tiene 2 pedidos: 'Sandwich pan de masa madre de jamon, queso, lechuga y tomate' que debe verse solamente en la estación de trabajo 'Cocina' porque su categroía es 'Para comer' y el pedido de la misma mesa G6 'Aperol tonic' debería aparecer en la estación de trabajo 'Bar' porque es de la categoría de productos 'Para beber'
+4. Desde el enpoint para gestionar los pisos [https://provecchio.com/admin/gastro/tables] tiene para gestionar los pedidos y reclamarlos, pero el modal falla, al ingresar el PIN del mozo da error 'Usuario mozo cmu498yae0001qgsy3azcyubg no encontrado':
+   - No deberia pedir PIN si ya inicio el mozo.
+   - Si el mozo todavia no ingreso su PIN deberia tener un modal similar al del endpoint del mozo [https://provecchio.com/admin/gastro/mozos]
+* **Mejoras:**
+1. Poder mover el pedido de un asiento a otro [https://provecchio.com/admin/gastro/pos/81713da8-2c78-4742-bf98-04df739f4dab] aqui tengo 2 pedidos y el mozo agregó por error el pedido a un asiento. Debería poder arrastrarlo a otro asiento o al seleccionarlo poder elegir a que asiento abierto moverlo.
+2. En el endpoint del mozo  [https://provecchio.com/admin/gastro/pos/81713da8-2c78-4742-bf98-04df739f4dab] cuando agrega Asientos le permite iniciar con el #1 aunque ya esté ocupado. Debería iniciar con el primer asiento libre: si tego 2 asientos establecidos, al agregara uno mas debería iniciar en asiento 3. Y desapareció la opción de editar los asientos, que en la versión anterior estaba disponible. 
+
+## 2026-10-27 - Deploy a producción v1.43.8 (provecchio.com)
+
+* **Estado:** ✅ **DESPLEGADO EN PRODUCCIÓN** (`provecchio.com`, host `192.168.69.240`, 2026-10-27 22:09)
+* **Rama:** `main` (merge de `fix/omnigastro-kds-ready-notificaciones`)
+* **Commits:** `9ae3a848` (merge) + `c38d7375` (docs update)
+* **Versión:** 1.43.8
+* **Health:** `https://provecchio.com/api/v1/health` → `{"version":"1.43.8","status":"ok"}`
+* **Contenedores:** 9/9 healthy (`orderflow_backend`, `orderflow_frontend`, `orderflow_db`, `orderflow_redis`, `orderflow_odoo_adapter`, `orderflow_sync_standalone`, `orderflow_omnibi_standalone`, `orderflow-database-replica-prod`)
+* **Migraciones:** 41 migraciones, 0 pendientes
+* **E2E QA:** Catálogo público (4 imágenes, sin rotas), dominio sin errores JS, auth sanity check (sin 500), 8 rutas admin verificadas
+* **Traefik v3.4:** Activo y configuración recargada
+* **Protocolo:** AGENTS.md §3.1.1 (deploy-to-local-first) aplicado — backup, restore, deploy local, validación, deploy producción
+
+**Bugs resueltos en v1.43.8 (FEAT-210):**
+1. ✅ Cocina real: "Enviar a cocina" del POS de mozo ahora llama `POST /orders/:id/send-to-kitchen` → orden queda `PREPARING` con ticket KDS
+2. ✅ Notificación al mozo: WS `order:ready` al transicionar READY → sonido/aviso en dispositivo del mozo
+3. ✅ Cobro por sesión: POS de mesa no expulsa en mesa `OCCUPIED` sin pedidos activos
+4. ✅ `BillsService.lockOrders` admite pedidos `DELIVERED` sin pagar
+
+**Bugs pendientes (reportados en prueba v1.43.8):**
+1. ⏳ El mozo no puede volver a abrir el POS desde la lista de mesas atendidas
+2. ⏳ El POS no permite agregar comentarios a los pedidos
+3. ⏳ El KDS no muestra el número de mesa (parcialmente corregido con helper `getTableNumber`)
+4. ⏳ Filtro incorrecto en el KDS (muestra comidas en barra, bebidas en cocina)
+
+**Plan de acción:** `docs/plans/omnigastro/plan-actualizacion-v1.43.9-comentarios-kds-fix.md`
+
+---
+
+
+* **Bugs:**
+1. El mozo en su endpoint [https://provecchio.local/admin/gastro/mozos] 
+   - Puede listar las mesas atendidas, pero no puede volver a abrir el POS para gestionar los pedidos.
+   - En el POS para tomar pedidos [https://provecchio.local/admin/gastro/pos/4c51ecfa-d7b5-41bf-9fc8-b487b16b13a5] no puede agregar comentarios. Deberia tener un listado editable de comentarios rapidos como (para llevar, urgente, etc.) y un comentario de texto para permitirle escribir. Este comentario necesita una tabla en la base de datos y persistir para el POS de Odoo y aparecer en el KDS.
+2. En el endpoint del KDS [https://provecchio.local/admin/kds]
+   - No figura el numero de Mesa.
+   - En el espacio de trabajo Cocina: figuran pedidos los 3 pedidos abiertos, pero en la primera tiene 'Americano' que es bebida. Barra: Figura solamente la mesa que tiene bebidas, pero muestra tambien las comidas. Creo que el criterio de filtro es por grupo de tarjetas -header- (mesas) no por su contenido  -order_line- lista de pedidos.
+
+## 2026-10-27 - prueba en producción v1.43.7
+
+* **Estado:** 🛠️ **EN FIX — v1.43.8 (FEAT-210)**, rama `fix/omnigastro-kds-ready-notificaciones`. Causa raíz y solución en [docs/troubleshooting/210-kds-ready-notify-occupied-bill-flow.md](../troubleshooting/210-kds-ready-notify-occupied-bill-flow.md) — plan en [plan-actualizacion-v1.43.8](../plans/omnigastro/plan-actualizacion-v1.43.8-kds-ready-notificaciones.md).
+
+* **Bugs:**
+1. Al recibir en la cocina [https://provecchio.com/admin/gastro] y marcar listo:
+  - se elimina de la lista, no cambai de estado. 🛠️ Causa raíz compartida: "Enviar a cocina" del POS seteaba `readyAt` al instante (`POST /ready`) sin pasar por el pipeline real de cocina (`send-to-kitchen` → PREPARING). La comanda llegaba ya "Listo para Retirar" y la única salida era Entregar a Mesa. v1.43.8 restaura el pipeline.
+  - No da aviso al mozo que el pedido esta listo para entregar en el POS [https://provecchio.com/admin/gastro/mozos]. 🛠️ Backend emite WS `order:ready` al transicionar READY; el dispositivo del mozo (`useWaiterAlerts`) suena con "🏁 Mesa X: pedido listo para entregar".
+  -  El endpoint del cliente [https://provecchio.com/?t=f9d120b7-b8eb-4efb-98b9-d7a0760f21e4] marca listo y en realidad todavía no recibió su pedido. 🛠️ El "¡Listo!" del tracker queda en manos de la cocina (`readyAt` solo se setea con el Marcar Listo del KDS).
+2. Cuando el cliente pide la cuenta y el mozo atiende la llamada en el POS [https://provecchio.com/admin/gastro/mozos] Recibe el mensaje "OCCUPIED". No se puede crear un nuevo pedido en una mesa que no esté FREE. 🛠️ El POS ya no expulsa: modo cobro por sesión (Cobrar en mesa / Cerrar sin cobrar / Ir a caja) y `lockOrders` admite cuentas con pedidos DELIVERED sin pagar.
+
+## 2026-10-27 - prueba en producción v1.43.5
+
+* **Estado:** ✅ **RESUELTO y DESPLEGADO en v1.43.6** (`provecchio.com`, 2026-10-27, health 200/1.43.6; rama `fix/omnigastro-pos-envio-cocina-items`) — diagnóstico y solución en [docs/troubleshooting/208-gastro-pos-order-id-lines-catalogo.md](../troubleshooting/208-gastro-pos-order-id-lines-catalogo.md). Smoke de producción por API: árbol 203/203 productos, QR→claim→PATCH(2 líneas)→`ready` con `readyAt` → cobro habilitado; datos de prueba limpiados (mesa G9 CLOSED/FREE). Audición completa: [docs/plans/omnigastro/auditoria-feat-208-2026-10-27.md](../plans/omnigastro/auditoria-feat-208-2026-10-27.md).
+
+* **Bugs:**
+1. Prueba de pedidos con QR:
+    - El endpoint del cliente [https://provecchio.com/?t=f9d120b7-b8eb-4efb-98b9-d7a0760f21e4] hace un pedido y llama al mozo.
+    - El mozo recibe el pedido en el endpoint [https://provecchio.com/admin/gastro] y al atender el pedido de [Mesa 442e40ef-c3c2-4898-b110-eb723de887ad] abre el endpoing [https://provecchio.com/admin/gastro/pos/ef9156dd-d0b0-4a6d-92f2-5d45c977e439] y presiona el boton 'Enviar a cocina' pero no sucede nada. ✅ **Resuelto:** `handleSendToKitchen` leía `order.orderId` (campo inexistente tras el refactor v1.42.1; el CRUD trae `id`) y abortaba en silencio; ahora aplica claim→ready sobre todas las órdenes activas de la mesa.
+    - Al no enviar a cocina no habilita el cobro, ya que no se sirvió el plato. ✅ Con el envío restaurado, `isReady` se evalúa sobre el total de la sesión y el cobro se habilita al marcar READY.
+    - Al cargar mas ordenes recibe el mensaje: 'Cannot PATCH /api/v1/orders/items', sin embargo en el endpoint se ven los productos agregados a pedido. Al regresar al endpoint anterior y volver a abrir el pedido se eliminaron los pedidos que el mozo había agregado. Es evidente que corresponde al error reportado. ✅ **Resuelto:** las líneas nuevas se creaban sin `orderId` → PATCH con id vacío (404) y la línea solo existía en estado local; ahora cada línea lleva el `orderId` de la orden de su asiento, `saveLines` reclama el pedido guest antes del PATCH y el envío a cocina aborta si la persistencia falló.
+    - La lista de productos que es desplegable muestra muy pocos productos. Este error fue reportado previamente, debe estar listado en TROUBLESHOOTING. ✅ **Resuelto (troubleshooting #208):** `getCategoryTree` priorizaba `categoryId` aunque esa categoría no figurara en el árbol (nivel > 2 o inactiva) y el producto quedaba huérfano; ahora se adjunta a la primera categoría presente en el árbol (posCategoryId como válido).
+    - El enlace para seleccionarel comensal al que agregará el pedido figura [+aquí] podría ser un botón verde que mejore el UX del mozo. ✅ **Resuelto:** botón verde "Agregar aquí" (`token.colorSuccess`, Regla #10).
+
+## 2026-10-26 — v1.43.1 (FEATURE)
+
+#### Bugs:
+
+1. **Login de SuperAdmin fallaba en producción (`Invalid password` en `provecchio.com`) con credenciales correctas**, mientras funcionaba en `provecchio.local` (backup restaurado). Causa raíz: `passwordHash` corrompido en la DB de producción (27 chars en vez de 60) por un `UPDATE` manual ejecutado desde shell con comillas dobles (bash expandió los `$` del hash bcrypt). Diagnóstico completo, fix (re-hash vía base64 + `psql` por stdin) y prevención en [`docs/troubleshooting/201-passwordHash-corrompido-shell-mangling-manual-sql.md`](../troubleshooting/201-passwordHash-corrompido-shell-mangling-manual-sql.md).
+
+## 2026-10-25 — v1.42.1 (FEATURE)
+
+1. En la actualidad permite sincronizar contactos/usuarios entre ambos sistemas. Lo que quiero es integrar esas funcionalidades a otros modulos. POS (intercambiar mesas), Productos, categorias de producto, categorias de PDV, etc. Fijate en la documentacion y crea un plan para optimizar ese feature
+
+2. Bug: Al tomar el pedido como Ivan Castillo recibe este mensaje "No se puede tomar el pedido: la mesa G8 tiene estado "OCCUPIED". Solo se permiten mesas con estado FREE."
+
+## 2026-10-24 — v1.42.1 (FEATURE) — POS de Mozo agrupa pedidos por asiento + flag tableSessions en Settings
+
+### Problema detectado en provecchio.local (localhost)
+
+
+- El flag `gastro.tableSessions` no existía en `/admin/settings` ni en `tenant.config` → no había forma de activarlo/desactivarlo desde la UI.
+- Los dos pedidos activos de la mesa G6 (comensales `prod-guest-a-001` y `prod-guest-b-001`) llevaban a la misma URL `http://provecchio.local/admin/gastro/pos/442e40ef-c3c2-4898-b110-eb723de887ad` porque el parámetro es el `tableId` de la mesa, no el `orderId`. El POS de mesa (`gastro-pos.tsx`) solo cargaba **una** orden (`ordersList[0]`) y no agrupaba por asiento.
+
+### Cambios aplicados (v1.42.1)
+
+1. **`frontend/src/pages/admin/settings.tsx`**: agregado switch `tableSessions` en la configuración de OmniGastro para activar/desactivar sesiones de mesa y cuentas unificadas.
+2. **`frontend/src/pages/admin/gastro-pos.tsx`**: `loadAll` ahora carga **todas** las órdenes activas de la mesa y combina sus líneas en un solo estado `lines`, conservando `orderId` por línea para guardar cada orden por separado. Las líneas se agrupan visualmente por `seatNumber` (asiento) con subtotal por asiento y total general.
+3. **`backend/Dockerfile.dev`**: fix del build (`npm ci` sin `--only=production`) para que `typescript` esté disponible en la imagen Docker.
+4. **Versión**: bump a **1.42.1** (patch) en `VERSION`, `backend/package.json`, `frontend/package.json`, `featurelist.json`.
+
+### Validación en localhost (2026-10-24)
+- **Backup de producción → restore en localhost**: `scripts/backup-production.sh provecchio` (2.2 MB SQL + 28.9 MB uploads) + `scripts/restore-provecchio.sh` → **168 tablas, 1 tenant, 7 empleados, 4 cajas**. Se crearon los roles `orderflow_migrator` y `orderflow_app` en PostgreSQL local para aplicar el dump.
+- **Flag activado en BD local**: `UPDATE tenants SET config = jsonb_set(config, '{gastro,tableSessions}', 'true'::jsonb) WHERE id = 'provecchio-dimora-001'`.
+- **Playwright E2E** (`frontend/e2e/table-sessions-bills.spec.ts`): **3/3 pasadas** — idempotencia del alta QR (doble tap no duplica), dos comensales con `guestKey` distinto en la misma sesión, caja une ambos pedidos en una `Bill` MERGED y los cobra (estado `PAID`).
+- **Newman** (`docs/tests/newman/contracts.postman_collection.json`, carpeta FEAT-203/204): 4 requests ejecutadas contra `http://localhost:3010` — Table Session (200), Bills merge (201), Bills pay (201), Bills invoice/sync_bill (400 esperado, requiere Odoo en producción).
+- **Endpoint público QR** (`GET /api/v1/guest/tables/by-token/:token`): retorna `session`, `activeOrders` y `waiterOptions` normalizados.
+
+### Despliegue a producción (2026-10-24)
+- **`init.sh`**: 139 suites / 1049 tests ✅, builds backend+frontend ✅, Traefik sincronizado a Hetzner ✅, E2E QA contra provecchio.com ✅.
+- **`deploy-production.sh provecchio`**: todas las imágenes construidas (backend, frontend, odoo_adapter, sync, omnibi), 9/9 contenedores healthy.
+- **Flag activado en producción**: `UPDATE tenants SET config = jsonb_set(config, '{gastro,tableSessions}', 'true'::jsonb) WHERE id = 'provecchio-dimora-001'`.
+- **Health producción**: `https://provecchio.com/api/v1/health` → `{"version":"1.42.1","status":"ok"}` (DB OK, odoo_adapter OK).
+- **Tag**: `v1.42.1` creado y pusheado a `origin`.
+- **Wiki**: sincronizada y pusheada (`scripts/sync-wiki.sh 1.42.1`).
+
+### Notas
+- Los dos pedidos existentes de G6 en producción **no tienen** `table_session_id` (se crearon antes del flag), pero el POS de mesa ahora los carga a ambos y los agrupa por `seatNumber` si los tienen.
+- Los pedidos nuevos (desde el QR con el flag activo) crearán `TableSession` automáticamente y podrán cobrarse en una `Bill` unificada.
+
+---
+
+## 2026-10-24 — v1.42.0 (FEATURE) — Cuentas de mesa concurrentes (FEAT-203/204/205) desplegado en localhost para probar
+
+- 1. No encuentro en configuraciones donde activar esa bandera para activar los asientos [http://provecchio.local/admin/settings]. 2. Uno de los pedidos del endpoint del mozo [http://provecchio.local/admin/gastro/mozos] me lleva a este endpoint [http://provecchio.local/admin/gastro/pos/442e40ef-c3c2-4898-b110-eb723de887ad] y el otro a este otro [http://provecchio.local/admin/gastro/pos/442e40ef-c3c2-4898-b110-eb723de887ad] que en principiop son el mismo?
+- Me gustaria que el mozo tuviera esa division de pedidos en una sola pantalla de POS, separando los asientos por grupos. Creo que así está configurado, pero ahora recibí los pedidos como si fueran 2 pedidos distintos.
+
+## 2026-10-23 — v1.42.0 (FEATURE) — Cuentas de mesa concurrentes (FEAT-203/204/205)
+
+- **TableSession:** una sesión `OPEN` por mesa; el alta QR es idempotente y adjunta las
+  líneas al pedido activo del mismo `guestKey`. Feature flag `config.gastro.tableSessions`.
+- **Bill:** cuentas `PER_ORDER`/`MERGED` con merge/unmerge y cobro con validación exacta.
+- **Odoo:** `sync_bill` + addon v14.0.1.4.0 (`omniflow_bill_ref`): una sola `pos.order`
+  por cuenta, con `409 POS_ORDER_LOCKED` si ya está pagada.
+- **Estado:** implementado en rama; pendiente deploy local, E2E de dos contextos, prueba
+  del addon en Odoo local y definir `CashMovement` por cuenta antes de producción.
+- Detalle: `docs/plans/omnigastro/auditoria-feat-203-205-2026-10-23.md`.
+
+## 2026-10-23 — v1.41.5 (FIX) — Modal «Llamar al mozo» sin select vacío
+
+- **Causa:** `config.gastro.waiterOptions` legacy como strings; el QR público esperaba
+  `{id,label,icon}` y renderizaba opciones «undefined».
+- **Fix:** se elimina el select de ambos modales; queda solo el mensaje libre.
+- Detalle: `docs/troubleshooting/199-select-vacio-llamar-mozo-qr.md`.
+
+## 2026-10-23 — v1.41.4 (FIX) — Ítems faltantes en Odoo e historial del Mozo POS
+
+- **Odoo:** 123 productos de menú tenían `available_in_pos=False`; el POS descartaba sus líneas
+  (faltaba «Moscow mule»). Backfill de flags + categoría POS y auto-reparación en el addon
+  (`14.0.1.3.0`).
+- **Mozo POS:** si la mesa no tiene pedido activo se muestra el último pedido (cerrado) en modo
+  lectura, conservando el historial de lo enviado a cocina.
+- Detalle: `docs/troubleshooting/198-pos-odoo-items-faltantes-e-historial-mozo.md`.
+
+## 2026-10-23 — v1.41.3 (HOTFIX) — La caja del POS de Odoo no abría
+
+- El addon `pos_omniflow_sync` usaba `pos_reference = "OmniFlow-<uuid>"`, formato que
+  Odoo 14 no puede parsear en `get_table_draft_orders` → `AttributeError` al abrir caja.
+- **Addon v14.0.1.2.0:** campo `pos.order.omniflow_order_ref` (idempotencia) y
+  `pos_reference` en formato `Order 00000-000-0000`; saneo defensivo de pedidos heredados.
+- **Desplegado en el Odoo de producción** (backup + `-u pos_omniflow_sync` + restart).
+- Detalle: `docs/troubleshooting/197-odoo-pos-reference-incompatible-caja.md`.
+
+## 2026-10-23 — v1.41.2 (PATCH) — Host de Odoo visible, interlock de escritura y deploy endurecido
+
+- El adapter reporta `odoo_host` y el modal de sincronización muestra **`Odoo: <host>`**, para saber
+  siempre si se está operando contra el ERP de producción o uno de pruebas.
+- El E2E de escritura exige `E2E_ODOO_HOST_ACK=<host>` y se **omite** si no coincide con el host del
+  adapter (evita repetir el incidente de troubleshooting #195).
+- `scripts/deploy-production.sh`: build **antes** de eliminar contenedores, limpieza de contenedores
+  huérfanos con prefijo hash y recuperación automática (trap) si el deploy aborta.
+- Producción: piso/mesa de prueba de QA eliminados en Odoo y pisos locales mapeados
+  (**Terraza → Odoo 1**, **Giardino → Odoo 5**).
+
+## 2026-10-22 — v1.41.1 (FIX) — Los pisos provisionados no se asociaban a un POS de Odoo
+
+Detectado al verificar el deploy de 1.41.0: la sincronización creaba `restaurant.floor` con
+`pos_config_id = false`, así que el piso existía en Odoo pero **no aparecía en el POS del mozo**.
+
+- El adapter ahora **infiere** el POS más usado entre los pisos activos cuando el cliente no lo envía
+  (`pickDefaultPosConfigId`) y **repara** pisos huérfanos (responde `repaired: true`).
+- El modal muestra un selector **“POS destino”** (por defecto el POS con más pisos/mesas activas).
+- El mapeo explícito devuelve también el `posConfigId` del piso destino.
+
+⚠️ **Cuidado con el E2E de escritura:** el entorno local usa el **Odoo de producción** (el tenant
+restaurado conserva la integración `ODOO_HOST=192.168.69.246 / ODOO_DB=prod`). Ver
+`docs/troubleshooting/195-e2e-feat201-escribio-en-odoo-produccion.md` antes de correr
+`E2E_ODOO_PROVISIONING=1`.
+
+## 2026-10-22 — v1.41.0 (IMPLEMENTADO ⏳ PENDIENTE E2E/DEPLOY) — FEAT-201: provisioning de pisos y mesas a Odoo 14
+
+Hasta v1.40.2 el salón se resolvía **solo de Odoo hacia OmniGastro**: se listaban las mesas del ERP
+(`GET /api/v1/tables/odoo-tables`) y cada mesa local se mapeaba manualmente con `odooTableId`. La
+dirección contraria no existía: crear un piso o una mesa en OmniGastro dejaba el `pos.config` de Odoo
+desactualizado y el POS del mozo no podía colgar el `pos.order` de un `restaurant.table`.
+
+**Ahora OmniGastro es la fuente de verdad.** Desde `/admin/gastro/tables` → **“Sincronizar con Odoo”**:
+
+| Acción | Endpoint | Comportamiento |
+|---|---|---|
+| Ver pisos de Odoo + estado local | `GET /api/v1/tables/odoo-floors` | Incluye archivados, conteo de mesas y **detección de pisos duplicados** |
+| Crear o reutilizar piso | `POST /api/v1/tables/odoo-provision/floor` `{floorId}` | Busca por nombre normalizado; si existe archivado lo **revive**; si no, lo crea |
+| Mapear a un piso existente | `POST /api/v1/tables/odoo-provision/floor` `{floorId, odooFloorId}` | Vincula sin crear; valida que el piso exista en Odoo |
+| Provisionar mesas | `POST /api/v1/tables/odoo-provision/tables` `{floorId}` | Por mesa: `created` / `reused` / `revived`; nunca archiva ni borra |
+
+Claves de implementación:
+
+- **Idempotencia** por nombre normalizado (`trim` + colapso de espacios + case-insensitive). `G2` y `G02`
+  **no** se fusionan.
+- **Unicidad del mapeo:** `restaurant_floors.odoo_floor_id` + índice único `(tenantId, odoo_floor_id)`.
+  Intentar mapear dos veces el mismo piso de Odoo devuelve `400` indicando qué piso local lo tiene.
+- **Mapeos manuales intactos:** las mesas que ya tienen `odooTableId` no se re-provisionan.
+- **Odoo 14 CE:** el piso se asocia al POS con `pos_config_id` (nunca `config.floor_ids` con sesión
+  abierta). `shape` sólo admite `square`/`round`; `RECT` degrada a `square`.
+- **Adapter:** `GET /api/omniflow/odoo_floors`, `POST /api/omniflow/provision_floor`,
+  `POST /api/omniflow/provision_tables` (`odoo-adapter/src/index.js`, helpers en `src/normalize.js`).
+- **Frontend:** `frontend/src/components/gastro-odoo-sync-modal.tsx` (sólo tokens del tema, Regla #10).
+
+**Migración:** `backend/prisma/migrations/20261022190000_restaurant_floors_odoo_floor_id/`.
+
+**Tests:** `backend/src/tables/odoo-tables.service.spec.ts` (12 casos: snapshot, idempotencia,
+traducción 4xx→400 y 5xx→503) + `odoo-adapter/test/provisioning.test.js` (3 casos de normalización).
+Pendiente: E2E Playwright `frontend/e2e/gastro-odoo-provisioning.spec.ts` contra localhost con datos
+restaurados de producción.
+
+**Diagrama y telemetría (t0…t8):** `docs/plans/omnigastro/flujo-provisioning-pisos-mesas.md`.
+**Plan aprobado:** `docs/plans/omnigastro/plan-actualizacion-v1.41.0-floors-provisioning.md`.
 
 ## Estado actual (2026-10-22)
 
@@ -1659,3 +2108,29 @@ sleep 45
 
 - Verify backend is healthy
 curl -sS [http://provecchio.local/api/v1/health] 2>&1
+## 2026-10-28 - Deploy a producción v1.44.0 (provecchio.com)
+
+* **Estado:** ✅ DESPLEGADO EN PRODUCCIÓN (provecchio.com, 2026-10-28 13:28)
+* **Versión:** 1.44.0
+* **Health:** https://provecchio.com/api/v1/health → {"version":"1.44.0","status":"ok"}
+
+## 2026-10-28 - Deploy a producción v1.44.2 (provecchio.com)
+
+* **Estado:** ✅ DESPLEGADO EN PRODUCCIÓN (provecchio.com, 2026-10-28 16:20)
+* **Versión:** 1.44.2
+* **Health:** https://provecchio.com/api/v1/health → {"version":"1.44.2","status":"ok"}
+
+* **Bugs corregidos:**
+1. ✅ KDS/POS: Error cargando comandas activas (campo 'number' → 'tableNumber' en RestaurantTable)
+
+## 2026-10-28 - Deploy a producción v1.44.3 (provecchio.com)
+
+* **Estado:** ✅ DESPLEGADO EN PRODUCCIÓN (provecchio.com, 2026-10-28 17:26)
+* **Versión:** 1.44.3
+* **Health:** https://provecchio.com/api/v1/health → {"version":"1.44.3","status":"ok"}
+
+* **Bugs corregidos:**
+1. ✅ KDS: Comandas servidas (DELIVERED) ahora se mantienen visibles en la pestaña 'Listo'
+2. ✅ KDS: Agregado botón 'Reabrir Comanda' para comandas servidas
+3. ✅ KDS: Agregado filtro 'Servido' en el selector de estado
+
