@@ -11,6 +11,13 @@
   - `frontend/src/pages/admin/gastro-pos.tsx:673`: `isKitchenSent` ahora también considera `meta.readyAt` además de `meta.sentToKitchenAt`. Cuando el KDS marca el pedido como READY (Listo), `isKitchenSent` pasa a `true` y el botón cambia a "Entregar a Mesa" en lugar de mostrar "Enviar a Cocina".
   - Esto resuelve que el botón "Enviar a Cocina" aparezca aunque el pedido ya esté listo para entregar.
 
+## 🔄 Mejoras pendientes (futuras releases)
+
+**Entrega parcial por línea** — El usuario solicita agregar un botón por línea de pedido para marcar como entregada individualmente, manteniendo también el botón de "Entregar a Mesa" (entrega total) para ahorrar tiempo al mozo.
+
+- **Ejemplo:** El cliente pide un café espresso (listo en 3 min.) y un croque madame (demora 10 min.). El mozo puede entregar el café y marcarlo como entregado individualmente, mientras el croque sigue pendiente en cocina.
+- **Requisitos:** Endpoint de backend para marcar línea individual como entregada + migración de base de datos + cambios de UI en `gastro-pos.tsx`.
+- **Estado:** Pendiente de implementación — requiere cambios de backend y migración.
 ## 2026-11-02 - QA en producción v1.45.1 (provecchio.com)
 
 * **Bugs:**

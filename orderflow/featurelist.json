@@ -2593,7 +2593,21 @@
       "priority": "P0",
       "version_added": "1.43.8",
       "notes": "QA v1.43.7 bugs 1 y 2: POS enviar a cocina ahora usa POST /orders/:id/send-to-kitchen (PREPARING+ticket KDS; readyAt queda a la cocina); WS order:ready en transición READY (sonido/aviso en dispositivo del mozo via useWaiterAlerts); POS deja de expulsar en mesa OCCUPIED sin pedidos activos y ofrece cobrar por sesión (/bills/:id/pay + close sesión). lockOrders admite DELIVERED sin pagar. Sin endpoints REST nuevos ni migración; bump patch 1.43.7->1.43.8."
-    }
+    },
+    {
+      "id": "FEAT-211",
+      "category": "OmniGastro / POS & Delivery",
+      "title": "Entrega parcial por línea en POS de Mozo",
+      "description": "Agregar botón por línea de pedido para marcar como entregada individualmente, manteniendo también el botón de 'Entregar a Mesa' (entrega total) para ahorrar tiempo al mozo. Ejemplo: el cliente pide un café espresso (listo en 3 min.) y un croque madame (demora 10 min.); el mozo puede entregar el café y marcarlo individualmente, mientras el croque sigue pendiente en cocina.",
+      "status": "planned",
+      "priority": "MEDIUM",
+      "assigned_module": "frontend/src/pages/admin/gastro-pos.tsx, backend/src/orders/orders.service.ts, backend/src/orders/dto/, backend/prisma/schema.prisma",
+      "depends_on": [],
+      "blocking": "",
+      "qa_validation": "E2E Playwright: entrega parcial por línea + entrega total en el mismo pedido; verificación de que botones coexistan correctamente",
+      "version": "pendiente",
+      "deploy_status": "planned",
+      "notes": "Requiere endpoint de backend para marcar línea individual como entregada + migración de base de datos + cambios de UI. Se deja como mejora futura."
     }
   ],
   "lastUpdated": "2026-10-26",

@@ -37,6 +37,13 @@
 
 **Telemetría declarada** (`Order.metadata.guestDraft`): `t0_order_created`, `t1_table_claimed`, `t2_cart_saved`, `t3_order_confirmed`, `t4_sent_to_kitchen`, `t5_order_ready`, `t6_waiter_viewed_history`, `t7_paid`, `t11_table_closed`.
 
+### 🔄 Mejoras pendientes OmniGastro (futuras releases)
+
+| Feature | Módulo | Estado |
+|---------|--------|--------|
+| **FEAT-211 — Entrega parcial por línea en POS de Mozo** | `frontend/src/pages/admin/gastro-pos.tsx`, `backend/src/orders/orders.service.ts`, `backend/src/orders/dto/`, `backend/prisma/schema.prisma` | 📋 Planificada |
+| Agregar botón por línea de pedido para marcar como entregada individualmente, manteniendo también el botón de "Entregar a Mesa" (entrega total) para ahorrar tiempo al mozo. Ejemplo: el cliente pide un café espresso (listo en 3 min.) y un croque madame (demora 10 min.); el mozo puede entregar el café y marcarlo individualmente, mientras el croque sigue pendiente en cocina. Requiere endpoint de backend para marcar línea individual como entregada + migración de base de datos + cambios de UI. | | 🟡 Pendiente (backend + migración) |
+
 ### 🚀 Release v1.39.28 — Fix de `/admin/hr` (500 en empleados, 404 en cargos) (Octubre 2026)
 
 | Feature | Módulo | Estado |
