@@ -1,6 +1,6 @@
 {
   "name": "orderflow-backend",
-  "version": "1.45.1",
+  "version": "1.45.2",
   "description": "OrderFlow Backend - Multi-tenant Order Management System",
   "author": "",
   "private": true,

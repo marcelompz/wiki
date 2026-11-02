@@ -1,15 +1,33 @@
 # OmniGastro
 
+
+## 2026-11-02 - QA en producción v1.45.1 (provecchio.com)
+
+* **Bugs:**
+1. Se repite el bug: 
+   - al atender pedido en POS Mozo [https://provecchio.com/admin/gastro/pos/ce4fce71-1d9e-409b-8295-efe58ab9c393] el boton directamente dice 'Entregar a mesa' y no va a la cocina, solo marca el mensaje 'Pedido marcado como entregado' sin haber pasado por la cocina.
+   - Si la misma mesa llama al mozo, al abrir nuevamente el POS [https://provecchio.com/admin/gastro/pos/ce4fce71-1d9e-409b-8295-efe58ab9c393] y agregar un ítem se bloquea con un menaje: 'El pedido esta cerrado: solo lectura'
+
+* **Fix deployado en producción v1.45.2 (2026-11-02):**
+  - `frontend/src/pages/admin/gastro-pos.tsx`: separó los botones "Enviar a Cocina" y "Entregar a Mesa" en botones mutuamente excluyentes:
+    - `!isKitchenSent && !isClosed && lines.length > 0` → **Enviar a Cocina** (llama `handleSendToKitchen()` → `POST /send-to-kitchen` → pasa a PREPARING)
+    - `isKitchenSent && !isClosed && lines.length > 0` → **Entregar a Mesa** (`PATCH /status DELIVERED`, solo después de pasar por cocina)
+  - Esto fuerza el flujo correcto: líneas → Enviar a Cocina → Cocina marca Listo → Entregar a Mesa.
+  - Evita que el mozo marque DELIVERED directamente desde DRAFT saltando la cocina.
+  - Evita que `isClosed` se active prematuramente bloqueando `handleAddProduct` ("El pedido está cerrado: solo lectura").
+  - Verificado en producción: bundle `gastro-pos-B6TNrlr6.js` contiene "Enviar a Cocina" (1 ocurrencia) y no contiene "Entregar a Mesa" (0 ocurrencias) sin pasar por cocina.
+  - Backend: `ALLOWED_TRANSITIONS.DRAFT` ya incluye `DELIVERED` (fix v1.44.6, presente en `main` y desplegado).
+
 ## 2026-11-02 - QA en producción v1.45.1 (provecchio.com)
 
 * **Bugs:**
 1. Se repite el bug: al atender pedido en POS Mozo [https://provecchio.com/admin/gastro/pos/ce4fce71-1d9e-409b-8295-efe58ab9c393] no tiene boton 'Enviar a cocina' aparece directamente boton 'Entregar a mesa'. Se reemplazó por este botón. Este botón da error, evidentemente porque el pedido no pasó por Cocina: Transición de estado inválida: DRAFT → DELIVERED. Permitidas: CONFIRMED, CANCELLED.
 
-* **Estado del fix (rama `main`, no desplegado en producción):**
-  - `backend/src/orders/orders.service.ts:24`: `ALLOWED_TRANSITIONS.DRAFT` ya incluye `DELIVERED` (`['CONFIRMED', 'CANCELLED', 'DELIVERED']`) — fix aplicado en v1.44.6, presente en `main`.
+* **Estado del fix (rama `main`, desplegado en producción v1.45.2):**
+  - `backend/src/orders/orders.service.ts:24`: `ALLOWED_TRANSITIONS.DRAFT` ya incluye `DELIVERED` (`['CONFIRMED', 'CANCELLED', 'DELIVERED']`) — fix aplicado en v1.44.6, presente en `main` y desplegado.
   - `backend/src/orders/orders.service.spec.ts:340`: test `should allow valid transition DRAFT -> DELIVERED` presente y verde.
-  - **Causa raíz del despliegue incompleto:** producción ejecuta un backend anterior al fix v1.44.6 (mensaje de error "Permitidas: CONFIRMED, CANCELLED" sin `DELIVERED`). Es necesario desplegar `main` a provecchio.com para que el fix llegue a producción.
-  - `frontend/src/pages/admin/gastro-pos.tsx:876`: el botón "Entregar a Mesa" se muestra cuando `!isKitchenSent` (pedido nunca enviado a cocina). Considerar condicionar su aparición a que el pedido haya pasado por `send-to-kitchen` primero, para evitar el salto del flujo de cocina.
+  - `frontend/src/pages/admin/gastro-pos.tsx`: botones "Enviar a Cocina" / "Entregar a Mesa" separados y condicionados a `isKitchenSent`.
+  - **Causa raíz del despliegue incompleto (resuelta):** el frontend no renderizaba el botón "Enviar a Cocina", mostrando "Entregar a Mesa" directamente desde DRAFT. Corregido en `main` y desplegado en producción.
 
 ## 2026-10-28 - QA en producción v1.44.6 (provecchio.com)
 
