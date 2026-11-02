@@ -1,5 +1,15 @@
 # OmniGastro
 
+## 2026-11-02 - QA en producción v1.45.1 (provecchio.com)
+
+* **Bugs:**
+
+1. Regresó el botón de 'Enviar a cocina' correctamente en el POS del mozo [https://provecchio.com/admin/gastro/pos/442e40ef-c3c2-4898-b110-eb723de887ad] ahora el inconveniente:
+   - Cuando el plato se marca Listo en el KDS [https://provecchio.com/admin/kds] el mozo no tiene el botón para entregar.
+   - Al abrir el POS tiene habilitado el botón 'Enviar a la cocina' por mas de que ese pedido ya esté listo pare 'Entregar a cocina'
+   * **Fix deployado en producción v1.45.3 (2026-11-02):**
+  - `frontend/src/pages/admin/gastro-pos.tsx:673`: `isKitchenSent` ahora también considera `meta.readyAt` además de `meta.sentToKitchenAt`. Cuando el KDS marca el pedido como READY (Listo), `isKitchenSent` pasa a `true` y el botón cambia a "Entregar a Mesa" en lugar de mostrar "Enviar a Cocina".
+  - Esto resuelve que el botón "Enviar a Cocina" aparezca aunque el pedido ya esté listo para entregar.
 
 ## 2026-11-02 - QA en producción v1.45.1 (provecchio.com)
 
