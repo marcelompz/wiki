@@ -1,7 +1,7 @@
 {
   "project": "OrderFlow SaaS Omnicanal",
-  "version": "1.45.4",
-  "last_updated": "2026-11-02",
+  "version": "1.46.0",
+  "last_updated": "2026-11-05",
   "features": [
     {
       "id": "FEAT-183",
@@ -2563,7 +2563,7 @@
       "notes": "Fix 403 MASTER_API_KEY via Traefik (api-key.guard.ts branch order) + rbac synthetic 'master' + credenciales E2E env-inyectadas en 18 specs (#209). Sin endpoints/migraciones, bump patch 1.43.6->1.43.7."
     },
     {
-"id": "PENDING-NEWMAN-ADMIN-ENV",
+      "id": "PENDING-NEWMAN-ADMIN-ENV",
       "title": "Completar credenciales Newman environment por env (no se commitea la password)",
       "status": "pending",
       "priority": "P2",
@@ -2598,16 +2598,35 @@
       "id": "FEAT-211",
       "category": "OmniGastro / POS & Delivery",
       "title": "Entrega parcial por línea en POS de Mozo",
-      "description": "Agregar botón por línea de pedido para marcar como entregada individualmente, manteniendo también el botón de 'Entregar a Mesa' (entrega total) para ahorrar tiempo al mozo. Ejemplo: el cliente pide un café espresso (listo en 3 min.) y un croque madame (demora 10 min.); el mozo puede entregar el café y marcarlo individualmente, mientras el croque sigue pendiente en cocina.",
-      "status": "planned",
+      "description": "Agregar botón por línea de pedido para marcar como entregada individualmente, manteniendo también el botón de 'Entregar a Mesa' (entrega total) para ahorrar tiempo al mozo. Ejemplo: el cliente pide un café espresso (listo en 3 min.) y un croque madame (demora 10 min.); el mozo puede entregar el café y marcarlo individualmente, mientras el croque sigue pendiente en cocina. Requiere endpoint de backend para marcar línea individual como entregada + migración de base de datos + cambios de UI.",
+      "status": "completed",
       "priority": "MEDIUM",
       "assigned_module": "frontend/src/pages/admin/gastro-pos.tsx, backend/src/orders/orders.service.ts, backend/src/orders/dto/, backend/prisma/schema.prisma",
       "depends_on": [],
       "blocking": "",
       "qa_validation": "E2E Playwright: entrega parcial por línea + entrega total en el mismo pedido; verificación de que botones coexistan correctamente",
-      "version": "pendiente",
-      "deploy_status": "planned",
-      "notes": "Requiere endpoint de backend para marcar línea individual como entregada + migración de base de datos + cambios de UI. Se deja como mejora futura."
+      "version": "1.45.4",
+      "deploy_status": "completed",
+      "deploy_report": "docs/plans/omnigastro/DEPLOY_REPORT_2026-11-03-v1.45.4.md",
+      "deploy_target": "provecchio",
+      "next_steps": [
+        "Ejecutar scripts/init.sh (requiere confirmación usuario)",
+        "Documentación completada en docs/plans/omnigastro/DEPLOY_REPORT_2026-11-03-v1.45.4.md",
+        "Version tag: v1.45.4"
+      ]
+    },
+    {
+      "id": "FEAT-195",
+      "category": "Estratega Comercial / Landing / Onboarding Self-Service",
+      "title": "Landing Page Self-Service Unificada & Esquema de URLs Free (Path) vs Pro (Subdominio)",
+      "description": "Landing comercial de conversion en https://orderflow.pesallaccia.com/ con Hero reclamador de URL (orderflow.pesallaccia.com/bio/<slug>), calculadora de ahorro vs 12% de Linktree, showcase de Provecchio y tabla de precios Free/Pro/Gastro. Onboarding express via POST /api/v1/auth/register-tenant que auto-instala biolinks + social-catalog (sin Cloudflare DNS en Free). Esquema Free por path compartido vs Pro por subdominio dedicado vs Gastro dominio propio. Tenant piloto comida japonesa (sushi-demo). Plan completo en docs/plans/estratega-comercial-microservicios/plan-feat-195-landing-self-service-y-esquema-free.md.",
+      "status": "completed",
+      "priority": "MEDIUM",
+      "assigned_module": "frontend/src/pages/landing-biolinks-catalog.tsx, frontend/src/pages/login.tsx, backend/src/auth/auth.service.ts",
+      "depends_on": [],
+      "blocking": "",
+      "qa_validation": "Build frontend/backend limpio; smoke E2E onboarding sushi-demo; verificacion cero colores HEX hardcodeados en landing (Regla #10).",
+      "version": "1.46.0"
     }
   ],
   "lastUpdated": "2026-10-26",
