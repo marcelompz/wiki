@@ -1,5 +1,36 @@
 # OmniGastro
 
+## 2026-11-05 - Estado del arte v1.46.0 (sesión de ingeniería)
+
+* **Infraestructura / Traefik:**
+  - `pesallaccia.com` (Hetzner) devolvía 404 "page not found": la causa fue que `./scripts/init.sh` sincronizaba la config de provecchio (`/opt/traefik-orderflow`) a `/srv/traefik` en Hetzner, sobrescribiendo la config de pesallaccia. **Restaurado** desde `git HEAD` en `/srv/traefik` (config correcta de pesallaccia) y Traefik recargado con `docker kill -s HUP traefik` → `https://pesallaccia.com/` HTTP 200.
+  - `scripts/init.sh` corregido: el sync a Hetzner ahora es **opt-in** (`SYNC_TRAEFIK_HETZNER=true` o `--sync-traefik-hetzner`); por defecto se omite. Documentado en troubleshooting #214.
+
+* **Calidad / Regla 10 (HEX hardcodeado):**
+  - Eliminados todos los HEX inline de componentes y páginas (`frontend/src`); reemplazados por CSS vars del sistema de temas (`var(--bg-*)`, `var(--text-*)`, `var(--border*)`, `var(--accent)`, `var(--success/warning/danger/info)`).
+  - Colores de marca de las landing pages extraídos a `frontend/src/theme/brand-colors.ts` (`BRANDING`).
+  - Únicos HEX restantes: definiciones de tokens en `theme/*` y `styles/admin-mobile.css` (fuente de verdad, permitido).
+
+* **Regla 4 (endpoints públicos):**
+  - Eliminado `@TenantPrisma()` de `WopiController`, `WopiDocumentsController` y `SocialCatalogWebhooksController` (ahora usan `this.prisma`). Allowlist actualizado en `architecture.spec.ts`.
+
+* **Barrera de calidad:**
+  - `./scripts/init.sh` ✅ — 141 suites / 1070 tests + builds backend/frontend + E2E (Playwright) + Traefik validación.
+
+* **Pendientes conocidos (tomar nota):**
+  - Features `in_progress`: FEAT-160 (OmniMobile), FEAT-012 (app móvil), FEAT-105 (OmniLedger), FEAT-107 (OmniCapitalHumano), FEAT-108 (OmniAsistencia), FEAT-141 (ISchedulingService), FEAT-203/204/205 (TableSession/Bill/sync_bill), FEAT-206 (Odoo POS integración), FEAT-207 (hardening conector).
+  - Features `planned`: FEAT-177–182 (OpenCore: diagnóstico/revisión/división schema, RLS, gates), FEAT-078, FEAT-142–146.
+  - `pending`: Newman env credentials, POS tablet probes, rotación optativa de MASTER_API_KEY.
+  - Ramas remotas stale sin merge (feat/gastro-feat-203-205, fix/ci-*, etc.) — requieren triage manual.
+  - Triage de HEX en landing pages completado; theme definitions intencionales.
+
+## 2026-11-04 - QA en producción v1.46.0 (provecchio.com)
+
+* **Bugs:**
+1. Error al hacer pedido desde el endpoint del cliente [https://provecchio.com/api/v1/guest/orders]. En console log: XHR POST https://provecchio.com api/v1/guest/orders [HTTP/3 500  272ms]
+   - ✅ **FIXED (2026-11-04):** schema drift — columna `order_lines.deliveredAt` faltante. Migración `20261104120000_add_order_line_delivered_at` aplicada en prod + registrada. Endpoint verificado: `POST /api/v1/guest/orders` → 200. Ver troubleshooting #213.
+
+
 ## 2026-11-02 - QA en producción v1.45.3 (provecchio.com)
 
 * **Bugs:**
@@ -34,7 +65,6 @@ f3321d41 · 0 ítem(s)Servido
 ## 2026-11-02 - QA en producción v1.45.1 (provecchio.com)
 
 * **Bugs:**
-
 1. Regresó el botón de 'Enviar a cocina' correctamente en el POS del mozo [https://provecchio.com/admin/gastro/pos/442e40ef-c3c2-4898-b110-eb723de887ad] ahora el inconveniente:
    - Cuando el plato se marca Listo en el KDS [https://provecchio.com/admin/kds] el mozo no tiene el botón para entregar.
    - Al abrir el POS tiene habilitado el botón 'Enviar a la cocina' por mas de que ese pedido ya esté listo pare 'Entregar a cocina'
