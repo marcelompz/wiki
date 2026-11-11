@@ -1,9 +1,20 @@
 # Línea de Tiempo y Evolución de OmniFlow
 
-**Última actualización:** 2026-10-24  
-**Versión actual:** `v1.42.1`  
-**Próximo hito:** `v1.43.0` — cierre de FEAT-203/204/205 (TableSessions, Bill merge/unmerge, sync_bill a Odoo)  
+**Última actualización:** 2026-11-11  
+**Versión actual:** `v1.46.3`  
+**Próximo hito:** Fase 2 de la migración a pnpm workspaces (patrón omnibi)  
 **Documento fuente:** `CHANGELOG.md`, `ROADMAP.md`, `featurelist.json`
+
+---
+
+### 2026-11-11 : v1.46.3 — Deploy a producción `pesallaccia.com` (1.40.2 → 1.46.3)
+- Desplegado en Hetzner (`axon-workspace`, `178.105.226.175`, target `production`): salto de **185 commits** y **3 migraciones Prisma** (`gastro_table_sessions_bills`, `create_customer_claims`, `add_order_line_delivered_at`). La migración `restaurant_floors_odoo_floor_id` ya estaba aplicada en la base.
+- Protocolo §3.1.1 deploy-to-local-first: dump real de pesallaccia → restore en localhost (0 errores, siguiendo troubleshooting #205) → `prisma migrate deploy` de las 3 migraciones sobre datos reales → persistencia validada tras reinicio de Postgres.
+- Validación local: versiones 1.46.3, Prisma generate, builds backend/frontend, jest **1061/1061** y health/positions OK.
+- Post-deploy: health `https://pesallaccia.com/api/v1/health` = **1.46.3**, 43 migraciones aplicadas / 0 fallidas, datos intactos (1 tenant, 1 usuario), 7/7 contenedores healthy, Traefik v3.4 y E2E QA de catálogo/dominio/8 rutas de admin sin errores.
+- Fix de seguridad del deploy (PR #37): `.gitignore` ancla `/orderflow/` y `deploy-production.sh` excluye la bóveda Obsidian del rsync, evitando que el `git add -A` remoto la commitee.
+- Mantenimiento del host: `dockerd` reiniciado para liberar build cache fijado por leases de containerd (21 GB libres, 42%) y `systemd-timesyncd` instalado en el homeserver (reloj desfasado ~2 h 51 min, rompía TLS de `apk` en los builds).
+- Staging del homeserver (`orderflow.local` / `api.orderflow.local`) redeployado desde `main` y verificado en **1.46.3**.
 
 ---
 
