@@ -1,14 +1,11 @@
 # 🗺️ ROADMAP DE ORDERFLOW - v1.34.0 → v2.0.0 (Go-Live Definitivo)
-**Última Actualización:** 2026-10-27 (Release v1.44.0 — Corrección de bugs OmniGastro: reabrir POS, claim error, KDS filtering, PIN modal, primer asiento libre)
-**Release anterior:** 2026-10-27 (Release v1.43.8 — Deploy a provecchio.com exitoso, health 200, E2E QA 8 rutas admin en verde)
+**Última Actualización:** 2026-11-11 (Release v1.46.3 — FEAT-212 migración a pnpm workspaces fase 1: node-linker isolated, deps deduplicadas, barrera init.sh + deploy staging validados)
+**Release anterior:** 2026-11-07 (Release v1.46.2 — Hardening P0: secretos fuera del índice, CI bloqueante, versión única)
 
-**Versión Actual:** **`v1.44.4`** (en desarrollo) · **`v1.43.8`** ✅ DESPLEGADA EN PRODUCCIÓN (`provecchio.com`, 2026-10-27 — health 200/1.43.8, E2E QA 8 rutas admin en verde) · **`v1.43.7`** ✅ DESPLEGADA EN PRODUCCIÓN (`provecchio.com`, 2026-10-27 — health 200/1.43.7, master key externa via Traefik 200) · **`v1.43.6`** ✅ DESPLEGADA EN PRODUCCIÓN (`provecchio.com`, 2026-10-27 — health 200, smoke QR→mozo→cocina OK) · **`v1.43.5` ✅ DESPLEGADA EN PRODUCCIÓN** (`provecchio.com`, 2026-10-27) | Marca pública: OmniFlow. Capa técnica interna: OrderFlow.
+**Versión Actual:** **`v1.46.3`** (en desarrollo) · **`v1.46.1`** ✅ DESPLEGADA EN PRODUCCIÓN (`provecchio.com`, 2026-11-07 — health 200/1.46.1, database ok) · **`v1.40.2`** ⚠️ DESPLEGADA EN STAGING (`pesallaccia.com`, pendiente de actualización) | Marca pública: OmniFlow. Capa técnica interna: OrderFlow.
 **Próximos Releases:** **v1.41.x** (Tauri Desktop & OmnIoT Edge) ➔ **v2.0.0** (🚀 **GO-Live Definitivo del Ecosistema — Target: 15 de Febrero de 2027**)
 **Plan Maestro Go-to-Live:** ver [docs/plans/PLAN_GO_LIVE_APLICACIONES_ECOSISTEMA.md](docs/plans/PLAN_GO_LIVE_APLICACIONES_ECOSISTEMA.md)
-**Roadmap Comercial:** ver [docs/planes/comercial/OmniFlow_PLAN_COMERCIAL_v1.md](docs/planes/comercial/OmniFlow_PLAN_COMERCIAL_v1.md) (FEAT-112 a FEAT-119)
-**Estado:** ✅ **STAGING & PRODUCTION OPERATIVE** | 🏆 **HARDENED v1.39.2** | OmniGastro Fases 0-3.3 Completadas | RBAC Hardening En PR | CI Guard Active | QA E2E Suite | Build Limpio & Cobertura Total
-
-<!--CURRENT_VERSION-->1.45.1<!--/CURRENT_VERSION--> <!-- Actualizado: 2026-10-27 v1.43.8 - Deploy a provecchio.com exitoso -->
+<!--CURRENT_VERSION-->1.46.3<!--/CURRENT_VERSION--> <!-- Actualizado: 2026-11-11 v1.46.3 - FEAT-212 pnpm workspaces -->
 
 ### 📋 Próximas actualizaciones planificadas — OmniGastro (plan aprobado 2026-10-22)
 
@@ -37,12 +34,12 @@
 
 **Telemetría declarada** (`Order.metadata.guestDraft`): `t0_order_created`, `t1_table_claimed`, `t2_cart_saved`, `t3_order_confirmed`, `t4_sent_to_kitchen`, `t5_order_ready`, `t6_waiter_viewed_history`, `t7_paid`, `t11_table_closed`.
 
-### 🔄 Mejoras pendientes OmniGastro (futuras releases)
+#### 🍽️ Mejoras pendientes OmniGastro (futuras releases)
 
 | Feature | Módulo | Estado |
 |---------|--------|--------|
-| **FEAT-211 — Entrega parcial por línea en POS de Mozo** | `frontend/src/pages/admin/gastro-pos.tsx`, `backend/src/orders/orders.service.ts`, `backend/src/orders/dto/`, `backend/prisma/schema.prisma` | 📋 Planificada |
-| Agregar botón por línea de pedido para marcar como entregada individualmente, manteniendo también el botón de "Entregar a Mesa" (entrega total) para ahorrar tiempo al mozo. Ejemplo: el cliente pide un café espresso (listo en 3 min.) y un croque madame (demora 10 min.); el mozo puede entregar el café y marcarlo individualmente, mientras el croque sigue pendiente en cocina. Requiere endpoint de backend para marcar línea individual como entregada + migración de base de datos + cambios de UI. | | 🟡 Pendiente (backend + migración) |
+| **FEAT-211 — Entrega parcial por línea en POS de Mozo** | `frontend/src/pages/admin/gastro-pos.tsx`, `backend/src/orders/orders.service.ts`, `backend/src/orders/dto/`, `backend/prisma/schema.prisma` | ✅ **COMPLETADO** |
+| Agregar botón por línea de pedido para marcar como entregada individualmente, manteniendo también el botón de "Entregar a Mesa" (entrega total) para ahorrar tiempo al mozo. Ejemplo: el cliente pide un café espresso (listo en 3 min.) y un croque madame (demora 10 min.); el mozo puede entregar el café y marcarlo individualmente, mientras el croque sigue pendiente en cocina. Requiere endpoint de backend para marcar línea individual como entregada + migración de base de datos + cambios de UI. | | ✅ **IMPLEMENTADO** (v1.45.4) |
 
 ### 🚀 Release v1.39.28 — Fix de `/admin/hr` (500 en empleados, 404 en cargos) (Octubre 2026)
 
@@ -293,7 +290,7 @@
 
 ---
 
-<!--CURRENT_VERSION-->1.45.1<!--/CURRENT_VERSION--> <!-- Actualizado: 2026-10-27 v1.43.8 - Deploy a provecchio.com exitoso -->
+<!--CURRENT_VERSION-->1.46.3<!--/CURRENT_VERSION--> <!-- Actualizado: 2026-11-11 v1.46.3 - FEAT-212 pnpm workspaces -->
 
 El ecosistema **OmniFlow** contempla 10 aplicaciones y capas operativas. A continuación se presenta la evaluación de madurez técnica por componente y los puntos pendientes priorizados hacia el Go-Live final.
 

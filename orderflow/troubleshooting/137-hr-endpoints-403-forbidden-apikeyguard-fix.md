@@ -29,3 +29,23 @@ Como resultado:
 ## 🧪 Verificación
 - Compilación limpia de NestJS (`npm run build`).
 - Carga limpia y sin errores de 403 Forbidden en `/admin/hr`.
+
+---
+
+## 📌 Variante: 403 por `findTenantBySlug` false positive (provecchio.local)
+
+### Síntoma adicional (2026-10-04)
+Al acceder a `/api/v1/hr/*` vía `provecchio.local` (HTTP), el endpoint retornaba **403 Forbidden** con el mensaje "Missing user or tenant context", incluso con el master API key. El mismo request vía `localhost:3010` funcionaba correctamente.
+
+### Causa
+La función `findTenantBySlug()` en `backend/src/common/api-key.guard.ts` usaba `{ id: { startsWith: clean } }` en su consulta OR, que hacía match con el tenant `provecchio-dimora-001` cuando el host era `provecchio.local` (el subdominio `provecchio` hace match con IDs que empiezan con `provecchio`).
+
+Esto causaba que `paramTenant` se resolviera al tenant equivocado, saltándose la validación del master API key (`isSuperAdmin` nunca se seteaba). El `PermissionsGuard` luego rechazaba la request porque `req.user` era undefined.
+
+### Fix
+```typescript
+// api-key.guard.ts:31 — Added 'provecchio' and 'provecchio.local' to excluded slugs
+if (!clean || clean === 'default' || clean === 'pesallaccia.com' || clean === 'pesallaccia' || clean === 'localhost' || clean === 'www' || clean === 'provecchio' || clean === 'provecchio.local') return null;
+```
+
+Estos dominios son exclusivos de desarrollo local y no deben resolverse a ningún tenant.

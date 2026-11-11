@@ -30,6 +30,17 @@ newman run docs/tests/newman/contracts.postman_collection.json \
 
 ## Notas
 
-- Completar las variables secretas (`MASTER_API_KEY`, `adminPassword`) antes de ejecutar.
+- Completar las variables secretas (`masterApiKey`, `adminPassword`) **en runtime**;
+  los `.postman_environment.json` versionados deben quedar vacíos.
+  `MASTER_API_KEY` de los environments de Newman quedó expuesta en la historia
+  de git y **debe rotarse** (ver `docs/plans/P0_ROTATION_RUNBOOK_2026-11-08.md`).
+
+  ```bash
+  newman run docs/tests/newman/contracts.postman_collection.json \
+    --environment docs/tests/newman/production.postman_environment.json \
+    --env-var "masterApiKey=$NEWMAN_MASTER_API_KEY" \
+    --env-var "adminPassword=$NEWMAN_ADMIN_PASSWORD"
+  ```
+
 - En CI/CD, ejecutar después del build y antes del deploy.
 - Esta suite no reemplaza Playwright; es complementaria para validar contratos de API.

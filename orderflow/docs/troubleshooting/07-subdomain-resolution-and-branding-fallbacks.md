@@ -58,3 +58,16 @@ python3 scripts/qa_e2e_check.py https://spa-wellness.pesallaccia.com/whatsapp-ca
 - 50/50 Jest Test Suites Aprobadas.
 - Compilaciones sin advertencias en NestJS Backend y Vite Frontend.
 - Renderizado verificado vía Playwright E2E y `shot-scraper`.
+
+## 4. Caso Adicional: Tenant por Hostname Personalizado (`provecchio.local`)
+
+> **Fecha:** 2026-10-26  
+> **Problema:** El `BrandingProvider` no lograba resolver el tenant por el hostname `provecchio.local`, retornando error 500 en la consulta `GET /api/v1/tenants/public/tenant-by-subdomain/provecchio.local`.  
+> **Causa:** No existía un registro de tenant en la base de datos con el subdominio `provecchio.local`. El sistema requiere un registro de tenant para cada hostname/dominio que será atendido.  
+> **Solución Aplicada:**
+> 1. Insertar registro de tenant con `subdomain = 'provecchio.local'` en la tabla `tenants`.
+> 2. El `BrandingProvider` ahora resuelve correctamente el tenant por hostname personalizado.
+> 3. Endpoint `tenant-by-subdomain` retorna datos válidos en lugar de error 500.
+> 
+> **Nota:** Este pattern es relevante para dominios custom o localhosts de desarrollo que no siguen el patrón estándar `<tenant>.<root_domain>`. En producción, los subdominios deben crearse mediante el wizard de onboarding o el API de creación de tenants.
+

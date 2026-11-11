@@ -1,5 +1,134 @@
 # OmniGastro
 
+## 2026-11-06 - Pruebas QA v1.46.0
+
+* **Bugs:**
+1. Al hacer  pedido desde el punto del cliente, el mozo no recibe el mensaje automáticamente, necesita recargar la página del endpoint [https://provecchio.com/admin/gastro] En la consola del navegador: Cross-Origin Request Blocked: The Same Origin Policy disallows reading the remote resource at https://static.cloudflareinsights.com/beacon.min.js/vce701823e78c4301a35b7e07294d87301792088814092. (Reason: CORS request did not succeed). Status code: (null). 
+None of the “sha512” hashes in the integrity attribute match the content of the subresource at “https://static.cloudflareinsights.com/beacon.min.js/vce701823e78c4301a35b7e07294d87301792088814092”. The computed hash is “z4PhNX7vuL3xVChQ1m2AB9Yg5AULVxXcg/SpIdNs6c5H0NE8XYXysP+DGNKHfuwvY7kxvUdBeoGlODJ6+SfaPg==”. gastro
+Cross-Origin Request Blocked: The Same Origin Policy disallows reading the remote resource at https://static.cloudflareinsights.com/beacon.min.js/vce701823e78c4301a35b7e07294d87301792088814092. (Reason: CORS request did not succeed). Status code: (null). 
+None of the “sha512” hashes in the integrity attribute match the content of the subresource at “https://static.cloudflareinsights.com/beacon.min.js/vce701823e78c4301a35b7e07294d87301792088814092”. The computed hash is “z4PhNX7vuL3xVChQ1m2AB9Yg5AULVxXcg/SpIdNs6c5H0NE8XYXysP+DGNKHfuwvY7kxvUdBeoGlODJ6+SfaPg==”. gastro
+[BrandingProvider] Resolviendo tenant por identificador: provecchio.com index-oHRHH8za.js:18:25685
+A resource is blocked by OpaqueResponseBlocking, please check browser console for details. telemetry
+Unknown property ‘-moz-osx-font-smoothing’.  Declaration dropped. gastro:13:3
+Unknown property ‘-moz-osx-font-smoothing’.  Declaration dropped. gastro:1:1208
+Unknown property ‘-moz-osx-font-smoothing’.  Declaration dropped. gastro:1:1283
+Unknown property ‘-moz-osx-font-smoothing’.  Declaration dropped. gastro:1:5314
+Unknown property ‘-moz-osx-font-smoothing’.  Declaration dropped. gastro:1:9215
+Unknown property ‘-moz-osx-font-smoothing’.  Declaration dropped. gastro:1:1208
+Unknown property ‘-moz-osx-font-smoothing’.  Declaration dropped. 2 gastro:1:226
+Unknown pseudo-class or pseudo-element ‘input::-ms-clear,input::-ms-reveal’.  Ruleset ignored due to bad selector. index-kxVFYWPo.css:1:34
+Error in parsing value for ‘-webkit-text-size-adjust:100%;’.  Declaration dropped. index-kxVFYWPo.css:1:168
+Unrecognized at-rule or error parsing at-rule ‘@-ms-viewport’. index-kxVFYWPo.css:1:295
+Unknown pseudo-class or pseudo-element ‘button::-moz-focus-inner,[type=button]::-moz-focus-inner,[type=reset]::-moz-focus-inner,[type=submit]::-moz-focus-inner’.  Ruleset ignored due to bad selector. index-kxVFYWPo.css:1:1895
+XHR GET
+https://provecchio.com/api/v1/health
+[HTTP/3 200  229ms]
+XHR GET
+https://provecchio.com/api/v1/health
+[HTTP/3 200  177ms]
+
+
+
+## 2026-11-05 - Estado del arte v1.46.0 (sesión de ingeniería)
+
+* **Infraestructura / Traefik:**
+  - `pesallaccia.com` (Hetzner) devolvía 404 "page not found": la causa fue que `./scripts/init.sh` sincronizaba la config de provecchio (`/opt/traefik-orderflow`) a `/srv/traefik` en Hetzner, sobrescribiendo la config de pesallaccia. **Restaurado** desde `git HEAD` en `/srv/traefik` (config correcta de pesallaccia) y Traefik recargado con `docker kill -s HUP traefik` → `https://pesallaccia.com/` HTTP 200.
+  - `scripts/init.sh` corregido: el sync a Hetzner ahora es **opt-in** (`SYNC_TRAEFIK_HETZNER=true` o `--sync-traefik-hetzner`); por defecto se omite. Documentado en troubleshooting #214.
+
+* **Calidad / Regla 10 (HEX hardcodeado):**
+  - Eliminados todos los HEX inline de componentes y páginas (`frontend/src`); reemplazados por CSS vars del sistema de temas (`var(--bg-*)`, `var(--text-*)`, `var(--border*)`, `var(--accent)`, `var(--success/warning/danger/info)`).
+  - Colores de marca de las landing pages extraídos a `frontend/src/theme/brand-colors.ts` (`BRANDING`).
+  - Únicos HEX restantes: definiciones de tokens en `theme/*` y `styles/admin-mobile.css` (fuente de verdad, permitido).
+
+* **Regla 4 (endpoints públicos):**
+  - Eliminado `@TenantPrisma()` de `WopiController`, `WopiDocumentsController` y `SocialCatalogWebhooksController` (ahora usan `this.prisma`). Allowlist actualizado en `architecture.spec.ts`.
+
+* **Barrera de calidad:**
+  - `./scripts/init.sh` ✅ — 141 suites / 1070 tests + builds backend/frontend + E2E (Playwright) + Traefik validación.
+
+* **Pendientes conocidos (tomar nota):**
+  - Features `in_progress`: FEAT-160 (OmniMobile), FEAT-012 (app móvil), FEAT-105 (OmniLedger), FEAT-107 (OmniCapitalHumano), FEAT-108 (OmniAsistencia), FEAT-141 (ISchedulingService), FEAT-203/204/205 (TableSession/Bill/sync_bill), FEAT-206 (Odoo POS integración), FEAT-207 (hardening conector).
+  - Features `planned`: FEAT-177–182 (OpenCore: diagnóstico/revisión/división schema, RLS, gates), FEAT-078, FEAT-142–146.
+  - `pending`: Newman env credentials, POS tablet probes, rotación optativa de MASTER_API_KEY.
+  - Ramas remotas stale sin merge (feat/gastro-feat-203-205, fix/ci-*, etc.) — requieren triage manual.
+  - Triage de HEX en landing pages completado; theme definitions intencionales.
+
+## 2026-11-04 - QA en producción v1.46.0 (provecchio.com)
+
+* **Bugs:**
+1. Error al hacer pedido desde el endpoint del cliente [https://provecchio.com/api/v1/guest/orders]. En console log: XHR POST https://provecchio.com api/v1/guest/orders [HTTP/3 500  272ms]
+   - ✅ **FIXED (2026-11-04):** schema drift — columna `order_lines.deliveredAt` faltante. Migración `20261104120000_add_order_line_delivered_at` aplicada en prod + registrada. Endpoint verificado: `POST /api/v1/guest/orders` → 200. Ver troubleshooting #213.
+
+
+## 2026-11-02 - QA en producción v1.45.3 (provecchio.com)
+
+* **Bugs:**
+1. Cuando el mozo envía a la cocina la comanda en el KDS [https://provecchio.com/admin/kds] se sitúa en la pestaña 'Cocinando' y la comanda solamente tiene el botón 'listo'. Debería estar en 'Pendientes' y entrar a 'Cocinando' cuando el cocinero indica. Tampoco hace distinción entre las comandas en 'Listo' y 'Servido'.
+
+2. En el endpoint del mozo [https://provecchio.com/admin/gastro/pos/d8db0c6c-965a-403f-aefa-fb188191af5f]:
+   - Todavía no tiene botón servir.
+   - Sigue habilitado el botón 'Enviar a la cocina' pero en vez de figurar la mesa que tomó el mozo (T11 en este caso), notifica así '¡Nueva comanda recibida para la mesa BARRA!'
+   - No tiene boton para cerrar la mesa y enviar a caja para el cobro.
+   - En el endpoint del kds  [https://provecchio.com/admin/kds] figura el pedido de la mesa correcta  'Mesa T11'.
+
+* **Mejoras:**
+1. En el endpoint del KDS [https://provecchio.com/admin/kds] lista el historial en todas las pestañas: 🗂️ Historial de la sesión (8)
+f3321d41 · 0 ítem(s)Servido
+56f89887 · 0 ítem(s)Servido
+81ba5024 · 0 ítem(s)Servido
+1ac8e78e · 0 ítem(s)Servido
+63ed4950 · 0 ítem(s)Servido
+0caf90f2 · 0 ítem(s)Servido
+0a60ab8b · 0 ítem(s)Servido
+   - Preferiría que se eliminaran, ya que tengo la lista de comandas servidas en la pestaña 'Servido', además ocupan espacio valioso
+2. Agregar la opción de reabrir la comanda en el POS del mozo [https://provecchio.com/admin/gastro/pos/442e40ef-c3c2-4898-b110-eb723de887ad], permitiendo agregar comentarios en la línea del producto que será devuelto. En una solicitud previa solicité cargar una lista predefinida de comentarios típicos, así ahorra tiempo en seleccionar algo que suele suceder. Habilitar también escribir un comentario y permitir varios comentarios en una misma línea de producto.
+3. Agregar la opción de agregar comentarios en el pedido al cliente en su endpoint [https://provecchio.com/?t=199a24db-62f2-4838-aea9-78a3c90ad839&track=0a049bb9-700a-426a-8c74-27e1ee36613c]
+4. Aplicar mejora de entrega por línea que está como feature futura.
+
+* **Fix deployado en producción v1.45.4 (2026-11-02):**
+  - `frontend/src/pages/admin/gastro-pos.tsx:673-680`: `isKitchenSent` ahora también considera el estado de la orden (`PREPARING`, `READY`, `DELIVERED`) además de `meta.sentToKitchenAt`/`meta.readyAt`. Cuando el KDS marca el pedido como READY, `isKitchenSent` pasa a `true` y el botón cambia a "Entregar a Mesa". `isReady` ahora se activa cuando AL MENOS UNA orden está READY, habilitando el cobro parcial.
+  - `frontend/src/pages/admin/kds.tsx:349-354`: El historial de sesión solo se muestra cuando el filtro es 'Servido' o 'Todas', evitando contaminar las pestañas de Pendiente/Cocinando/Listo.
+  - `docker-compose.yml`: el servicio frontend ahora construye su imagen usando `frontend/Dockerfile.prod` en lugar de depender de un bind mount `./frontend/dist:/app:ro`, lo que resuelve el problema de despliegue en producción donde el bundle no se montaba correctamente en el contenedor.
+  - Verificado en producción: health `{"version":"1.45.4","status":"ok"}`, bundle frontend contiene los cambios de `isKitchenSent` e `isReady`.
+
+## 2026-11-02 - QA en producción v1.45.1 (provecchio.com)
+
+* **Bugs:**
+1. Regresó el botón de 'Enviar a cocina' correctamente en el POS del mozo [https://provecchio.com/admin/gastro/pos/442e40ef-c3c2-4898-b110-eb723de887ad] ahora el inconveniente:
+   - Cuando el plato se marca Listo en el KDS [https://provecchio.com/admin/kds] el mozo no tiene el botón para entregar.
+   - Al abrir el POS tiene habilitado el botón 'Enviar a la cocina' por mas de que ese pedido ya esté listo pare 'Entregar a cocina'
+   * **Fix deployado en producción v1.45.3 (2026-11-02):**
+  - `frontend/src/pages/admin/gastro-pos.tsx:673`: `isKitchenSent` ahora también considera `meta.readyAt` además de `meta.sentToKitchenAt`. Cuando el KDS marca el pedido como READY (Listo), `isKitchenSent` pasa a `true` y el botón cambia a "Entregar a Mesa" en lugar de mostrar "Enviar a Cocina".
+  - Esto resuelve que el botón "Enviar a Cocina" aparezca aunque el pedido ya esté listo para entregar.
+es
+## 2026-11-02 - QA en producción v1.45.1 (provecchio.com)
+
+* **Bugs:**
+1. Se repite el bug: 
+   - al atender pedido en POS Mozo [https://provecchio.com/admin/gastro/pos/ce4fce71-1d9e-409b-8295-efe58ab9c393] el boton directamente dice 'Entregar a mesa' y no va a la cocina, solo marca el mensaje 'Pedido marcado como entregado' sin haber pasado por la cocina.
+   - Si la misma mesa llama al mozo, al abrir nuevamente el POS [https://provecchio.com/admin/gastro/pos/ce4fce71-1d9e-409b-8295-efe58ab9c393] y agregar un ítem se bloquea con un menaje: 'El pedido esta cerrado: solo lectura'
+
+* **Fix deployado en producción v1.45.2 (2026-11-02):**
+  - `frontend/src/pages/admin/gastro-pos.tsx`: separó los botones "Enviar a Cocina" y "Entregar a Mesa" en botones mutuamente excluyentes:
+    - `!isKitchenSent && !isClosed && lines.length > 0` → **Enviar a Cocina** (llama `handleSendToKitchen()` → `POST /send-to-kitchen` → pasa a PREPARING)
+    - `isKitchenSent && !isClosed && lines.length > 0` → **Entregar a Mesa** (`PATCH /status DELIVERED`, solo después de pasar por cocina)
+  - Esto fuerza el flujo correcto: líneas → Enviar a Cocina → Cocina marca Listo → Entregar a Mesa.
+  - Evita que el mozo marque DELIVERED directamente desde DRAFT saltando la cocina.
+  - Evita que `isClosed` se active prematuramente bloqueando `handleAddProduct` ("El pedido está cerrado: solo lectura").
+  - Verificado en producción: bundle `gastro-pos-B6TNrlr6.js` contiene "Enviar a Cocina" (1 ocurrencia) y no contiene "Entregar a Mesa" (0 ocurrencias) sin pasar por cocina.
+  - Backend: `ALLOWED_TRANSITIONS.DRAFT` ya incluye `DELIVERED` (fix v1.44.6, presente en `main` y desplegado).
+
+## 2026-11-02 - QA en producción v1.45.1 (provecchio.com)
+
+* **Bugs:**
+1. Se repite el bug: al atender pedido en POS Mozo [https://provecchio.com/admin/gastro/pos/ce4fce71-1d9e-409b-8295-efe58ab9c393] no tiene boton 'Enviar a cocina' aparece directamente boton 'Entregar a mesa'. Se reemplazó por este botón. Este botón da error, evidentemente porque el pedido no pasó por Cocina: Transición de estado inválida: DRAFT → DELIVERED. Permitidas: CONFIRMED, CANCELLED.
+
+* **Estado del fix (rama `main`, desplegado en producción v1.45.2):**
+  - `backend/src/orders/orders.service.ts:24`: `ALLOWED_TRANSITIONS.DRAFT` ya incluye `DELIVERED` (`['CONFIRMED', 'CANCELLED', 'DELIVERED']`) — fix aplicado en v1.44.6, presente en `main` y desplegado.
+  - `backend/src/orders/orders.service.spec.ts:340`: test `should allow valid transition DRAFT -> DELIVERED` presente y verde.
+  - `frontend/src/pages/admin/gastro-pos.tsx`: botones "Enviar a Cocina" / "Entregar a Mesa" separados y condicionados a `isKitchenSent`.
+  - **Causa raíz del despliegue incompleto (resuelta):** el frontend no renderizaba el botón "Enviar a Cocina", mostrando "Entregar a Mesa" directamente desde DRAFT. Corregido en `main` y desplegado en producción.
+
 ## 2026-10-28 - QA en producción v1.44.6 (provecchio.com)
 
 * **Bugs:**

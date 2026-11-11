@@ -1,7 +1,7 @@
 # FEAT-195 — Plan de Implementación: Landing Page Self-Service Unificada & Esquema de URLs Free (Path) vs Pro (Subdominio)
 
 > **Feature:** FEAT-195  
-> **Versión Objetivo:** v1.39.19  
+> **Versión Objetivo:** v1.46.0  
 > **Dominio Activo:** `https://orderflow.pesallaccia.com`  
 > **Fecha:** 21 de Octubre de 2026  
 > **Estado:** 📋 Propuesto para Aprobación del Usuario  
@@ -41,14 +41,14 @@ orderflow/
 │   │   │   ├── landing-biolinks-catalog.tsx   # [MODIFICAR] Rediseño integral con tokens de tema (Rule 10), Hero Claim URL, Provecchio showcase y precios Free/Pro/Gastro
 │   │   │   └── login.tsx                      # [MODIFICAR] Soporte para recibir ?slug= desde el Hero de la Landing
 │   │   ├── main.tsx                           # [VERIFICAR] Rutas / y redirecciones limpias
-│   │   └── package.json                       # [VERSION] Bump 1.39.18 -> 1.39.19
+│   │   └── package.json                       # [VERSION] Bump 1.45.4 -> 1.46.0
 │   └── tests/                                 # [TEST] Smoke tests de renderizado
 ├── backend/
 │   ├── src/
 │   │   ├── auth/
 │   │   │   └── auth.service.ts                # [MODIFICAR] registerTenant auto-instala también 'social-catalog' junto a 'biolinks'
-│   │   └── package.json                       # [VERSION] Bump 1.39.18 -> 1.39.19
-├── VERSION                                    # [VERSION] 1.39.18 -> 1.39.19
+│   │   └── package.json                       # [VERSION] Bump 1.45.4 -> 1.46.0
+├── VERSION                                    # [VERSION] 1.45.4 -> 1.46.0
 ├── featurelist.json                           # [FEATURE] Registro formal de FEAT-195
 └── docs/plans/estratega-comercial-microservicios/
     ├── estudio_de_caso_pency.md              # [ACTUALIZAR] Referencia al plan concluido
@@ -109,7 +109,7 @@ orderflow/
 
 ## 5. Control de Versiones y Sincronización
 
-* Bump de versión: **1.39.18 → 1.39.19** en `VERSION`, `backend/package.json`, `frontend/package.json`.
+* Bump de versión: **1.45.4 → 1.46.0** en `VERSION`, `backend/package.json`, `frontend/package.json`.
 * Registro de `FEAT-195` en `featurelist.json`.
 * Actualización de `CHANGELOG.md` y `ROADMAP.md`.
 * Sincronización con la Wiki oficial en `/opt/wiki/orderflow/`.

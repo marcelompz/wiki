@@ -50,11 +50,85 @@ Antes de examinar código o ejecutar cualquier acción en la base del proyecto, 
    - `POST /api/v1/guest/orders` — `GuestOrdersController.createDraft`
    - `GET /api/v1/guest/orders/:id` — `GuestOrdersController.track`
    - `POST /api/v1/guest/tables/:tableId/call-waiter` — `GuestCallWaiterController.callWaiter`
+   - `GET /api/v1/wopi/files/:fileId` y `/contents` — `WopiController` (Office Online, token en query)
+   - `GET/POST /api/v1/wopi/doc-files/:token*` — `WopiDocumentsController` (Office Online, token en path)
+   - `POST /api/v1/social-catalog/webhooks/{stripe,mercadopago,pagopar}` — `SocialCatalogWebhooksController` (proveedores de pago)
 
    **Verificación obligatoria en cada release:** Ejecutar `grep -rn "@TenantPrisma" backend/src --include="*.ts" | grep -v ".spec.ts"` y confirmar que cada resultado tiene `@UseGuards(ApiKeyGuard)` o `@UseGuards(JwtAuthGuard)` en el mismo controlador/método. Los endpoints de la lista superior NO deben aparecer.
 
    **Causa raíz histórica:** El error "OmniBio No Encontrado" + "API key or valid JWT missing" en `https://provecchio.local/?t=<token>` fue causado porque estos endpoints públicos llevaban `@TenantPrisma()` sin guard, o `@UseGuards(ApiKeyGuard)` a nivel de clase. Véase `docs/troubleshooting/107-biolink-public-endpoints-missing-apikeyguard-fix.md` y `docs/troubleshooting/143-public-qr-endpoints-must-not-use-tenantprisma.md`.
 4. **Infraestructura Proxy Exclusive Traefik v3.4:** Prohibido sugerir o configurar Nginx. Traefik administra SSL y subdominios dinámicos. La configuración de Traefik se gestiona desde `/opt/traefik-orderflow` y debe sincronizarse a `/srv/traefik` en el servidor de producción después de cada cambio mayor. Traefik sirve a múltiples servicios (OrderFlow, Aieer, Axon y otros) en los servidores de producción; los cambios de ruteo o configuración deben respetar los servicios existentes y no romper el enrutamiento de servicios ajenos a OrderFlow. La documentación de Traefik (`README.md`, `ROADMAP.md`, `POS_KDS_ARCHITECTURE.md` y archivos en `dynamic/`) debe mantenerse sincronizada con la Wiki oficial (`/opt/wiki/orderflow/`) cuando haya cambios de ruteo o arquitectura. **Para Provecchio: el archivo destino es `/opt/srv/traefik/dynamic/services.yml` (no `/opt/traefik-orderflow/` en el servidor); sincronizar con `scp` y recargar con `docker kill -s HUP traefik`.**
+
+**Actualización de Rutas para Odoo Integration (Locales y Producción):**
+
+Antes de desplegar cualquier nueva feature que agregue endpoints, es **OBLIGATORIO** actualizar la configuración de Traefik tanto para entornos locales como de producción:
+
+### **9.2 Actualización de Configuración de Traefik para Nuevas Features**
+
+#### **Para Local Development (Cuando se trabaja localmente):**
+1. **Editar configuración local:**
+   - Archivo: `/opt/traefik-orderflow/dynamic/services.yml`
+   - Agregar nuevas rutas para endpoints de la feature
+   - Ejemplo para endpoints de integración Odoo:
+     ```yaml
+     routers:
+       orderflow-omniflow-api:
+         rule: PathPrefix(`/api/omniflow/`) or PathPrefix(`/api/v1/integrations/*`)
+         service: odoo-adapter or orderflow_backend
+         entryPoints: websecure
+         tls: {}
+       
+       orderflow-admin-integrations:
+         rule: PathPrefix(`/admin/integrations`) or Path(`/admin/integrations`)
+         service: orderflow_frontend
+         entryPoints: websecure
+         tls: {}
+     ```
+
+2. **Validar sintaxis:**
+   ```bash
+   docker compose -f docker-compose.yml -f docker-compose.traefik.yml config
+   ```
+
+3. **Actualizar contenedor Traefik:**
+   ```bash
+   docker kill -s HUP traefik
+   ```
+
+#### **Para Producción (Cuando se prepara un despliegue):**
+1. **Editar configuración de producción:**
+   - Archivo: `/opt/srv/traefik/dynamic/services.yml` (en servidor)
+   - Agregar rutas idénticas a las de desarrollo
+   - Asegurar que los servicios referenciados existen
+
+2. **Sync desde local:**
+   ```bash
+   # Desde el host local hacia el servidor
+   scp /opt/traefik-orderflow/dynamic/services.yml usuario@servidor:/opt/traefik-orderflow/dynamic/
+   
+   # Luego en el servidor ejecutar:
+   docker kill -s HUP traefik
+   ```
+
+3. **Verificar estado del servicio:**
+   ```bash
+   docker ps | grep traefik
+   ```
+
+#### **Reglas Generales para Nuevas Features:**
+- **Todos los nuevos endpoints deben tener rutas Traefik** antes del despliegue
+- **Validar sintaxis** de YAML antes del deploy
+- **Hacer sync** de configuración local a producción antes del deploy-production.sh
+- **Probar endpoints** localmente antes de cualquier despliegue
+- **Documentar rutas** en el plan de actualización de la feature
+
+#### **Validación Post-Deploy:**
+- Después del deploy, **probar que las nuevas rutas funcionan** localmente
+- **Verificar logs** de Traefik para confirmación de ruteo correcto
+- **Probar headers HTTPS** si la feature usa TLS
+- **Registrar nuevas rutas** en la documentación correspondiente
+
+**Nota:** Saltar este paso resultará en nuevas features que no son accesibles a los usuarios, causando deploys fallidos.**
 5. **Formato y Coexistencia de Módulos:** Verificar acoplamiento cross-module. Si un nuevo módulo posee acoplamiento 0, califica como candidato para la suite de Microservicios Standalone.
 6. **Mantenimiento del Roadmap Standalone:** Cualquier cambio en la suite independiente debe sincronizarse en [docs/guides/ROADMAP_MICROSERVICES.md](docs/guides/ROADMAP_MICROSERVICES.md).
 7. **Sincronización de Documentación con Wiki:** Toda actualización de documentación en `docs/` del proyecto debe reflejarse en la Wiki oficial (`/opt/wiki/orderflow/`). Es **OBLIGATORIO** actualizar e incluir el `ROADMAP.md` junto con `VERSION`, `CHANGELOG.md`, `README.md`, `package.json` y cualquier `.md` en `docs/` en cada release o entrega de características, haciendo push a sus repositorios remotos.
@@ -72,6 +146,23 @@ Antes de examinar código o ejecutar cualquier acción en la base del proyecto, 
    - **Pre-requisito obligatorio:** cambios locales deben estar commiteados y pusheados a `origin/main` antes de ejecutar el deploy, porque el script hace `git stash` + `git push` y lo que quede sin commit queda fuera del despliegue.
    - **Nota:** El script valida variables requeridas (`DATABASE_URL`, `JWT_SECRET`, `JWT_REFRESH_SECRET`, `MASTER_API_KEY`) y crea backup DB pre-deploy.
    - **Rollback:** se guarda snapshot de env en `deploy-artifacts/rollback-<target>-<timestamp>.env` y el script puede revertir containers si falla migrate.
+
+### 9.0 Servidor de staging
+
+| Entorno | Host | Path | Acceso |
+|---|---|---|---|
+| **Staging** | `192.168.100.204` (`homeserver`, Debian 13) | `/srv/orderflow` | `ssh marcelompz@192.168.100.204` (clave SSH) |
+
+Reglas:
+
+- **No existe un target `staging` en `scripts/deploy-production.sh`.** Los únicos targets son `production` y `provecchio`; no reutilizarlos para staging. Cualquier despliegue a staging se hace por SSH/rsync explícito y con autorización previa (regla 9).
+- El repositorio es **privado**: clonar por SSH con `git clone git@github.com:marcelompz/orderflow.git`. Si el token de `gh` está vencido, `gh repo clone` falla aunque el acceso SSH a GitHub funcione; en ese caso usar `git clone` o reautenticar con `gh auth login -h github.com --git-protocol ssh --web`.
+- Verificar siempre que `/srv/orderflow` sea un checkout real antes de operar:
+  ```bash
+  ssh marcelompz@192.168.100.204 'cd /srv/orderflow && git status -sb && git log -1 --oneline'
+  ```
+  Si falta `.git`, el directorio es solo una copia de archivos: no asumir que está sincronizado ni ejecutar `git pull` allí.
+- **Estado verificado 2026-11-08:** `/srv/orderflow` contenía los archivos de `1.46.2` pero sin `.git`, y el host no tenía Docker instalado. Confirmar ambos puntos antes de un deploy a staging.
 
 ### 9.1 Checklist Específico Provecchio (OBLIGATORIO)
    Antes de ejecutar `./scripts/deploy-production.sh provecchio`, verificar:
@@ -302,8 +393,9 @@ Antes de cualquier despliegue a producción, y como **primer paso**, verificar s
 Antes de cualquier despliegue a producción, **siempre**:
 1. **Exportar datos actuales desde producción:** Ejecutar `./scripts/backup-production.sh provecchio` (o `production`) para generar un backup de la base de datos y files store actuales desde el entorno de producción.
 2. **Importar datos a localhost:** Restaurar el backup exportado en el entorno local (`provecchio.local`) para garantizar que las pruebas E2E se ejecuten contra datos reales y actualizados. Esto asegura que las validaciones locales reflejen fielmente el estado de producción y previene la pérdida de información sensible durante el despliegue.
-3. **Garantizar consistencia de datos:** El backup restaurado en localhost debe ser el punto de partida para todas las pruebas. Después del deploy de producción, restaurar el backup siempre que sea posible para asegurar la consistencia de datos y evitar la pérdida de información sensible.
-4. Deployar a entorno local usando `./scripts/deploy-local.sh` (valida build, tests, health checks, endpoints).
+   3. **Garantizar consistencia de datos:** El backup restaurado en localhost debe ser el punto de partida para todas las pruebas. Después del deploy de producción, restaurar el backup siempre que sea posible para asegurar la consistencia de datos y evitar la pérdida de información sensible.
+   3.1 **Verificar funcionamiento total y persistencia de datos en localhost:** Antes del deploy a producción, comprobar que todos los endpoints críticos responden correctamente (health checks, endpoints públicos/prod), que la base de datos local refleja fielmente las tablas/restaurantes/cajas de prod, y que los datos persisten tras reinicio de contenedores (`docker compose down` + `up`). Esto valida que el restore fue completo y el entorno local es fiel a prod.
+   4. Deployar a entorno local usando `./scripts/deploy-local.sh` (valida build, tests, health checks, endpoints).
 5. Verificar consistencia del sistema: health endpoint, endpoints críticos (sin 500), E2E tests.
 6. Verificar consistencia de datos: migraciones aplicadas correctamente, datos intactos.
 7. **Validar proceso automatizado de backup/restore SFTP:** Ejecutar backup manual desde `/admin/backups` (trigger), verificar que el archivo sube al SFTP, y probar restore del último backup en entorno de staging/localhost antes de considerar el deploy completo.
@@ -334,18 +426,72 @@ Reglas:
 - Si reporta advertencias (`⚠️`), el deploy puede proceder, pero deben revisarse antes de continuar.
 - Este diagnóstico se ejecuta automáticamente al invocar `./scripts/deploy-production.sh` y su fallo aborta el deploy.
 
-### 3.3 Pruebas de API con Newman (Complemento a Playwright)
-Newman se utiliza como herramienta complementaria para la validación de contratos de API y pruebas de integración. Su uso es obligatorio cuando se modifiquen endpoints públicos, integraciones, webhooks o contratos REST/WebSocket, **sin reemplazar** la suite Playwright de flujos E2E y UI.
+### **Update Traefik Routes for Odoo Integration**
 
-- Casos de uso recomendados:
-  - Smoke tests de salud y contratos base (`/api/v1/health`, `/api/v1/auth/login`, endpoints públicos de catálogo/QR/KDS).
-  - Validación de integraciones y webhooks (`/api/v1/integrations/*`, `/api/v1/public/*`).
-  - Pruebas de regresión de endpoints críticos sin interfaz gráfica.
-- Ubicación de colecciones: `docs/tests/postman/` o `docs/tests/newman/`.
-- Ejecución recomendada:
-  - `newman run docs/tests/newman/contracts.postman_collection.json --environment docs/tests/newman/production.postman_environment.json --reporters cli,html --reporter-html-export docs/tests/newman/report.html`
-  - En CI/CD, ejecutar después del build y antes del deploy.
-- Regla: toda feature que modifique endpoints debe incluir o actualizar su colección de Newman y documentar el resultado en el archivo de auditoría correspondiente.
+#### **For Local Environment**
+1. **Edit Traefik configuration:**
+   - File: `/opt/traefik-orderflow/dynamic/services.yml`
+   - Add new routes for the Odoo integration endpoints
+   - Example for new routes:
+     ```yaml
+     routers:
+       orderflow-omniflow-api:
+         rule: PathPrefix(`/api/omniflow/`) or PathPrefix(`/api/v1/integrations/*`)
+         service: odoo-adapter or orderflow_backend
+         entryPoints: websecure
+         tls: {}
+       
+       orderflow-admin-integrations:
+         rule: PathPrefix(`/admin/integrations`) or Path(`/admin/integrations`)
+         service: orderflow_frontend
+         entryPoints: websecure
+         tls: {}
+     ```
+
+2. **Validate configuration:**
+   ```bash
+   docker compose -f docker-compose.yml -f docker-compose.traefik.yml config
+   ```
+
+3. **Update Traefik container:**
+   ```bash
+   docker kill -s HUP traefik
+   ```
+
+#### **For Production**
+1. **Edit production configuration:**
+   - File: `/opt/srv/traefik/dynamic/services.yml` (on the server)
+   - Add identical routes as development
+   - Ensure referenced services exist
+
+2. **Sync from local:**
+   ```bash
+   # From local to server
+   scp /opt/traefik-orderflow/dynamic/services.yml usuario@servidor:/opt/traefik-orderflow/dynamic/
+   
+   # On server execute:
+   docker kill -s HUP traefik
+   ```
+
+3. **Verify service status:**
+   ```bash
+   docker ps | grep traefik
+   ```
+
+#### **General Rules for New Features:**
+- **All new endpoints must have Traefik routes** before deployment
+- **Validate configuration syntax** before deployment
+- **Sync configuration** from local to production before deploy-production.sh
+- **Test endpoints** locally before any deployment
+- **Document new routes** in the feature update plan
+
+#### **Post-Deployment Validation:**
+- **Test new routes** locally after deployment
+- **Check Traefik logs** for successful route configuration
+- **Test HTTPS headers** if TLS is used
+- **Document new routes** in appropriate documentation
+
+**Note:** Saltar este paso resultará en nuevas features que no son accesibles a los usuarios, causando deploys fallidos.
 
 ---
 

@@ -20,7 +20,7 @@ Estudiar el caso de éxito de esta plataforma y buscar otras similares que ofrez
     - Cuota de mercado de cada plataforma (paises, cantidad de clientes).
 
 ## Análisis del plan preexistente y  estado del arte 
-Ya había trazado un plan comercial sin hacer benchmarking en esta misma ubicación `/opt/orderflow/docs/plans/estratega-comercial-microserviciosp`
+Ya había trazado un plan comercial sin hacer benchmarking en esta misma ubicación `/opt/orderflow/docs/plans/estratega-comercial-microservicios`
 
 Realiza una auditoría del estado del arte actual de OrderFlow.
 

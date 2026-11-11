@@ -1,3 +1,400 @@
+## [1.46.3] - 2026-11-11
+
+### 📦 DevOps — Migración a pnpm workspaces, fase 1 (FEAT-212)
+
+- **Workspace pnpm con `node-linker=isolated` estricto**: `pnpm-workspace.yaml`
+  (backend, frontend, mobile, desktop, odoo-adapter, `packages/*`,
+  `services/*`; excluye symlinks externos y aliases omni*), `.npmrc` y
+  `packageManager: pnpm@10.34.9` vía corepack. Lockfile único raíz
+  `pnpm-lock.yaml`. El checkout pasa de ~4.2 GB a ~1.6 GB (store compartida
+  por hardlinks; `node_modules` por proyecto quedan en KBs).
+- **Deps fantasma declaradas con cero drift** (exposición del strict
+  isolated): `socket.io` y `cron` en backend (elimina el stub roto
+  `@types/cron` 2.x), `dayjs` en frontend, `@types/node` en mobile,
+  `express` en 8 services standalone y `@nestjs/testing` en
+  whatsapp-catalog. Los `package-lock.json` por proyecto se regeneraron con
+  la misma resolución y **se conservan**: CI (`npm ci`) y Docker builds no
+  se tocan.
+- **Bug de pnpm 10.34.9**: symlinks con un `../` de más en backend tras la
+  primera instalación del workspace; curación idempotente en
+  `scripts/fix-pnpm-links.sh` (troubleshooting #219).
+- **Restricción Prisma bajo isolated** (hallazgo arquitectónico): un solo
+  slot físico de cliente generado por versión ("último `prisma generate`
+  gana", realpath al `.pnpm` compartido). Sin cambios de código en fase 1;
+  migración de los 9 services standalone al patrón omnibi documentada como
+  trabajo de fase 2 (troubleshooting #220).
+- **Scripts de versionado**: `check-version-sync.sh` y `sync-version.sh`
+  adaptados a la raíz con pnpm-lock (el lockfile raíz ya no lleva campo
+  `version`); lock raíz npm huérfano eliminado.
+- **Validación FEAT-212**: barrera `init.sh` completa (jest 1061/1061,
+  builds backend/frontend, E2E QA contra provecchio.com) + deploy staging
+  homeserver con los `npm ci` de los builds Docker reconstruidos desde cero
+  (backend recreado healthy, redirect 301, Ingress qBittorrent intacto).
+  Sin cambios de schema ni de lógica de negocio.
+
+## [1.46.2] - 2026-11-07
+
+### 🔒 Hardening P0 (seguridad, CI y versionado)
+
+- **P0-1 — Secretos fuera del índice:** se destrackearon el JSON de Google
+  OAuth y los 10 `deploy-artifacts/rollback-*.env` con credenciales reales,
+  además de `qa/.env` y `qa/.env.provecchio`. Los archivos expuestos se
+  movieron a cuarentena fuera del repositorio. La rotación de credenciales se
+  ejecuta en una ventana de mantenimiento autorizada (ver plan P0).
+- **P0-1 — Prevención:** `gitleaks` pasa a ser bloqueante sobre el working
+  tree (`detect --no-git`) con `.gitleaks.toml`; el escaneo de historia queda
+  informativo hasta completar la purga. Los scripts de deploy/backup ya no
+  generan snapshots `.env` dentro del repositorio.
+- **P0-1 — Baseline:** `.gitleaksignore` registra 30 hallazgos existentes
+  (173 brutos; se allowlistearon docs `*.md` y `.qwen/`) para que el gate
+  bloquee desde hoy. El baseline incluye credenciales adicionales detectadas y
+  pendientes de rotación (`docker-compose.yml`,
+  `scripts/set-tenant-subdomains.sql`, API keys hardcodeadas en frontend/mobile
+  y QA). Ver §0.1 del plan P0.
+- **P0-2 — CI:** corregido `prefer-const` en `claims.service.ts`; retirado el
+  workflow inválido `ci-cd.yml` (fallaba en 0 s); Node alineado a 22; agregado
+  gate de sincronización de versión; corregido el paso de Jest del job backend,
+  que combinaba `--runInBand` y `--maxWorkers=1` (flags mutuamente excluyentes
+  en Jest 29 y habría fallado tras arreglar el lint); declarada una
+  `DATABASE_URL` ficticia para `prisma validate` (exige la variable aunque no
+  conecte).
+- **P0-3 — Versión única:** sincronización a `1.46.2` en `VERSION`,
+  `package.json` raíz, backend, frontend, mobile, manifiestos, README,
+  ROADMAP y contexto de agentes. `check-version-sync.sh` ahora valida también
+  el `package.json` raíz y `docs/00-contexto-agentes.md`.
+- **Deploy Provecchio:** se elimina el build redundante del frontend en el
+  host (`vite build --mode provecchio`) que abortaba por el límite de precache
+  de Workbox. El bundle se genera solo en `frontend/Dockerfile.prod`
+  (minificado). `minify` se aplica a todo mode distinto de `development` y
+  Workbox admite chunks de hasta 4 MiB (troubleshooting #215).
+- Sin cambios de schema ni de lógica de negocio.
+
+## [1.46.0] - 2026-11-04
+
+### ✨ Release
+
+- FEAT-195: Landing self-service unificada & esquema Free (path) vs Pro (subdominio).
+- FEAT-211: Entrega parcial por línea en POS de Mozo.
+- fix: schema drift `order_lines.deliveredAt` (migración agregada).
+- chore: frontend build context + serve config para SPA fallback.
+
+## [1.45.1] - 2026-10-30
+
+### 🚧 Release en curso
+
+- Documentar aqui los cambios de la version.
+
+## [1.45.0] - 2026-10-29
+
+### 🚧 Release en curso
+
+- Documentar aqui los cambios de la version.
+
+## [1.44.6] - 2026-10-28
+
+### 🚧 Release en curso
+
+- Documentar aqui los cambios de la version.
+
+## [1.44.5] - 2026-10-28
+
+### 🚧 Release en curso
+
+- Documentar aqui los cambios de la version.
+
+## [1.44.4] - 2026-10-28
+
+### Fix KDS/POS - Botón "Entregar a Mesa" en panel de mozos y POS
+
+- Panel de mozos: Agregado botón "Entregar a Mesa" para órdenes en estado READY, que marca el pedido como DELIVERED.
+- POS: Agregado botón "Entregar a Mesa" junto a "Enviar a Cocina" para marcar pedidos como entregados.
+- KDS: Las comandas servidas (DELIVERED) ahora se mantienen visibles en la pestaña "Listo" con opción de reabrir.
+
+## [1.44.3] - 2026-10-28
+
+### Fix KDS - Comandas servidas desaparecen + reabrir comanda
+
+- KDS: Las comandas servidas (DELIVERED) ahora se mantienen visibles en la pestaña "Listo" en vez de desaparecer.
+- KDS: Agregado boton "Reabrir Comanda" para comandas servidas, que las devuelve a estado READY.
+- KDS: Agregado filtro "Servido" en el selector de estado.
+- KDS: loadActiveOrders ahora incluye DELIVERED en la consulta al backend.
+
+## [1.44.2] - 2026-10-28
+
+### Fix KDS/POS - Error cargando comandas y datos de mesa
+
+- KDS: El endpoint /api/v1/orders?status=CONFIRMED,PREPARING,READY devolvia 500 por campo 'number' inexistente en RestaurantTable (corregido a 'tableNumber').
+- POS: El endpoint de ordenes por mesa tambien fallaba con el mismo error, causando "Error cargando datos de la mesa" en /admin/gastro/pos/:tableId.
+
+## [1.44.1] - 2026-10-28
+
+### 🐛 Fix KDS — Productos no se listan + número de mesa incorrecto
+
+- **KDS filtering:** El backend ahora incluye la tabla en la respuesta de órdenes, y el filtro de estación verifica tanto `categoryId` como `posCategoryId` para mayor robustez.
+- **Número de mesa:** El KDS ahora muestra el número/nombre de la mesa correctamente (usando datos de la tabla incluida por el backend en vez de slice del UUID).
+
+## [1.44.0] - 2026-10-28
+
+### 🍽️ Mejoras de UX en OmniGastro
+
+- **Botones con mejor UX:** En `/admin/gastro/mozos`:
+  - 'Gestión de Mesas & Códigos QR' → 'Gestionar Mesas' (texto más corto)
+  - 'Cargar Pedido' → color verde para resaltar
+  - 'Sincronizar' → color naranja
+- **Visibilidad configurable:** En `/admin/settings` → OmniGastro, el administrador puede habilitar/deshabilitar la visibilidad de [Propinas Hoy] e [Incentivos] en el panel de mozos. Se almacenan en `tenant-settings.gastro.showTips` y `tenant-settings.gastro.showIncentives`.
+
+## [1.43.9] - 2026-10-27
+
+### 🚧 Release en curso
+
+- Documentar aqui los cambios de la version.
+
+## [1.43.8] - 2026-10-27
+
+### 🍽️ FEAT-210 — Flujo cocina real (send-to-kitchen) + notificación `order:ready` al mozo + cobro por sesión (fix "OCCUPIED")
+
+Bugs del QA en producción v1.43.7 (`docs/info/OmniGastro.md`) — causa raíz y solución en [troubleshooting #210](docs/troubleshooting/210-kds-ready-notify-occupied-bill-flow.md).
+
+- **Cocina real:** "Enviar a cocina" del POS de mozo ahora llama `POST /orders/:id/send-to-kitchen` → la orden queda `PREPARING` ("En Cocción") con ticket KDS + telemetría t2/t3/t4; `readyAt` lo pone la cocina con "Marcar Listo (Servir)" (el cliente ya no ve "¡Listo!" antes de recibir).
+- **Notificación al mozo:** nueva emisión WS `order:ready` al transicionar `READY` (payload con mesa/sesión/mozo); `useWaiterAlerts` en `/admin/gastro/mozos` y en el POS de mesa suena + avisa "🏁 Mesa X: pedido listo para entregar"; el panel (`gastro.tsx`) recibe el mismo aviso.
+- **Cobro por sesión:** el POS de mesa ya no expulsa en mesa `OCCUPIED` sin pedidos activos: banner con totales de sesión + "Cobrar en mesa y liberar" (`POST /bills/:id/pay`, crea cuenta MERGED si no existe) / "Cerrar sin cobrar (paga en caja)" (`table-sessions/:id/close`) / "Ir a caja". `BillsService.lockOrders` admite pedidos `DELIVERED` sin pagar.
+- **Testing:** unit 140/140 suites · 1060/1060 tests (2 nuevos: emisión de `order:ready` y negativa); E2E `gastro-pos-send-kitchen.spec.ts` 6/6 con la nueva semántica (assert: tras send-to-kitchen, `readyAt` **falsy**).
+- **Sin endpoints REST nuevos ni migraciones** — bump patch 1.43.7 → 1.43.8.
+
+## [1.43.7] - 2026-10-27
+
+### 🔐 FEAT-209 — Super-admin automation vía MASTER_API_KEY (fix 403 "Missing user or tenant context" vía Traefik) + credenciales E2E por env
+
+Hallazgos post-deploy v1.43.6 (auditoría FEAT-208, `docs/plans/omnigastro/auditoria-feat-208-2026-10-27.md`). Causa raíz en [troubleshooting #209](docs/troubleshooting/209-master-api-key-403-via-traefik.md).
+
+- **`backend/src/common/api-key.guard.ts`:** el chequeo de `MASTER_API_KEY` estaba en una rama `else if (apiKey)` que **no se ejecutaba** cuando el host ya resolvía tenant (ej. `provecchio.com` vía `customDomain`) → el usuario synthetic super-admin nunca se creaba y `PermissionsGuard` respondía 403 "Missing user or tenant context" para automatizaciones externas. Ahora se evalúa **independientemente** de la resolución por host/query y el super-admin opera sobre el tenant resuelto (`tenantId`/`defaultTenantId`), sin perderlo. Comportamiento con `X-Tenant-Id` previo intacto; API keys de tenant y 401 sin cambios.
+- **`backend/src/common/rbac.service.ts`:** `hasPermission` reconoce el synthetic `master` (como ya hacía con `super-admin-global`) → endpoints que llaman `assertPermission()` directamente (ej. `POST /api/v1/table-sessions/:id/close` con `force:true`, 403 `tables:manage`) pasan con master key.
+- **Credenciales E2E (18 specs):** `'SuperAdmin123!'` hardcodeado (password rotada en producción, #201/#19) reemplazado por inyección por env (`E2E_ADMIN_EMAIL`/`E2E_ADMIN_PASSWORD`, y `PLAYWRIGHT_ADMIN_EMAIL`/`PLAYWRIGHT_ADMIN_PASSWORD` en specs Odoo) — la password real vive en `.env` gitignored, no se commitea. Nota en `docs/tests/newman/README.md`; environment Newman sigue sin password.
+- **Tests:** nueva `backend/src/common/api-key.guard.spec.ts` (3 casos: synthetic user con host resuelto, sin confundir master key con tenant key, 401 previo intacto) + 2 casos RBAC (`master` → true). **Sin endpoints nuevos ni migraciones** → bump patch `1.43.6 → 1.43.7`.
+
+## [1.43.6] - 2026-10-27
+
+### 🍽️ OmniGastro — fix POS de Mozo: "Enviar a cocina" sin efecto, líneas que se perdían y catálogo incompleto (rama `fix/omnigastro-pos-envio-cocina-items`)
+
+Del reporte de pruebas en producción v1.43.5 (`docs/info/OmniGastro.md`, 2026-10-27). Causas raíz documentadas en [troubleshooting #208](docs/troubleshooting/208-gastro-pos-order-id-lines-catalogo.md).
+
+- **`gastro-pos.tsx` (POS por mesa):**
+  - **"Enviar a cocina" no hacía nada:** desde el refactor v1.42.1 (FEAT-204) el pedido guardado en estado trae el campo `id`, pero los manejadores leían `order.orderId` (siempre `undefined`) y el guard `if (!order?.orderId) return;` abortaba en silencio — sin send, el cobro no se habilitaba. Ahora `claim → ready` se aplica sobre **todas** las órdenes activas de la mesa y `close`/`split` usan `order.id`.
+  - **`Cannot PATCH /api/v1/orders/items` + líneas que desaparecían:** las líneas nuevas del mozo se creaban **sin `orderId`** y `saveLines` caía al fallback con id vacío → PATCH 404; la línea solo vivía en estado local y se perdía al reabrir el pedido. Ahora `handleAddProduct` asigna el `orderId` de la orden del asiento, `saveLines` hace *claim best-effort* antes del PATCH (pedidos guest exigen reclamo, `guestUpdateItems`) y aborta el envío a cocina si la persistencia falló (nunca cocina sin los ítems visibles).
+  - **Estado agregado sobre la sesión:** `isKitchenSent`/`isReady` se evalúan sobre todas las órdenes activas (cobro cuando todas marcaron READY).
+  - **UX (bug 4):** el enlace de texto `[+aquí]` del comensal pasa a **botón verde "Agregar aquí"** con `token.colorSuccess` (Regla #10).
+- **`catalog.service.ts` (catálogo del POS con pocos productos):** `getCategoryTree` adjuntaba el producto solo a `categoryId`; si esa categoría estaba fuera del árbol (nivel > `maxLevel` o inactiva) mientras su `posCategoryId` sí estaba, el producto quedaba huérfano e invisible. Ahora se adjunta a la primera categoría **presente en el árbol** (prioridad `categoryId` → `posCategoryId`), sin duplicados ni cambios de `maxLevel`.
+- **Sin endpoints nuevos ni migraciones** → bump patch `1.43.5 → 1.43.6`.
+
+## [1.43.5] - 2026-10-27
+
+### 🔧 Core — Persistencia del fix de path aliases en producción (Provecchio, troubleshooting #154)
+
+- **`backend/bootstrap.js` (nuevo):** registra `tsconfig-paths` en runtime con los 18 aliases de `tsconfig.json` (prefijo `src/` removido) y auto-detecta el `baseUrl` (`dist/` plano o `dist/src/`). Elimina el `MODULE_NOT_FOUND` para `@common/prisma.service` y el resto de aliases en producción.
+- **`backend/entrypoint.sh`:** el arranque usa `node /app/bootstrap.js` en lugar de `node dist/main.js` (`dist/src/main.js`).
+- **`backend/Dockerfile.prod`:** ahora copia `bootstrap.js` al stage final.
+- **`backend/package.json`:** `tsconfig-paths@^4.2.0` agregado a `dependencies` (era efímero, instalado a mano en el contenedor el 26-oct); `start:prod` apunta al bootstrap.
+- **Network aliases `orderflow_backend` / `orderflow_frontend` en `traefik-public`:** ya estaban persistidos en `docker-compose.prod.yml` (item 4 del informe, sin cambio requerido).
+- Viene de: `docs/info/INFORME_CORRECCION_PROVECCHIO_2026-10-27.md` (correcciones efímeras en contenedor, sesión 2026-10-26/27).
+
+## [1.43.4] - 2026-10-26
+
+### 🔐 OmniGastro — fix runtime bills/table-sessions: campos Prisma sin `@map` (troubleshooting #206)
+
+- **`Bill.totalAmount` → `@map("total_amount")` y `BillSplit.billId` → `@map("bill_id")`:** la migración `20261023120000_gastro_table_sessions_bills` creó las columnas en snake_case (§2.4) pero el modelo no mapeaba esos 2 campos — **cualquier query de bills/splits daba 500 en prod desde el 23-oct** (externo al health- check). Detectado al ejecutar force-close de la sesión de la mesa G8.
+- El fix no requiere DDL (solo regeneración de cliente Prisma + rebuild).
+- Acompaña: FEAT-165 frontend — claim de pedidos y atencion de llamados ya no exigen mesa `FREE` (mesa OCCUPIED es lo esperado con orden activa).
+
+## [1.43.3] - 2026-10-26
+
+### 🔌 OmniGastro — FEAT-207 P1: idempotencia por línea y traspaso endurecido (addon `pos_omniflow_sync` v14.0.1.7.0, pendiente deploy)
+
+- **`sync_table_order` upsert por línea:** el snapshot completo que envía el backend ahora se aplica por clave `(product_id, price_unit, notice)` — un reintento de red/BullMQ **ya no duplica líneas**, los duplicados heredados de reenvíos previos se eliminan y las líneas agregadas a mano por el mozo en Odoo se conservan.
+- **`transfer_table_order` endurecido:** match exclusivo por `omniflow_order_ref` en `state='draft'`; el fallback por mesa queda acotado a la **sesión activa** (el adapter la resuelve con `getActivePosSession` y la manda como `session_id`); sin sesión no hay fallback — nunca se traspasa la cuenta equivocada.
+- **Homonómimos no se fusionan:** si el nombre del cliente matchea 2+ `res partner`, se crea uno nuevo en lugar de fusionar rápido.
+
+## [1.43.2] - 2026-10-26
+
+### 🔌 OmniGastro — hardening del conector `pos_omniflow_sync` (FEAT-207, auditoría del informe del conector)
+
+- **Auditoría claim-por-claim del informe** `docs/info/Informe_estado_conector_pos_omniflow_sync(Odoo).md`: el canon real es `14.0.1.5.0`; 5 hallazgos del informe seguían vigentes, 3 recomendaciones ya implementadas. Documento: `docs/plans/omnigastro/auditoria-conector-pos-omniflow-sync-2026-10-26.md`.
+- **Addon v14.0.1.6.0 (desplegado en 192.168.69.246):** `sync_table_order` rechaza payload sin `order_uuid` (`ORDER_UUID_REQUIRED`), filtra `state='draft'` en ambas búsquedas (un reintento tardío nunca escribe sobre un pedido pagado/facturado), fallback legacy curado (no roba el borrador de otro pedido) y guard defensivo pre-escritura.
+- **Adapter:** `/api/omniflow/sync_table_order` mapea `POS_ORDER_LOCKED` → **409 no reintentable** (BullMQ), igual que `/sync_bill` (v1.43.1 ya lo tenía para sync_bill).
+- **Deploy verificado:** upgrade de módulo `-u pos_omniflow_sync` creó la columna `omniflow_bill_ref` (no existía en prod 1.3.0). Lección registrada: el script de deploy copia código pero no ejecuta el upgrade (pendiente flag `--upgrade`).
+
+### 📦 Release
+
+- Bump patch `1.43.1 → 1.43.2` (VERSION, package.json, featurelist con `FEAT-207`).
+
+## [1.43.1] - 2026-10-26
+
+### 🔐 Auth / Integraciones (FEAT-188-ext)
+
+- Guard SuperAdmin en `/admin/integrations` (`466fc7a0`) + FEAT-188-ext Integraciones Odoo con auth SuperAdmin (`5caf37b1`).
+- Fix login SuperAdmin en producción (`5f136f81`, troubleshooting **#201**: `passwordHash` corrompido por shell mangling en SQL manual; prevención stdin/base64).
+- Release E2E fixes + docs troubleshooting (ver DEPLOY_REPORT `docs/plans/omnigastro/DEPLOY_REPORT_2026-10-26-v1.43.1-provecchio.md`, desplegado en `provecchio.com` vía PR #24).
+
+## [1.43.0] - 2026-10-25
+
+### 🔌 OmniGastro — Integración Odoo POS multi-módulo (FEAT-206)
+
+- Integración Odoo POS con selector de autoridad POS, mapeo bidireccional de catálogo con auditoría, sincronización automática de categorías TPV y panel `/admin/integrations` (`omnigastro-config`) (`ffe85ac6`).
+
+## [1.42.1] - 2026-10-24
+
+### 🍽️ OmniGastro — pedidos agrupados por asiento en el POS y flag TableSessions
+
+- **POS agrupa pedidos por asiento (`seatNumber`):** el POS del mozo agrupa los pedidos de una misma mesa por número de asiento, de modo que varios comensales que escanean el mismo QR se visualicen como líneas diferenciadas dentro de una sola sesión de mesa (FEAT-203).
+- **Flag `gastro.tableSessions`:** nuevo feature flag en `/admin/settings → OmniGastro` para habilitar sesiones de mesa (TableSession), `guestKey` por dispositivo e idempotencia en la alta de pedidos por QR. Relacionado con FEAT-204 (cuentas/Bill) y FEAT-205 (sync_bill a Odoo), ambos en desarrollo.
+
+### 🧪 Tests
+
+- **Mock de `BillsService` en tests de `pos-sessions`:** se agregó el mock para aislar el servicio de caja de la capa de cuentas (Bill) y evitar acoplamiento entre módulos (FEAT-204).
+
+### 🔐 Auth
+
+- **SuperAdmin vía `MASTER_API_KEY`:** se establece un `request.user` sintético cuando el SuperAdmin autentica con `MASTER_API_KEY`, permitiendo operaciones de administración cruzada de tenants sin requerir un usuario real vinculado.
+
+### 📦 Release
+
+- Sincronización de versión a `1.42.1` en todos los manifiestos y docs (`VERSION`, `package.json`, `featurelist.json`, `CHANGELOG.md`, `docs/timeline.md`).
+
+## [1.41.5] -
+## [1.42.0] - 2026-10-23
+
+### 🔔 Modal «Llamar al mozo» sin select vacío
+
+- **Causa:** `config.gastro.waiterOptions` del tenant tenía formato legacy (strings:
+  `call_waiter`, `request_bill`, `waiter_take_order`), mientras el QR público esperaba objetos
+  `{id,label,icon}`. El `<Select>` se renderizaba con opciones «undefined».
+- **Fix:** se eliminó el select de los dos modales de «Llamar al mozo»; queda solo el campo de
+  mensaje libre (`frontend/src/pages/omni-catalog.tsx`). Se retiró el estado
+  `selectedWaiterOption` y el envío de `optionId`.
+- **Doc:** `docs/troubleshooting/199-select-vacio-llamar-mozo-qr.md`.
+
+## [1.41.4] - 2026-10-23
+
+### 🍽️ Ítems que desaparecían del POS de Odoo
+
+- **Causa raíz:** `Moscow mule` (y 122 productos de menú más) tenían `available_in_pos = False`
+  y `pos_categ_id` vacío. El POS de Odoo descarta en silencio las líneas de productos no
+  habilitados para POS, por eso el pedido quedaba con 2 de 3 ítems.
+- **Backfill en Odoo:** 123 productos de las categorías «Para beber» (36) y «Para comer» (87)
+  habilitados para POS y asignados a `pos_categ_id` 16/17 (los insumos/expensas se dejan intactos).
+- **Addon `pos_omniflow_sync` v14.0.1.3.0:** al sincronizar una línea, si el producto no está
+  habilitado para POS se habilita automáticamente (`available_in_pos=True`), con log de warning.
+- **Reparación del pedido 32061:** se reincorporó la línea `Moscow mule` (1×30.000) y el total
+  volvió a 82.000 (3 ítems).
+
+### 👨‍🍳 Historial del pedido en el Mozo POS
+
+- **Causa:** el Mozo POS (`/admin/gastro/pos`) sólo consultaba estados activos
+  (`DRAFT,CONFIRMED,PREPARING,READY`); al cerrar la mesa el pedido pasa a `DELIVERED` y la vista
+  quedaba vacía aunque el historial existiera en el servidor.
+- **Fix:** si la mesa está libre y no hay pedido activo, se carga el último pedido de la mesa en
+  **modo lectura** con etiqueta «Cerrado» (los ítems enviados a cocina siguen visibles). Se bloquea
+  agregar/editar líneas y las acciones de envío/cobro sobre pedidos cerrados.
+- **Doc:** `docs/troubleshooting/198-pos-odoo-items-faltantes-e-historial-mozo.md`.
+
+## [1.41.3] - 2026-10-23
+
+### 🚨 Fix crítico — la caja del POS de Odoo no abría
+
+- **Causa raíz:** el addon `pos_omniflow_sync` creaba los pedidos con
+  `pos_reference = "OmniFlow-<uuid>"`. Odoo 14 (`pos_restaurant.get_table_draft_orders`)
+  hace `re.search(r"\d{5,}-\d{3,}-\d{4,}", pos_reference).group(0)` sin comprobar `None`,
+  por lo que un solo borrador con mesa rompía la apertura de caja con
+  `AttributeError: 'NoneType' object has no attribute 'group'`.
+- **Hotfix de datos:** pedido `32061` (mesa G3) normalizado a `Order 32061-002-1598`.
+- **Addon Odoo v14.0.1.2.0:**
+  - Nuevo campo `pos.order.omniflow_order_ref` para la referencia externa (idempotencia).
+  - `pos_reference` generado como `Order %05d-%03d-%04d` (formato parseable por Odoo).
+  - `_ensure_compatible_reference()` normaliza pedidos heredados con referencias inválidas.
+  - `sync_table_order` y `transfer_table_order` buscan por `omniflow_order_ref`.
+- **Desplegado en Odoo de producción** (`192.168.69.246`, contenedor `odoo_web_8081`):
+  backup + copia + `-u pos_omniflow_sync` + restart.
+- **Validación:** módulo `14.0.1.2.0`, `get_table_draft_orders(75)` OK y test de contrato
+  con `pos_reference` compatible + idempotencia.
+- Documentado en `docs/troubleshooting/197-odoo-pos-reference-incompatible-caja.md`.
+- Limpieza: `.pyc`/`__pycache__` residuales retirados del índice de git.
+
+## [1.41.2] - 2026-10-23
+
+### 🔒 Visibilidad y seguridad de la integración Odoo (FEAT-201)
+
+- **Host de Odoo visible (sin credenciales):** el adapter expone `odoo_host` en `/api/omniflow/odoo_floors`, el backend lo propaga como `odooHost` en el snapshot y el modal `GastroOdooSyncModal` lo muestra en el pie (`Odoo: <host>`). Permite saber de un vistazo contra qué ERP se está operando (producción vs. local).
+- **Interlock de escritura en E2E:** las pruebas de provisión (que crean pisos y mesas reales) ahora exigen `E2E_ODOO_HOST_ACK` con el host exacto reportado por el adapter; si no coincide, la suite se **omite** en lugar de escribir en un Odoo inesperado. Cierra el riesgo del incidente de troubleshooting #195.
+- **Troubleshooting #195** actualizado con el addendum del interlock.
+
+### 🚀 Hardening del script de despliegue
+
+- **Build antes de eliminar contenedores:** `scripts/deploy-production.sh` construye las imágenes antes de `compose rm -f -s`. Un build fallido (disco, contexto, red) deja el stack anterior en pie en lugar de dejar el sitio en 502 (troubleshooting #193/#196).
+- **Limpieza de contenedores huérfanos con prefijo hash** (`^[0-9a-f]{12}_`) que dejan los `up` interrumpidos y que retienen puertos como el 3010.
+- **Recuperación automática (trap EXIT):** si el deploy aborta después de tocar contenedores y antes de confirmar el stack, se reintenta `compose up -d` con las imágenes existentes y se avisa del estado.
+- **`orderflow_sync_standalone` en producción:** confirmado que debe levantarse con el overlay `docker-compose.provecchio.yml` (resetea el bind mount `./services/sync-standalone:/app`); sin overlay el contenedor arranca sin `dist/src/main.js`.
+
+### 🧹 Operaciones de producción
+
+- Odoo de producción limpio: piso de prueba `QA POS Check` (#15) y mesa `QA-6137` (#87) eliminados sin cerrar sesiones POS (se desvinculó el piso de su POS para habilitar el `unlink`).
+- Pisos locales mapeados a sus equivalentes activos de Odoo: **Terraza → 1**, **Giardino → 5** (`GET /api/v1/tables/odoo-floors` reporta `mappedOdooFloorIds=[1,5]`).
+## [1.41.1] - 2026-10-22
+
+### 🧭 OmniGastro — los pisos provisionados no quedaban asociados a un POS de Odoo
+
+Fix de FEAT-201 detectado al verificar el deploy de 1.41.0 contra el Odoo real: el flujo creaba
+`restaurant.floor` con `pos_config_id = false`, por lo que el piso **no aparecía en el POS del mozo**
+aunque la sincronización reportara éxito.
+
+- **Adapter** (`provision_floor`): si el cliente no envía `pos_config_id`, se infiere el POS más usado
+  entre los pisos activos de Odoo (`pickDefaultPosConfigId`, nuevo helper en `src/normalize.js`).
+  Si el piso ya existía **huérfano** (sin POS), se le asigna el POS resuelto y se responde
+  `repaired: true`.
+- **Backend**: `ProvisionFloorResult` expone `posConfigId` y `repaired`; el mapeo explícito devuelve
+  también el POS del piso destino.
+- **Frontend**: selector **“POS destino”** en el modal de sincronización (por defecto, el POS con más
+  pisos/mesas activas) y mensaje explícito cuando un piso existente se asocia al POS.
+- **Tests**: 13 casos backend (`odoo-tables.service.spec.ts`) + 5 del adapter (`provisioning.test.js`).
+
+**Incidente asociado:** la corrida E2E de escritura de FEAT-201 se ejecutó contra el Odoo **de
+producción** (el adapter local apunta al mismo ERP), dejando dos pisos de prueba (`E2E Piso 946311`,
+`E2E QA Piso`) y una mesa. Se eliminaron por XML-RPC el 2026-10-22 21:2x y se documentó el
+procedimiento en `docs/troubleshooting/195-e2e-feat201-escribio-en-odoo-produccion.md`.
+
+## [1.41.0] - 2026-10-22
+
+### 🪑 OmniGastro — Provisioning de pisos y mesas hacia Odoo 14 (FEAT-201)
+
+El salón sólo funcionaba en un sentido: **Odoo → OmniGastro** (se listaban las `restaurant.table` del
+ERP y cada mesa local se mapeaba a mano con `odooTableId`). Crear un piso o una mesa en OmniGastro
+dejaba el `pos.config` de Odoo desactualizado y el POS del mozo no podía colgar el `pos.order`.
+
+**OmniGastro pasa a ser la fuente de verdad**, con provisioning idempotente desde
+`/admin/gastro/tables` → **“Sincronizar con Odoo”**:
+
+- `GET /api/v1/tables/odoo-floors` — pisos de Odoo (incluye archivados), conteo de mesas, estado de
+  mapeo local y **detección de pisos duplicados** por nombre normalizado.
+- `POST /api/v1/tables/odoo-provision/floor` — crea o reutiliza un `restaurant.floor` por nombre
+  normalizado (revive si estaba archivado) o **mapea** a un piso existente con `odooFloorId`.
+- `POST /api/v1/tables/odoo-provision/tables` — provisiona las mesas del piso sin `odooTableId`:
+  `created` / `reused` / `revived`, sin archivar ni borrar nada en Odoo.
+
+Detalles:
+
+- `RestaurantFloor.odooFloorId` + índice único `(tenantId, odoo_floor_id)`; mapear dos veces el mismo
+  piso de Odoo devuelve `400` indicando qué piso local lo tiene (troubleshooting del incidente G2/G02).
+- Mapeos manuales intactos: las mesas con `odooTableId` nunca se re-provisionan.
+- Odoo 14 CE: el piso se asocia al POS con `pos_config_id` (nunca `config.floor_ids` con sesión
+  abierta) y `shape` sólo acepta `square`/`round`; `RECT` degrada a `square`.
+- Adapter: `odoo_floors` / `provision_floor` / `provision_tables`; helpers de normalización aislados
+  en `odoo-adapter/src/normalize.js`.
+- Frontend: `GastroOdooSyncModal` (sólo tokens del tema, Regla #10) con selector de piso local,
+  acciones Crear/Mapear y resumen por mesa.
+- Migración: `20261022190000_restaurant_floors_odoo_floor_id`.
+
+**Estado:** implementado en `feat/gastro-odoo-floor-provisioning`; unitarios en verde
+(12 casos backend + 3 adapter) y `tsc` limpio. Pendiente: E2E Playwright contra localhost con datos
+restaurados de producción y deploy a `provecchio.com`.
+
 ## [1.40.2] - 2026-10-22
 
 ### 🪑 OmniGastro — Editar y eliminar mesas en `/admin/gastro/tables` (FEAT-200)
@@ -37,6 +434,21 @@ no hacían nada. Los handlers existían, pero ningún botón los invocaba, y la 
 
 Backups: `pre_deploy_provecchio_20261022_174014.sql` (OmniGastro) y
 `/opt/odoo/backups/prod_pre_floor_cleanup_20261022_175602.sql.gz` (Odoo).
+
+### 🔧 Infraestructura — 502 persistente en `pesallaccia.com` (Hetzner)
+
+El `dynamic/services.yml` estandarizado con los nombres de contenedor de Provecchio
+(`orderflow_backend` / `orderflow_frontend`) se sincronizó al host de Hetzner, cuyos contenedores
+son `orderflow-backend-prod` / `orderflow-frontend-prod`. Traefik no resolvía el nombre en
+`traefik-public` y devolvía **502** en API y frontend, con los contenedores sanos.
+
+- **Host:** corrección de las dos URLs del servicio + `docker kill -s HUP traefik` (sin reiniciar).
+- **Repo:** `docker-compose.prod.yml` declara alias de red `orderflow_backend` / `orderflow_frontend`
+  en `traefik-public` para que el `services.yml` canónico resuelva en ambos hosts.
+- **Verificación:** `https://pesallaccia.com/api/v1/health` → **200** (`1.36.5`, `database: ok`).
+- **Doc:** `docs/troubleshooting/191-hetzner-traefik-container-name-mismatch-502.md`.
+
+> El host de Hetzner permanece en v1.36.5; este fix restablece el servicio pero no actualiza versión.
 
 ## [1.40.1] - 2026-10-22
 
@@ -121,7 +533,7 @@ Protocolo AGENTS.md §3.1.1 completo (backup → restore local → validación l
 | Endpoint de la release | `GET /api/v1/tenants/:id/config` → **200** con `whiteLabel.customDomain: "provecchio.com"` |
 | Rollback | `deploy-artifacts/rollback-provecchio-20261022_130136.env` |
 
-**Tag:** `v1.40.0` (commit `273f90e0`). Reporte: [`DEPLOY_REPORT_2026-10-22-v1.40.0.md`](../plans/omnigastro/DEPLOY_REPORT_2026-10-22-v1.40.0.md).
+**Tag:** `v1.40.0` (commit `273f90e0`). Reporte: [`docs/plans/omnigastro/DEPLOY_REPORT_2026-10-22-v1.40.0.md`](docs/plans/omnigastro/DEPLOY_REPORT_2026-10-22-v1.40.0.md).
 
 ## [1.39.28] - 2026-10-22
 

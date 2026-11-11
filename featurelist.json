@@ -1,7 +1,7 @@
 {
   "project": "OrderFlow SaaS Omnicanal",
-  "version": "1.44.4",
-  "last_updated": "2026-10-26",
+  "version": "1.46.3",
+  "last_updated": "2026-11-11",
   "features": [
     {
       "id": "FEAT-183",
@@ -2563,7 +2563,7 @@
       "notes": "Fix 403 MASTER_API_KEY via Traefik (api-key.guard.ts branch order) + rbac synthetic 'master' + credenciales E2E env-inyectadas en 18 specs (#209). Sin endpoints/migraciones, bump patch 1.43.6->1.43.7."
     },
     {
-"id": "PENDING-NEWMAN-ADMIN-ENV",
+      "id": "PENDING-NEWMAN-ADMIN-ENV",
       "title": "Completar credenciales Newman environment por env (no se commitea la password)",
       "status": "pending",
       "priority": "P2",
@@ -2593,11 +2593,65 @@
       "priority": "P0",
       "version_added": "1.43.8",
       "notes": "QA v1.43.7 bugs 1 y 2: POS enviar a cocina ahora usa POST /orders/:id/send-to-kitchen (PREPARING+ticket KDS; readyAt queda a la cocina); WS order:ready en transición READY (sonido/aviso en dispositivo del mozo via useWaiterAlerts); POS deja de expulsar en mesa OCCUPIED sin pedidos activos y ofrece cobrar por sesión (/bills/:id/pay + close sesión). lockOrders admite DELIVERED sin pagar. Sin endpoints REST nuevos ni migración; bump patch 1.43.7->1.43.8."
-    }
+    },
+    {
+      "id": "FEAT-211",
+      "category": "OmniGastro / POS & Delivery",
+      "title": "Entrega parcial por línea en POS de Mozo",
+      "description": "Agregar botón por línea de pedido para marcar como entregada individualmente, manteniendo también el botón de 'Entregar a Mesa' (entrega total) para ahorrar tiempo al mozo. Ejemplo: el cliente pide un café espresso (listo en 3 min.) y un croque madame (demora 10 min.); el mozo puede entregar el café y marcarlo individualmente, mientras el croque sigue pendiente en cocina. Requiere endpoint de backend para marcar línea individual como entregada + migración de base de datos + cambios de UI.",
+      "status": "completed",
+      "priority": "MEDIUM",
+      "assigned_module": "frontend/src/pages/admin/gastro-pos.tsx, backend/src/orders/orders.service.ts, backend/src/orders/dto/, backend/prisma/schema.prisma",
+      "depends_on": [],
+      "blocking": "",
+      "qa_validation": "E2E Playwright: entrega parcial por línea + entrega total en el mismo pedido; verificación de que botones coexistan correctamente",
+      "version": "1.45.4",
+      "deploy_status": "completed",
+      "deploy_report": "docs/plans/omnigastro/DEPLOY_REPORT_2026-11-03-v1.45.4.md",
+      "deploy_target": "provecchio",
+      "next_steps": [
+        "Ejecutar scripts/init.sh (requiere confirmación usuario)",
+        "Documentación completada en docs/plans/omnigastro/DEPLOY_REPORT_2026-11-03-v1.45.4.md",
+        "Version tag: v1.45.4"
+      ]
+    },
+    {
+      "id": "FEAT-195",
+      "category": "Estratega Comercial / Landing / Onboarding Self-Service",
+      "title": "Landing Page Self-Service Unificada & Esquema de URLs Free (Path) vs Pro (Subdominio)",
+      "description": "Landing comercial de conversion en https://orderflow.pesallaccia.com/ con Hero reclamador de URL (orderflow.pesallaccia.com/bio/<slug>), calculadora de ahorro vs 12% de Linktree, showcase de Provecchio y tabla de precios Free/Pro/Gastro. Onboarding express via POST /api/v1/auth/register-tenant que auto-instala biolinks + social-catalog (sin Cloudflare DNS en Free). Esquema Free por path compartido vs Pro por subdominio dedicado vs Gastro dominio propio. Tenant piloto comida japonesa (sushi-demo). Plan completo en docs/plans/estratega-comercial-microservicios/plan-feat-195-landing-self-service-y-esquema-free.md.",
+      "status": "completed",
+      "priority": "MEDIUM",
+      "assigned_module": "frontend/src/pages/landing-biolinks-catalog.tsx, frontend/src/pages/login.tsx, backend/src/auth/auth.service.ts",
+      "depends_on": [],
+      "blocking": "",
+      "qa_validation": "Build frontend/backend limpio; smoke E2E onboarding sushi-demo; verificacion cero colores HEX hardcodeados en landing (Regla #10).",
+      "version": "1.46.0"
+    },
+    {
+      "id": "FEAT-212",
+      "category": "DevOps / Infraestructura",
+      "title": "Migración a pnpm workspaces con node-linker isolated (fase 1)",
+      "description": "Deduplicación de dependencias del monorepo: workspace pnpm (raíz, backend, frontend, mobile, desktop, odoo-adapter, packages/*, services/*) con node-linker=isolated estricto, lockfile único pnpm-lock.yaml y store compartida por hardlinks. El checkout pasa de ~4.2 GB a ~1.6 GB y los node_modules por proyecto quedan en KBs (symlinks). Se declaran las deps fantasma que solo resolvían por el hoisting de npm (socket.io y cron en backend, dayjs en frontend, @types/node en mobile, express en 8 services standalone y @nestjs/testing en whatsapp-catalog) con la misma versión que ya estaba lockeada (cero drift). Los package-lock.json por proyecto se conservan: CI (npm ci) y Docker builds no se tocan. Incluye scripts/fix-pnpm-links.sh para curar el bug de symlinks de pnpm 10.34.9 en la primera instalación desde cero.",
+      "status": "completed",
+      "priority": "HIGH",
+      "assigned_module": "pnpm-workspace.yaml, .npmrc, package.json, pnpm-lock.yaml, scripts/fix-pnpm-links.sh, scripts/check-version-sync.sh, scripts/sync-version.sh, backend/package.json, frontend/package.json, mobile/package.json, services/*/package.json",
+      "depends_on": [],
+      "blocking": "",
+      "qa_validation": "Barrera init.sh completa: checks de endpoints públicos + prisma generate + jest 1061/1061 (140 suites) + builds backend/frontend + E2E qa_e2e_check.py (catálogo público sin imágenes rotas, dominio sin errores JS, auth/DB sin HTTP 500, 8 rutas admin). Deploy staging homeserver sobre feat/devops-pnpm-workspaces@257a863c: npm ci de los builds Docker reconstruidos desde cero, imagen backend nueva (digest 8add315c) con contenedor recreado healthy, /api/v1/health 1.46.2, redirect HTTP→HTTPS 301, Ingress qBittorrent intacto",
+      "version": "1.46.3",
+      "deploy_status": "completed",
+      "deploy_report": "docs/plans/estratega-comercial-microservicios/03-optimizacion-monorepo-pnpm.md",
+      "deploy_target": "staging-homeserver",
+      "next_steps": [
+        "Fase 2: migrar CI de npm ci a pnpm install --frozen-lockfile con caché de la store",
+        "Fase 2: aplicar el patrón omnibi (output custom con nombre propio + import directo) a los 9 services standalone que usan output .prisma/client",
+        "Decisión pendiente: Docker builds con pnpm fetch o mantener npm"
+      ]
     }
   ],
   "lastUpdated": "2026-10-26",
-  "last_id": 207,
+  "last_id": 212,
   "next_pending_sc": null,
   "active_plan": "docs/plans/omnigastro/PLAN_MAESTRO.md",
   "plan_progress": {

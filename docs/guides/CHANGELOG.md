@@ -1,3 +1,83 @@
+## [1.46.3] - 2026-11-11
+
+### 📦 DevOps — Migración a pnpm workspaces, fase 1 (FEAT-212)
+
+- **Workspace pnpm con `node-linker=isolated` estricto**: `pnpm-workspace.yaml`
+  (backend, frontend, mobile, desktop, odoo-adapter, `packages/*`,
+  `services/*`; excluye symlinks externos y aliases omni*), `.npmrc` y
+  `packageManager: pnpm@10.34.9` vía corepack. Lockfile único raíz
+  `pnpm-lock.yaml`. El checkout pasa de ~4.2 GB a ~1.6 GB (store compartida
+  por hardlinks; `node_modules` por proyecto quedan en KBs).
+- **Deps fantasma declaradas con cero drift** (exposición del strict
+  isolated): `socket.io` y `cron` en backend (elimina el stub roto
+  `@types/cron` 2.x), `dayjs` en frontend, `@types/node` en mobile,
+  `express` en 8 services standalone y `@nestjs/testing` en
+  whatsapp-catalog. Los `package-lock.json` por proyecto se regeneraron con
+  la misma resolución y **se conservan**: CI (`npm ci`) y Docker builds no
+  se tocan.
+- **Bug de pnpm 10.34.9**: symlinks con un `../` de más en backend tras la
+  primera instalación del workspace; curación idempotente en
+  `scripts/fix-pnpm-links.sh` (troubleshooting #219).
+- **Restricción Prisma bajo isolated** (hallazgo arquitectónico): un solo
+  slot físico de cliente generado por versión ("último `prisma generate`
+  gana", realpath al `.pnpm` compartido). Sin cambios de código en fase 1;
+  migración de los 9 services standalone al patrón omnibi documentada como
+  trabajo de fase 2 (troubleshooting #220).
+- **Scripts de versionado**: `check-version-sync.sh` y `sync-version.sh`
+  adaptados a la raíz con pnpm-lock (el lockfile raíz ya no lleva campo
+  `version`); lock raíz npm huérfano eliminado.
+- **Validación FEAT-212**: barrera `init.sh` completa (jest 1061/1061,
+  builds backend/frontend, E2E QA contra provecchio.com) + deploy staging
+  homeserver con los `npm ci` de los builds Docker reconstruidos desde cero
+  (backend recreado healthy, redirect 301, Ingress qBittorrent intacto).
+  Sin cambios de schema ni de lógica de negocio.
+
+## [1.46.2] - 2026-11-07
+
+### 🔒 Hardening P0 (seguridad, CI y versionado)
+
+- **P0-1 — Secretos fuera del índice:** se destrackearon el JSON de Google
+  OAuth y los 10 `deploy-artifacts/rollback-*.env` con credenciales reales,
+  además de `qa/.env` y `qa/.env.provecchio`. Los archivos expuestos se
+  movieron a cuarentena fuera del repositorio. La rotación de credenciales se
+  ejecuta en una ventana de mantenimiento autorizada (ver plan P0).
+- **P0-1 — Prevención:** `gitleaks` pasa a ser bloqueante sobre el working
+  tree (`detect --no-git`) con `.gitleaks.toml`; el escaneo de historia queda
+  informativo hasta completar la purga. Los scripts de deploy/backup ya no
+  generan snapshots `.env` dentro del repositorio.
+- **P0-1 — Baseline:** `.gitleaksignore` registra 30 hallazgos existentes
+  (173 brutos; se allowlistearon docs `*.md` y `.qwen/`) para que el gate
+  bloquee desde hoy. El baseline incluye credenciales adicionales detectadas y
+  pendientes de rotación (`docker-compose.yml`,
+  `scripts/set-tenant-subdomains.sql`, API keys hardcodeadas en frontend/mobile
+  y QA). Ver §0.1 del plan P0.
+- **P0-2 — CI:** corregido `prefer-const` en `claims.service.ts`; retirado el
+  workflow inválido `ci-cd.yml` (fallaba en 0 s); Node alineado a 22; agregado
+  gate de sincronización de versión; corregido el paso de Jest del job backend,
+  que combinaba `--runInBand` y `--maxWorkers=1` (flags mutuamente excluyentes
+  en Jest 29 y habría fallado tras arreglar el lint); declarada una
+  `DATABASE_URL` ficticia para `prisma validate` (exige la variable aunque no
+  conecte).
+- **P0-3 — Versión única:** sincronización a `1.46.2` en `VERSION`,
+  `package.json` raíz, backend, frontend, mobile, manifiestos, README,
+  ROADMAP y contexto de agentes. `check-version-sync.sh` ahora valida también
+  el `package.json` raíz y `docs/00-contexto-agentes.md`.
+- **Deploy Provecchio:** se elimina el build redundante del frontend en el
+  host (`vite build --mode provecchio`) que abortaba por el límite de precache
+  de Workbox. El bundle se genera solo en `frontend/Dockerfile.prod`
+  (minificado). `minify` se aplica a todo mode distinto de `development` y
+  Workbox admite chunks de hasta 4 MiB (troubleshooting #215).
+- Sin cambios de schema ni de lógica de negocio.
+
+## [1.46.0] - 2026-11-04
+
+### ✨ Release
+
+- FEAT-195: Landing self-service unificada & esquema Free (path) vs Pro (subdominio).
+- FEAT-211: Entrega parcial por línea en POS de Mozo.
+- fix: schema drift `order_lines.deliveredAt` (migración agregada).
+- chore: frontend build context + serve config para SPA fallback.
+
 ## [1.45.1] - 2026-10-30
 
 ### 🚧 Release en curso

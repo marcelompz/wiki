@@ -1,5 +1,34 @@
 # OmniGastro
 
+## 2026-11-06 - Pruebas QA v1.46.0
+
+* **Bugs:**
+1. Al hacer  pedido desde el punto del cliente, el mozo no recibe el mensaje automáticamente, necesita recargar la página del endpoint [https://provecchio.com/admin/gastro] En la consola del navegador: Cross-Origin Request Blocked: The Same Origin Policy disallows reading the remote resource at https://static.cloudflareinsights.com/beacon.min.js/vce701823e78c4301a35b7e07294d87301792088814092. (Reason: CORS request did not succeed). Status code: (null). 
+None of the “sha512” hashes in the integrity attribute match the content of the subresource at “https://static.cloudflareinsights.com/beacon.min.js/vce701823e78c4301a35b7e07294d87301792088814092”. The computed hash is “z4PhNX7vuL3xVChQ1m2AB9Yg5AULVxXcg/SpIdNs6c5H0NE8XYXysP+DGNKHfuwvY7kxvUdBeoGlODJ6+SfaPg==”. gastro
+Cross-Origin Request Blocked: The Same Origin Policy disallows reading the remote resource at https://static.cloudflareinsights.com/beacon.min.js/vce701823e78c4301a35b7e07294d87301792088814092. (Reason: CORS request did not succeed). Status code: (null). 
+None of the “sha512” hashes in the integrity attribute match the content of the subresource at “https://static.cloudflareinsights.com/beacon.min.js/vce701823e78c4301a35b7e07294d87301792088814092”. The computed hash is “z4PhNX7vuL3xVChQ1m2AB9Yg5AULVxXcg/SpIdNs6c5H0NE8XYXysP+DGNKHfuwvY7kxvUdBeoGlODJ6+SfaPg==”. gastro
+[BrandingProvider] Resolviendo tenant por identificador: provecchio.com index-oHRHH8za.js:18:25685
+A resource is blocked by OpaqueResponseBlocking, please check browser console for details. telemetry
+Unknown property ‘-moz-osx-font-smoothing’.  Declaration dropped. gastro:13:3
+Unknown property ‘-moz-osx-font-smoothing’.  Declaration dropped. gastro:1:1208
+Unknown property ‘-moz-osx-font-smoothing’.  Declaration dropped. gastro:1:1283
+Unknown property ‘-moz-osx-font-smoothing’.  Declaration dropped. gastro:1:5314
+Unknown property ‘-moz-osx-font-smoothing’.  Declaration dropped. gastro:1:9215
+Unknown property ‘-moz-osx-font-smoothing’.  Declaration dropped. gastro:1:1208
+Unknown property ‘-moz-osx-font-smoothing’.  Declaration dropped. 2 gastro:1:226
+Unknown pseudo-class or pseudo-element ‘input::-ms-clear,input::-ms-reveal’.  Ruleset ignored due to bad selector. index-kxVFYWPo.css:1:34
+Error in parsing value for ‘-webkit-text-size-adjust:100%;’.  Declaration dropped. index-kxVFYWPo.css:1:168
+Unrecognized at-rule or error parsing at-rule ‘@-ms-viewport’. index-kxVFYWPo.css:1:295
+Unknown pseudo-class or pseudo-element ‘button::-moz-focus-inner,[type=button]::-moz-focus-inner,[type=reset]::-moz-focus-inner,[type=submit]::-moz-focus-inner’.  Ruleset ignored due to bad selector. index-kxVFYWPo.css:1:1895
+XHR GET
+https://provecchio.com/api/v1/health
+[HTTP/3 200  229ms]
+XHR GET
+https://provecchio.com/api/v1/health
+[HTTP/3 200  177ms]
+
+
+
 ## 2026-11-05 - Estado del arte v1.46.0 (sesión de ingeniería)
 
 * **Infraestructura / Traefik:**

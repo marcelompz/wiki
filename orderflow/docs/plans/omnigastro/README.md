@@ -1,8 +1,8 @@
 # OmniGastro — Suite Gastronómica para OmniFlow
 
-> **Estado:** Fase 0–3.3 completada · Hardening RBAC empleados **completado** (v1.38.20) · Sprint Fixes Campo Provecchio **completado** (v1.39.1, 2026-10-16).
-> **Versión base:** OmniFlow / OrderFlow v1.39.1
-> **Última actualización:** 2026-10-22 (plan maestro FEAT-197 + FEAT-194 aprobado; v1.39.24 en producción)
+> **Estado:** Fase 0–3.3 completada · Hardening RBAC empleados **completado** (v1.38.20) · Sprint Fixes Campo Provecchio **completado** (v1.39.1) · Odoo Integrations SuperAdmin Auth **completado** (v1.43.0, 2026-10-25).
+> **Versión base:** OmniFlow / OrderFlow v1.43.0
+> **Última actualización:** 2026-10-25 (FEAT-188-ext implementada en rama `feat/odoo-pos-transfer-catalog-sync`; producción estable v1.43.0, pendiente deploy local + E2E)
 
 OmniGastro convierte OmniFlow en el **Sistema Operativo Restaurantero** completo, alcanzando paridad operativa con Toast POS y superándola en offline-first nativo, soberanía multi-tier, Live Escandallo atómico y Seat-level ordering.
 
@@ -19,14 +19,20 @@ OmniGastro convierte OmniFlow en el **Sistema Operativo Restaurantero** completo
 | [`PLAN_ODOO_POS_SYNC_2026-10-19.md`](./PLAN_ODOO_POS_SYNC_2026-10-19.md) | **Plan maestro de la sincronización OrderFlow → Odoo 14 POS** (bug #7 del reporte del cliente, FEAT-184…188, v1.39.11) |
 | [`PLAN_CUENTA_ABIERTA_2026-10-20.md`](./PLAN_CUENTA_ABIERTA_2026-10-20.md) | **Plan maestro de la cuenta abierta**: traspaso de la cuenta a una persona y liberación de la mesa manteniendo la cuenta cobrable (FEAT-190, v1.39.14) |
 | [`flujo_odoo-pos-sync.md`](./flujo_odoo-pos-sync.md) | Diagrama de secuencia Mermaid, contratos REST y hitos de telemetría `t0…t5` del sync a Odoo |
+| [`plan-actualizacion-v1.43.0-odoo-integrations-auth.md`](./plan-actualizacion-v1.43.0-odoo-integrations-auth.md) | **Plan de actualización aprobado (2026-10-25)**: extensión de autenticación SuperAdmin para endpoints de integración Odoo, `request.user` sintético vía `MASTER_API_KEY`, guard en `AdminApp.tsx`, E2E — FEAT-188-ext, v1.43.0 |
+| [`flujo-odoo-integrations-auth.md`](./flujo-odoo-integrations-auth.md) | Diagrama de secuencia Mermaid, contratos REST y hitos de telemetría `t0…t5` de la autenticación SuperAdmin para integraciones |
 | [`plan-actualizacion-v1.39.25-historial-pedidos-bandera-mozo.md`](./plan-actualizacion-v1.39.25-historial-pedidos-bandera-mozo.md) | **Plan maestro aprobado (2026-10-22)**: FEAT-197 (historial/seguimiento de pedidos del comensal y del panel de mozos, 3 capas + fix `paidAt`) y FEAT-194 (bandera de Mozo en `Employee`), con fases F1–F5, migraciones, telemetría y estrategia de testing |
 | [`auditoria-historial-servidor-f4-2026-10-22.md`](./auditoria-historial-servidor-f4-2026-10-22.md) | Auditoría de la F4 + F4b (v1.39.27): `GET /api/v1/orders/guest/history`, imputación del mozo (`claimedById`/`waiterId`), vista "Atendidos", `GET /api/v1/pos-sessions` y card "Historial de Turnos" con Reporte Z. Cierra el plan maestro |
 | [`auditoria-bandera-mozo-f2-2026-10-22.md`](./auditoria-bandera-mozo-f2-2026-10-22.md) | Auditoría de la F2 (v1.39.26): bandera `Employee.canUseMozoPos`, migración con backfill, `GET /api/v1/users/mozo-staff`, `verify-pin` con `scope:'mozo'`, sección "Empleados Mozo" en settings y evidencia de validación (E2E 3, unitarios 3 + 4) |
+| [`DEPLOY_REPORT_2026-10-26-v1.43.1.md`](./DEPLOY_REPORT_2026-10-26-v1.43.1.md) | Reporte de despliegue de **v1.43.1** (2026-10-26, LAN `192.168.69.240`): PR #24 (FEAT-188-ext + release) mergeado a `main`, deploy completo vía `deploy-production.sh provecchio` con QA de rutas admin, login SuperAdmin verificado post-deploy (fix #201 intacto) e integraciones Odoo en 200 |
 | [`DEPLOY_REPORT_2026-10-22-v1.40.2.md`](./DEPLOY_REPORT_2026-10-22-v1.40.2.md) | Reporte de despliegue de **v1.40.2** (2026-10-22 19:00): CRUD de mesas (FEAT-200) desplegado y verificado en `provecchio.com`, protocolo completo, incidencia del health check `localhost`→`::1`, rollback |
 | [`DEPLOY_REPORT_2026-10-22-v1.39.26-27.md`](./DEPLOY_REPORT_2026-10-22-v1.39.26-27.md) | Reporte de despliegue de **v1.39.26 + v1.39.27** (2026-10-22 07:52): bandera de Mozo con su migración y backfill, historial en servidor del mozo y del cajero, QA post-deploy y cierre del plan maestro |
 | [`DEPLOY_REPORT_2026-10-22.md`](./DEPLOY_REPORT_2026-10-22.md) | Reporte de despliegue de **v1.39.25** en `provecchio.com` (2026-10-22 05:32): protocolo aplicado, evidencia, QA post-deploy, incidencias (ProxyJump por cambio de red) y rollback |
 | [`auditoria-historial-pedidos-f1-2026-10-22.md`](./auditoria-historial-pedidos-f1-2026-10-22.md) | Auditoría de la F1 (v1.39.25): store del historial local, botón 🕘 "Mis pedidos", drawer con refresco, fix `normalizeOrderCloseMode` y evidencia de validación (E2E 3 passed, suite 79 passed, jest 81, vitest 26) |
 | [`flujo-historial-pedidos.md`](./flujo-historial-pedidos.md) | Diagrama de secuencia Mermaid (3 capas), contratos REST y hitos de telemetría `t0…t11` del historial de pedidos |
+| [`plan-actualizacion-cuentas-mesa-concurrentes.md`](./plan-actualizacion-cuentas-mesa-concurrentes.md) | **Plan aprobado (2026-10-23) e implementado en rama**: sesión de mesa (`TableSession`), cuentas (`Bill`) con merge/unmerge, identidad de comensal (`guestKey`), idempotencia y sync Odoo por cuenta — FEAT-203/204/205, v1.42.0 |
+| [`flujo-cuentas-mesa-concurrentes.md`](./flujo-cuentas-mesa-concurrentes.md) | Diagramas Mermaid (QR concurrente, merge/pago, `sync_bill`), máquinas de estado, contratos REST y telemetría `t0…t12` de cuentas de mesa |
+| [`auditoria-feat-203-205-2026-10-23.md`](./auditoria-feat-203-205-2026-10-23.md) | **Auditoría de implementación v1.42.0**: decisiones D1–D5, modelo, endpoints, feature flag, validaciones (18 unitarios + tsc/build + migración) y pendientes antes de producción |
 | [`BACKLOG_CLIENTE_20261019.md`](./BACKLOG_CLIENTE_20261019.md) | Reporte de los 9 bugs del cliente en la v1.39.9 (origen de FEAT-184…188) |
 | [`featurelist.json`](./featurelist.json) | FEAT-001 a FEAT-00124+ con estado y módulo |
 | `schema/` | Fragmentos de Prisma para las migraciones de cada fase |
@@ -50,6 +56,7 @@ OmniGastro convierte OmniFlow en el **Sistema Operativo Restaurantero** completo
 | **3.5 — Cuenta abierta (liberar mesa con la cuenta cobrable)** | FEAT-190 | ✅ **completed** (v1.39.14) | [`PLAN_CUENTA_ABIERTA_2026-10-20.md`](./PLAN_CUENTA_ABIERTA_2026-10-20.md), [`flujo_cuenta-abierta.md`](./flujo_cuenta-abierta.md) |
 | **3.6 — KDS en tiempo real (actualización automática)** | FEAT-191 | ✅ **completed** (v1.39.15) | [`auditoria-gastro-kds-auto-refresh.md`](./auditoria-gastro-kds-auto-refresh.md) |
 | **3.7 — Lote 2 de bugs del cliente (alertas, KDS, POS, catálogo)** | FEAT-192 | ✅ **completed** (v1.39.16) | [`auditoria-gastro-lote-2-bugs.md`](./auditoria-gastro-lote-2-bugs.md), [`DIAGNOSTICO_BUGS_RESTANTES_2026-10-20.md`](./DIAGNOSTICO_BUGS_RESTANTES_2026-10-20.md) |
+| **3.8 — Cuentas de mesa y pedidos concurrentes** | FEAT-203, FEAT-204, FEAT-205 | ⚪ **planned** (v1.42.0, pendiente de aprobación) | [`plan-actualizacion-cuentas-mesa-concurrentes.md`](./plan-actualizacion-cuentas-mesa-concurrentes.md), [`flujo-cuentas-mesa-concurrentes.md`](./flujo-cuentas-mesa-concurrentes.md) |
 | **4 — Hardware + Escala** | FEAT-120 → 124 | ⚪ planned | [`PLAN_MAESTRO.md`](./PLAN_MAESTRO.md) §5 |
 
 ---

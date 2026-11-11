@@ -178,7 +178,7 @@ docker compose -f docker-compose.prod.yml --env-file .env.staging ps
 
 **Nota:** El deploy script automáticamente:
 - Crea backup pre-deploy en `./backups/`
-- Guarda snapshot de env en `./deploy-artifacts/`
+- Guarda snapshot de env en `~/.orderflow/deploy-artifacts/<target>/` (fuera del repo; override `ORDERFLOW_ARTIFACT_DIR`)
 - Aplica migraciones de Prisma
 - Ejecuta health checks con polling
 - Hace rollback automático si falla migración o health check
@@ -394,7 +394,7 @@ cd /srv/orderflow
 ./scripts/deploy-production.sh production
 
 # En caso de fallo, rollback con:
-./scripts/rollback-deploy.sh production deploy-artifacts/rollback-production-YYYYMMDD_HHMMSS.env
+./scripts/rollback-deploy.sh production ~/.orderflow/deploy-artifacts/production/rollback-production-YYYYMMDD_HHMMSS.env
 ```
 
 ---
@@ -456,7 +456,7 @@ docker compose -f docker-compose.prod.yml --env-file .env.staging build --no-cac
 - [ ] Health checks pasan (`/api/v1/health`)
 - [ ] Google OAuth funciona en staging
 - [ ] Scopes avanzados funcionan (birthday, phone)
-- [ ] Rollback info guardada en `./deploy-artifacts/`
+- [ ] Rollback info guardada en `~/.orderflow/deploy-artifacts/<target>/` (fuera del repo)
 - [ ] Documentación actualizada
 
 ---

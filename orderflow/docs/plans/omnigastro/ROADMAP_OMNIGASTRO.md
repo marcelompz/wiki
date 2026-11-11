@@ -43,10 +43,19 @@
 | **FEAT-186** | Disparo del sync a Odoo en el cierre de mesa y cobro en mesa configurables | ✅ **COMPLETADO** (v1.39.11) | FEAT-184, FEAT-185 |
 | **FEAT-187** | Unificación de la configuración del odoo-adapter, de la cola BullMQ y del listener | ✅ **COMPLETADO** (v1.39.11) | FEAT-186 |
 | **FEAT-188** | Telemetría t0…t5, métricas Prometheus y E2E del sync a Odoo POS | ✅ **COMPLETADO** (v1.39.11) | FEAT-187 |
+| **FEAT-188-ext** | Extensión de autenticación SuperAdmin para endpoints de integración Odoo (v1.43.0) | ✅ **COMPLETADO** (2026-10-25) — `request.user` sintético vía `MASTER_API_KEY`, guard en `AdminApp.tsx`, E2E — [plan maestro](plan-actualizacion-v1.43.0-odoo-integrations-auth.md) · [flujo](flujo-odoo-integrations-auth.md) | FEAT-188 |
 | **FEAT-189** | Cobro en `/admin/gastro/tables`: la verificación de PIN devolvía HTTP 400 | ✅ **COMPLETADO** (v1.39.13) | FEAT-167 |
 | **FEAT-190** | Cuenta abierta: traspaso de la cuenta a una persona y liberación de la mesa | ✅ **COMPLETADO** (v1.39.14) | FEAT-115, FEAT-116 |
 | **FEAT-191** | El KDS se actualiza solo cuando el mozo envía el pedido a cocina (bug #5) | ✅ **COMPLETADO** (v1.39.15) | FEAT-190 |
 | **FEAT-192** | Lote 2 de bugs del cliente: alertas del mozo, KDS, POS y catálogo (#1, #2a, #2b, #3, #4, #6, #9) | ✅ **COMPLETADO** (v1.39.16) | FEAT-191 |
+| **FEAT-193** | La sesión de caja se ancla a la caja física (el turno pertenece a la caja, no al usuario) | ✅ **COMPLETADO** (v1.39.19) | FEAT-192 |
+| **FEAT-194** | Bandera de Mozo: solo los empleados con `Employee.canUseMozoPos` pueden tener sesión en el POS de mozo | ✅ **COMPLETADO** (v1.39.26) — migración + `mozo-staff` + `verify-pin scope` + sección en settings — [plan maestro](plan-actualizacion-v1.39.25-historial-pedidos-bandera-mozo.md) | — |
+| **FEAT-196** | Cierre de turno (Reporte Z) y relevo de cajero en el panel de Caja Gastro | ✅ **COMPLETADO** (v1.39.20) | FEAT-193 |
+| **FEAT-197** | Historial de pedidos: comensal (memoria del dispositivo), mozo (servidor) y cajero (turnos de caja) + fix `paidAt` | ✅ **COMPLETADO** (F1 v1.39.25 · F4+F4b v1.39.27; F3 opcional no implementada) — [plan maestro](plan-actualizacion-v1.39.25-historial-pedidos-bandera-mozo.md) · [flujo](flujo-historial-pedidos.md) | FEAT-193, FEAT-196 |
+
+> **Deploy acumulado en producción (2026-10-21 21:53):** v1.39.22 (3 rutas admin 404: `social-catalog`, `loyalty`, `gastro/kds-stations`) + v1.39.23 (reclamo previo del pedido en la vista POS por mesa) + v1.39.24 (botón ☰ del catálogo del POS del mozo) → `provecchio.com` (`192.168.69.240`), health `1.39.24 ok`, 5 contenedores healthy, QA post-deploy con las 8 rutas admin en verde. Rollback: `deploy-artifacts/rollback-provecchio-20261021_212239.env`.
+
+> **Decisiones del cliente (2026-10-22):** el historial del **comensal** queda solo en la **memoria del dispositivo** (se descarta el listado público por mesa: quien escanee el QR de la mesa no accede a ningún pedido — D3). La **memoria del sistema** es para **mozo y cajeros**, en endpoints autenticados propios: `GET /api/v1/orders/guest/history` (mozo) y `GET /api/v1/pos-sessions` (cajero, listado de turnos que hoy no existe). El código corto del comensal queda **opcional** (D2').
 
 ---
 
@@ -134,6 +143,26 @@ FEAT-147 (routing por categoría) ──► FEAT-148 (showInKDS) ──► FEAT-
 
 ---
 
+## 5.2. Backlog propuesto — Cuentas de mesa y pedidos concurrentes (FEAT-203 → FEAT-205)
+
+> **Estado:** 🟡 **propuesto — pendiente de aprobación del usuario** (AGENTS #15/#16), versión objetivo **1.42.0**.
+> **Documentos:** [`plan-actualizacion-cuentas-mesa-concurrentes.md`](./plan-actualizacion-cuentas-mesa-concurrentes.md),
+> [`flujo-cuentas-mesa-concurrentes.md`](./flujo-cuentas-mesa-concurrentes.md).
+
+| FEAT | Alcance | Fase | Estimación |
+|---|---|---|---|
+| **FEAT-203** | `TableSession` + identidad de comensal (`guestKey`/`TableGuest`) + idempotencia del alta QR + Mozo POS y caja agrupados por sesión | F0–F1 | 4–5 días |
+| **FEAT-204** | `Bill` (unidad fiscal) + merge/unmerge de pedidos + cobro por cuenta + split por asiento | F2 | 4–5 días |
+| **FEAT-205** | `sync_bill` en Odoo (addon v14.0.1.4.0, upsert por `omniflow_bill_ref`) + telemetría `t0…t12` + E2E/Newman | F3 | 3–4 días |
+
+**Problema que resuelve:** dos comensales escanean el mismo QR y piden a la vez → hoy se crean dos
+pedidos sin vínculo, dos alertas al mozo, dos tarjetas en caja y dos `pos.order` en Odoo.
+
+**Decisiones de negocio pendientes:** D1–D5 del plan (default por mesa/comensal, alcance fiscal del merge,
+nombre/asiento obligatorio, exclusividad del claim y bloqueo de cierre).
+
+---
+
 ## 6. Métricas de Éxito
 
 | Métrica | Objetivo |
@@ -150,4 +179,8 @@ FEAT-147 (routing por categoría) ──► FEAT-148 (showInKDS) ──► FEAT-
 
 ---
 
-*Actualizado el 2026-10-16. Fuente: `PLAN_MAESTRO.md` + `AUDITORIA_OMNIGASTRO_2026-09-18.md` + `DISENO_KDS_CONFIGURABLE_IMPRESION.md` + `CHANGELOG.md` (v1.38.20 → v1.38.22).*
+| **FEAT-188-ext** | Extensión de autenticación SuperAdmin para endpoints de integración Odoo (v1.43.0) | ✅ **COMPLETADO** (2026-10-25) — `request.user` sintético vía `MASTER_API_KEY`, guard en `AdminApp.tsx`, E2E — [plan](plan-actualizacion-v1.43.0-odoo-integrations-auth.md) · [flujo](flujo-odoo-integrations-auth.md) | FEAT-188 |
+
+---
+
+*Actualizado el 2026-10-25. Fuente: `PLAN_MAESTRO.md` + `AUDITORIA_OMNIGASTRO_2026-09-18.md` + `DISENO_KDS_CONFIGURABLE_IMPRESION.md` + `CHANGELOG.md` (v1.38.20 → v1.43.0).*

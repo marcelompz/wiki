@@ -47,10 +47,12 @@ El objetivo estratégico es **doble**:
 
 ---
 
-## 📂 Índice de Documentación en `docs/planes/`
+## 📂 Índice de Documentación en `docs/plans/estratega-comercial-microservicios/`
 
 | Archivo | Descripción |
 | :--- | :--- |
 | `01-desacoplamiento-y-comercializacion.md` | Visión general del plan estratégico. |
 | `02-arquitectura-standalone-vs-enterprise.md` | Detalle técnico de comunicación entre microservicios y Core. |
-| `03-optimizacion-monorepo-pnpm.md` | Estrategia de deduplicación de dependencias y limpieza de disco. |
+| `03-optimizacion-monorepo-pnpm.md` | Estrategia de deduplicación de dependencias y limpieza de disco (migración a pnpm workspaces). |
+| `estudio_de_caso_pency.md` | Benchmarking de plataformas (Wix, Shopify, etc.) y análisis del plan comercial previo. |
+| `plan-feat-195-landing-self-service-y-esquema-free.md` | Plan FEAT-195: landing self-service y esquema Free (completado en 1.46.0). |

@@ -1,7 +1,7 @@
 {
   "project": "OrderFlow SaaS Omnicanal",
-  "version": "1.46.0",
-  "last_updated": "2026-11-05",
+  "version": "1.46.3",
+  "last_updated": "2026-11-11",
   "features": [
     {
       "id": "FEAT-183",
@@ -2627,10 +2627,31 @@
       "blocking": "",
       "qa_validation": "Build frontend/backend limpio; smoke E2E onboarding sushi-demo; verificacion cero colores HEX hardcodeados en landing (Regla #10).",
       "version": "1.46.0"
+    },
+    {
+      "id": "FEAT-212",
+      "category": "DevOps / Infraestructura",
+      "title": "Migración a pnpm workspaces con node-linker isolated (fase 1)",
+      "description": "Deduplicación de dependencias del monorepo: workspace pnpm (raíz, backend, frontend, mobile, desktop, odoo-adapter, packages/*, services/*) con node-linker=isolated estricto, lockfile único pnpm-lock.yaml y store compartida por hardlinks. El checkout pasa de ~4.2 GB a ~1.6 GB y los node_modules por proyecto quedan en KBs (symlinks). Se declaran las deps fantasma que solo resolvían por el hoisting de npm (socket.io y cron en backend, dayjs en frontend, @types/node en mobile, express en 8 services standalone y @nestjs/testing en whatsapp-catalog) con la misma versión que ya estaba lockeada (cero drift). Los package-lock.json por proyecto se conservan: CI (npm ci) y Docker builds no se tocan. Incluye scripts/fix-pnpm-links.sh para curar el bug de symlinks de pnpm 10.34.9 en la primera instalación desde cero.",
+      "status": "completed",
+      "priority": "HIGH",
+      "assigned_module": "pnpm-workspace.yaml, .npmrc, package.json, pnpm-lock.yaml, scripts/fix-pnpm-links.sh, scripts/check-version-sync.sh, scripts/sync-version.sh, backend/package.json, frontend/package.json, mobile/package.json, services/*/package.json",
+      "depends_on": [],
+      "blocking": "",
+      "qa_validation": "Barrera init.sh completa: checks de endpoints públicos + prisma generate + jest 1061/1061 (140 suites) + builds backend/frontend + E2E qa_e2e_check.py (catálogo público sin imágenes rotas, dominio sin errores JS, auth/DB sin HTTP 500, 8 rutas admin). Deploy staging homeserver sobre feat/devops-pnpm-workspaces@257a863c: npm ci de los builds Docker reconstruidos desde cero, imagen backend nueva (digest 8add315c) con contenedor recreado healthy, /api/v1/health 1.46.2, redirect HTTP→HTTPS 301, Ingress qBittorrent intacto",
+      "version": "1.46.3",
+      "deploy_status": "completed",
+      "deploy_report": "docs/plans/estratega-comercial-microservicios/03-optimizacion-monorepo-pnpm.md",
+      "deploy_target": "staging-homeserver",
+      "next_steps": [
+        "Fase 2: migrar CI de npm ci a pnpm install --frozen-lockfile con caché de la store",
+        "Fase 2: aplicar el patrón omnibi (output custom con nombre propio + import directo) a los 9 services standalone que usan output .prisma/client",
+        "Decisión pendiente: Docker builds con pnpm fetch o mantener npm"
+      ]
     }
   ],
   "lastUpdated": "2026-10-26",
-  "last_id": 207,
+  "last_id": 212,
   "next_pending_sc": null,
   "active_plan": "docs/plans/omnigastro/PLAN_MAESTRO.md",
   "plan_progress": {

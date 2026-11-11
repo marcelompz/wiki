@@ -1,14 +1,11 @@
 # 🗺️ ROADMAP DE ORDERFLOW - v1.34.0 → v2.0.0 (Go-Live Definitivo)
-**Última Actualización:** 2026-10-25 (Release v1.43.1 — Columnas de subdominio y pin_code en tenants/users, integraciones-admin E2E fix, seeding 3 tenants/3 users, documentación sincronizada) · 2026-10-22 (Release v1.40.2 — OmniGastro: editar y eliminar mesas desde `/admin/gastro/tables` + guardas de integridad — **desplegada y verificada en `provecchio.com`**)
-**Release anterior:** 2026-10-22 (Release v1.40.1 — Marca Blanca: el `PATCH /api/v1/tenants/:id` devolvía 500 y podía borrar la configuración del tenant — desplegada y verificada en `provecchio.com`) · 2026-10-22 (Release v1.40.0 — endpoint `GET /api/v1/tenants/:id/config` desplegado en `provecchio.com`)
+**Última Actualización:** 2026-11-11 (Release v1.46.3 — FEAT-212 migración a pnpm workspaces fase 1: node-linker isolated, deps deduplicadas, barrera init.sh + deploy staging validados)
+**Release anterior:** 2026-11-07 (Release v1.46.2 — Hardening P0: secretos fuera del índice, CI bloqueante, versión única)
 
-**Versión Actual:** **`v1.43.1`** ✅ **DESPLEGADA EN PRODUCCIÓN** (`provecchio.com`, 2026-10-25) | Marca pública: OmniFlow. Capa técnica interna: OrderFlow. Incremento menor por features: integrations-admin E2E fix, column additions, Prisma regeneration, 3 tenants/3 users seeded.
+**Versión Actual:** **`v1.46.3`** (en desarrollo) · **`v1.46.1`** ✅ DESPLEGADA EN PRODUCCIÓN (`provecchio.com`, 2026-11-07 — health 200/1.46.1, database ok) · **`v1.40.2`** ⚠️ DESPLEGADA EN STAGING (`pesallaccia.com`, pendiente de actualización) | Marca pública: OmniFlow. Capa técnica interna: OrderFlow.
 **Próximos Releases:** **v1.41.x** (Tauri Desktop & OmnIoT Edge) ➔ **v2.0.0** (🚀 **GO-Live Definitivo del Ecosistema — Target: 15 de Febrero de 2027**)
 **Plan Maestro Go-to-Live:** ver [docs/plans/PLAN_GO_LIVE_APLICACIONES_ECOSISTEMA.md](docs/plans/PLAN_GO_LIVE_APLICACIONES_ECOSISTEMA.md)
-**Roadmap Comercial:** ver [docs/planes/comercial/OmniFlow_PLAN_COMERCIAL_v1.md](docs/planes/comercial/OmniFlow_PLAN_COMERCIAL_v1.md) (FEAT-112 a FEAT-119)
-**Estado:** ✅ **STAGING & PRODUCTION OPERATIVE** | 🏆 **HARDENED v1.39.2** | OmniGastro Fases 0-3.3 Completadas | RBAC Hardening En PR | CI Guard Active | QA E2E Suite | Build Limpio & Cobertura Total
-
-<!--CURRENT_VERSION-->1.43.1<!--/CURRENT_VERSION--> <!-- Actualizado: 2026-10-25 v1.43.1 (columnas subdomain/pin_code, E2E fix, seeding) -->
+<!--CURRENT_VERSION-->1.46.3<!--/CURRENT_VERSION--> <!-- Actualizado: 2026-11-11 v1.46.3 - FEAT-212 pnpm workspaces -->
 
 ### 📋 Próximas actualizaciones planificadas — OmniGastro (plan aprobado 2026-10-22)
 
@@ -36,6 +33,13 @@
 **Decisiones abiertas:** D1 backfill de la bandera para los mozos actuales (recomendado: sí) · D4 incluir el fix de `paidAt` en la F1 (recomendado: sí) · D5 implementar la Capa 2 ahora o esperar (recomendado: esperar) · D6 Capa 3b en fase propia o integrada en la F4 (recomendado: fase propia).
 
 **Telemetría declarada** (`Order.metadata.guestDraft`): `t0_order_created`, `t1_table_claimed`, `t2_cart_saved`, `t3_order_confirmed`, `t4_sent_to_kitchen`, `t5_order_ready`, `t6_waiter_viewed_history`, `t7_paid`, `t11_table_closed`.
+
+#### 🍽️ Mejoras pendientes OmniGastro (futuras releases)
+
+| Feature | Módulo | Estado |
+|---------|--------|--------|
+| **FEAT-211 — Entrega parcial por línea en POS de Mozo** | `frontend/src/pages/admin/gastro-pos.tsx`, `backend/src/orders/orders.service.ts`, `backend/src/orders/dto/`, `backend/prisma/schema.prisma` | ✅ **COMPLETADO** |
+| Agregar botón por línea de pedido para marcar como entregada individualmente, manteniendo también el botón de "Entregar a Mesa" (entrega total) para ahorrar tiempo al mozo. Ejemplo: el cliente pide un café espresso (listo en 3 min.) y un croque madame (demora 10 min.); el mozo puede entregar el café y marcarlo individualmente, mientras el croque sigue pendiente en cocina. Requiere endpoint de backend para marcar línea individual como entregada + migración de base de datos + cambios de UI. | | ✅ **IMPLEMENTADO** (v1.45.4) |
 
 ### 🚀 Release v1.39.28 — Fix de `/admin/hr` (500 en empleados, 404 en cargos) (Octubre 2026)
 
@@ -286,7 +290,7 @@
 
 ---
 
-<!--CURRENT_VERSION-->1.42.1<!--/CURRENT_VERSION--> <!-- Actualizado: 2026-10-20 v1.39.12 por Kilo -->
+<!--CURRENT_VERSION-->1.46.3<!--/CURRENT_VERSION--> <!-- Actualizado: 2026-11-11 v1.46.3 - FEAT-212 pnpm workspaces -->
 
 El ecosistema **OmniFlow** contempla 10 aplicaciones y capas operativas. A continuación se presenta la evaluación de madurez técnica por componente y los puntos pendientes priorizados hacia el Go-Live final.
 
