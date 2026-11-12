@@ -35,18 +35,18 @@ deploy del 11-nov. La medición del 11-nov era pre-deploy y por eso los vio ause
 | Tabla comparativa vs Linktree/Pency | ✅ | ✅ |
 | CTA → registro | ✅ | ✅ |
 | CTA → registro con `storeName` en la URL | ❌ | ✅ |
-| Prefill efectivo de `storeName` en el formulario | ❌ | ❌ (bug) |
+| Prefill efectivo de `storeName` en el formulario | ❌ | ✅ (corregido en 1.46.4, pendiente de deploy) |
 
-Lo que queda abierto es de otra naturaleza: **prefill roto**, **pulido mobile**,
+Lo que queda abierto es de otra naturaleza: **pulido mobile**,
 **redirect post-registro a `/bio/<slug>`**, **upsell de módulos standalone** y **dos sombras
-`rgba()` hardcodeadas**.
+`rgba()` hardcodeadas**. El prefill fue corregido en 1.46.4 y queda pendiente de deploy.
 
 | Dimensión | Nota (1-10) | Observación |
 | :--- | :---: | :--- |
 | Mensaje y copy comercial | 8.5 | Muy bueno, orientado a PyME gastronómica/retail. |
-| Conversión self-service | 7.5 | Claim, precios y registro presentes; el prefill no aplica. |
+| Conversión self-service | 7.5 | Claim, precios y registro presentes; el prefill fue corregido en 1.46.4 (pendiente de deploy). |
 | Elementos de persuasión | 9.0 | Calculadora, tabla competitiva y showcase de Provecchio presentes. |
-| Completitud vs FEAT-195 | 8.0 | Claim, precios y casos reales publicados; prefill y redirect pendientes. |
+| Completitud vs FEAT-195 | 8.0 | Claim, precios y casos reales publicados; queda el redirect post-registro. El prefill se corrigió en 1.46.4 (pendiente de deploy). |
 | Alineación Plan Comercial | 7.5 | Free/Pro/OmniGastro alineados; falta upsell standalone del Tridente. |
 | Calidad visual / responsive | 8.5 (desk) / 6.6 (mobile) | Desktop bien; mobile con header y tablas rotas. |
 | **Promedio general** | **~8.0** | Base sólida y publicada; quedan pulidos acotados. |
@@ -119,7 +119,7 @@ Lo que queda abierto es de otra naturaleza: **prefill roto**, **pulido mobile**,
 | Prioridad | Problema | Solución recomendada |
 | :--- | :--- | :--- |
 | P0 | Header truncado | CTA corto en mobile (“Crear gratis”) o menú hamburguesa; mover “Iniciar Sesión” al menú. |
-| P0 | Prefill roto | Aplicar `storeName` al formulario (ver §4.3) y validar el flujo claim → registro. |
+| P0 | Prefill de `storeName` | ✅ Corregido en 1.46.4 (pendiente de deploy): `key` por modo en los `<Form>` + `initialValues` en el de registro (ver §4.3). |
 | P0 | Tabla de precios rota | Reemplazar por **cards verticales** en mobile (Plan / Precio / URL / Incluye). |
 | P1 | Tabla comparativa | Cards o lista “OmniFlow gana en…” con iconos. |
 | P2 | Sombras hardcodeadas | Reemplazar los 2 `rgba(0,0,0,…)` por tokens (Regla #10). |
@@ -132,7 +132,7 @@ Lo que queda abierto es de otra naturaleza: **prefill roto**, **pulido mobile**,
 | :--- | :---: | :--- |
 | Landing comercial en la raíz `/` | ✅ | Existe y es la página principal. Branding OmniBio / OmniFlow. |
 | Hero con buscador/reclamador de URL | ✅ | Input `/bio/[slug]` con placeholder `tu-marca` (`landing-biolinks-catalog.tsx`, sección 2). |
-| CTA que precargue datos desde slug | ⚠️ | El claim navega a `/login?mode=register&storeName=<slug>` y `login.tsx` intenta prellenar, pero **el campo queda vacío** en producción (ver §4.3). |
+| CTA que precargue datos desde slug | ✅ / ⏳ | El claim navega a `/login?mode=register&storeName=<slug>` y el campo se prellena desde 1.46.4 (pendiente de deploy; ver §4.3). |
 | Calculadora de ahorro (vs 12% Linktree) | ✅ | Presente y funcional. |
 | Showcase de casos reales (Provecchio + demo) | ✅ | Card de Provecchio con enlace real + demo Sushi & Rolls. |
 | Tabla de precios Free / Pro / OmniGastro | ✅ | Sección “Planes y Precios” con `pricingData`; no es mobile-friendly. |
@@ -162,7 +162,7 @@ Lo que queda abierto es de otra naturaleza: **prefill roto**, **pulido mobile**,
 
 | # | Gap | Impacto | Esfuerzo | Tipo | Estado |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| 1 | Prefill de `storeName` en el registro (query param presente, campo vacío) | Muy Alto | Bajo | Frontend | ❌ Confirmado en vivo |
+| 1 | Prefill de `storeName` en el registro (query param presente, campo vacío) | Muy Alto | Bajo | Frontend | ✅ Corregido en 1.46.4 (pendiente de deploy) |
 | 2 | Header + CTAs responsive (textos cortados) | Alto | Bajo | Frontend | ❌ Confirmado en vivo |
 | 3 | Tabla de precios mobile-friendly (cards) | Alto | Medio | Frontend | ❌ Confirmado en vivo |
 | 4 | Tabla comparativa mobile-friendly | Medio-Alto | Medio | Frontend | ❌ Confirmado en vivo |
@@ -182,19 +182,33 @@ Lo que queda abierto es de otra naturaleza: **prefill roto**, **pulido mobile**,
 | Auto-instalación `biolinks` + `social-catalog` | `auth.service.ts` (bloques 6 y 6b). |
 | Colores de gradiente hardcodeados | Gradientes migrados a tokens del tema. |
 
-### 4.3 Causa probable del prefill roto
+### 4.3 Causa raíz del prefill roto (corregido en 1.46.4, pendiente de deploy)
 
 - `handleCreateFreeBio` **sí** agrega `storeName` a la URL: verificado en vivo
   (`/login?mode=register&storeName=mi-marca-test`).
-- `login.tsx` tiene un `useEffect` que, cuando `mode === "register"`, lee `storeName`/`slug`
-  y llama a `form.setFieldsValue({ storeName: slug })`.
-- En producción el formulario queda vacío y la validación muestra “Ingresa el nombre de tu
-  tienda”. El store de Ant Design devuelve `{}`.
-- Causa probable: el `<Form form={form}>` se monta condicionalmente cuando `mode` pasa a
-  `register`, y el efecto de precarga no llega a aplicar el valor al campo registrado.
-- Fix sugerido: usar `initialValues={{ storeName: slug }}` en el `<Form>` de registro, o
-  llamar a `form.setFieldValue` después del montaje (por ejemplo con una `key` que fuerce
-  el remount o un efecto dentro del formulario). Validar con el flujo claim → registro.
+- El problema no era el `useEffect` de prefill, sino la instancia de formulario:
+  - antd 5.29.3 usa `rc-field-form` 2.7.1, cuyo `useForm(form)` inicializa la
+    instancia una sola vez (`useRef`).
+  - Los tres `<Form>` del ternario (`register` / `jwt` / `apikey`) ocupan la misma
+    posición en el árbol; al cambiar `mode`, React reutiliza la fibra en vez de
+    remontar. Como `mode` arranca en `"jwt"`, el Form se monta **sin** `form` y crea
+    su propia instancia; al pasar a `"register"` conserva esa instancia.
+  - Resultado medido: el `form` de `Form.useForm()` (A) tenía `[]` campos registrados
+    y `setFieldsValue` escribía en una instancia desconectada, mientras el input
+    estaba atado a la instancia del contexto (B) con `storeName`, `email` y
+    `password`.
+- **Fix aplicado (1.46.4):**
+  - `key` por modo en los tres `<Form>` (`"register"`, `"jwt"`, `"apikey"`) para
+    forzar el remount y que el Form de registro se monte con `form={form}`.
+  - `initialValues={{ storeName: initialStoreName }}` en el `<Form>` de registro
+    (`?storeName=` con fallback a `?slug=`).
+  - Eliminado el `useEffect` de prefill.
+- **Verificación:** `tsc --noEmit` OK y flujo claim → registro validado en navegador
+  con `vite dev` (storeName, slug, toggle de modos y tipado sobre la instancia
+  conectada). Test de regresión agregado en
+  `frontend/src/pages/public-login.test.tsx` (no ejecutable por el mismatch
+  preexistente `vitest@4.1.12` + `vite@5.4.21`). Detalle en troubleshooting #221.
+- **Pendiente:** desplegar 1.46.4 para que el fix llegue a producción.
 
 ---
 
@@ -213,7 +227,8 @@ Lo que queda abierto es de otra naturaleza: **prefill roto**, **pulido mobile**,
 
 **Frontend — `frontend/src/pages/login.tsx`**
 
-- Corregir el prefill de `storeName` (§4.3) y agregar una prueba del flujo
+- ~~Corregir el prefill de `storeName` (§4.3)~~ ✅ Corregido en 1.46.4 (pendiente de
+  deploy): `key` por modo + `initialValues` y test de regresión del flujo
   claim → registro.
 
 **Backend — `backend/src/auth/auth.service.ts`**
@@ -238,7 +253,7 @@ Semana 1 (Mobile):
   1. Fixes de header + tabla de precios + tabla comparativa
   2. Re-verificación en 375–390 px
 Semana 2 (Onboarding real):
-  3. Corregir prefill de storeName
+  3. ✅ Prefill de storeName corregido en 1.46.4 (pendiente de deploy)
   4. Devolver slug en registerTenant
   5. Redirect post-registro a /bio/{slug}
 Semana 3 (Comercial y calidad):
@@ -252,25 +267,27 @@ Semana 3 (Comercial y calidad):
 ## 6. Conclusión
 
 La landing **ya vende y ya implementa el núcleo de FEAT-195** (claim, precios, showcase,
-onboarding con módulos). El freno actual no es la propuesta: es el **prefill roto**, el
-**pulido mobile** y el **cierre del loop post-registro**. Cerrando los Sprints 1 y 2, la
-página queda alineada con el plan comercial y lista para campañas de captación.
+onboarding con módulos). El prefill de `storeName` quedó corregido en 1.46.4 (pendiente de
+deploy). El freno actual es el **pulido mobile** y el **cierre del loop post-registro**.
+Cerrando los Sprints 1 y 2, la página queda alineada con el plan comercial y lista para
+campañas de captación.
 
 ---
 
 ## 7. Evidencia de la re-evaluación
 
 - Código: `frontend/src/pages/landing-biolinks-catalog.tsx` (secciones 2, 5 y 6),
-  `frontend/src/pages/login.tsx` (efecto de prefill), `backend/src/auth/auth.service.ts`
+  `frontend/src/pages/login.tsx` (fix de prefill en 1.46.4), `backend/src/auth/auth.service.ts`
   (instalación de módulos y BioLink inicial).
 - Bundle live: `https://orderflow.pesallaccia.com/assets/index-2az_CPSV.js` contiene
   `orderflow.pesallaccia.com/bio/`, placeholder `tu-marca`, “Planes y Precios”,
-  `pricingData` Free/Pro/OmniGastro, la card “Provecchio” y el efecto de prefill.
-- Versión servida: 1.46.3.
+  `pricingData` Free/Pro/OmniGastro y la card “Provecchio”.
+- Versión servida al momento de la medición: 1.46.3 (el fix de prefill está en 1.46.4,
+  pendiente de deploy).
 - Medición mobile 12-nov: viewport 375 px; documento 558/360, header 480/360, comparativa
   526/319, tabla de precios 319 px con celdas de 65–103 px.
-- Prefill: la URL de destino incluye `storeName`, pero el input `#storeName` queda vacío y
-  la validación exige el campo.
+- Prefill: reproducido con la URL `?storeName=` (campo vacío en 1.46.3). Causa raíz y fix
+  documentados en §4.3 y troubleshooting #221; verificado en local con `vite dev`.
 - `provecchio.com` contiene “Powered by OmniFlow”.
 
 ---

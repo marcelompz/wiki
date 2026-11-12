@@ -26,7 +26,7 @@ Ambos modos comparten el mismo schema Prisma y el mismo código de services. La 
 - Glosario Oficial de Términos & Infraestructura: [docs/GLOSARIO_TERMINOS_Y_ECOSISTEMA.md](docs/GLOSARIO_TERMINOS_Y_ECOSISTEMA.md)
 - Repo Traefik Gateway Subsystem: `https://github.com/marcelompz/traefik-orderflow.git` (servidor: `/srv/traefik`, local: `/opt/traefik-orderflow/`)
 - Servidor Hetzner VPS (Producción): `hetzner-orderflow:/srv/orderflow` (alias SSH configurado)
-  - Versión actual: **v1.46.3** (production en 1.46.1; pesallaccia en 1.40.2; staging LAN migrado al homeserver `192.168.100.204`).
+  - Versión actual: **v1.46.4** (production en 1.46.1; pesallaccia en 1.40.2; staging LAN migrado al homeserver `192.168.100.204`).
 - Lenguaje: TypeScript en todo el stack.
 
 ---

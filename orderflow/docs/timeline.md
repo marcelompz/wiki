@@ -1,9 +1,18 @@
 # Línea de Tiempo y Evolución de OmniFlow
 
-**Última actualización:** 2026-11-11  
-**Versión actual:** `v1.46.3`  
-**Próximo hito:** Fase 2 de la migración a pnpm workspaces (patrón omnibi)  
+**Última actualización:** 2026-11-12  
+**Versión actual:** `v1.46.4`  
+**Próximo hito:** Deploy de 1.46.4 (prefill de `storeName`) y fase 2 de la migración a pnpm workspaces (patrón omnibi)  
 **Documento fuente:** `CHANGELOG.md`, `ROADMAP.md`, `featurelist.json`
+
+---
+
+### 2026-11-12 : v1.46.4 — Fix del prefill de `storeName` en el registro (FEAT-195)
+- Corregido el flujo claim → `/login?mode=register&storeName=<slug>`: el campo **Nombre de tu Comercio / Tienda** ahora se prellena (fallback a `?slug=`).
+- Causa raíz (troubleshooting #221): antd 5.29.3 + `rc-field-form` 2.7.1 inicializan la instancia de `useForm(form)` una sola vez (`useRef`); los tres `<Form>` del ternario comparten posición y React reutiliza la fibra, dejando el Form de registro atado a la instancia creada cuando `mode` era `"jwt"`.
+- Solución: `key` por modo en los tres `<Form>` + `initialValues={{ storeName }}` en el Form de registro; eliminado el `useEffect` de prefill.
+- Test de regresión en `frontend/src/pages/public-login.test.tsx`; no ejecutable por el mismatch preexistente `vitest@4.1.12` + `vite@5.4.21`.
+- Verificado en navegador con `vite dev`: `storeName`, `slug`, toggle de modos y tipado sobre la instancia conectada. **Pendiente de deploy.**
 
 ---
 

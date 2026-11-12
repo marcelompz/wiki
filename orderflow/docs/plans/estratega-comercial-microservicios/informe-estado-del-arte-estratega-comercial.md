@@ -2,7 +2,7 @@
 
 > **Módulo:** `docs/plans/estratega-comercial-microservicios/`  
 > **Fecha:** 12 de Noviembre de 2026  
-> **Versión del Sistema:** v1.46.3  
+> **Versión del Sistema:** v1.46.4  
 > **Referencia de Commits:** `01637f7` (auditoría y plan del tridente), `36f690f` (informe del estado del arte) y `185cf2b` (migración pnpm y troubleshooting 219/220)  
 > **Autor/Evaluación:** Antigravity / Ecosistema OmniFlow
 
@@ -57,7 +57,7 @@ flowchart TD
 | **Esquema de URLs Free vs Pro** | 🟢 | **90%** (especificado) | Free por path (`/bio/<slug>`) sin costo DNS/SSL vs Pro por subdominio (`<slug>.pesallaccia.com`). |
 | **Landing Page Desktop** | 🟢 | **95%** (implementada) | Claim de URL, tabla de precios Free/Pro/OmniGastro y showcase de Provecchio publicados en 1.46.3. Falta la explicación narrativa del esquema de URLs. |
 | **Landing Page Mobile-First** | 🟡 | **60%** (medido en 1.46.3) | Medición en vivo a 375 px: 6.6/10. Header 480/360, comparativa 526/319 y tabla de precios con celdas de 65–103 px. |
-| **Onboarding Express 60s** | 🟡 | **70%** (prefill roto) | `registerTenant` instala `biolinks` + `social-catalog` y crea el BioLink. El claim envía `?storeName=`, pero `login.tsx` no aplica el valor al campo. Falta corregir el prefill, devolver el slug y redirigir a `/bio/<slug>`. |
+| **Onboarding Express 60s** | 🟡 | **80%** (prefill corregido en 1.46.4) | `registerTenant` instala `biolinks` + `social-catalog` y crea el BioLink. El claim envía `?storeName=` y el campo se prellena desde 1.46.4 (pendiente de deploy). Falta devolver el slug y redirigir a `/bio/<slug>`. |
 | **Cumplimiento Regla #10 (Diseño)** | 🟢 | **85%** (casi completo) | Gradientes migrados a tokens del tema; quedan 2 sombras `rgba(0,0,0,…)` hardcodeadas. |
 
 ---
@@ -117,11 +117,11 @@ La re-evaluación post-deploy sobre `https://orderflow.pesallaccia.com/` (1.46.3
    - Hero con claim de URL (`/bio/[slug]` + placeholder `tu-marca`).
    - Tabla de precios Free / Pro / OmniGastro.
    - Showcase de Provecchio y demo interactiva.
-   - Claim encadenado al registro (`?storeName=`), con prefill del formulario pendiente de corrección.
+   - Claim encadenado al registro (`?storeName=`), con prefill corregido en 1.46.4 (pendiente de deploy).
    - Auto-instalación de `biolinks` + `social-catalog` en `registerTenant`.
 2. **Pendiente:**
-   - Prefill de `storeName` en el registro: la URL lleva `?storeName=`, pero el campo queda
-     vacío en producción (ver informe de evaluación §4.3).
+   - ~~Prefill de `storeName` en el registro~~ ✅ Corregido en 1.46.4 (pendiente de
+     deploy); causa raíz y fix en el informe de evaluación §4.3 y troubleshooting #221.
    - Fricciones mobile confirmadas en vivo (375 px): header 480/360, tabla comparativa
      526/319 y tabla de precios con celdas de 65–103 px.
    - Redirect post-registro a `/bio/<slug>` (hoy navega a `/admin`).
@@ -136,7 +136,7 @@ La re-evaluación post-deploy sobre `https://orderflow.pesallaccia.com/` (1.46.3
 ```
 ┌────────────────────────────────────────────────────────────────────────┐
 │                              PRIORIDAD P0                              │
-│  - Corregir el prefill de storeName (claim → registro).                │
+│  - ✅ Prefill de storeName corregido en 1.46.4 (pendiente de deploy).   │
 │  - Re-verificar y corregir header y CTAs truncados en móvil.           │
 │  - Tabla de precios y comparativa: cards apiladas en mobile.           │
 ├────────────────────────────────────────────────────────────────────────┤
@@ -169,7 +169,8 @@ La re-evaluación post-deploy sobre `https://orderflow.pesallaccia.com/` (1.46.3
 
 - **Objetivo:** reducir el alta del comercio a menos de 60 segundos reales.
 - **Acciones:**
-  1. Corregir el prefill de `storeName` en `frontend/src/pages/login.tsx` (ver informe §4.3).
+  1. ~~Corregir el prefill de `storeName` en `frontend/src/pages/login.tsx`~~ ✅ Hecho en
+     1.46.4 (ver informe §4.3); queda desplegarlo.
   2. Devolver el `slug` generado en `registerTenant` (`backend/src/auth/auth.service.ts`).
   3. Consumir el slug en `frontend/src/pages/login.tsx` y redirigir a `/bio/<slug>`.
   4. Verificar el flujo completo: Hero → registro → catálogo público.

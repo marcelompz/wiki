@@ -4,7 +4,7 @@
 > **Versión Objetivo:** v1.46.0  
 > **Dominio Activo:** `https://orderflow.pesallaccia.com`  
 > **Fecha:** 21 de Octubre de 2026  
-> **Estado:** ✅ Implementado en v1.46.0. La auditoría post-deploy (v1.46.3) detectó gaps de conversión y mobile que se priorizan en `informe-evaluacion-landing-omniflow-feat195.md`.  
+> **Estado:** ✅ Implementado en v1.46.0. La auditoría post-deploy (v1.46.3) detectó gaps de conversión y mobile que se priorizan en `informe-evaluacion-landing-omniflow-feat195.md`; el prefill de `storeName` se corrigió en v1.46.4 (pendiente de deploy).  
 
 ---
 
@@ -72,7 +72,7 @@ orderflow/
    - **Hero con buscador de enlaces:**
      - Input interactivo: `orderflow.pesallaccia.com/bio/[ ________ ]`
      - Botón CTA: *"Crear mi Catálogo Gratis"*
-     - Al tipear el nombre y hacer click, redirige a `/login?mode=register&storeName=X` (el query param se envía; el prefill del formulario está roto en 1.46.3 — ver `informe-evaluacion-landing-omniflow-feat195.md` §4.3).
+     - Al tipear el nombre y hacer click, redirige a `/login?mode=register&storeName=X` (el query param se envía y el prefill del formulario fue corregido en 1.46.4 — pendiente de deploy; ver `informe-evaluacion-landing-omniflow-feat195.md` §4.3).
    - **Showcase de Casos Reales:**
      - Tarjeta destacada de **Provecchio** (`https://provecchio.com`): *"Restaurante Italiano de Alta Calidad - Menú QR, Social Catalog y Dominio Propio"*.
      - Tarjeta de demostración interactiva: *"Sushi & Rolls Demo"* con enlace a probar el flujo de pedido por WhatsApp en vivo.
@@ -116,7 +116,7 @@ orderflow/
 
 ---
 
-## 6. Estado de implementación (verificado en v1.46.3)
+## 6. Estado de implementación (verificado en v1.46.3; prefill corregido en v1.46.4)
 
 | Pieza | Estado | Evidencia |
 | :--- | :--- | :--- |
@@ -126,7 +126,7 @@ orderflow/
 | Frontend: Hero con claim de URL (`/bio/<slug>`) | ✅ | `frontend/src/pages/landing-biolinks-catalog.tsx` (sección 2). |
 | Frontend: tabla de precios Free / Pro / OmniGastro | ✅ | `frontend/src/pages/landing-biolinks-catalog.tsx` (sección 6). |
 | Frontend: showcase de Provecchio + demo | ✅ | `frontend/src/pages/landing-biolinks-catalog.tsx` (sección de casos). |
-| Frontend: prefill de `storeName` desde el Hero | ⚠️ | El claim envía `?storeName`, pero el campo queda vacío en producción (bug de montaje/`setFieldsValue`; ver informe de evaluación §4.3). |
+| Frontend: prefill de `storeName` desde el Hero | ✅ | Corregido en 1.46.4 (pendiente de deploy): `key` por modo en los `<Form>` + `initialValues`; ver informe de evaluación §4.3 y troubleshooting #221. |
 | Frontend: redirect post-registro a `/bio/<slug>` | ⏳ Pendiente | Hoy navega a `/admin`; falta devolver/consumir el slug. |
 | Mobile: header y tabla comparativa | ⏳ Pendiente | Fricciones detectadas en la auditoría; re-verificar en 1.46.3. |
 | Regla #10: cero colores hardcodeados | ⚠️ Casi | Gradientes usan tokens; quedan 2 sombras `rgba(0,0,0,…)` en el archivo. |

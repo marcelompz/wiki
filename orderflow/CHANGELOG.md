@@ -1,3 +1,29 @@
+## [1.46.4] - 2026-11-12
+
+### 🐛 Frontend — Prefill de `storeName` en el registro (FEAT-195)
+
+- **Fix del claim → registro:** `/login?mode=register&storeName=<slug>` ahora
+  prellena el campo **Nombre de tu Comercio / Tienda** (con fallback a
+  `?slug=`). El bug no era el `useEffect`: antd 5.29.3 +
+  `rc-field-form` 2.7.1 inicializan la instancia de `useForm(form)` una sola
+  vez (`useRef`) y los tres `<Form>` del ternario comparten posición, así que
+  el Form de registro conservaba la instancia creada cuando `mode` era
+  `"jwt"`. `setFieldsValue` escribía en una instancia desconectada del input.
+- **Solución:** `key` por modo en los tres `<Form>` (`register`/`jwt`/`apikey`)
+  para forzar el remount + `initialValues={{ storeName: initialStoreName }}`
+  en el Form de registro; eliminado el `useEffect` de prefill.
+- **Test de regresión:** `frontend/src/pages/public-login.test.tsx` cubre
+  `?storeName=` y `?slug=` con `MemoryRouter`. No ejecutable en el entorno
+  actual por el mismatch preexistente `vitest@4.1.12` + `vite@5.4.21`
+  (`ERR_PACKAGE_PATH_NOT_EXPORTED: './module-runner'`).
+- **Troubleshooting #221:** causa raíz y regla para formularios condicionales
+  que comparten posición en el árbol.
+- **Verificación:** `tsc --noEmit` OK; flujo claim → registro validado en
+  navegador con `vite dev` (storeName, slug, toggle de modos y tipado).
+- **Docs:** §4.3 del informe de evaluación de la landing actualizada a causa
+  raíz + estado “corregido en 1.46.4 (pendiente de deploy)”, junto con el
+  semáforo del estado del arte y la tabla del plan FEAT-195.
+
 ## [1.46.3] - 2026-11-11
 
 ### 📦 DevOps — Migración a pnpm workspaces, fase 1 (FEAT-212)
