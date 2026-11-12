@@ -92,6 +92,22 @@ const initialStoreName =
   preexistente `vitest@4.1.12` + `vite@5.4.21`
   (`ERR_PACKAGE_PATH_NOT_EXPORTED: './module-runner'`).
 
+### Validación en staging (homeserver, 2026-11-12)
+
+Deploy de 1.46.4 en el staging LAN (`https://orderflow.local`) y verificación:
+
+| Chequeo | Resultado |
+| :--- | :--- |
+| `GET /api/v1/health` | `{"version":"1.46.4","status":"ok"}` (database y odoo_adapter `ok`) |
+| `GET /login?mode=register&storeName=mi-marca-test` | HTTP 200 |
+| Bundle desplegado (`/assets/index-x9R2hmEh.js`) | contiene `get("storeName")||get("slug")` y `initialValues:{storeName:a}` |
+| Prueba visual en navegador de la LAN | ✅ El input **Nombre de tu Comercio / Tienda** llega precargado con el valor del claim |
+
+> La verificación automatizada de la UI no fue posible desde el workstation: el
+> certificado autofirmado de `orderflow.local` provoca `ERR_CERT_AUTHORITY_INVALID`
+> y la herramienta de navegador no permite omitir la validación TLS. La prueba
+> visual se hizo manualmente aceptando el certificado.
+
 ## Regla para futuros formularios
 
 Cuando varios `<Form>` se renderizan condicionalmente en la misma posición del árbol y
