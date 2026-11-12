@@ -1,9 +1,11 @@
 # Plan de Optimización de Espacio en Monorepo — PNPM Workspaces
 
-> **Estado: Fase 1 implementada** (rama `feat/devops-pnpm-workspaces`, FEAT-212).
-> Resultado medido en checkout fresco: **1.6 GB con `node_modules` por proyecto de
+> **Estado: Fase 2 del plan estratégico — migración pnpm fase 1 implementada**
+> (rama `feat/devops-pnpm-workspaces`, FEAT-212, v1.46.3).
+> Resultado medido en checkout fresco: **~1.7 GB con `node_modules` por proyecto de
 > solo KBs** (symlinks), store global compartida por hardlinks (~1.5 GB reales)
 > vs ~4.2 GB que ocupaban los `node_modules` npm duplicados por proyecto.
+> La “fase 2 de pnpm” (CI, Docker y patrón Prisma) sigue pendiente y se detalla al final.
 
 ## 🔍 Causa Raíz del Peso Original
 
@@ -73,7 +75,7 @@ los recalcula correctamente. Ejecutar tras todo clone/instalación fresca.
 
 | Métrica | npm (antes) | pnpm isolated (después) |
 | :--- | :--- | :--- |
-| Peso total del checkout | ~4.2 GB | 1.6 GB |
+| Peso total del checkout | ~4.2 GB | 1.7 GB |
 | `node_modules` por proyecto | 500–750 MB | KBs (symlinks) |
 | Consumo real de disco | ~4.2 GB | ~1.5 GB (store en `~/.local/share/pnpm/store/v10`, hardlinks — mismo filesystem) |
 | Tiempo de instalación | — | ~3 min frío, ~45 s con store tibia, ~11–30 s incremental |
@@ -95,10 +97,10 @@ Situación por proyecto:
 | :--- | :--- |
 | `backend` | Determinista: generar antes de construir/probar (igual que siempre). |
 | `odoo-adapter` | Sin impacto en runtime: usa `pg` crudo (`Pool`), nunca importa el cliente Prisma. |
-| 9 services standalone (output `../node_modules/.prisma/client`) | Su output custom queda **invisible** bajo pnpm (el realpath del stub escapa del `node_modules` del importer) → el runtime local resolvería el slot compartido. **No afecta Docker** (adentro del build cada proyecto instala con npm en directorios reales y el patrón funciona igual que siempre). |
+| 8 services restantes con Prisma (excluyendo omnibi) | Su output custom queda **invisible** bajo pnpm (el realpath del stub escapa del `node_modules` del importer) → el runtime local resolvería el slot compartido. Detalle: 4 usan `../node_modules/.prisma/client` (`bookings`, `pos`, `social-catalog`, `sync`); `giveaways` usa `.prisma/giveaways-client`; `storefront-builder` usa `@prisma/client-storefront`; `loyalty` y `quotations` usan el output default. **No afecta Docker** (adentro del build cada proyecto instala con npm en directorios reales y el patrón funciona igual que siempre). |
 | `omnibi-standalone` | ✅ Patrón correcto ya en el repo: `output = "../node_modules/@prisma/omnibi-client"` + `import { PrismaClient } from '@prisma/omnibi-client'`. El import directo resuelve desde el propio `node_modules` del importer (sin realpath escape). |
 
-**Trabajo de fase 2**: migrar los 9 services al patrón omnibi (output con
+**Trabajo de fase 2**: migrar los 8 services restantes al patrón omnibi (output con
 nombre propio + import directo). No requiere cambios en fase 1 porque su
 runtime local no estaba en el alcance y los Docker builds son los vehicles
 reales de despliegue.
@@ -109,7 +111,7 @@ reales de despliegue.
 
 | Validación | Resultado |
 | :--- | :--- |
-| `pnpm install` (isolated estricto, workspace completo) | ✓ 1.6 GB |
+| `pnpm install` (isolated estricto, workspace completo) | ✓ ~1.7 GB |
 | `prisma generate` backend + nativos (bcrypt/sharp/msgpackr-extract) | ✓ |
 | Build backend (`nest build`, requiere `NODE_OPTIONS=--max-old-space-size=4096` — mismo workaround que ci.yml) | ✓ `dist/src/main.js` |
 | Jest backend (orders + auth) | ✓ 42/42 |
@@ -117,20 +119,20 @@ reales de despliegue.
 | Typecheck mobile (`tsc --noEmit`) | ✓ 0 errores |
 | Build `bookings-standalone` desde cero | ✓ dist carga en Node |
 | `scripts/fix-pnpm-links.sh` | ✓ 0 links rotos |
-| `scripts/check-version-sync.sh` | ✓ 1.46.2 |
+| `scripts/check-version-sync.sh` | ✓ 1.46.3 (validado también en 1.46.2 durante la migración) |
 | Deploy staging homeserver (`scripts/deploy-staging-homeserver.sh`) | ✓ `feat/devops-pnpm-workspaces@257a863c`. `npm ci` de los builds Docker reconstruidos desde cero (backend 13 min/1073 paquetes, frontend 12 min/1493 — los locks regenerados resuelven limpio); backend `nest build` + `prisma generate` ✓, imagen nueva (digest `8add315c`) y contenedor **recreado** healthy. Frontend 200, `/api/v1/health` → `version: 1.46.2` con database+odoo ok, redirect HTTP→HTTPS 301, enrutamiento k3s reaplicado, Ingress de qBittorrent (`torrents/qbittorrent-ingress`) intacto. Nota: la imagen de frontend quedó contenido-idéntica (los cambios eran solo declaraciones de deps ya presentes en el bundle) y compose mantuvo el contenedor — comportamiento esperado |
 | Barrera `./scripts/init.sh` completa | ✓ (dos pasadas, mismo árbol): corrida completa — checks de endpoints públicos ✓, `prisma generate` ✓, **Jest 1061/1061 (140 suites)** ✓, builds backend/frontend ✓ (frontend + PWA, 86 entradas). El paso E2E requiere el módulo Python `playwright` a nivel host (no del repo; en CI lo provee `qa_e2e.yml`): instalado y re-ejecutado con `--only-e2e` → catálogo público sin imágenes rotas, dominio sin errores JS de consola, sanidad auth/DB sin HTTP 500 y 8 rutas `/admin/*` verificadas → `VALIDATION SUCCESSFUL` |
 
 ---
 
-## 📋 Trabajo restante (Fase 2)
+## 📋 Trabajo restante (fase 2 de pnpm / fase 3 del plan estratégico)
 
 1. **CI**: migrar `ci.yml` de `npm ci` a `pnpm install --frozen-lockfile` por
    proyecto (o workspace completo) y cachear la store.
 2. **Docker builds**: adoptar pnpm con `pnpm fetch`/deploy patterns o mantener
    npm (decisión pendiente; hoy los `package-lock.json` se conservan y los
    builds no se tocan).
-3. **Prisma**: patrón omnibi en los 9 services standalone (ver sección
+3. **Prisma**: patrón omnibi en los 8 services standalone restantes (ver sección
    arquitectónica).
 4. **`desktop`**: roto PRE-pnpm (nunca tuvo lockfile, `react-router-dom`
    nunca fue dependencia, faltan tipos `vite/client`, `setLastShortcut` sin

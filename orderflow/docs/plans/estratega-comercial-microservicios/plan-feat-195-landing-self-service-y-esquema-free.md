@@ -4,7 +4,7 @@
 > **Versión Objetivo:** v1.46.0  
 > **Dominio Activo:** `https://orderflow.pesallaccia.com`  
 > **Fecha:** 21 de Octubre de 2026  
-> **Estado:** 📋 Propuesto para Aprobación del Usuario  
+> **Estado:** ✅ Implementado en v1.46.0. La auditoría post-deploy (v1.46.3) detectó gaps de conversión y mobile que se priorizan en `informe-evaluacion-landing-omniflow-feat195.md`.  
 
 ---
 
@@ -51,8 +51,8 @@ orderflow/
 ├── VERSION                                    # [VERSION] 1.45.4 -> 1.46.0
 ├── featurelist.json                           # [FEATURE] Registro formal de FEAT-195
 └── docs/plans/estratega-comercial-microservicios/
-    ├── estudio_de_caso_pency.md              # [ACTUALIZAR] Referencia al plan concluido
-    └── plan-feat-195-landing-self-service.md # [CREAR] Este documento
+    ├── estudio-de-caso-pency.md               # [ACTUALIZAR] Referencia al plan concluido
+    └── plan-feat-195-landing-self-service-y-esquema-free.md # [CREAR] Este documento
 ```
 
 ---
@@ -60,14 +60,14 @@ orderflow/
 ## 3. Plan Detallado de Implementación
 
 ### Fase 1: Backend Onboarding Express
-1. **Modificación en [`auth.service.ts`](file:///opt/orderflow/backend/src/auth/auth.service.ts#L125-L145):**
+1. **Modificación en `backend/src/auth/auth.service.ts`:**
    - En el método `registerTenant`:
      - Asegurar que al provisionar el tenant en modo `FREE_BIOLINKS`, se instalen tanto `biolinks` como `social-catalog`.
      - Crear el `BioLink` inicial por defecto con un botón directo a WhatsApp y enlace a su catálogo social.
      - Garantizar que NO se invoque `CloudflareDnsService` en el registro Free, reservándolo exclusivamente para upgrades de plan.
 
 ### Fase 2: Frontend Landing Page (UI/UX Tokenizada)
-1. **Refactorización de [`landing-biolinks-catalog.tsx`](file:///opt/orderflow/frontend/src/pages/landing-biolinks-catalog.tsx):**
+1. **Refactorización de `frontend/src/pages/landing-biolinks-catalog.tsx`:**
    - **Cumplimiento estricto de Regla #10 (Cero colores HEX hardcodeados):** Uso de `const { token } = theme.useToken();` para fondos, textos y bordes.
    - **Hero con buscador de enlaces:**
      - Input interactivo: `orderflow.pesallaccia.com/bio/[ ________ ]`
@@ -112,4 +112,25 @@ orderflow/
 * Bump de versión: **1.45.4 → 1.46.0** en `VERSION`, `backend/package.json`, `frontend/package.json`.
 * Registro de `FEAT-195` en `featurelist.json`.
 * Actualización de `CHANGELOG.md` y `ROADMAP.md`.
-* Sincronización con la Wiki oficial en `/opt/wiki/orderflow/`.
+* Sincronización con la Wiki oficial en `orderflow/docs/plans/estratega-comercial-microservicios/` y su espejo `docs/plans/estratega-comercial-microservicios/`.
+
+---
+
+## 6. Estado de implementación (verificado en v1.46.3)
+
+| Pieza | Estado | Evidencia |
+| :--- | :--- | :--- |
+| Backend: auto-instalación de `biolinks` + `social-catalog` | ✅ | `backend/src/auth/auth.service.ts` (bloques 6 y 6b). |
+| Backend: BioLink inicial con botones WhatsApp + Catálogo | ✅ | `backend/src/auth/auth.service.ts` (bloque 6c). |
+| Backend: no invocar Cloudflare DNS en plan Free | ✅ | El registro Free no llama a `CloudflareDnsService`. |
+| Frontend: Hero con claim de URL (`/bio/<slug>`) | ✅ | `frontend/src/pages/landing-biolinks-catalog.tsx` (sección 2). |
+| Frontend: tabla de precios Free / Pro / OmniGastro | ✅ | `frontend/src/pages/landing-biolinks-catalog.tsx` (sección 6). |
+| Frontend: showcase de Provecchio + demo | ✅ | `frontend/src/pages/landing-biolinks-catalog.tsx` (sección de casos). |
+| Frontend: prefill de `storeName` desde el Hero | ✅ | `frontend/src/pages/login.tsx` (`?storeName` / `?slug`). |
+| Frontend: redirect post-registro a `/bio/<slug>` | ⏳ Pendiente | Hoy navega a `/admin`; falta devolver/consumir el slug. |
+| Mobile: header y tabla comparativa | ⏳ Pendiente | Fricciones detectadas en la auditoría; re-verificar en 1.46.3. |
+| Regla #10: cero colores hardcodeados | ⚠️ Casi | Gradientes usan tokens; quedan 2 sombras `rgba(0,0,0,…)` en el archivo. |
+
+Los gaps abiertos y su priorización están en
+`informe-evaluacion-landing-omniflow-feat195.md` y en el roadmap del
+`informe-estado-del-arte-estratega-comercial.md`.
