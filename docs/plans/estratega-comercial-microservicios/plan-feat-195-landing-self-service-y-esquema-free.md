@@ -72,7 +72,7 @@ orderflow/
    - **Hero con buscador de enlaces:**
      - Input interactivo: `orderflow.pesallaccia.com/bio/[ ________ ]`
      - Botón CTA: *"Crear mi Catálogo Gratis"*
-     - Al tipear el nombre y hacer click, redirige a `/login?mode=register&storeName=X` precargando los datos.
+     - Al tipear el nombre y hacer click, redirige a `/login?mode=register&storeName=X` (el query param se envía; el prefill del formulario está roto en 1.46.3 — ver `informe-evaluacion-landing-omniflow-feat195.md` §4.3).
    - **Showcase de Casos Reales:**
      - Tarjeta destacada de **Provecchio** (`https://provecchio.com`): *"Restaurante Italiano de Alta Calidad - Menú QR, Social Catalog y Dominio Propio"*.
      - Tarjeta de demostración interactiva: *"Sushi & Rolls Demo"* con enlace a probar el flujo de pedido por WhatsApp en vivo.
@@ -126,7 +126,7 @@ orderflow/
 | Frontend: Hero con claim de URL (`/bio/<slug>`) | ✅ | `frontend/src/pages/landing-biolinks-catalog.tsx` (sección 2). |
 | Frontend: tabla de precios Free / Pro / OmniGastro | ✅ | `frontend/src/pages/landing-biolinks-catalog.tsx` (sección 6). |
 | Frontend: showcase de Provecchio + demo | ✅ | `frontend/src/pages/landing-biolinks-catalog.tsx` (sección de casos). |
-| Frontend: prefill de `storeName` desde el Hero | ✅ | `frontend/src/pages/login.tsx` (`?storeName` / `?slug`). |
+| Frontend: prefill de `storeName` desde el Hero | ⚠️ | El claim envía `?storeName`, pero el campo queda vacío en producción (bug de montaje/`setFieldsValue`; ver informe de evaluación §4.3). |
 | Frontend: redirect post-registro a `/bio/<slug>` | ⏳ Pendiente | Hoy navega a `/admin`; falta devolver/consumir el slug. |
 | Mobile: header y tabla comparativa | ⏳ Pendiente | Fricciones detectadas en la auditoría; re-verificar en 1.46.3. |
 | Regla #10: cero colores hardcodeados | ⚠️ Casi | Gradientes usan tokens; quedan 2 sombras `rgba(0,0,0,…)` en el archivo. |

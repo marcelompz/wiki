@@ -56,8 +56,8 @@ flowchart TD
 | **Estrategia Comercial Tridente** | 🟢 | **90%** (formalizada) | Paquetización clara: precios individuales vs pack integral vs Enterprise. |
 | **Esquema de URLs Free vs Pro** | 🟢 | **90%** (especificado) | Free por path (`/bio/<slug>`) sin costo DNS/SSL vs Pro por subdominio (`<slug>.pesallaccia.com`). |
 | **Landing Page Desktop** | 🟢 | **95%** (implementada) | Claim de URL, tabla de precios Free/Pro/OmniGastro y showcase de Provecchio publicados en 1.46.3. Falta la explicación narrativa del esquema de URLs. |
-| **Landing Page Mobile-First** | 🟡 | **60%** (re-verificar) | Medición pre-deploy 6.6/10: header sticky y tabla comparativa con fricciones. Re-verificar en 1.46.3. |
-| **Onboarding Express 60s** | 🟡 | **80%** (casi completo) | `registerTenant` instala `biolinks` + `social-catalog` y crea el BioLink; `login.tsx` prellena el slug. Falta devolver el slug y redirigir a `/bio/<slug>`. |
+| **Landing Page Mobile-First** | 🟡 | **60%** (medido en 1.46.3) | Medición en vivo a 375 px: 6.6/10. Header 480/360, comparativa 526/319 y tabla de precios con celdas de 65–103 px. |
+| **Onboarding Express 60s** | 🟡 | **70%** (prefill roto) | `registerTenant` instala `biolinks` + `social-catalog` y crea el BioLink. El claim envía `?storeName=`, pero `login.tsx` no aplica el valor al campo. Falta corregir el prefill, devolver el slug y redirigir a `/bio/<slug>`. |
 | **Cumplimiento Regla #10 (Diseño)** | 🟢 | **85%** (casi completo) | Gradientes migrados a tokens del tema; quedan 2 sombras `rgba(0,0,0,…)` hardcodeadas. |
 
 ---
@@ -117,11 +117,13 @@ La re-evaluación post-deploy sobre `https://orderflow.pesallaccia.com/` (1.46.3
    - Hero con claim de URL (`/bio/[slug]` + placeholder `tu-marca`).
    - Tabla de precios Free / Pro / OmniGastro.
    - Showcase de Provecchio y demo interactiva.
-   - Prefill de `storeName` desde el Hero (`?storeName` / `?slug`).
+   - Claim encadenado al registro (`?storeName=`), con prefill del formulario pendiente de corrección.
    - Auto-instalación de `biolinks` + `social-catalog` en `registerTenant`.
 2. **Pendiente:**
-   - Fricciones mobile del header sticky y la tabla comparativa (medición pre-deploy; hay
-     que re-verificar en 1.46.3).
+   - Prefill de `storeName` en el registro: la URL lleva `?storeName=`, pero el campo queda
+     vacío en producción (ver informe de evaluación §4.3).
+   - Fricciones mobile confirmadas en vivo (375 px): header 480/360, tabla comparativa
+     526/319 y tabla de precios con celdas de 65–103 px.
    - Redirect post-registro a `/bio/<slug>` (hoy navega a `/admin`).
    - Upsell de módulos standalone del Tridente en la landing.
    - Explicación narrativa del esquema Free (path) vs Pro (subdominio).
@@ -134,8 +136,9 @@ La re-evaluación post-deploy sobre `https://orderflow.pesallaccia.com/` (1.46.3
 ```
 ┌────────────────────────────────────────────────────────────────────────┐
 │                              PRIORIDAD P0                              │
+│  - Corregir el prefill de storeName (claim → registro).                │
 │  - Re-verificar y corregir header y CTAs truncados en móvil.           │
-│  - Reemplazar tabla comparativa horizontal por cards mobile.           │
+│  - Tabla de precios y comparativa: cards apiladas en mobile.           │
 ├────────────────────────────────────────────────────────────────────────┤
 │                              PRIORIDAD P1                              │
 │  - Redirect post-registro directo a /bio/{slug}.                       │
@@ -155,10 +158,10 @@ La re-evaluación post-deploy sobre `https://orderflow.pesallaccia.com/` (1.46.3
 
 ### Sprint 1: Mobile Polish & Re-verificación (Frontend)
 
-- **Objetivo:** llevar la landing de 6.6 (mobile, pre-deploy) a ≥8.5 en viewport 375–390 px.
+- **Objetivo:** llevar la landing de 6.6 (mobile, medido en 1.46.3) a ≥8.5 en viewport 375–390 px.
 - **Acciones:**
   1. Rediseñar el header sticky (logo + CTA corto o menú hamburguesa).
-  2. Transformar la tabla comparativa en cards apiladas en móvil.
+  2. Transformar la tabla de precios y la comparativa en cards apiladas en móvil.
   3. Acortar textos de CTA en mobile.
   4. Re-medir sobre 1.46.3 y documentar el resultado.
 
@@ -166,9 +169,10 @@ La re-evaluación post-deploy sobre `https://orderflow.pesallaccia.com/` (1.46.3
 
 - **Objetivo:** reducir el alta del comercio a menos de 60 segundos reales.
 - **Acciones:**
-  1. Devolver el `slug` generado en `registerTenant` (`backend/src/auth/auth.service.ts`).
-  2. Consumir el slug en `frontend/src/pages/login.tsx` y redirigir a `/bio/<slug>`.
-  3. Verificar el flujo completo: Hero → registro → catálogo público.
+  1. Corregir el prefill de `storeName` en `frontend/src/pages/login.tsx` (ver informe §4.3).
+  2. Devolver el `slug` generado en `registerTenant` (`backend/src/auth/auth.service.ts`).
+  3. Consumir el slug en `frontend/src/pages/login.tsx` y redirigir a `/bio/<slug>`.
+  4. Verificar el flujo completo: Hero → registro → catálogo público.
 
 ### Sprint 3: Calidad, Tokens y Fase 2 de Microservicios
 
