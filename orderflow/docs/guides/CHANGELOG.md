@@ -24,6 +24,19 @@
   raíz + estado “corregido en 1.46.4 (pendiente de deploy)”, junto con el
   semáforo del estado del arte y la tabla del plan FEAT-195.
 
+### 🛠️ DevOps — Deploy: lista de servicios del build por target
+
+- **Fix del loop de build serializado:** `scripts/deploy-production.sh` resuelve
+  la lista de servicios con los mismos `-f`/`--env-file` del target
+  (`${COMPOSE_REL} config --services`) en lugar del `docker-compose.yml` por
+  defecto. Elimina el falso `[FAIL] build postgres: no such service` en Hetzner
+  (el target usa `database`) y garantiza que los servicios del override
+  (`sync_standalone`, `omnibi_standalone` en Provecchio) entren al build.
+- **Salvaguarda:** si la resolución devuelve una lista vacía, el deploy aborta
+  en vez de recrear contenedores con imágenes viejas; las imágenes prebuilt se
+  reportan como `[SKIP]`.
+- **Troubleshooting #222:** causa raíz y regla para scripts de deploy.
+
 ## [1.46.3] - 2026-11-11
 
 ### 📦 DevOps — Migración a pnpm workspaces, fase 1 (FEAT-212)
