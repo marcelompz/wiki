@@ -1,11 +1,11 @@
 # 🗺️ ROADMAP DE ORDERFLOW - v1.34.0 → v2.0.0 (Go-Live Definitivo)
-**Última Actualización:** 2026-11-12 (Release v1.46.4 — fix del prefill de `storeName` en el registro: `key` por modo + `initialValues`; FEAT-195)
+**Última Actualización:** 2026-11-12 (Release v1.46.5 — resolución única de target de despliegue + dominio raíz por entorno; FEAT-223)
 **Release anterior:** 2026-11-07 (Release v1.46.2 — Hardening P0: secretos fuera del índice, CI bloqueante, versión única)
 
-**Versión Actual:** **`v1.46.4`** (en desarrollo) · **`v1.46.1`** ✅ DESPLEGADA EN PRODUCCIÓN (`provecchio.com`, 2026-11-07 — health 200/1.46.1, database ok) · **`v1.40.2`** ⚠️ DESPLEGADA EN STAGING (`pesallaccia.com`, pendiente de actualización) | Marca pública: OmniFlow. Capa técnica interna: OrderFlow.
+**Versión Actual:** **`v1.46.5`** ✅ DESPLEGADA EN PRODUCCIÓN (`provecchio.com`, 2026-11-12 — health 200/1.46.5, database ok, E2E Playwright OK) · **`v1.46.1`** (despliegue anterior, 2026-11-07) · **`v1.40.2`** ⚠️ DESPLEGADA EN STAGING (`pesallaccia.com`, pendiente de actualización) | Marca pública: OmniFlow. Capa técnica interna: OrderFlow.
 **Próximos Releases:** **v1.41.x** (Tauri Desktop & OmnIoT Edge) ➔ **v2.0.0** (🚀 **GO-Live Definitivo del Ecosistema — Target: 15 de Febrero de 2027**)
 **Plan Maestro Go-to-Live:** ver [docs/plans/PLAN_GO_LIVE_APLICACIONES_ECOSISTEMA.md](docs/plans/PLAN_GO_LIVE_APLICACIONES_ECOSISTEMA.md)
-<!--CURRENT_VERSION-->1.46.4<!--/CURRENT_VERSION--> <!-- Actualizado: 2026-11-12 v1.46.4 - FEAT-195 prefill storeName -->
+<!--CURRENT_VERSION-->1.46.5<!--/CURRENT_VERSION--> <!-- Actualizado: 2026-11-12 v1.46.5 - FEAT-223 target único de deploy -->
 
 ### 📋 Próximas actualizaciones planificadas — OmniGastro (plan aprobado 2026-10-22)
 
@@ -290,7 +290,7 @@
 
 ---
 
-<!--CURRENT_VERSION-->1.46.4<!--/CURRENT_VERSION--> <!-- Actualizado: 2026-11-12 v1.46.4 - FEAT-195 prefill storeName -->
+<!--CURRENT_VERSION-->1.46.5<!--/CURRENT_VERSION--> <!-- Actualizado: 2026-11-12 v1.46.5 - FEAT-223 target único de deploy -->
 
 El ecosistema **OmniFlow** contempla 10 aplicaciones y capas operativas. A continuación se presenta la evaluación de madurez técnica por componente y los puntos pendientes priorizados hacia el Go-Live final.
 

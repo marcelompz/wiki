@@ -1,6 +1,6 @@
 {
   "project": "OrderFlow SaaS Omnicanal",
-  "version": "1.46.4",
+  "version": "1.46.5",
   "last_updated": "2026-11-12",
   "features": [
     {
@@ -2648,10 +2648,30 @@
         "Fase 2: aplicar el patrón omnibi (output custom con nombre propio + import directo) a los 9 services standalone que usan output .prisma/client",
         "Decisión pendiente: Docker builds con pnpm fetch o mantener npm"
       ]
+    },
+    {
+      "id": "FEAT-223",
+      "category": "DevOps / Infraestructura",
+      "title": "Resolución única de target de despliegue y dominio raíz por entorno",
+      "description": "Unifica en scripts/lib/deploy-target.sh la resolución de target (compose + override + env file remoto + nombres de contenedor + ProxyJump) que antes replicaban deploy-production.sh, pre-deploy-diagnostic.sh y backup-production.sh con resultados divergentes. El deploy de Provecchio validaba y respaldaba el .env local en lugar de /srv/orderflow/.env.provecchio, el diagnóstico consultaba orderflow-backend-prod/frontend-prod inexistentes y el backup abortaba por exigir un .env.provecchio local. Se añade fail-fast ${VAR:?} para VITE_ROOT_DOMAIN y VITE_SYSTEM_SUBDOMAINS en docker-compose.yml y frontend/src/config/root-domain.ts como fallback único de dominio, eliminando el 'pesallaccia.com' hardcodeado de login.tsx y BrandingProvider (rompía el redirect post-login y la resolución de subdominios en provecchio.com).",
+      "status": "completed",
+      "priority": "HIGH",
+      "assigned_module": "scripts/lib/deploy-target.sh, scripts/deploy-production.sh, scripts/pre-deploy-diagnostic.sh, scripts/backup-production.sh, docker-compose.yml, frontend/src/config/root-domain.ts, frontend/src/App.tsx, frontend/src/pages/login.tsx, frontend/src/pages/public-storefront-page.tsx, frontend/src/components/tenant/BrandingProvider.tsx, .env.provecchio.example, .env.production.example",
+      "depends_on": [],
+      "blocking": "",
+      "qa_validation": "Deploy v1.46.5 a Provecchio 2026-11-12: pre-deploy-diagnostic 0 FAIL, backup remoto (SQL 2.44 MB + uploads 28.9 MB + metadata sha256), restore en localhost con 226 productos / 1 proveedor Odoo / 43 migraciones, product-imports suppliers+jobs HTTP 200, migraciones remotas sin pendientes, health 1.46.5 en host y vía SSH, E2E Playwright post-deploy OK (catálogo público sin imágenes rotas, consola sin errores JS, 8 rutas /admin y auth/DB sin HTTP 500), endpoint público HTTP 200.",
+      "version": "1.46.5",
+      "deploy_status": "completed",
+      "deploy_report": "docs/plans/PROVECCHIO_DEPLOY_FIX_PLAN_2026-11-12.md",
+      "deploy_target": "provecchio (192.168.69.240)",
+      "next_steps": [
+        "Replicar el fix en pesallaccia.com (docker-compose.prod.yml ya tiene default, falta el env file del target)",
+        "Cerrar el build de sync_standalone y omnibi_standalone con los lockfiles sincronizados"
+      ]
     }
   ],
-  "lastUpdated": "2026-10-26",
-  "last_id": 212,
+  "lastUpdated": "2026-11-12",
+  "last_id": 223,
   "next_pending_sc": null,
   "active_plan": "docs/plans/omnigastro/PLAN_MAESTRO.md",
   "plan_progress": {

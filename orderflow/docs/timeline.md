@@ -1,11 +1,18 @@
 # Línea de Tiempo y Evolución de OmniFlow
 
 **Última actualización:** 2026-11-12  
-**Versión actual:** `v1.46.4`  
-**Próximo hito:** Deploy de 1.46.4 (prefill de `storeName`) y fase 2 de la migración a pnpm workspaces (patrón omnibi)  
+**Versión actual:** `v1.46.5`  
+**Próximo hito:** Deploy de 1.46.4/1.46.5 a `pesallaccia.com` y fase 2 de la migración a pnpm workspaces (patrón omnibi)  
 **Documento fuente:** `CHANGELOG.md`, `ROADMAP.md`, `featurelist.json`
 
 ---
+
+### 2026-11-12 : v1.46.5 — Resolución única de target de despliegue y dominio raíz por entorno (FEAT-223)
+- **Despliegue a Provecchio completado**: `https://provecchio.com` sirve `1.46.5` (health 200, `database: ok`, `odoo_adapter: ok`), 43 migraciones sin pendientes, E2E Playwright post-deploy OK (catálogo público sin imágenes rotas, consola sin errores JS, 8 rutas de `/admin` y auth/DB sin HTTP 500).
+- **Causa raíz del pipeline** (troubleshooting #223): `deploy-production.sh`, `pre-deploy-diagnostic.sh` y `backup-production.sh` resolvían el target por separado; el deploy validaba y snapshot-eaba el `.env` local en lugar de `/srv/orderflow/.env.provecchio`, el diagnóstico consultaba `orderflow-*-prod` inexistentes y el backup exigía un `.env.provecchio` local que no existe en el host de trabajo.
+- **Solución**: `scripts/lib/deploy-target.sh` como única fuente de compose + override + env file remoto + contenedores + ProxyJump, consumida por los tres scripts.
+- **Build args del frontend**: `VITE_ROOT_DOMAIN` y `VITE_SYSTEM_SUBDOMAINS` declarados con fail-fast (`${VAR:?}`) en `docker-compose.yml`, y `frontend/src/config/root-domain.ts` como fallback único de dominio (elimina el `'pesallaccia.com'` hardcodeado de `login.tsx` y `BrandingProvider`).
+- **Fix adicional**: `package-lock.json` de `sync-standalone` y `omnibi-standalone` sincronizados con `@orderflow/auth-shared`; su `npm ci` fallaba y el deploy los recreaba con la imagen anterior.
 
 ### 2026-11-12 : v1.46.4 — Fix del prefill de `storeName` en el registro (FEAT-195)
 - Corregido el flujo claim → `/login?mode=register&storeName=<slug>`: el campo **Nombre de tu Comercio / Tienda** ahora se prellena (fallback a `?slug=`).

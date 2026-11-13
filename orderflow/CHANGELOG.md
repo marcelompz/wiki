@@ -1,3 +1,54 @@
+## [1.46.5] - 2026-11-12
+
+### 🛠️ DevOps — Resolución única de target de despliegue (Provecchio)
+
+- **Causa raíz:** `deploy-production.sh` y `pre-deploy-diagnostic.sh` resolvían
+  el target por separado. El deploy tomaba el env file **local** (`.env`) en
+  lugar del remoto (`/srv/orderflow/.env.provecchio`): validaba variables y
+  guardaba el snapshot de rollback con secretos de localhost. El diagnóstico
+  validaba `docker-compose.prod.yml` y consultaba `orderflow-backend-prod` /
+  `orderflow-frontend-prod`, contenedores que no existen en el stack real de
+  Provecchio (`orderflow_backend` / `orderflow_frontend`).
+- **Fix:** nueva librería `scripts/lib/deploy-target.sh` (`resolve_deploy_target`
+  + `detect_ssh_opts_for_target` + `remote_env_*`) consumida por deploy,
+  diagnóstico y backup. Ambos scripts operan ahora sobre el mismo compose
+  (`docker-compose.yml` + `docker-compose.provecchio.yml`), env file remoto y
+  nombres de contenedor.
+- **Rollback de migraciones:** la línea usaba `docker compose -f
+  docker-compose.yml --env-file .env`, sin el override de Provecchio. Ahora usa
+  `${COMPOSE_REL}`, que incluye override y env file del target.
+- **Validación real:** las variables requeridas y los build args del frontend se
+  verifican contra el env file remoto; el snapshot de rollback se toma con
+  `ssh cat` del remoto (chmod 600) en lugar de copiar el `.env` local.
+- **Backup remoto:** `backup-production.sh` resuelve el SSH por el target
+  (ProxyJump `root@38.52.135.227:2021`; el alias `dimoraserverlocal` no lo
+  define), no exige un `.env.provecchio` local inexistente y siempre escribe el
+  `*_backup_info.json` (tamaño + sha256) que requiere `restore-provecchio.sh`.
+- **Despliegue:** Provecchio (`192.168.69.240`) 2026-11-12 — health `1.46.5` (`database: ok`, `odoo_adapter: ok`), 43 migraciones sin pendientes y E2E Playwright post-deploy OK (catálogo sin imágenes rotas, consola sin errores JS, 8 rutas de `/admin` y auth/DB sin HTTP 500). Merge a `main` en `efed406d`, tag `v1.46.5`.
+- **Troubleshooting #223:** causa raíz, síntomas (`unknown` en versión remota,
+  `service 'database' is not running`, falta de metadata) y regla de no
+  duplicar la resolución de target entre scripts.
+
+### 🐛 Frontend — Dominio raíz único por despliegue
+
+- **Fix #171/#181:** `docker-compose.yml` declara `VITE_ROOT_DOMAIN` y
+  `VITE_SYSTEM_SUBDOMAINS` con fail-fast (`${VAR:?mensaje}`). Sin dominio raíz
+  el build horneaba cadena vacía y el bundle caía al fallback de otro dominio.
+- **Fix del redirect post-login:** `login.tsx` usaba `VITE_ROOT_DOMAIN ||
+  'pesallaccia.com'`, por lo que en `provecchio.com` redirigía a
+  `<sub>.pesallaccia.com`. Ahora consume `frontend/src/config/root-domain.ts`.
+- **Fix de subdominios de tenant:** `BrandingProvider` comparaba contra
+  `.pesallaccia.com` hardcodeado y no resolvía `gaiawellness.provecchio.com`;
+  ahora usa `isUnderRootDomain` / `tenantSubdomainFromHostname` sobre el dominio
+  raíz del despliegue.
+- **Config nueva:** `frontend/src/config/root-domain.ts` exporta `ROOT_DOMAIN`,
+  `SYSTEM_SUBDOMAINS`, `isLocalHostname`, `isUnderRootDomain` y
+  `tenantSubdomainFromHostname`; `App.tsx` y `public-storefront-page.tsx` la
+  consumen en lugar de constantes locales divergentes.
+- **Env files:** `.env.provecchio.example` y `.env.production.example` documentan
+  `VITE_ROOT_DOMAIN` / `VITE_SYSTEM_SUBDOMAINS`.
+- **Verificación:** `tsc --noEmit` OK; `check-version-sync.sh` OK.
+
 ## [1.46.4] - 2026-11-12
 
 ### 🐛 Frontend — Prefill de `storeName` en el registro (FEAT-195)

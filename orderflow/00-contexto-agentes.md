@@ -26,7 +26,7 @@ Ambos modos comparten el mismo schema Prisma y el mismo código de services. La 
 - Glosario Oficial de Términos & Infraestructura: [docs/GLOSARIO_TERMINOS_Y_ECOSISTEMA.md](docs/GLOSARIO_TERMINOS_Y_ECOSISTEMA.md)
 - Repo Traefik Gateway Subsystem: `https://github.com/marcelompz/traefik-orderflow.git` (servidor: `/srv/traefik`, local: `/opt/traefik-orderflow/`)
 - Servidor Hetzner VPS (Producción): `hetzner-orderflow:/srv/orderflow` (alias SSH configurado)
-  - Versión actual: **v1.24.04** (staging + production operativos).
+  - Versión actual: **v1.46.5** (provecchio.com en 1.46.5; pesallaccia.com en 1.40.2; staging LAN migrado al homeserver `192.168.100.204`).
 - Lenguaje: TypeScript en todo el stack.
 
 ---
@@ -36,10 +36,12 @@ Ambos modos comparten el mismo schema Prisma y el mismo código de services. La 
 | Capa | Tecnologías |
 |------|-------------|
 | **Backend** | NestJS 10, Prisma (PostgreSQL 15), JWT + API Keys |
-| **Frontend web** | React 18, Vite, Refine.dev, Ant Design 5, **Axios** (Cliente HTTP oficial) |
+| **Frontend web** | React 18, Vite, Refine.dev, Ant Design 5 (`theme.useToken()`), **Axios** (Cliente HTTP oficial) |
 | **Mobile** | React Native + Expo, Zustand, **Axios** (Cliente HTTP oficial) |
 | **DevOps** | Docker Compose, Traefik v3.4 (reverse proxy exclusivo & SSL), GitHub Actions, SSH deploy scripts |
 | **Observabilidad** | Winston (logs), Sentry (frontend), health checks |
+
+> 🎨 **Regla Obligatoria de Temas & Tokens UX/UI:** Queda estrictamente prohibido el uso de valores HEX estáticos o colores hardcodeados (`#fff`, `#000`, `#e2e8f0`, etc.) en componentes React o CSS inline. Todo desarrollo frontend debe consumir `const { token } = theme.useToken();` de Ant Design o las variables de CSS del sistema para garantizar compatibilidad nativa con modo claro/oscuro y legibilidad en todos los módulos.
 
 ---
 
@@ -184,7 +186,7 @@ Controller: `backend/src/tenants/tenants.controller.ts`.
 - **Variables de entorno:** `.env` (prod), `.env.staging`, `.env.production`, `.env.prod`. Claves críticas: `DATABASE_URL`, `JWT_SECRET`, `JWT_REFRESH_SECRET`, `MASTER_API_KEY`, `API_KEY_HEADER`, `CLOUDFLARE_API_TOKEN`, `SENTRY_DSN`, `VITE_SENTRY_DSN`, `GRAFANA_ADMIN_PASSWORD`, `ORDERFLOW_MODE` (`community` | `enterprise`), `ENTERPRISE_TENANT_ID` (solo en modo enterprise).
 - **Integración de Cloudflare / DNS Dinámica:** El token de la API de Cloudflare se configura en la variable `CLOUDFLARE_API_TOKEN` en `.env.staging` (para staging) y `.env` (para producción). El backend (`cloudflare-dns.service.ts`) utiliza este token al crear un Tenant para registrar automáticamente su subdominio como CNAME con la opción `proxied: false` (DNS Only / nube gris). Esto redirige el tráfico al host para que Traefik gestione el certificado SSL de producción de Let's Encrypt (evitando la limitación de handshake SSL de Cloudflare en subdominios de 4to nivel).
 - **Prisma:** `prisma/schema.prisma` es la fuente de verdad. Migraciones en `.gitignore`; en prod se usa `prisma db push`. Siempre regenerá el cliente tras cambiar el schema.
-- **CI/CD:** GitHub Actions (build + test + deploy a Hetzner VPS staging/production). Scripts en `scripts/` (`deploy-production.sh`, etc.).
+- **CI/CD:** GitHub Actions (build + test + deploy a production/provecchio). Staging LAN se despliega por SSH con `scripts/deploy-staging-homeserver.sh` y su enrutamiento se aplica con `scripts/apply-staging-k8s.sh`. Scripts en `scripts/` (`deploy-production.sh`, etc.).
 - **Backups:** `backups/` + scripts SFTP; retención 7 días.
 - **File Store por Tenant (OBLIGATORIO):** Todos los archivos generados o subidos por tenant deben almacenarse bajo `uploads/{tenantId}/{module}/...` dentro del working directory del backend. Esto garantiza aislamiento total entre tenants, coherencia con backups/restores y compatibilidad con `shared` y `dedicated`. Queda prohibido almacenar archivos de negocio en carpetas globales sin partición por `tenantId`.
 - **Observabilidad:** Prometheus endpoint `/metrics`, Winston logs JSON, Sentry (`instrument.ts`), health checks. Stack avanzado documentado en `docs/observability/` (Loki, Tempo, Grafana, Alertmanager).
@@ -195,12 +197,14 @@ OrderFlow tiene **tres entornos** diferenciados y **no son equivalentes**:
 
 | Entorno | Tipo | Estado | Notas |
 |---------|------|--------|-------|
-| **staging** | VPS Hetzner | Actualizable | Refleja `main`; se usa para validación pre-producción (`staging.pesallaccia.com`). |
+| **staging** | Homeserver LAN `192.168.100.204` | Actualizable | Refleja `main`; validación pre-producción. El proxy `:80/:443` es el **Traefik de k3s** (ServiceLB); el stack Docker se publica solo en la gateway CNI `10.42.0.1:3002/3010` y el ruteo vive en el namespace `orderflow-staging` (Ingress + EndpointSlices). TLS autofirmado (`https://orderflow.local`). Runbook: `deploy/staging/README.md`. |
 | **production** | VPS Hetzner | Actualizable | Entorno productivo principal (`pesallaccia.com`). Deploy con `docker-compose.prod.yml`. |
 | **provecchio** | Servidor físico | **Actualizable** | Versión in-house en producción (`provecchio.com`). Recibe deploys selectivos con validación previa. |
 
 **Regla operativa & Aislamiento de Traefik en Provecchio:**
-- `staging`, `production` y `provecchio` reciben deploy desde CI/CD o manual.
+- `staging` se despliega por SSH/rsync explícito al homeserver (`docker-compose.prod.yml` + `docker-compose.staging.yml`, `.env.staging` propio); **no** existe target `staging` en `scripts/deploy-production.sh`.
+- En el homeserver, k3s ocupa `:80/:443` con su ServiceLB. **No detener k3s ni desplegar un Traefik propio**: los contenedores de staging se publican solo en `10.42.0.1:3002/3010` y k3s enruta con `deploy/staging/k8s/`. Ver troubleshooting #216.
+- `production` y `provecchio` reciben deploy desde CI/CD o manual.
 - `provecchio` posee su propia instancia de Traefik en `/srv/traefik/` que habita de forma **100% aislada** de `/srv/orderflow/`. Tiene su propio `docker-compose.yml`, `.env`, `traefik.yml` y certificados `acme.json`.
 - Los cambios en este repositorio (`/opt/orderflow/`) se aplican a `provecchio` mediante `scripts/update-provecchio-version.sh` (hotfix quirúrgico) o deploy manual. Provecchio utiliza su propio `.env.prod` local (donde se encuentra `CF_DNS_API_TOKEN`).
 - **Diagnóstico 502 Bad Gateway:** Si `provecchio.com` arroja HTTP 502 o falla en la emisión de certificados SSL, consultar la guía de diagnóstico en [docs/troubleshooting/06-provecchio-traefik-ssl-and-502-diagnosis.md](troubleshooting/06-provecchio-traefik-ssl-and-502-diagnosis.md).
