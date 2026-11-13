@@ -6,7 +6,7 @@
 > **Acceso:** `ProxyJump root@38.52.135.227:2021` (la IP local no es alcanzable desde la oficina)
 > **Directorio remoto:** `/srv/orderflow`
 > **Target del script:** `./scripts/deploy-production.sh provecchio`
-> **Estado:** ✅ Completado y verificado (con una corrección posterior en dos servicios standalone)
+> **Estado:** ✅ Completado y verificado (los dos servicios standalone se reconstruyeron y quedaron `healthy` a las 03:21 del 2026-11-13)
 > **Autorización:** explícita del usuario (AGENTS.md §3.1.1 y regla 9)
 
 ---
@@ -84,7 +84,7 @@ Extras: `REQUIRED_ENV_VARS` por target (`DATABASE_URL`/`REDIS_URL` los compone e
 | 18:48 | Health checks | ✅ host y vía SSH: `1.46.5` |
 | 18:48 | E2E Playwright post-deploy | ✅ catálogo, dominio, auth/DB y 8 rutas `/admin` |
 | 18:51 | Deploy finalizado | ✅ `Production Deploy Complete` |
-| 21:35–03:1x | Rebuild de los dos standalone con lockfiles corregidos | ✅ `npm ci` superado, build en curso |
+| 21:35–03:21 | Rebuild de los dos standalone con lockfiles corregidos | ✅ ambos `healthy` con imagen nueva (`OmniSync` :3015, `OmniBI` :3027) |
 
 ---
 
@@ -123,14 +123,14 @@ GET https://provecchio.com/api/v1/health  → 200
 | 1 | El diagnóstico reportaba `Could not determine remote backend version` | Contenedores `orderflow-*-prod` inexistentes | Detección por target + fallback a `/api/v1/health` |
 | 2 | `DATABASE_URL` figuraba como faltante | La compone `docker-compose.provecchio.yml` desde `POSTGRES_*` | `REQUIRED_ENV_VARS` por target + `COMPOSE_PROVIDED_ENV_VARS` |
 | 3 | `backup-production.sh` no generaba `*_backup_info.json` | Exigía un `.env.provecchio` local inexistente y el alias SSH no define ProxyJump | Resolución por target con `SSH_OPTS` |
-| 4 | `sync_standalone` y `omnibi_standalone` se recrearon con imagen vieja | Lockfiles sin `@orderflow/auth-shared` → `npm ci` fallaba | Lockfiles regenerados con npm de `node:20-slim`, subidos y reconstruidos |
+| 4 | `sync_standalone` y `omnibi_standalone` se recrearon con imagen vieja | Lockfiles sin `@orderflow/auth-shared` → `npm ci` fallaba (`EUSAGE`) | ✅ Resuelto: lockfiles regenerados con el npm de `node:20-slim` (el del host toleraba el lock viejo), subidos por scp y reconstruidos; ambos `healthy` a las 03:21 |
 | 5 | Réplica `orderflow-database-replica-prod` en loop | No alcanza el primario `178.105.226.175:5432` | Pendiente (ruido operacional, no bloquea) |
 
 ---
 
 ## 8. Pendientes
 
-1. **Cerrar el rebuild de `sync_standalone` y `omnibi_standalone`** (en curso) y confirmar ambos `healthy` con la imagen nueva.
+1. ~~Cerrar el rebuild de `sync_standalone` y `omnibi_standalone`~~ ✅ ambos `healthy` con imagen nueva (2026-11-13 03:21).
 2. **Réplica de Provecchio**: decidir si se retira del compose o se apunta a un primario válido.
 3. **`pesallaccia.com`**: replicar el patrón de env file por target (`VITE_ROOT_DOMAIN` explícito) aunque `docker-compose.prod.yml` ya tenga default.
 4. **Nuevo target `nodo`** (`161.97.89.188`): alta pendiente como tenant de producción (host ya validado: Ubuntu 24.04, Docker 29.8.2, `/srv` vacío).
